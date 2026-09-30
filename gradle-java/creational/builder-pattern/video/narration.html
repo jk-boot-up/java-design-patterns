@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Builder Pattern Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Builder Pattern Pattern — Video Narration Script</h1>
+<h2>1. Builder Pattern</h2>
+<p>Hello, and welcome. This video explains the Builder pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. The Builder pattern creates an object one piece at a time. Instead of a constructor with a long list of arguments, you call a named method for each part you want. In any order. Then one final method checks everything, and hands back the finished object. Think of ordering at a sandwich counter. You name the bread, then each filling, one at a time. And they only make it when you say, that&#x27;s everything. In this video, we build a purchase order for an online store. By the end, you will know why two famous books both recommend this pattern. And how it works together with a static factory method.</p>
+<h2>2. The Job</h2>
+<p>Here is the job: building a purchase order. Two things are always required. An order I D and a customer I D. And at least one item, with a shipping address. On top of that, there are five independent, optional extras. Gift wrapping. A gift message. A coupon code. Priority shipping. And a free-text note. Any order might have none of those, or all of them, in any combination.</p>
+<h2>3. The Constructor With Nine Parameters</h2>
+<p>So you write the constructor everyone starts with. Nine parameters, one for every fact this order might need. Now imagine reading a call to it. Nine values in a row, separated by commas. Is this a priority order, or a gift order? You have to count commas, and check against the parameter list, to know. And there are two true-or-false values in there. Swap them by accident, and the compiler says nothing at all.</p>
+<h2>4. Telescoping Constructors</h2>
+<p>The next idea is to add shorter constructors, for the common cases. But then a gift order without priority needs one version. A gift order with a coupon needs another. Every new combination needs a brand new constructor. Or you fall back to the nine-parameter one anyway. The book Effective Java has a name for this: the telescoping constructor. And it is named as a warning, not as something to copy.</p>
+<h2>5. Why That Hurts</h2>
+<p>And that costs you in five ways. One. The calling code no longer says what it means. Two. Most calls are full of nulls, and false values, because most orders use few options. Three. The order of the parameters is arbitrary, and nothing enforces it. Four. Every new option widens the constructor, and touches every caller. Five. There is nowhere to put a rule like, a gift message means the order must be gift wrapped. A constructor just stores values. Notice that the purchase order itself is fine. The problem is the way in.</p>
+<h2>6. The Builder Pattern</h2>
+<p>The fix is a pattern from the famous Gang of Four book. Separate the construction of a complex object from its representation, so the same process can create different results. In plain words: build the object one piece at a time, in any order. And check it is complete only when you say you are done. It is also item two in the book Effective Java. Both books describe the same code, from two angles.</p>
+<h2>7. A Made-to-Order Sandwich Counter</h2>
+<p>Here is an analogy: a made-to-order sandwich counter. You do not shout your whole order through the hatch at once. You name the bread. Then a filling. Then another. Then any extras you want. You never list all the toppings you do not want. And they do not start making it until you say, that&#x27;s everything. If you say that with no fillings at all, they can refuse. That is exactly the shape of a builder. Build it up piece by piece, and check it only at the end.</p>
+<h2>8. The Shape of It</h2>
+<p>So here is the shape of it. There is exactly one way in. A static method called builder, on the purchase order class, which takes the two required I Ds. It hands back a Builder object. Every method on the Builder returns that same Builder. So the calls can be chained, one after another, in a single statement. Only the final build method does two things. It checks the order is complete. And it creates the finished, unchangeable purchase order. The purchase order&#x27;s own constructor is private. The Builder is the only way to create one.</p>
+<h2>9. Required Facts, Optional Pieces</h2>
+<p>Here is how the code handles required and optional parts. The two facts that are always required, the order I D and the customer I D, are the Builder&#x27;s only constructor arguments. And you reach that constructor through the static builder method. Every optional piece starts with a sensible default. It has no constructor argument at all. So there is nothing to skip past, because there was never a position for it.</p>
+<h2>10. One Method, One Piece</h2>
+<p>Every Builder method follows the same shape. Set one piece, then return the Builder itself. Returning the same Builder is what lets the next call chain straight on. So creating an order reads like a sentence. Builder, add a mug, add a book, set the shipping address, mark it priority, and build. Compare that with the nine-parameter constructor. Now every piece announces itself by name, in whatever order you wrote it.</p>
+<h2>11. A Rule That Lives in One Place</h2>
+<p>Here is something a plain set of setters could never give you. Setting a gift message also marks the order as gift wrapped. Because a gift message on an unwrapped box makes no sense. And that rule lives in exactly one place. Not repeated at every call. Not left to a comment that says, remember to wrap it. It is enforced once, inside the one method that can enforce it.</p>
+<h2>12. Checked Only When You Say You&#x27;re Done</h2>
+<p>And this is the moment the order is checked for completeness. Not when an item is added, and not when the address is set. Only in build. If there are no items, build refuses, saying a purchase order needs at least one item. If there is no address, it refuses, saying a purchase order needs a shipping address. Why can&#x27;t an earlier method check this? Because adding an item cannot know whether you are about to add more, or whether you are finished. Only build marks the moment you say you are done.</p>
+<h2>13. The Product Stops Watching the Builder</h2>
+<p>One more detail, easy to miss, and important. When build creates the order, it takes a copy of the Builder&#x27;s list of items. A snapshot, not the same list. So imagine keeping the same Builder, adding another item, and building a second order. The first order has one item. The second has two. The first order did not silently gain the new item. Once build returns, the order no longer depends on the Builder at all.</p>
+<h2>14. The Director, the Java Way</h2>
+<p>The Gang of Four book describes one more role, called the Director. Its job is to know fixed recipes for common orders. In everyday Java, a director is usually just a static method. Here, a class called Purchase Order Presets has a method called express order. It sets the address, marks it priority, adds a same-day shipping note, and adds the items. Notice that the preset only ever uses the Builder&#x27;s public methods. So the purchase order&#x27;s private details can change tomorrow, and not one preset needs to change.</p>
+<h2>15. Running It</h2>
+<p>Let&#x27;s run the demo. First, one order built by hand, with a gift message and a coupon. It is gift wrapped automatically, because it has a message. Then three presets: a gift order, a standard order, and an express order. Each one does exactly what its name says. Then the reused Builder. The first order has one item, and the second has two. Neither affects the other. And finally, two orders are rejected on purpose. One with no items, and one with no address. Both are caught before any purchase order is ever created.</p>
+<h2>16. Where It Stops</h2>
+<p>Now the honest part. Every pattern has limits. First, a builder is an extra object. For every order you build, a Builder exists briefly too. For an order placed a few times a second, that costs nothing. For something created millions of times in a tight loop, it is worth thinking about. Second, it is more code to write, for a type with few choices to make. That is why this project&#x27;s line items and addresses are plain records, with ordinary constructors. Two or three required values, and no options. A builder there would be ceremony for no reason.</p>
+<h2>17. How It Relates to the Others</h2>
+<p>So how does the Builder relate to the other creational patterns? A static factory method answers: give me one that does this. A simple factory answers: which one? using a helper with a switch. An abstract factory answers: which whole matching set? And a builder answers a different question. Not which object, but which pieces, for one object, built up gradually. And they are not rivals. The builder method on the purchase order is itself a static factory method. It just returns something that collects more information, before building anything.</p>
+<h2>18. One Sentence to Keep</h2>
+<p>If you keep one sentence from this video, keep this one. A constructor makes you decide the whole object in one call. A builder lets you decide it one piece at a time, and checks it is complete only when you say you are done. The project has full notes, an animated walkthrough, and a teaching plan. Try adding an option of your own to the purchase order. That is the best way to make it stick.</p>
+<h2>19. Thanks for Watching</h2>
+<p>That&#x27;s the Builder pattern. The full source code, written notes, and diagrams are all in the repository. If there is a pattern you would like to see covered, suggest it in the comments. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

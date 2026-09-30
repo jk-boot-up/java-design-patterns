@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The API Gateway Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The API Gateway Pattern, Explained</h1>
+<h2>In One Sentence</h2>
+<p>Put one service in front of all the others, so a client makes a single call instead of five and only has to know one address.</p>
+<p>That is the whole pattern. Everything below is about why that is worth doing, what it costs, and where the line is that a gateway must not cross.</p>
+<h2>Everyday Analogy: The Hotel Reception Desk</h2>
+<p>Imagine staying in a hotel. You want extra towels, a table for dinner, and a taxi to the station in the morning.</p>
+<p>You could deal with each department yourself. You would need the direct number for housekeeping, the direct number for the restaurant, and the direct number for the concierge. You would have to know which department handles what. And when the hotel reorganises — the restaurant is outsourced, the concierge desk moves — your list of numbers is wrong and nobody tells you.</p>
+<p>So hotels have a reception desk. You ring one number. You say what you want. Reception knows who handles towels and who handles taxis, and reception deals with them. You have one number to remember, and it does not change when the hotel changes.</p>
+<p>That is an API gateway. The reception desk is a real, staffed thing that has to be there and can be closed, which is a cost — but for a guest with three requests it is unarguably better than three phone numbers.</p>
+<p>Notice one more thing about reception, because it is the part people get wrong when they build gateways. Reception does not decide what dinner costs. It takes your booking and passes it to the restaurant, and the restaurant decides. A reception desk that started setting menu prices would be a strange and troublesome hotel.</p>
+<h2>The Problem, In The Shop</h2>
+<p>Now the online store. A shopper opens a product page in the mobile app, and that page shows four things:</p>
+<ul><li>the product name and description, which belong to the <strong>Catalog</strong> service;</li><li>the price, which belongs to <strong>Pricing</strong>;</li><li>whether it is in stock, which belongs to <strong>Inventory</strong>;</li><li>&quot;customers also bought&quot;, which belongs to <strong>Recommendations</strong>.</li></ul>
+<p>Four separate services, because they change on different schedules and are looked after by different people. That separation is a good thing and nobody wants to undo it.</p>
+<p>But the app is on a phone, possibly on a train. A round trip from a phone to the data centre takes roughly two hundred milliseconds. A round trip between two services <em>inside</em> the data centre takes roughly ten. Twenty times the cost, per call — and the app needs four calls.</p>
+<p>So the obvious version of the app waits eight hundred milliseconds to draw one product page. It also checks the shopper&#x27;s access token four times, because each service quite reasonably insists on being told who is asking. And it treats all four services as equally essential, which means the day Recommendations goes down, a shopper who wanted to know what an espresso machine costs gets an error page instead.</p>
+<p>That last one is the interesting failure, so it is worth being precise about it. The name arrived. The price arrived. The stock level arrived. All three were thrown away, because the fourth call — for a feature nobody would miss — failed.</p>
+<h2>The Pattern</h2>
+<p>Add one service, the gateway. It lives in the data centre, next to the others. The app calls it once and gets back everything the product page needs.</p>
+<p>Four things move into the gateway, and one thing deliberately does not.</p>
+<p><strong>One network crossing instead of four.</strong> The app makes one slow trip. The gateway then makes four fast trips inside the data centre. Two hundred plus four tens is two hundred and forty milliseconds, against eight hundred.</p>
+<p><strong>One token check instead of four.</strong> The gateway checks the shopper&#x27;s access token once, at the edge. The services behind it are inside the trusted network and do not need to check again. A forged token is rejected before any service is troubled by it at all.</p>
+<p><strong>One response shape instead of four.</strong> The app receives a single object shaped the way the screen wants to display it. It never learns four addresses, four response formats, or which service owns which field. When Pricing changes its response, the gateway absorbs the change — no app-store release.</p>
+<p><strong>Knowledge of which services matter.</strong> This is the part that is easy to miss and is the most valuable. The gateway knows Recommendations is optional and that everything else is not. So a Recommendations failure produces a product page with no suggestions on it, which is a perfectly good product page, and a Pricing failure produces an honest error, because a page with no price on it is worse than no page at all.</p>
+<p>And the thing that does not move in: <strong>business decisions</strong>. The gateway does not apply discounts, does not decide whether a product may be sold, does not compute totals. It passes Pricing&#x27;s answer through unaltered. A gateway that starts making business decisions becomes a service that owns no data but makes rulings about everybody else&#x27;s, and it turns into the hardest thing in the system to change. There is a test in this project whose only job is to hold that line.</p>
+<h2>Participants</h2>
+<table><thead><tr><th>Role</th><th>Type here</th><th>What it does</th></tr></thead><tbody><tr><td>Gateway</td><td><code>ProductPageGateway</code></td><td>Checks the token once, calls the four services, decides which failures matter, returns one page</td></tr><tr><td>Client</td><td><code>MobileApp</code></td><td>Knows one address and makes one call</td></tr><tr><td>Naive client</td><td><code>NaiveMobileApp</code></td><td>The version without a gateway. Correct, and expensive</td></tr><tr><td>Downstream services</td><td><code>CatalogService</code>, <code>PricingService</code>, <code>InventoryService</code>, <code>RecommendationsService</code></td><td>Each owns one thing and knows nothing about pages</td></tr><tr><td>Network fabric</td><td><code>StoreServices</code></td><td>The four services reachable at a given latency — ten milliseconds internally, two hundred from a phone</td></tr><tr><td>Composed answer</td><td><code>ProductPage</code></td><td>The one object the app receives</td></tr><tr><td>Edge authentication</td><td><code>AuthService</code></td><td>Checks a token and says who is asking. Counts its checks, so the demo can show the difference</td></tr><tr><td>Harness</td><td><code>SimulatedClock</code>, <code>RemoteCall</code>, <code>CallLog</code></td><td>Simulated time, simulated remote calls with scripted failures, and the timeline</td></tr></tbody></table>
+<h2>Code Walkthrough</h2>
+<p>The gateway&#x27;s one method reads as a list of four questions and one judgement:</p>
+<pre><code>public ProductPage productPage(String token, String sku) {
+    Customer customer = auth.check(token);          // once, at the edge
+
+    Product product = services.catalog().invoke(sku);
+    Money price = services.pricing().invoke(sku);
+    boolean inStock = services.inventory().invoke(sku);
+    List&lt;String&gt; recommended = recommendationsOrNone(sku);
+
+    return new ProductPage(sku, product.name(), product.description(),
+            price, inStock, recommended);
+}</code></pre>
+<p>Three of those four calls have no error handling at all. If Catalog fails, the exception travels straight out to the app, and the app shows an error. That is intentional: there is no useful product page without a name.</p>
+<p>The fourth call is different, and it is the only <code>catch</code> in the class:</p>
+<pre><code>private List&lt;String&gt; recommendationsOrNone(String sku) {
+    try {
+        return services.recommendations().invoke(sku);
+    } catch (ServiceUnavailableException e) {
+        log.note(&quot;Gateway&quot;, &quot;DEGRADED&quot;, &quot;page served without suggestions&quot;);
+        return List.of();
+    }
+}</code></pre>
+<p>An empty list of suggestions and a failed Recommendations service produce the same page, because a page with no suggestions is normal. Notice that the decision is written into the log. Nobody tells the shopper anything is wrong — for them nothing is — but the shop can see it happened.</p>
+<p>The version without a gateway does the same work and pays for it four times:</p>
+<pre><code>auth.check(token);
+Product product = services.catalog().invoke(sku);
+
+auth.check(token);
+Money price = services.pricing().invoke(sku);
+
+auth.check(token);
+boolean inStock = services.inventory().invoke(sku);
+
+auth.check(token);
+List&lt;String&gt; recommended = services.recommendations().invoke(sku);</code></pre>
+<p>There is nothing stupid about that code. It is the obvious thing to write and it returns the correct page. Its problems are not bugs you could spot by reading it — they are counts and timings, which is why they need a timeline to see.</p>
+<h2>What The Timeline Shows</h2>
+<p>Run <code>./gradlew run</code>. Two of its four acts are the whole argument.</p>
+<p>Without a gateway:</p>
+<pre><code>      0ms -&gt;   200ms  Catalog          OK        Barista Pro Espresso Machine
+    200ms -&gt;   400ms  Pricing          OK        £449.99
+    400ms -&gt;   600ms  Inventory        OK        true
+    600ms -&gt;   800ms  Recommendations  OK        [SKU-2001, SKU-2002]
+  four round trips over the mobile network, 4 token checks, shopper waited 800ms</code></pre>
+<p>With one:</p>
+<pre><code>      0ms -&gt;   240ms  Gateway          OK        Barista Pro Espresso Machine  £449.99  in...
+    100ms -&gt;   100ms  Gateway          AUTH      one token check for CUST-001
+    100ms -&gt;   110ms  Catalog          OK        Barista Pro Espresso Machine
+    110ms -&gt;   120ms  Pricing          OK        £449.99
+    120ms -&gt;   130ms  Inventory        OK        true
+    130ms -&gt;   140ms  Recommendations  OK        [SKU-2001, SKU-2002]
+  1 round trip over the mobile network, 1 token check, shopper waited 240ms</code></pre>
+<p>The gateway&#x27;s own call opens the timeline and closes it two hundred and forty milliseconds later. Everything else happens <em>inside</em> that trip, which is why the four internal calls are all stamped between one hundred and one hundred and forty milliseconds — they are happening while the response is still notionally in flight.</p>
+<p>Then Recommendations goes down. Without a gateway, three answers arrive and are discarded with an error and the shopper never finds out the price. With a gateway, the same failure produces a page with no suggestions and a <code>DEGRADED</code> line in the log, and the shopper notices nothing.</p>
+<h2>A Note On What This Project Is Not</h2>
+<p>There is no network here, and that is deliberate.</p>
+<p>Everything runs in one JVM. A service is a plain class, a remote call is <code>RemoteCall</code>, and time is a <code>SimulatedClock</code> that the tests move by hand. Nothing starts, nothing listens on a port, and there is no Docker, Spring, broker or database anywhere in the project.</p>
+<p>What that gives you is the pattern&#x27;s shape, honestly: what objects exist, what each decides, where the <code>catch</code> goes and why it goes there rather than somewhere else. That shape is identical whether the call underneath is a method call or an HTTP request, and it is the part that is hard to learn.</p>
+<p>What it does not give you is a distributed system. Deployment, service meshes, partial network partitions, real timeouts, capacity planning and the experience of being paged at three in the morning are all absent. When you finish this project you will know what an API gateway is and could write one. You will not have run one in production. Those are different things, and it would be dishonest to blur them.</p>
+<h2>Why The Tests Are The Proof</h2>
+<p>Both versions return the same product page. So a test that asserts the page is correct proves nothing about the pattern — it would pass on the naive version too.</p>
+<p>Every test here asserts something only the gateway gives you:</p>
+<ul><li>the app crosses the mobile network exactly <strong>once</strong>;</li><li>the token is checked exactly <strong>once</strong>, not once per service;</li><li>the elapsed time is 240ms against the naive 800ms;</li><li>Recommendations failing still produces a page, and the degradation is logged;</li><li>Pricing failing does <strong>not</strong> produce a page, because a priceless page is worse than an error;</li><li>Catalog failing stops the sequence rather than pricing a product whose name could not be fetched;</li><li>a forged token costs the services nothing, because it is rejected at the edge;</li><li>the price on the page is Pricing&#x27;s answer <strong>unmodified</strong> — the test that holds the business-logic line;</li><li><code>MobileApp</code> has exactly two public methods, so there is nowhere for a service address to leak into the client.</li></ul>
+<p>The tests on <code>NaiveMobileApp</code> all pass too, and are written to record its costs rather than to mock it. One of them pins the genuine bug: when Recommendations fails, three successful answers are thrown away.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>One round trip from the client.</strong> On a mobile connection this is the single largest thing you can do for a page&#x27;s speed.</li><li><strong>A place to put edge concerns.</strong> Authentication, rate limiting, request logging, correlation ids: things every request needs and no individual service should reimplement.</li><li><strong>Freedom to change the services.</strong> Split Pricing in two, move Inventory, rename a field — the client does not know and does not need a release.</li><li><strong>A place to make availability decisions.</strong> The judgement that Recommendations is optional has to live <em>somewhere</em>. In the gateway it is written once. In five clients it is written five times, differently.</li></ul>
+<h2>What To Watch Out For</h2>
+<ul><li><strong>It is a new single point of failure.</strong> Everything now goes through it. It needs to be deployed, monitored and made redundant, and when it is down, the shop is down.</li><li><strong>It attracts business logic.</strong> Every quarter somebody will want to put &quot;just one small rule&quot; in the gateway because it is the only place that can see everything. Each one is reasonable. The sum of them is a distributed monolith with a bottleneck in the middle.</li><li><strong>It becomes a bottleneck for teams, not just traffic.</strong> If every new field on every screen needs a change in the gateway, and one team owns the gateway, that team is now in the way of everybody.</li><li><strong>It is overhead when you are small.</strong> One client and three services do not need a gateway. The pattern earns its keep when there are several clients, or the client is remote and slow, or the number of services is growing.</li><li><strong>Fallbacks can lie.</strong> Returning an empty list when Recommendations fails is fine because empty suggestions are a normal state. Returning a <em>cached price</em> when Pricing fails would be a serious bug dressed up as resilience. A fallback that hides a real failure is worse than an error.</li></ul>
+<h2>API Gateway vs. Facade</h2>
+<p>They are the same shape one process boundary apart, and the honest answer to &quot;is a gateway just a facade?&quot; is &quot;almost&quot;.</p>
+<p>A <strong>facade</strong> — <code>structural/facade-pattern</code> in this repository — gives a caller in the same program one simple method over several complicated subsystems. It is a class. It cannot be down. It costs nothing to call.</p>
+<p>A <strong>gateway</strong> does that <em>and</em> three things a facade never does. It crosses a network, so the number of crossings is the point rather than a detail. It terminates authentication, because the boundary it sits on is a trust boundary. And it is a deployable, separately-running thing, which means it can be down, needs monitoring, and has a version.</p>
+<p>The question to ask: <strong>does the thing I am hiding sit on the other side of a network and a trust boundary?</strong> If not, you want a facade, and you should not pay for a gateway.</p>
+<p>Two other comparisons are worth a sentence. A gateway is not an <strong>adapter</strong> — adapters translate one interface into another for a single collaborator, while a gateway aggregates several. And a <strong>Backend for Frontend</strong> is a gateway per client type: one for the mobile app, one for the web, one for the in-store tills, each shaped for its own screen. It is the same pattern, applied once per audience, which is what you reach for when one gateway starts trying to please everybody.</p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><strong>A shop assistant.</strong> You ask one person where the coffee machines are, and they know whether that is a stockroom question or a display question.</li><li><strong>A GP surgery.</strong> You describe a symptom to one doctor, who decides which specialist to refer you to. You do not need to know which specialist exists.</li><li><strong>A travel agent.</strong> One conversation instead of a flight, a hotel and a car, and one point of contact when something changes.</li><li><strong><code>nginx</code> in front of anything.</strong> Every reverse proxy you have configured is doing the routing half of this pattern.</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li><strong>Add a fifth field to the page</strong> — say a delivery estimate from <code>Shipping</code>. Notice you change the gateway and the page record, and <code>MobileApp</code> does not change at all. Then add the same field to <code>NaiveMobileApp</code> and count the changes.</li><li><strong>Make Pricing optional and see how bad it feels.</strong> Wrap the Pricing call in the same try/catch and return a price of zero. The test suite will let you. Then look at the page it produces and decide whether you would ship it.</li><li><strong>Move the token check inside the loop.</strong> Make the gateway check the token before every internal call, then look at <code>auth.checks()</code>. This is what happens when a gateway does not actually terminate authentication.</li><li><strong>Break the business-logic line on purpose.</strong> Apply a ten per cent discount inside the gateway. One test fails. Read what it says, and decide whether the test is being unhelpful or whether it is right.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the scenario in full, and the version without a gateway</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — the types and what depends on what</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — both sequences, including the failure</li><li><a href="animation.html"><code>animation.html</code></a> — the timeline, stepped through one call at a time</li><li><a href="../../../structural/facade-pattern"><code>../../structural/facade-pattern</code></a> — the same shape inside one program</li><li><a href="../../docs/spec.html"><code>../docs/spec.md</code></a> — the category specification this project is built to</li></ul>
+</main>
+<footer>
+Generated from <code>api-gateway-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

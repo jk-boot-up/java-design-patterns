@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feature Toggle with flagd Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Feature Toggle with flagd Pattern — Video Narration Script</h1>
+<h2>1. Feature Toggle with flagd</h2>
+<p>Hello, and welcome. This video explains the Feature Toggle pattern with flagd and OpenFeature, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the Feature Toggle video. That one put gift wrap behind a table of switches read at run time. It showed the feature deployed dark, switched on for some customers, turned off by a kill switch, and safe when the table cannot be read. This one shows the same idea inside flagd and OpenFeature. The plain definition, in short: with flagd, a flag is an entry in a file that a daemon watches. The application asks the daemon whether a flag is on for a customer. By the end you will see a real flag daemon serve a flag that is off, see the file edited and the daemon notice by itself, see a rollout to a share of customers and to named testers, see a kill switch, see the checkout fall back when the daemon is stopped, and see the bill.</p>
+<h2>2. The Partner Project</h2>
+<p>This video assumes the Feature Toggle video. If you have not seen it, start there. It puts gift wrap behind a table of switches, and shows a dark deploy, a rollout, a kill switch, and a safe default. This one uses the same example. It does not teach the pattern again. It shows what flagd and OpenFeature does with it.</p>
+<h2>3. Before The First Line</h2>
+<p>Before the first line of code, what flagd and OpenFeature is. Open Feature is a standard way to ask whether a feature is on. Flagd is a small daemon that answers that question. It reads its flags from a file, notices when the file changes, and needs no restart. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.</p>
+<h2>4. Deploying Is Releasing</h2>
+<p>First, deploying is releasing. Gift wrap goes live by deploying it: one deploy. It has a bug, so taking it away is another: two deploys. Each deploy ships every other change waiting in the branch too.</p>
+<h2>5. Deploy Dark, Switch Later</h2>
+<p>Second, deploy dark, switch later. Gift wrap is in the deployed code, and flagd has it off. An order of five thousand costs five thousand. The flags file is edited, and flagd notices by itself: no deploy, no restart. The same order costs fifty three hundred.</p>
+<h2>6. Switch On For Some</h2>
+<p>Third, switch on for some. A ten percent rollout, decided by flagd&#x27;s own hash of the customer. Of a hundred customers, about a tenth got it. Then only two named testers: of a hundred customers, two got it.</p>
+<h2>7. The Kill Switch</h2>
+<p>Fourth, the kill switch. Gift wrap has a bug. With twenty percent on, about a fifth of a hundred orders failed. One edit to the file turned it off. Of a hundred orders, none failed. No deploy.</p>
+<h2>8. When flagd Cannot Be Reached</h2>
+<p>Fifth, when flagd cannot be reached. Flagd is up, and an order of five thousand costs fifty three hundred. Flagd is stopped, and it costs five thousand. The order still works, and every feature falls back to off.</p>
+<h2>9. The Bill</h2>
+<p>Last, the bill. A shop with five flags would have thirty two possible combinations. The tests usually run one. Flagd is another process to run and keep up, and every flag check is a network call: this demo made hundreds. And a flag that is settled and still in the file is an if that nobody needs. Flagd does not remove it for you.</p>
+<h2>10. The Verdict</h2>
+<p>My verdict, plainly. Keep flags in a file or service that a daemon serves, and change them there, not in code. Rollouts by hash are repeatable, so the same customers stay in. Decide what happens when the daemon is down: off is the safe answer. And remove settled flags.</p>
+<h2>11. How To Recognise It</h2>
+<p>How do you recognise this in code you did not write? A flags.json with variants, defaultVariant and targeting. An OpenFeature client, client.getBooleanValue(...). A fractional rule for a percentage rollout.</p>
+<h2>12. Where You Have Met This</h2>
+<p>You have met this in companies that use openfeature with launchdarkly, flagsmith, unleash or their own service.</p>
+<h2>13. What Was Used</h2>
+<p>For the record. flagd, latest, built September tenth, twenty twenty six. Docker, 24 or later.</p>
+<h2>14. What Is Real Here</h2>
+<p>The same honest admission as everywhere in this course. Everything is real: a real flagd in a container, a real file it watches, and real HTTP calls. The rollout is by flagd&#x27;s own hash, so the same customers are picked on every run.</p>
+<h2>15. When This Is Too Much</h2>
+<p>So when is it too much? For a handful of switches that change with each release, a setting in the deployment is enough. A daemon adds a process and a network call to every check.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s Feature Toggle with flagd. If you take one sentence away, take this one: a real flag daemon turns a file edit into a release, and the price is a process to run and a call for every check. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, add a second flag for express shipping, and turn it on for the named testers. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

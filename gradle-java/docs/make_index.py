@@ -416,8 +416,8 @@ def to_html(md, title):
     ms.LINK_BASE = REPO
     return ("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n"
             "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
-            "<title>%s</title>\n<style>%s</style>\n</head>\n<body>\n<main>\n%s\n</main>\n"
-            "</body>\n</html>\n" % (html.escape(title), ms.CSS, _ids(ms.to_html(md))))
+            "<title>%s</title>\n<style>%s</style>\n%s\n</head>\n<body>\n%s\n<main>\n%s\n</main>\n"
+            "</body>\n</html>\n" % (html.escape(title), ms.CSS, ms.THEME_HEAD, ms.THEME_BAR, _ids(ms.to_html(md))))
 
 
 def _ids(body):

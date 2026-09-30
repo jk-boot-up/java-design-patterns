@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>This project is written for beginners. If you can read a Java method and follow a <code>for</code> loop, you have enough. Everything else is explained as it arrives.</p>
+<p>There is no network, no Docker, no Kubernetes, no proxy server and no cloud account. The whole project runs offline with a JDK and nothing else — which is slightly funny, because the pattern is about running a second <em>process</em> beside your service. Tier 1 teaches the shape and the arithmetic in one program, and is honest in four separate places that it is doing so. The real second process lives in <code>real/</code>, and you do not need it to understand anything here.</p>
+<hr>
+<h2>Knowledge Prerequisites</h2>
+<h3>Required</h3>
+<ul><li><strong>Java basics</strong> — classes, methods, fields, and reading a stack trace.</li><li><strong>Exceptions</strong> — <code>throw</code>, <code>catch</code>, and the idea that catching one lets you try again rather than give up.</li><li><strong>Collections</strong> — <code>List</code> and <code>Map</code>, and a <code>for</code> loop over a list.</li><li><strong>The idea that one program can call another over a network, and that the call can fail for reasons that have nothing to do with either program.</strong></li></ul>
+<h3>Helpful, but explained as we go</h3>
+<ul><li><strong>Records</strong> — Java&#x27;s short syntax for &quot;a value with named fields&quot;. Primer below.</li><li><strong>Retry with backoff</strong> — the loop at the centre of this project. Primer below.</li><li><strong>Idempotency</strong> — why charging the same card twice does not take money twice here. Primer below.</li><li><strong>Reflection</strong> — exactly one test asks a class which methods it declares, in order to assert that a method is <em>missing</em>. It is four lines and it is explained where it appears.</li></ul>
+<h3>Explicitly NOT required</h3>
+<ul><li>Any experience with Kubernetes, Istio, Envoy, Linkerd or nginx. Those names appear in the explained document as places you have already met this pattern, not as things you have to install.</li><li>Any experience with Docker or containers.</li><li>Any concurrency knowledge. Everything runs on one thread, in order, on a simulated clock that never actually sleeps.</li><li>Any real payment provider. <code>PaymentGateway</code> is forty lines and fails on purpose.</li></ul>
+<hr>
+<h2>A 60-Second &quot;Record&quot; Primer</h2>
+<p>A <code>record</code> is Java&#x27;s short way of saying &quot;a value made of these named fields&quot;.</p>
+<pre><code>public record SidecarConfig(int maxAttempts, long firstBackoffMillis,
+                            long deadlineMillis, String tlsProfile) { }</code></pre>
+<p>That one line gives you a constructor taking all four values, a getter for each named after the field — <code>config.maxAttempts()</code>, not <code>config.getMaxAttempts()</code> — and value equality.</p>
+<p>Records are immutable, and here that is the point rather than a detail. Four proxies share <strong>one</strong> <code>SidecarConfig</code> object. If any of them could edit it, the four copies would be back, just harder to see.</p>
+<hr>
+<h2>A 60-Second &quot;Retry With Backoff&quot; Primer</h2>
+<p>When a call fails for a reason that might clear on its own, the sensible thing is to wait and ask again. Waiting a <em>little longer each time</em> is called <strong>backoff</strong>.</p>
+<pre><code>long backoff = firstBackoffMillis;
+for (int attempt = 1; attempt &lt;= maxAttempts; attempt++) {
+    try {
+        return gateway.charge(NAME, payment, clock.now());
+    } catch (PaymentFailed failure) {
+        if (attempt &lt; maxAttempts) {
+            clock.waitFor(backoff);
+            backoff *= 2;          // 200ms, then 400ms, then 800ms
+        }
+    }
+}</code></pre>
+<p>Three numbers control it: how many attempts, how long the first wait is, and when to abandon the whole thing however many attempts are left. Those three plus the TLS profile are the four decisions this project is about.</p>
+<p>Read that loop carefully once, because you are going to see it <strong>five times</strong> — once in each of four services and once in the proxy. That repetition is not sloppy writing. It is the problem, typed out.</p>
+<hr>
+<h2>A 60-Second &quot;Idempotency&quot; Primer</h2>
+<p>If a payment attempt fails, you cannot always tell whether the provider took the money before it failed. Retrying might charge the customer twice.</p>
+<p>The way out is an <strong>idempotency key</strong>: the caller sends the same key with every attempt for the same payment, and the provider promises that the second charge with a key it has already seen returns the <em>first</em> result rather than taking more money.</p>
+<pre><code>public static Payment of(String orderRef, int amountPence) {
+    return new Payment(orderRef, amountPence, &quot;idem-&quot; + orderRef);
+}</code></pre>
+<p><code>PaymentGateway</code> honours this with one line — <code>charged.computeIfAbsent(key, ...)</code>. It matters here because a project whose central mechanism is &quot;try again&quot; would be teaching you something dangerous if it quietly took the money twice.</p>
+<hr>
+<h2>A 60-Second &quot;Who Is Counting?&quot; Primer</h2>
+<p>Every attempt count in this project is recorded by <code>PaymentGateway</code>, in a <code>CallLog</code> the gateway owns. Not one number comes from a service&#x27;s own tally.</p>
+<p>That is deliberate, and it is the whole incident in one sentence: <strong>a service&#x27;s belief about how many times it tried is exactly the thing that was wrong.</strong> Subscription billing believed it was making three attempts. It made six. Every one of its own dashboards said three.</p>
+<p>When you read the demo output, read it as the supplier&#x27;s ledger, not as the shop&#x27;s.</p>
+<hr>
+<h2>Software Prerequisites</h2>
+<table><thead><tr><th>Need</th><th>Version</th><th>Check</th></tr></thead><tbody><tr><td>JDK</td><td>21 or newer</td><td><code>java -version</code></td></tr><tr><td>Gradle</td><td>none — the wrapper is included</td><td><code>./gradlew --version</code></td></tr></tbody></table>
+<p>Nothing else. No Docker, no network access at build time beyond Gradle fetching JUnit once.</p>
+<h3>Verify Your Setup</h3>
+<pre><code>cd gradle-java/platform-design-patterns/sidecar-pattern
+./gradlew test
+./gradlew run</code></pre>
+<p><code>test</code> should report 59 tests passing. <code>run</code> should print seven acts, ending with <code>3 milliseconds, which is 1ms per attempt</code>.</p>
+<p>Every number is fixed rather than random, and the clock is simulated, so two runs print identical output. That is what lets the documents and the video quote exact figures.</p>
+<hr>
+<h2>Troubleshooting</h2>
+<p><strong><code>./gradlew</code> says permission denied.</strong> <code>chmod +x gradlew</code>.</p>
+<p><strong>Gradle downloads things on the first run.</strong> Expected, once, for the wrapper and JUnit. After that, <code>./gradlew run --offline</code> works.</p>
+<p><strong>The demo finishes instantly even though it waits 600 milliseconds.</strong> <code>Clock</code> is a counter, not a timer. <code>waitFor(200)</code> adds two hundred to a number and returns. Nothing sleeps, which is why 59 tests run in under a second.</p>
+<p><strong>The <code>£</code> signs or em dashes show as question marks.</strong> Your terminal is not on UTF-8. <code>export LANG=en_GB.UTF-8</code> usually fixes it.</p>
+<p><strong>The columns look ragged.</strong> The demo assumes a fixed-width font and about seventy-six columns — there is a test that fails if any line grows past that. Widen the window or reduce the font size.</p>
+<p><strong>A test fails after I added <code>applyPolicyReview()</code> to <code>SubscriptionBillingService</code>.</strong> That is the test working, and it is the most important test in the project. The absence of that method <em>is</em> the incident. If you want to see the fixed world, look at the sidecars in Act 4 rather than repairing the fourth copy.</p>
+<hr>
+<h2>Recommended Reading Order</h2>
+<ol><li><code>docs/problem-statement.md</code> — sixteen copies of four decisions, and the night three of them were updated.</li><li><code>./gradlew run</code> — watch all seven acts before reading any source.</li><li><code>docs/sidecar-pattern-explained.md</code> — the pattern, then the bill, then the admission that this is Decorator with a process boundary.</li><li><code>docs/animation.html</code> — the two arrangements drawn side by side, and the night played out in both.</li><li><code>docs/class-diagram.md</code> and <code>docs/uml-diagram.md</code> — the structure, and then the five sequences where the process boundaries are drawn as boxes.</li><li>The source, in this order: <code>Payment</code>, <code>PaymentGateway</code>, <code>CallLog</code>, <code>CheckoutService</code>, then <code>SubscriptionBillingService</code> (look for what is <em>not</em> there), then <code>SidecarConfig</code>, <code>Sidecar</code>, <code>ServiceBehindASidecar</code> and <code>Concerns</code>.</li><li><code>real/</code> if you want to see an actual second process: nginx beside the service, with the retry policy in a config file nobody compiles.</li><li><code>docs/session.md</code> if you are running this for a group.</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

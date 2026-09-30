@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Problem Statement — Catalog Reports</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Problem Statement — Catalog Reports</h1>
+<p>The catalog is a tree. Categories hold products, bundles and other categories, and it has looked like that since <a href="../../../structural/composite-pattern"><code>structural/composite-pattern</code></a> built it — the same Electronics root, the same Accessories and Cables branches, the same phone, case, charger and cable.</p>
+<p>What changes is not the tree. It is what the business wants to know about it:</p>
+<table><thead><tr><th>Asked by</th><th>Report</th></tr></thead><tbody><tr><td>finance, at year end</td><td>what is the stock in the warehouse worth?</td></tr><tr><td>merchandising</td><td>how many lines sit in each category?</td></tr><tr><td>finance, every Monday</td><td>a CSV of the whole catalog for the spreadsheet</td></tr><tr><td>shipping</td><td>which items need a dangerous-goods declaration?</td></tr></tbody></table>
+<p>Four questions over one structure. Written the obvious way, that is four methods on the nodes:</p>
+<pre><code>public interface NaiveCatalogNode {
+    String name();
+    Money inventoryValue();
+    void countInto(Map&lt;String, Integer&gt; counts, String path);
+    void appendCsvTo(StringBuilder out, String path);
+    void auditInto(List&lt;String&gt; findings, String path);
+}</code></pre>
+<p>Read it on its own and there is nothing wrong with it. Each method is the shortest correct way to answer its question, they are all in the classes they are about, and there is no indirection anywhere. <strong>For two reports this is the right answer</strong>, and the demo says so out loud: sections 1 and 2 agree to the penny on inventory value and on the category counts. What follows is what happened by the fourth report and the third year.</p>
+<h2>What Goes Wrong</h2>
+<h3>1. A report is a change to the domain model</h3>
+<p><code>inventoryValue</code> is arguably about a product. <code>appendCsvTo</code> is not. It is about RFC 4180 — that a field containing a comma is wrapped in double quotes, and a quote inside it is doubled — and it lives in a class whose job is to describe a thing on a shelf.</p>
+<p>So a private <code>quote</code> method appears on <code>NaiveProduct</code>. And on <code>NaiveBundle</code>, because it needed one too. The rule is now in the codebase twice, in two classes that have no other reason to know it exists.</p>
+<h3>2. Knowing it twice is how it gets known differently</h3>
+<p><code>NaiveBundle</code> was written eighteen months after <code>NaiveProduct</code>, by copying it. The copy dropped the <code>quote</code> calls. Nothing failed: no kit had a comma in its name that year.</p>
+<pre><code>    Electronics/Accessories,CLN-003,&quot;Screen Cleaner, 200ml&quot;,product,6.50,190,flammable   (7 fields)
+    Electronics/Kits,KIT-01,Starter Kit, 3 items,bundle,639.00,25,   (8 fields)</code></pre>
+<p>Marketing renamed the kit to &quot;Starter Kit, 3 items&quot;. Finance&#x27;s spreadsheet gained a column, silently, in one row.</p>
+<h3>3. And the copy that matters is the compliance one</h3>
+<p><code>NaiveProduct.auditInto</code> reads the product&#x27;s restriction field. <code>NaiveBundle</code> was copied from it, so it reads <em>its</em> restriction field — a field that was copied across with the rest of the class and is never set.</p>
+<p>A bundle has no restriction of its own. It is restricted by what is in the box, and the Starter Kit contains a lithium cell:</p>
+<pre><code>  Report 4 - the compliance audit, 2 findings:
+    Electronics/Accessories/Spare Battery Pack BAT-014  lithium cell   UN3481 declaration required for air freight
+    Electronics/Accessories/Screen Cleaner, 200ml CLN-003  flammable      road freight only, no air</code></pre>
+<p>The kit is not on the list. The shipment is filed as clear for air freight with an undeclared lithium cell in it. <code>NaiveCatalogTest</code> pins this as a passing test, because it is what the code does today.</p>
+<h3>4. The traversal is written once per report</h3>
+<p>Every report method on <code>NaiveCategory</code> is the same loop over the same children with a different body. Four reports, four loops. A fifth report is a fifth chance to recurse in a different order from its neighbours, or to forget to recurse at all — and nothing about the interface would notice.</p>
+<h3>5. Adding a report edits three files that were finished</h3>
+<p><code>NaiveCatalogNode</code> gains a method and every implementation must supply one. The fifth report is a fifth method on the interface and three more implementations of it, all in classes whose last real change was to the domain.</p>
+<h2>What We Actually Want</h2>
+<ul><li><strong>A new report to be a new file</strong>, and nothing else.</li><li><strong>One traversal</strong>, written once, that every report gets for free.</li><li><strong>One quoting rule</strong>, in the class that is about CSV.</li><li><strong>Different node types handled differently on purpose</strong> — a bundle valued at its kit price and audited by what is inside it — without an <code>instanceof</code> chain in every report.</li><li><strong>The domain classes to stay about the domain.</strong> A <code>Product</code> should have no opinion about spreadsheets.</li></ul>
+<h2>What This Costs</h2>
+<p>Visitor buys all five, and the price is real and is charged to the node types. Adding a fourth kind of node — a gift card, a digital download — means a new method on <code>CatalogVisitor</code>, and <em>every</em> visitor stops compiling until it is written. Six visitors exist in this project today and the list only ever grows. The naive design takes a new node type in its stride: one new class, and nothing else recompiles.</p>
+<p>That is the trade, and it only comes out in your favour when the node types are settled and the reports are not. In a catalog that is true — the shape of a shop&#x27;s catalog changes about once a decade, and the reports finance asks for change monthly. It is genuinely not true everywhere.</p>
+<p>Two smaller costs, stated rather than buried. A visitor cannot prune: the walk lives in <code>Category.accept</code>, so a report that wants only Accessories still sees all of Electronics and filters. And <code>node.accept(visitor)</code> calling <code>visitor.visit(node)</code> straight back is two calls to reach one method, for a reason that is a fact about Java overload resolution rather than about catalogs. Nobody finds that obvious the first time.</p>
+<p>Section 5 of the demo prints the whole bill, including the names of the six classes a new node type would break.</p>
+</main>
+<footer>
+Generated from <code>problem-statement.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

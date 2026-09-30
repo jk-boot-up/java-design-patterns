@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Competing Consumers with RabbitMQ Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Competing Consumers with RabbitMQ Pattern — Video Narration Script</h1>
+<h2>1. Competing Consumers with RabbitMQ</h2>
+<p>Hello, and welcome. This video explains the Competing Consumers pattern in Java, using a real message broker called RabbitMQ. It is written and presented by Jayasekhar Konduru. Here is the plain definition, in general words. Competing consumers are several workers reading from one shared queue of jobs. Each job goes to exactly one of them, so adding a worker adds capacity, and nobody else has to change. Now the same thing in our online store. Every order the shop takes becomes a pick order for the warehouse. On a busy day one picker cannot keep up, so several pickers take orders from the same queue, and the broker decides who gets which. By the end you will have seen one picker handed the whole queue while another stands idle, a picker die holding five orders and hand back three, and three orders lost for good.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. On a busy day, orders arrive faster than one warehouse picker can pick them, and the queue grows. The warehouse wants to add pickers without rewriting anything. No order should be picked twice, and none should be lost when a picker&#x27;s handheld crashes half way down an aisle. The plain-Java version of this pattern, earlier in the course, kept its queue as a list inside one program, and each worker reached in and took one job when it was free. This time the queue lives in a real broker, and the broker does not wait to be asked. It hands work out. That changes two things.</p>
+<h2>3. One Picker, Then Three</h2>
+<p>First, the reason for the pattern. Twelve orders are waiting, and one picker takes them one at a time. One is being picked, and eleven wait. Put three pickers on the same queue, and three are being picked, nine wait. The pickers never talk to each other. They only talk to the broker. Then three pickers share three hundred orders. All three hundred are picked, and they are three hundred different orders, so none twice and none missed. Notice what the demo does not print: how many each picker got. That is the broker&#x27;s own choice, and it changes from run to run. So the demo says what always holds, in words. Every picker did some, and none did more than half.</p>
+<h2>4. The Broker&#x27;s Words</h2>
+<p>A real broker brings a few words with it. Think of a restaurant kitchen with one ticket rail and several cooks. Tickets go up on the rail, and a cook who is free takes the next one. The rail is what RabbitMQ calls a queue: a named place where messages wait, in the order they arrived. Each cook is what RabbitMQ calls a consumer. In our store, each consumer is a warehouse picker, with its own connection to the broker. And when a picker has finished an order, it tells the broker it is done, so the broker may forget it. RabbitMQ calls that an acknowledgement. Until it arrives, the broker keeps its own copy of the order.</p>
+<h2>5. No Limit: One Takes Everything</h2>
+<p>Second, and this is the surprise at the heart of this video. Back in the kitchen. How many tickets may one cook pull down at once? RabbitMQ calls that number the prefetch: how many orders the broker will hand one picker before hearing done for any of them. If nobody sets it, there is no limit. That is the default. Twelve orders are waiting. A slow picker starts first, with no limit set. The broker hands it all twelve at once, and nothing is left waiting. A fast picker joins a moment later, and is handed nothing at all. It stands idle while the slow picker works through all twelve, one by one. Twelve for the slow picker, none for the fast one. Competing consumers that do not compete.</p>
+<h2>6. Prefetch: How Many To Hold</h2>
+<p>Third, the same slow and fast pickers, now with a limit. With a prefetch of ten and twenty orders, the broker hands each of them ten. The fast one picks its ten, and then stands idle with the queue empty, while the slow one is still holding ten that nobody else can reach. With a prefetch of one, the slow picker holds just one, and the fast one picks the other nineteen. So prefetch is a trade, not a fix. A prefetch of one shares the work fairly, but every order costs a trip to the broker and back. A high prefetch keeps a fast picker busy, and lets a slow one sit on work.</p>
+<h2>7. Where An Order Can Be</h2>
+<p>Here is the whole picture in words. An order is always in one of three places. It is waiting in the queue. Or it has been handed to one picker, and that picker has not yet said done. Or it is gone, because a picker said done. The prefetch decides how many orders can sit in the middle place for each picker. And here is the rule that holds the rest of this video together. The broker forgets an order only when a picker says it is done.</p>
+<h2>8. A Picker Dies Mid-Work</h2>
+<p>Fourth, a picker dies half way through its work. Picker A may hold five orders, and is handed five. It picks order one and says done. It picks order two and says done. It starts order three by reserving the stock, and then it crashes, before saying done. The broker notices the connection has gone. It does not know which orders picker A had started. It only knows which ones it handed over and never heard done for. So it puts back all three. Picker B is handed orders three, four and five. All three carry a mark that says seen before, which RabbitMQ calls redelivered. But only order three had really been started. Eight deliveries for five orders, and order three&#x27;s stock reserved twice. The mark means this might be a repeat. It never means this is one.</p>
+<h2>9. No Saying Done</h2>
+<p>Fifth, the same crash, with one setting changed. This time picker A tells the broker not to wait for done at all, and to count every order as finished the moment it is handed over. RabbitMQ calls that automatic acknowledgement. Picker A is handed five, and the queue is already empty, because the broker has already forgotten all five. Picker A picks two, and crashes on order three. Nothing goes back. Nothing is waiting. Three orders are lost, and nobody will ever be handed them again.</p>
+<h2>10. Two Settings, Two Lines</h2>
+<p>In the code, both settings are small enough to miss. Before a picker starts listening, one call sets its prefetch: how many orders it may hold. Leave that call out, and there is no limit. Then, when it starts listening, one yes or no says whether the broker should count orders done on handover. Say no, and the picker must say done itself, after the work, never before.</p>
+<h2>11. The Bill</h2>
+<p>Last, the bill. Order thirteen is a poison order. Something in it crashes every picker that takes it. Three pickers take it, one after another, and each one crashes. It was delivered three times, marked seen before on two of them, picked none, and it is waiting again. The broker cannot tell a poison order from a slow one. On an ordinary queue it will hand it out for ever, unless somebody gives it a limit. Two more costs. Every picker must be safe to run twice, because act four made eight deliveries for five orders. And prefetch is a number somebody has to choose, because left unset, one picker took twelve of twelve while another stood idle.</p>
+<h2>12. What The Simulation Left Out</h2>
+<p>The plain-Java version got the shape right. One queue. Workers that never talk to each other. Each order handled once. A failed order given back and taken over. All of that is true on RabbitMQ. It left out four things. First, a real broker pushes work out, and by default it pushes everything to whoever is listening first. Second, handed over is not the same as started, so a crash hands back more than the one order that failed. Third, saying done is a choice, and the other choice loses orders. And fourth, the simulation counted attempts, but an ordinary RabbitMQ queue only marks an order seen before, yes or no.</p>
+<h2>13. The Verdict</h2>
+<p>Here is my verdict, plainly. Share one queue between several pickers when one cannot keep up, and the order of the work does not matter. Then say three things out loud, because the broker will not assume any of them. One. Set a prefetch. One for fairness, higher for speed, but never the default of no limit. Two. Say done after the work is finished, and make every picker safe to see the same order twice. Three. Put a limit on how often one order may be handed out, or a poison order goes round for ever.</p>
+<h2>14. What Is Real Here</h2>
+<p>What is real here? The broker is RabbitMQ, version four point three point six, the newest release, running in a container that the demo starts at the beginning and stops at the end, on a free port picked at random. Nothing is installed and nothing is left running. The one thing you need is a container runtime, such as Docker Desktop, switched on before you start. Every exact number in this video comes from the program&#x27;s own output, and two runs print the same thing. The one thing that changes between runs, how the broker splits orders between equal pickers, is described in words, and the tests check it as a range.</p>
+<h2>15. When This Is Too Much</h2>
+<p>So when is this too much? If one picker keeps up, one picker is simpler, and keeps the orders in order. If the order of the work matters, several competing pickers are the wrong shape until the queue is split by key. If losing an order on a crash is acceptable, counting done on handover is faster, but it should be a decision somebody wrote down, not a default nobody noticed. And a broker is a separate system to run, secure, upgrade and watch.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s Competing Consumers with RabbitMQ. If you take one sentence away, take this one: the broker forgets an order only when a picker says done, and a picker that dies hands back everything it was allowed to hold, not just what it had started. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, give the slow picker in act two a prefetch of one, guess both numbers, and then run it. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

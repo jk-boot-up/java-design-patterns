@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Iterator Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Iterator Pattern</h1>
+<p>A 60-minute session plan for teaching the Iterator pattern from this project. Written for a facilitator working with beginners; every timing is a suggestion, and the exercises are the part worth protecting if you run late.</p>
+<p><strong>Audience:</strong> developers who can write a <code>for</code> loop and have used <code>List</code>, but have never implemented <code>Iterator</code> or wondered where for-each comes from.</p>
+<p><strong>Setup:</strong> everyone has the project cloned and <code>./gradlew test</code> passing before the session starts. See <a href="prerequisites.html"><code>prerequisites.md</code></a>.</p>
+<h2>Learning Objectives</h2>
+<p>By the end, participants can:</p>
+<ol><li>Explain what the for-each loop actually compiles to.</li><li>Name the two roles — aggregate and iterator — and say which one holds the position, and why.</li><li>Implement <code>Iterable</code> and <code>Iterator</code> for a source that is awkward to walk.</li><li>Recognise when the pattern is <em>not</em> worth it (a plain <code>List</code> already has one).</li><li>Explain laziness in terms of when the next page is fetched.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td></tr><tr><td>0:05–0:15</td><td>The problem</td></tr><tr><td>0:15–0:25</td><td>The pattern</td></tr><tr><td>0:25–0:40</td><td>Code walkthrough</td></tr><tr><td>0:40–0:50</td><td>Exercises</td></tr><tr><td>0:50–0:58</td><td>Pitfalls and comparisons</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<p>Have everyone run:</p>
+<pre><code>./gradlew test    # 13 tests
+./gradlew run</code></pre>
+<p>Anyone whose tests fail should pair for the session rather than debug.</p>
+<p>Ask, before showing anything: <strong>&quot;What does <code>for (String s : list)</code> actually do?&quot;</strong> Collect answers. Most rooms produce &quot;it loops over the list&quot; and stop there. Note the answers down; you will come back to them at 0:15.</p>
+<h2>0:05–0:15 — The Problem</h2>
+<p>Open <a href="problem-statement.html"><code>problem-statement.md</code></a> and set the scene: the catalogue lives in the warehouse system and arrives one page at a time.</p>
+<p>Then open <code>NaiveCatalogueBrowser</code> and read the three methods side by side. Do not explain the bugs yet. Ask the room to find them.</p>
+<p>Run section 1 of the demo:</p>
+<pre><code>./gradlew run</code></pre>
+<p>The three lines to sit with:</p>
+<ul><li><code>allProducts() -&gt; 8 products (correct)</code></li><li><code>countProducts() -&gt; 8 products</code> — right today, wrong the day a tenth product is added</li><li><code>findCheapest() -&gt; SKU-005 Coffee Mug £8</code> — a real product, a real price, and not the cheapest one</li></ul>
+<p>The teaching point is not &quot;loops are hard&quot;. It is that <strong>all three bugs are the same bug</strong>: the page loop was written three times, so it could be got wrong three ways, and none of the ways throws.</p>
+<h2>0:15–0:25 — The Pattern</h2>
+<p>Go back to the question from the setup check and answer it properly. Write this on the board:</p>
+<pre><code>for (Product product : catalogue) { ... }</code></pre>
+<pre><code>Iterator&lt;Product&gt; it = catalogue.iterator();
+while (it.hasNext()) {
+    Product product = it.next();
+    ...
+}</code></pre>
+<p>These are the same program. The compiler writes the second from the first, and it will do that for <em>any</em> type that implements <code>Iterable</code>.</p>
+<p>Then the bookmark analogy, which does most of the work with beginners: the catalogue is the book, the iterator is the bookmark. Two people reading one book need two bookmarks, not one glued to the spine.</p>
+<p>Ask: <strong>&quot;So where does the current page number live?&quot;</strong> The answer — on the bookmark, never on the book — is the single idea people most often get wrong the first time they write an iterator.</p>
+<h2>0:25–0:40 — Code Walkthrough</h2>
+<p>Read the code in this order. Resist jumping to <code>hasNext()</code> first.</p>
+<ol><li><strong><code>CatalogueFeed</code></strong> — the awkward thing being hidden. Point at <code>pagesFetched</code>; say it is there for the tests, and that it will matter in ten minutes.</li></ol>
+<ol><li><strong><code>ProductCatalogue</code></strong> — four lines. Ask what is <em>missing</em> before saying anything about what is there. There is no page number and no position. That absence is the design.</li></ol>
+<ol><li><strong><code>CatalogueIterator</code> fields</strong> — every one of them is position. Contrast with the previous file: all the state that is not in the catalogue is here.</li></ol>
+<ol><li><strong><code>hasNext()</code></strong> — the only page loop in the project. Walk it with concrete numbers: eight products, three per page. Ask why the <code>while</code> is not an <code>if</code>. (A short page in the middle, or an empty first page.)</li></ol>
+<ol><li><strong><code>next()</code></strong> — three lines, because <code>hasNext()</code> did the work. Ask why it calls <code>hasNext()</code> again rather than trusting the caller.</li></ol>
+<ol><li><strong><code>CatalogueIteratorTest.fetchingIsLazy</code></strong> — now <code>pagesFetched</code> pays off. Two products consumed, one page fetched. Run just this test and change <code>ProductCatalogue</code> to fetch page 0 in its constructor; watch it fail.</li></ol>
+<ol><li><strong><code>CatalogueIteratorTest.positionsAreIndependent</code></strong> — two iterators, one catalogue. This is the test that catches the &quot;position on the aggregate&quot; mistake. Section 4 of the demo prints the same thing if you would rather show it running.</li></ol>
+<h2>0:40–0:50 — Exercises</h2>
+<h3>Exercise 1 — Grow the catalogue (everyone)</h3>
+<p>Add two more products to <code>CatalogueFeed.sampleShop()</code>, then run the tests.</p>
+<p><code>NaiveCatalogueBrowserTest.countProductsStopsEarly</code> fails; every test of the pattern still passes. The discussion: the naive code did not break <em>today</em>, it broke on the day someone did something completely unrelated.</p>
+<h3>Exercise 2 — Move the position (everyone)</h3>
+<p>Move <code>pageNumber</code> and <code>indexInPage</code> from <code>CatalogueIterator</code> onto <code>ProductCatalogue</code>, and make <code>iterator()</code> return <code>this</code>-ish behaviour.</p>
+<p><code>positionsAreIndependent</code> fails. Ask what a nested loop over the catalogue would now do in production, and how long it would take anyone to notice.</p>
+<h3>Exercise 3 — A filtered catalogue (most people)</h3>
+<p>Write <code>CategoryCatalogue implements Iterable&lt;Product&gt;</code> that wraps the same feed and yields only products in one category.</p>
+<p>The point to draw out: nothing else in the project changes, and the for-each loop at the call site is identical. Also that <code>hasNext()</code> gets harder — you have to look ahead — which is a genuine and instructive difficulty.</p>
+<h3>Exercise 4 — Stretch (for fast finishers)</h3>
+<p>Make <code>CatalogueIterator.remove()</code> throw <code>UnsupportedOperationException</code> with a useful message, then discuss what it <em>would</em> have to do to work. Where would the removal go? What happens to the position? What if the feed is remote?</p>
+<h2>0:50–0:58 — Pitfalls and Comparisons</h2>
+<p>Cover briefly, from <a href="iterator-pattern-explained.html"><code>iterator-pattern-explained.md</code></a>:</p>
+<ul><li><strong>Position on the aggregate</strong> — the mistake from Exercise 2.</li><li><strong><code>hasNext()</code> that consumes</strong> — callers will call it twice; if that changes anything, code that looks right will skip elements.</li><li><strong>Fetching in the constructor</strong> — throws the laziness away.</li><li><strong>Reaching for it when a <code>List</code> would do</strong> — the pattern earns its keep when the storage is awkward. Over an <code>ArrayList</code> it is ceremony.</li></ul>
+<p>Then the comparison table: index loop when you need the index, iterator when you want each element in turn, stream when you want to describe a pipeline. Say explicitly that streams are <em>built on</em> this, not opposed to it.</p>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>One sentence to leave in the room:</p>
+<blockquote><p><strong>The collection knows what is in it. The iterator knows where you are. Keep those two facts in different objects and the for-each loop is free.</strong></p></blockquote>
+<p>Point at <a href="animation.html"><code>animation.html</code></a> for anyone who wants to walk it again, and at the video for anyone who wants it narrated.</p>
+<h2>Facilitator Notes</h2>
+<ul><li><strong>The bookmark analogy is worth the time.</strong> It is the fastest route to why the position lives on the iterator, and people remember it.</li><li><strong>Do not skip running the naive demo.</strong> &quot;Returns the wrong product without throwing&quot; lands much harder as output than as a claim.</li><li><strong>Expect the question &quot;why not just return a <code>List</code>?&quot;</strong> It is a good question. The answer is laziness and size: <code>allProducts()</code> fetches everything even when the caller wanted two, and on a real catalogue that is the difference between one request and four hundred.</li><li><strong>Expect &quot;isn&#x27;t this what streams are for?&quot;</strong> Yes, and streams need exactly this underneath. If the room is comfortable, show <code>StreamSupport.stream(catalogue.spliterator(), false)</code> and move on.</li><li><strong>Watch the clock at 0:25.</strong> The walkthrough is the section that overruns, and the exercises are where the learning happens.</li></ul>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>Project cloned, <code>./gradlew test</code> green for everyone</li><li><code>docs/animation.html</code> open in a browser tab</li><li><code>docs/images/class-diagram.png</code> on screen for 0:15–0:25</li><li>A whiteboard for the for-each / while equivalence</li><li>The video queued as optional follow-up</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

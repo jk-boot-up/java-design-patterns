@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Double-Checked Locking Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Double-Checked Locking Pattern — Video Narration Script</h1>
+<h2>1. Double-Checked Locking</h2>
+<p>Hello, and welcome. This video explains the Double-Checked Locking pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. Double-checked locking creates a shared object only when it is first needed. It checks for the object first, without a lock. Only if the object looks missing does it take the lock, and check again. Think of the last person leaving an office. You glance at the lights on the way out. Only if they look on, do you walk back and check properly before switching them off. In our online store, the price list is expensive to build. In this video, two threads will build it twice. We will try locking every time, then checking twice. We will hear why one field must be volatile, and the simplest correct way to do it. And then the cost.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The shop&#x27;s price list is expensive to build. So the shop builds it the first time anyone asks for it. Many threads ask for it. And the first few may ask at exactly the same moment. So here is the question. How do we build it exactly once?</p>
+<h2>3. Check, Then Create</h2>
+<p>First, the naive way: check, then create. Two threads ask for the price list at the same moment, before it exists. Both see that it is missing. So both build one. Two price lists were built. And each thread holds a different one. One is thrown away, and the expensive work was done twice.</p>
+<h2>4. The Pattern</h2>
+<p>Now, the pattern. First, look for the object, without a lock. If it is missing, take the lock. Then look again, in case another thread built it while you were waiting. Only then, build it. Once it exists, nobody takes the lock again.</p>
+<h2>5. Lock Every Time</h2>
+<p>Second demo: lock every time. The same two threads, but now every call takes the lock. Only one price list is built. That is correct. But then a thousand calls arrive, long after the price list exists. And the lock is taken a thousand times. Every caller waits its turn, just to be told something that never changes.</p>
+<h2>6. Check, Lock, Check Again</h2>
+<p>Third demo: check, lock, and check again. The same race builds just one price list. The second thread waited for the lock. Then it looked again, and found the list already built. And a thousand calls take the lock only once. After that, no call waits for anyone.</p>
+<h2>7. Why It Must Be Volatile</h2>
+<p>Fourth: why the field must be marked volatile. In this project, it is. Without volatile, Java&#x27;s memory rules allow a strange thing. One thread could see the reference to the price list, before the price list is fully built. That failure cannot be produced on demand. It depends on the processor and the compiler. So it is not demonstrated here. Instead, a test checks that the field stays volatile.</p>
+<h2>8. The Simplest Correct Way</h2>
+<p>Fifth demo: the simplest correct way, called the holder idiom. Before anyone asks, nothing is built. After two calls, one is built, and both callers got the same one. How? Java builds a class&#x27;s static data once, when the class is first used. So the price list sits in a small holder class, and Java does the rest. There is no lock to write, and no volatile to forget.</p>
+<h2>9. The Bill</h2>
+<p>Finally, the cost. The double-checked version is twenty-nine lines. The holder version is ten. Double-checked locking is ceremony, with one way to be quietly wrong. It only earns its place where the holder cannot be used. For example, when building the object needs an argument. And remember, a lock that nobody else is holding is cheap. Measure before deciding that locking on every call is a problem.</p>
+<h2>10. How To Recognise It</h2>
+<p>How can you spot this in code someone else wrote? Look for a volatile static field, an if statement checking for null, a synchronized block, and then the same null check again. Look for a small private static class called Holder, with one field. Look for helpers like Lazy, or memoize, in libraries. And look for a comment explaining why the field is volatile.</p>
+<h2>11. The Verdict</h2>
+<p>So, here is the verdict. For a shared object built on first use, prefer the holder idiom, or an enum. If building the object needs an argument, or can fail and be retried, use double-checked locking. With a volatile field, a local variable, and a test that guards the volatile. And if you have not measured the lock as a problem, simply take the lock on every call.</p>
+<h2>12. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything is plain Java. Every number you heard comes from the program&#x27;s own output. And nothing depends on the clock, so every run gives the same result.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, when is this too much? Nearly always. Most objects built on first use can use a holder, an eagerly built static, or a lock on every call. And a wrong double check causes a bug you cannot reproduce.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s Double-Checked Locking. If you remember one sentence, make it this one. Double-checked locking saves the lock after the object is built, and costs a rule you can break without ever seeing it fail. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Remove the volatile keyword. Then explain why no test can fail, and what that means for your code. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

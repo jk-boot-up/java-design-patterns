@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Dead Letter Channel with RabbitMQ Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Dead Letter Channel with RabbitMQ Pattern</h1>
+<p>A 60-minute session built around one question: when a message dies, who decides that it is dead?</p>
+<p>This session assumes the hand-built <a href="../../dead-letter-channel-pattern">Dead Letter Channel</a> session has been taught. It does not re-teach the pattern.</p>
+<h2>Learning Objectives</h2>
+<ol><li>Say, in plain words, what a queue, an exchange and a dead letter exchange are.</li><li>Say the difference between refusing a message and asking for it back, and what each one does to the messages behind it.</li><li>Name the three reasons RabbitMQ records for a death, and say which of them an application could not have produced.</li><li>Say what a replay costs: the order, and the broker&#x27;s note.</li><li>Name what a parked queue needs around it before it is safe to have one.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:08</td><td>The scenario, and asking for it back for ever</td></tr><tr><td>0:08–0:22</td><td>The rule on the queue, and who does the moving</td></tr><tr><td>0:22–0:34</td><td>The note the broker attaches, and the three reasons</td></tr><tr><td>0:34–0:44</td><td>Replay, and what it does not restore</td></tr><tr><td>0:44–0:52</td><td>The bill, and what the simulation left out</td></tr><tr><td>0:52–1:00</td><td>Exercises</td></tr></tbody></table>
+<h2>Walkthrough</h2>
+<pre><code>cd messaging-integration-patterns/dead-letter-channel-with-rabbitmq-pattern
+./gradlew -q run</code></pre>
+<p>Act one: how many of the twelve turns went to the same order, and how many good orders never moved? Act two: how many deliveries in all, and which order failed once and still went through? Act three: what three things does the broker&#x27;s note say? Act four: which two deaths did no worker choose, and what is the broker&#x27;s word for each? Act five: where in the line did the replayed order end up, and what happened to the note? Act six: how many orders were parked, and what did the working queue report?</p>
+<p>The question to keep coming back to: at each step, is this the application deciding, or the broker?</p>
+<h2>Exercises</h2>
+<ol><li>Change the time limit in act four from five hundred milliseconds to five seconds and predict, before running it, whether the demo still finishes and why the wait is safe.</li><li>Give the parked queue a time limit of its own, so a parked order eventually dies again, and decide where it should go next.</li><li>Make the replay copy the broker&#x27;s note onto the republished message, so that an order that dies twice can be told from one that dies once.</li><li>Change the queue in act five so that instead of pushing the oldest order out when full, it refuses the newest at the point of publishing, and say which behaviour you would want for orders and why.</li></ol>
+<p>Close with the verdict: write the rule on the queue, let the broker do the moving, read the note it leaves, and put an alert, an owner and a time limit on the parked queue before you ever need them.</p>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

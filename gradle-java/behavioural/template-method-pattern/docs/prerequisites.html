@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>What you need before reading the rest of these notes. If you can follow the table below, you have enough.</p>
+<h2>Java You Need</h2>
+<table><thead><tr><th>Idea</th><th>What you must be able to do</th><th>Where it shows up here</th></tr></thead><tbody><tr><td><strong>Abstract classes</strong></td><td>Write one, extend it, implement its abstract methods</td><td><code>FulfilmentProcess</code> and its three routes</td></tr><tr><td><strong><code>final</code> methods</strong></td><td>Know that a <code>final</code> method cannot be overridden</td><td><code>fulfil</code> — this is the pattern</td></tr><tr><td><strong>Access modifiers</strong></td><td>Tell <code>private</code>, <code>protected</code> and <code>public</code> apart, and know that <code>private</code> methods are not inherited into the override-able surface</td><td><code>validate</code> is private on purpose</td></tr><tr><td><strong>Overriding vs. overloading</strong></td><td>Know which one <code>@Override</code> is checking</td><td>Every step in every route</td></tr><tr><td><strong><code>super.method()</code></strong></td><td>Call the base class&#x27;s version from an override</td><td><code>RecordingRoute</code> in the tests</td></tr><tr><td><strong>Records</strong></td><td>Read a <code>record</code> declaration and use its accessors</td><td><code>Order</code>, <code>OrderLine</code>, <code>FulfilmentReport.Step</code></td></tr><tr><td><strong>Anonymous subclasses</strong></td><td><code>new FulfilmentProcess() { ... }</code> inline</td><td>The routes defined inside the tests</td></tr></tbody></table>
+<p>If the second and third rows feel thin, they are the ones to shore up. This whole pattern is a statement about what a subclass is <em>allowed</em> to do, and <code>final</code> and <code>private</code> are how that statement is written down.</p>
+<h2>The Pattern in 60 Seconds</h2>
+<p>A base class writes out an algorithm as a sequence of calls, and marks that method <code>final</code>. Some of the calls are abstract, so a subclass must supply them. Some have a default, so a subclass may replace them. Some do nothing at all, so a subclass can hook in if it needs to.</p>
+<p>The subclass decides <em>how</em> each step behaves. It never decides <em>when</em> the steps run.</p>
+<p>That is it. Everything else in these notes is about which kind of hole to use where, and about what the inheritance costs you.</p>
+<h2>Template Method Versus Factory Method</h2>
+<p>If you have already read the <a href="../../../creational/factory-method-pattern/README.html">Factory Method project</a>, these two will feel similar, because they are related — and mixing them up is the single most common confusion in this corner of the catalogue.</p>
+<ul><li><strong>Factory Method</strong> is a hole in a workflow whose answer is <strong>an object</strong>. There is one hole, it returns a product, and the workflow&#x27;s job is to use that product.</li><li><strong>Template Method</strong> is a workflow with <strong>several</strong> holes. They return nothing in particular, they can have defaults, and some of them exist only as opt-in hooks.</li></ul>
+<p>The shortest way to hold them apart: <strong>Factory Method is Template Method narrowed down to object creation.</strong> Every Factory Method is a Template Method with exactly one step, and that step makes something.</p>
+<h2>Template Method Versus Strategy</h2>
+<p>Also worth naming, because it is the comparison that decides whether you should use this pattern at all:</p>
+<ul><li><strong>Template Method</strong> varies steps by <strong>subclassing</strong>, fixed at compile time. It can guarantee an order, because one <code>final</code> method owns it.</li><li><strong>Strategy</strong> varies behaviour by <strong>composition</strong>, swappable at run time. It guarantees nothing about ordering, because there is no single method that owns the sequence.</li></ul>
+<p>Reach for Template Method when the <em>sequence</em> is the thing you are protecting. Reach for Strategy when the <em>steps</em> are independent and you want to change them without a new class.</p>
+<h2>Tools</h2>
+<p><strong>Java 21.</strong> Check with:</p>
+<pre><code>java -version</code></pre>
+<p>If it prints something older than 21, install a JDK — on macOS, <code>brew install openjdk@21</code>; elsewhere, <a href="https://adoptium.net">Adoptium</a> has builds for everything.</p>
+<p>Gradle itself does not need installing. The <code>./gradlew</code> wrapper in this project downloads the right version on first use.</p>
+<h2>Verify Your Setup</h2>
+<p>From the project directory:</p>
+<pre><code>./gradlew build   # compiles and runs all 46 tests
+./gradlew run     # runs the demo</code></pre>
+<p>The run should begin:</p>
+<pre><code>=== 1. The trap: three hand-written copies of the same sequence ===
+
+  A download, fulfilled by NaiveFulfilment.fulfilDigital:
+    validate       2 line(s), no address needed</code></pre>
+<p>and, a few lines later, show an email quoting <code>Key: (not dispatched)</code>. That wrong answer is deliberate — it is the bug the rest of the project removes.</p>
+<h2>Troubleshooting</h2>
+<table><thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead><tbody><tr><td><code>Unsupported class file major version</code></td><td>Gradle is using an older JDK</td><td><code>./gradlew -version</code> shows which; set <code>JAVA_HOME</code> to a 21 install</td></tr><tr><td><code>Permission denied: ./gradlew</code></td><td>Wrapper lost its execute bit</td><td><code>chmod +x gradlew</code></td></tr><tr><td>Downloads hang on first run</td><td>Gradle fetching the distribution</td><td>It is a one-off; behind a proxy, set <code>HTTPS_PROXY</code></td></tr><tr><td>Section 1 emails a key that reads <code>(not dispatched)</code></td><td>Nothing is wrong</td><td>That is the naive route, with two steps the wrong way round, on purpose</td></tr><tr><td><code>cannot override validate</code> if you try</td><td>It is <code>private</code></td><td>That is the design — answer <code>requiresShippingAddress()</code> instead</td></tr><tr><td>Amounts print with <code>£</code> as <code>?</code></td><td>Console is not UTF-8</td><td>On Windows, <code>chcp 65001</code></td></tr></tbody></table>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the scenario and the bug</li><li><a href="template-method-pattern-explained.html"><code>template-method-pattern-explained.md</code></a> — the pattern, and what it costs</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — the structure</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the two runs, side by side</li><li><a href="animation.html"><code>animation.html</code></a> — step through one <code>fulfil</code> call</li><li>The source, starting at <code>FulfilmentProcess.java</code>, then <code>DigitalFulfilment.java</code></li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

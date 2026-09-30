@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proactor Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Proactor Pattern — Video Narration Script</h1>
+<h2>1. Proactor</h2>
+<p>Hello, and welcome. This video explains the Proactor pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. In a proactor, you start slow operations without waiting for them. With each one, you hand over a completion handler: what to do when it finishes, and what to do if it fails. The system does the waiting, and calls you back. Think of a food court with a buzzer at every stall. You order at five stalls, and each gives you a buzzer. You sit down. As each buzzer goes off, you collect that dish. In this video, the domain is an online shop&#x27;s warehouse. Before ordering kettles, it asks five suppliers for today&#x27;s price, and each takes a fifth of a second to answer. By the end, you will hear why asking one after another is slow. How a proactor overlaps the waits. How failures are reported. And what it costs.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The warehouse buys kettles from five suppliers. Before each order, it asks all five: what is today&#x27;s price? Then it picks the cheapest. Each supplier takes a fifth of a second to answer. And the warehouse asked them one after another.</p>
+<h2>3. Act One — One after another</h2>
+<p>First demo: ask five suppliers for a kettle price, one after another. Each supplier takes a fifth of a second to answer. The warehouse asks the first, and waits. Then the second, and waits. And so on. Five prices take nearly a second. And the asking thread does nothing else, the whole time.</p>
+<h2>4. Act Two — Start everything at once</h2>
+<p>Second demo: a proactor. The warehouse starts all five requests at once. For each, it hands over a completion handler: what to do when that request finishes. It does not wait. All five are started, and the method returns, in under a tenth of a second. The system does the waiting. The five waits overlap. All five answers arrive in under six tenths of a second.</p>
+<h2>5. Act Three — Completion handlers</h2>
+<p>Third demo: completion handlers receive the results. When a connection is made, one handler sends the question. When the question is sent, another starts reading. When the answer arrives, a third records the price. Twenty-one pounds. Nineteen fifty. Twenty-two forty. Eighteen ninety. Twenty ten. The cheapest is eighteen pounds ninety.</p>
+<h2>6. Act Four — A failure is a completion</h2>
+<p>Fourth demo: a failure arrives as a completion too. A sixth supplier&#x27;s server is down. Its request cannot connect. So the system calls that request&#x27;s failed handler, instead of its completed handler. The failure is recorded. The other two suppliers answer as normal. Like a buzzer that goes off to say: sorry, sold out.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. One request is now spread across three handlers. Connected. Written. Read. The steps no longer read top to bottom in one method. And when something goes wrong, the error starts in the system&#x27;s thread, not in the code that asked.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the pattern. Start the operation, and do not wait for it. Hand over a completion handler, with two methods. Completed, for when it succeeds. Failed, for when it does not. The system does the waiting, and calls the right one when the operation is done.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. Proactor quotes starts every request, and returns at once. Java&#x27;s asynchronous channels do the waiting. Connected, written, and read are the completion handlers, one for each step. Supplier is a slow price server. And blocking quotes is the old way, kept for comparison.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met this pattern already. Java&#x27;s asynchronous socket and file channels take completion handlers. The HTTP client&#x27;s send async, and completable futures, are friendlier faces of the same idea. And Node.js file and network calls take callbacks.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use it? When many slow operations can overlap. Keep handlers short, and collect their results safely, because they run on other threads. And when readable, top-to-bottom code matters more, Java&#x27;s virtual threads let blocking code wait just as cheaply.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Proactor pattern. If you remember one sentence, make it this one. Start everything, wait for nothing, and let each result call you back. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Add a timeout, so a supplier slower than half a second counts as failed. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

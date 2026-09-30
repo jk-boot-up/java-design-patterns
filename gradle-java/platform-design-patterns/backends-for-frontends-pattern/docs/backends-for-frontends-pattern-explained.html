@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Backends for Frontends Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Backends for Frontends Pattern, Explained</h1>
+<h2>In One Sentence</h2>
+<blockquote><p>Give each frontend its own backend, owned by the team that owns the screen, whose only job is to turn what the shop knows into the exact shape that one screen draws.</p></blockquote>
+<p>Three words in that sentence are doing all the work.</p>
+<p><strong>Each.</strong> More than one. A single shared endpoint in front of your services is a perfectly good pattern, but it is a different one — it is an API gateway or an API composition, and neither of them is this. This pattern only exists in the plural.</p>
+<p><strong>Own.</strong> Not &quot;a backend the platform team provides for the phone&quot;. A backend the <em>phone team</em> changes, tests, and ships. If a phone-only field has to be negotiated with another team, you have the shape of the pattern and none of its benefit.</p>
+<p><strong>Shape.</strong> Not rules. Not prices, not tax, not whether a discount may be advertised. The backend decides what a product looks like to one screen; the shop decides what a product <em>is</em>. Get that line wrong and the pattern&#x27;s worst failure — two screens telling a customer different things — is waiting for you.</p>
+<h2>Everyday Analogy: Two Waiters, One Kitchen</h2>
+<p>A restaurant has one kitchen and two rooms. The dining room takes couples who settle in for two hours; the counter by the window takes people who have twenty minutes before a train.</p>
+<p>The kitchen cooks the same food for both.</p>
+<p>Now give both rooms the same waiter, working from one script. He has to satisfy both, so his script becomes the union of everything either room might want: he recites the full wine list, the provenance of the lamb, the specials, the dessert menu, and the allergen sheet, to everybody. The couple enjoy it. The commuter misses their train.</p>
+<p>The fix is not a second kitchen. The food is the same food, and a second kitchen would be two places for a recipe to live. The fix is a second waiter, who works the counter, knows that his customers want the answer to &quot;what can I eat in twenty minutes&quot;, and is allowed to change his own script tomorrow morning without consulting the dining room.</p>
+<p>That is the whole pattern. The kitchen is the shop&#x27;s services. The waiter is the backend. Each room gets its own waiter; both waiters walk to the same kitchen; and neither waiter is allowed to invent a price.</p>
+<p>And to keep the analogy honest, the restaurant now pays for two waiters. That is the bill this project spends its second half on.</p>
+<h2>The Problem, In The Shop</h2>
+<p>One product — a copper coffee maker, SKU-4417. Two screens.</p>
+<p>The phone draws six things: title, price, one photograph, the star rating, the number of ratings, and one sentence saying when the parcel arrives.</p>
+<p>The desktop page draws fifteen: all of the above plus the brand, the full description, the materials, the dimensions, five large photographs, the previous price, the saving, three written reviews, the stock figure, and a strip of related products.</p>
+<p>The shop has five services that between them hold all of it: catalog, pricing, inventory, reviews, recommendations.</p>
+<p><strong>Design one — the phone calls all five itself.</strong> Five round trips across a mobile network, in sequence, before a pixel appears. Twenty-nine fields arrive; six are drawn.</p>
+<p><strong>Design two — one shared endpoint returns the union.</strong> One round trip, which is a real improvement. But 87% of the bytes are discarded on arrival, and when the phone team asks for one new field — a delivery sentence joined from stock, the delivery rules and the clock — the change has to be agreed with every other client that receives the same document. They wait five weeks for an afternoon&#x27;s work.</p>
+<p>That second failure is the one that matters, and it is organisational rather than technical. A <code>?fields=</code> query parameter fixes the bytes completely. Nothing fixes ownership except giving each client something of its own.</p>
+<h2>The Pattern</h2>
+<pre><code>  phone app  ──────────►  MobileBff   ─┐
+                                       ├──► catalog · pricing · inventory
+  desktop    ──────────►  WebBff      ─┘        · reviews · recommendations
+
+  ▲ one call each,                     ▲ four or five calls each,
+    over the customer&#x27;s                  inside the data centre,
+    connection                           where they are nearly free</code></pre>
+<p>Read that in words. Each client makes exactly one call, to a backend that belongs to it. That backend makes four or five calls to the shop&#x27;s services, all of them inside the data centre. It then builds one document containing exactly the fields its screen draws, in the form the screen draws them, and sends it back.</p>
+<p>Two things move, and they are different in kind:</p>
+<ul><li><strong>Calls move off the expensive network.</strong> Five device calls become one; the four that disappeared reappear internally. The work did not go away.</li><li><strong>Decisions move out of the app.</strong> Formatting <code>4799</code> as <code>&quot;£47.99&quot;</code>, joining three services into an English sentence, choosing a 320-pixel thumbnail over a 2000-pixel hero image. All of it now happens in a process that can be corrected this afternoon, rather than in an app store release that customers may not install for two years.</li></ul>
+<h2>Participants</h2>
+<table><thead><tr><th>Participant</th><th>In this project</th><th>Role</th></tr></thead><tbody><tr><td>Frontend</td><td>the phone app, the desktop store</td><td>Draws a screen. Owns a backend.</td></tr><tr><td>Backend for a frontend</td><td><code>MobileBff</code>, <code>WebBff</code></td><td>One call in, one screen-shaped document out.</td></tr><tr><td>The contract</td><td><code>ClientBackend</code></td><td>One method. Meaningful only because it has several implementations.</td></tr><tr><td>Downstream services</td><td><code>Shop</code></td><td>The five services that hold the data. Unchanged by the pattern.</td></tr><tr><td>Shared business rule</td><td><code>SavingRules</code></td><td>What the shop believes regardless of client. Must live behind the backends.</td></tr><tr><td>Entry concerns</td><td><code>CrossCutting</code></td><td>Token, rate limit, TLS, access log. Belong in front of all backends.</td></tr><tr><td>The estate</td><td><code>ClientEstate</code></td><td>How many backends the shop&#x27;s clients actually justify.</td></tr><tr><td>The measurement</td><td><code>CallLog</code>, <code>Doc</code>, <code>Screens</code></td><td>Counts calls by origin, measures documents, records what each screen draws.</td></tr></tbody></table>
+<p>Two of those deserve a note.</p>
+<p><code>ClientBackend</code> is one method and could be deleted without changing any behaviour. It is here because it names the thing the pattern is about. As its own comment puts it: what makes this the pattern is not the interface, it is that there is more than one implementation of it and each is free to answer differently.</p>
+<p><code>Screens</code> is the project&#x27;s ruler. Every claim about waste is measured against a written-down list of what a human being can actually see on each screen, kept in one file rather than implied by whichever class happens to be building a response.</p>
+<h2>Code Walkthrough</h2>
+<h3>What each screen draws, written down once</h3>
+<pre><code>public static final List&lt;String&gt; PHONE = List.of(
+        &quot;title&quot;, &quot;price&quot;, &quot;image&quot;, &quot;rating&quot;, &quot;ratingCount&quot;, &quot;delivery&quot;);</code></pre>
+<p>Six strings. Everything in this project that says &quot;wasteful&quot; means &quot;not on that list&quot;, and that is the only definition of waste it uses.</p>
+<h3>Counting calls, in two columns</h3>
+<pre><code>public enum Origin {
+    /** Across the customer&#x27;s own connection. Slow, metered, and unreliable. */
+    DEVICE,
+    /** Inside the data centre, between our own processes. Fast and free. */
+    INTERNAL
+}</code></pre>
+<p>This enum is the honest bit of the project. The pattern is often sold as &quot;fewer calls&quot;, and that is not true — the same five services get called either way. What changes is <em>which network</em> the calls cross. Counting them in one column would let the project claim a saving it has not made, so it counts them in two.</p>
+<h3>The shop, and why its data never moves</h3>
+<pre><code>public Doc pricing(String sku) {
+    log.record(CallLog.Origin.INTERNAL, &quot;pricing&quot;);
+    return Doc.doc()
+            .put(&quot;listPence&quot;, 5999)
+            .put(&quot;nowPence&quot;, 4799)
+            ...
+            .put(&quot;listPriceHeldLongEnough&quot;, false);
+}</code></pre>
+<p>Fixed values, not random ones, because a byte count that moved between runs could not be quoted in a document or a narration. And note the last field: the shop itself knows the higher price is too recent to advertise. It is not hiding anything. Act 5 is about what each backend <em>does</em> with that field.</p>
+<h3>The rejected design, and the version of it that works</h3>
+<pre><code>public Doc product(String sku, List&lt;String&gt; fields) {
+    return product(sku).select(fields);
+}</code></pre>
+<p>This is <code>?fields=</code>, and the project takes it seriously: it brings the response from 1755 bytes down to 212, which is close to what a tailored backend sends. If this pattern were about payload size, a query parameter would be the answer and there would be no new processes to run.</p>
+<p>Then the next method:</p>
+<pre><code>public static String joinedDelivery() {
+    return &quot;not available -- a field like this belongs to one client, and this &quot;
+            + &quot;endpoint belongs to all of them&quot;;
+}</code></pre>
+<p>A hard-coded string is a blunt way to make a point, and it is the point. There is no code that could go here. The sentence the phone wants does not exist in any service, and creating it on a shared endpoint means changing a document that six clients receive.</p>
+<h3>The phone&#x27;s backend</h3>
+<pre><code>@Override
+public Doc productScreen(String sku) {
+    log.record(CallLog.Origin.DEVICE, &quot;mobile-bff&quot;);
+    Doc catalog = shop.catalog(sku);
+    Doc pricing = shop.pricing(sku);
+    Doc inventory = shop.inventory(sku);
+    Doc reviews = shop.reviews(sku);
+
+    return Doc.doc()
+            .put(&quot;title&quot;, catalog.get(&quot;title&quot;))
+            .put(&quot;price&quot;, Money.format((int) pricing.get(&quot;nowPence&quot;)))
+            .put(&quot;image&quot;, catalog.get(&quot;thumbnail&quot;))
+            .put(&quot;rating&quot;, reviews.get(&quot;average&quot;))
+            .put(&quot;ratingCount&quot;, reviews.get(&quot;count&quot;))
+            .put(&quot;delivery&quot;, deliveryPromise(inventory));
+}</code></pre>
+<p>Read the document it returns before reading how it is built. Six fields, all flat, all already in the form the screen draws them. The price is a string with a pound sign in it. The delivery promise is a whole English sentence. Nothing is left for the phone to work out.</p>
+<p>Two details are worth pausing on.</p>
+<p><strong>It calls four services, not five.</strong> There is no <code>shop.recommendations(sku)</code> line, because the phone&#x27;s product screen does not show a related-products strip. The backend knows what the screen draws, so it knows what not to ask for. A shared endpoint cannot make that decision for anybody.</p>
+<p><strong><code>image</code> is the thumbnail.</strong> The catalog holds five 2000-pixel images and one 320-pixel one. Choosing the small one for a four-inch screen is a presentation decision, and it is being made here rather than in the app.</p>
+<p>And the sentence itself:</p>
+<pre><code>private static String deliveryPromise(Doc inventory) {
+    boolean inStock = (boolean) inventory.get(&quot;inStock&quot;);
+    if (!inStock) {
+        return &quot;Out of stock&quot;;
+    }
+    return &quot;Free delivery, arrives &quot; + inventory.get(&quot;nextDelivery&quot;);
+}</code></pre>
+<p>Four lines. This is the field the phone team waited five weeks for on the shared endpoint, written in the one place that is allowed to care about it.</p>
+<h3>The desktop&#x27;s backend, disagreeing</h3>
+<pre><code>return Doc.doc()
+        .put(&quot;title&quot;, catalog.get(&quot;title&quot;))
+        .put(&quot;brand&quot;, catalog.get(&quot;brand&quot;))
+        .put(&quot;description&quot;, catalog.get(&quot;description&quot;))
+        ...
+        .put(&quot;delivery&quot;, inventory.get(&quot;nextDelivery&quot;))
+        .put(&quot;stock&quot;, inventory.get(&quot;quantity&quot;))
+        .put(&quot;related&quot;, recommendations.get(&quot;related&quot;));</code></pre>
+<p>Fifteen fields, and all five services called. Look at <code>delivery</code>: where the phone got a sentence, the desktop gets the bare date. That is not an inconsistency to be tidied up. The desktop page has a whole delivery panel and wants the parts so it can lay them out; the phone has one line and wants the sentence.</p>
+<p>Two backends over the same data, disagreeing about what a product is. That disagreement is the pattern working.</p>
+<h2>And Now The Bill</h2>
+<p>Everything above is in every write-up of this pattern. The three things below are what it costs, and each of them is a real failure that happens in real systems without announcing itself.</p>
+<h3>One: shared logic in two places will diverge</h3>
+<p>The pricing team reviews the discount rule. The new rule has two conditions: the higher price must genuinely have been in force long enough to be quoted, and the saving must be at least five per cent.</p>
+<pre><code>static SavingRules current() {
+    return (listPence, nowPence, listPriceHeldLongEnough) -&gt; {
+        if (!listPriceHeldLongEnough) {
+            return &quot;&quot;;
+        }
+        int savedPence = listPence - nowPence;
+        int percent = (savedPence * 100) / listPence;
+        if (percent &lt; 5) {
+            return &quot;&quot;;
+        }
+        return &quot;Save &quot; + Money.format(savedPence) + &quot; (&quot; + percent + &quot;%)&quot;;
+    };
+}</code></pre>
+<p>The phone&#x27;s backend, meanwhile, holds a copy taken before the review:</p>
+<pre><code>static SavingRules copiedBeforeTheReview() {
+    return (listPence, nowPence, listPriceHeldLongEnough) -&gt;
+            &quot;Save &quot; + Money.format(listPence - nowPence);
+}</code></pre>
+<p>For SKU-4417 the higher price went up eleven days ago, so <code>listPriceHeldLongEnough</code> is <code>false</code>, and the two rules part company:</p>
+<pre><code>  desktop store says:  (nothing — no saving may be claimed for this price)
+  phone app says:      Save £12.00</code></pre>
+<p>Same product, same price, same second, and one of those screens is making a claim the shop is not allowed to make. In most countries what a shop may advertise as a saving is a matter of law, so this is a letter from a regulator rather than a bug report.</p>
+<p>Now the part worth saying out loud, because it is the reason this failure keeps happening: <strong>nothing about that copy is careless.</strong> It was correct on the day it was written. It is well named. It has tests, and the tests pass. It is wrong only in relation to a decision made months later, somewhere else, by people who had no reason to know a second copy existed. No exception is thrown. Nothing is logged. The only person who can see the difference is a customer with both screens open.</p>
+<p>The rule that prevents it: <strong>a backend for a frontend may hold the shape. Anything the shop would still believe with every client switched off belongs behind it.</strong> Discount eligibility, tax, stock allocation, what a price is — those are the shop&#x27;s beliefs. Which of the shop&#x27;s five images to send is shape.</p>
+<h3>Two: the shared jobs get done once per backend</h3>
+<p>Every request needs four things done to it, whoever sent it:</p>
+<pre><code>public static final List&lt;String&gt; JOBS = List.of(
+        &quot;verify the customer&#x27;s token&quot;,
+        &quot;refuse traffic over the rate limit&quot;,
+        &quot;terminate TLS&quot;,
+        &quot;write the access log&quot;);</code></pre>
+<pre><code>public static int copiesWhenEachBackendDoesIt(int backends) {
+    return JOBS.size() * backends;
+}
+
+public static int copiesBehindAGateway() {
+    return JOBS.size();
+}</code></pre>
+<p>The second method takes no argument, and that absence is the answer. Behind a gateway the number of copies does not depend on how many backends there are:</p>
+<pre><code>  each backend doing it itself: 8 copies across 2 backends
+  a gateway in front:           4 copies, whatever the number of backends</code></pre>
+<p>Eight against four is not a dramatic number at two backends. Try it at six. And notice how the mistake happens: the nearest place to put token verification is inside whichever backend you happen to be editing this afternoon, and each individual decision to do that is reasonable. Do it once per backend and the shop has as many copies of its authentication code as it has clients, which is the position it was in before it built a gateway.</p>
+<p>The line is a single question, and it is worth memorising because it is also the answer to &quot;how is this different from an API gateway?&quot;:</p>
+<ul><li>Does the code answer <strong>&quot;what does this screen need?&quot;</strong> → a backend for that frontend.</li><li>Does the code answer <strong>&quot;is this request allowed in at all?&quot;</strong> → in front of all of them.</li></ul>
+<p>A gateway is about entry. A backend for a frontend is about shape. They are neighbours and they are frequently deployed together, and they are not the same pattern.</p>
+<h3>Three: one backend per client is not the rule</h3>
+<p>The shop has six clients:</p>
+<pre><code>  phone app        own backend        six fields, one sentence, a four-inch screen
+  desktop store    own backend        description, specification, five images, reviews
+  tablet app       shares one         the phone&#x27;s fields in a wider column
+  smart TV app     own backend        no keyboard, so no search, and pictures do the work
+  in-store kiosk   shares one         the desktop page with the basket hidden
+  partner feed     shares one         not a screen at all — a nightly file
+
+  one per client:            6 backends
+  one per genuine disagreement: 3 backends</code></pre>
+<pre><code>public int backendsJustified() {
+    return (int) clients.stream().filter(Client::disagreesAboutTheProduct).count();
+}</code></pre>
+<p>The filter is the whole design rule expressed as code. It does not count devices and it does not count teams. It counts clients that <strong>disagree about what a product is</strong>.</p>
+<p>Work through the three that share. The tablet shows the phone&#x27;s six fields in a wider column: it disagrees about layout, which is a stylesheet, not a backend. The kiosk shows the desktop page with the basket hidden: same fields, one hidden. The partner feed is not a screen at all — it is a nightly file, and it is served by whichever backend already produces those fields.</p>
+<p>And the reason to care, which is not servers:</p>
+<pre><code>public static List&lt;String&gt; whatEachBackendCosts() {
+    return List.of(
+            &quot;a pipeline to build and deploy it&quot;,
+            &quot;a place in the on-call rota&quot;,
+            &quot;a dependency upgrade every time a shop service changes&quot;,
+            &quot;one more process to look at during an incident&quot;);
+}</code></pre>
+<p>Every item on that list recurs weekly, for as long as the backend exists, and none of it appears on an infrastructure bill. Two backends is a pattern. Nine is a department.</p>
+<h2>What This Simulation Does Not Show</h2>
+<p>This project runs in one JVM with no network and no framework, which buys clarity and costs realism. Being explicit about what is missing:</p>
+<p><strong>There is no network.</strong> <code>Shop</code> returns in microseconds. Every claim this project makes about round trips is made by <em>counting</em> them, not by timing them, which is why <code>CallLog</code> separates device calls from internal ones instead of measuring latency. A real device call over a poor mobile connection is 100–300ms of pure waiting; a real internal call is under a millisecond. The counts are honest; the timings are absent.</p>
+<p><strong>The calls are sequential.</strong> A real backend for a frontend would fetch catalog, pricing, inventory and reviews concurrently, and the four internal calls would cost roughly what the slowest one costs. Doing that here would add thread handling to a project about shape, so it is left out — which means the project understates the pattern&#x27;s benefit rather than overstating it.</p>
+<p><strong>Nothing fails.</strong> Every service answers. A real backend has to decide what a screen does when reviews is down: the phone screen can draw without a star rating, so a sensible backend returns the other five fields and omits the rating rather than failing the whole screen. That decision — which fields are essential to <em>this</em> screen — is another thing only a client-specific backend can make, and the resilience patterns for it live in the microservices category.</p>
+<p><strong>There is no HTTP, no JSON library and no serialisation.</strong> <code>Doc</code> is an ordered map with a <code>bytes()</code> method that measures its own compact text form. Real payloads would compress, and gzip narrows the gap between 1755 bytes and 196 considerably. The byte comparison in Act 4 is directionally right and should not be quoted as a production figure.</p>
+<p><strong>There is no gateway.</strong> Act 6 counts copies of four jobs; it does not run them.</p>
+<p><strong>There are no schemas or versioning.</strong> In production each backend publishes a contract to its client, and shipping a phone app that expects a field the backend no longer sends is its own category of outage.</p>
+<h2>Why The Tests Are The Proof</h2>
+<p>The tests are where the pattern&#x27;s claims are made checkable rather than asserted in prose.</p>
+<p><code>MobileBffTest</code> pins the shape exactly:</p>
+<pre><code>assertEquals(Screens.PHONE, screen.paths());</code></pre>
+<p>Not &quot;contains the fields the screen needs&quot; — <em>equals</em>. If the backend ever sends a seventh field, the test fails, because a field that arrives and is not drawn is the waste this project exists to remove.</p>
+<pre><code>assertEquals(1, log.countFrom(CallLog.Origin.DEVICE));
+assertEquals(4, log.countFrom(CallLog.Origin.INTERNAL));</code></pre>
+<p>One and four, stated separately. Both halves of the honest claim in one assertion pair.</p>
+<pre><code>assertTrue(!log.targetsFrom(CallLog.Origin.INTERNAL).contains(&quot;recommendations&quot;));</code></pre>
+<p>A test that something did <em>not</em> happen. The phone&#x27;s screen shows no related products, so calling recommendations would be work done for nobody.</p>
+<p><code>WebBffTest</code> asserts the disagreement:</p>
+<pre><code>assertNotEquals(phoneScreen.names(), page.names());</code></pre>
+<p>If those two ever became equal, the shop would have two processes doing one job and should delete one. The test protects the pattern from being applied where it is not needed.</p>
+<p><code>ClientEstateTest</code> pins the counting rule, and <code>CrossCuttingTest</code> pins the constant:</p>
+<pre><code>assertEquals(CrossCutting.JOBS.size(), CrossCutting.copiesBehindAGateway());</code></pre>
+<p>And <code>DemoRunsTest</code> captures the demo&#x27;s own output and asserts on the strings the documents and the narration quote, so a number cannot drift out of a video script without a build failing first.</p>
+<h2>What You Gain</h2>
+<table><thead><tr><th>Gain</th><th>Measured here as</th></tr></thead><tbody><tr><td>One round trip over the customer&#x27;s connection</td><td>5 device calls → 1</td></tr><tr><td>A document the size of the screen</td><td>1755 bytes → 196</td></tr><tr><td>Presentation decisions outside the app</td><td><code>4799</code> → <code>&quot;£47.99&quot;</code>, in a redeployable process</td></tr><tr><td>A field for one client, this week</td><td>the delivery sentence: four lines, no negotiation</td></tr><tr><td>Client-shaped composition</td><td>three services joined into one sentence</td></tr><tr><td>Screens free to differ</td><td>6 fields and 15 fields from the same five services</td></tr></tbody></table>
+<h2>What To Watch Out For</h2>
+<table><thead><tr><th>Watch for</th><th>Why</th><th>What to do</th></tr></thead><tbody><tr><td>Business rules inside a backend</td><td>Two copies will diverge silently</td><td>Keep rules behind the backends; keep shape inside</td></tr><tr><td>Auth or rate limiting per backend</td><td>N copies of the entry code</td><td>One gateway in front of all of them</td></tr><tr><td>One backend per client on principle</td><td>A department instead of a pattern</td><td>One per genuine disagreement about the data</td></tr><tr><td>A backend nobody owns</td><td>The five-week queue returns</td><td>The team that draws the screen changes the backend</td></tr><tr><td>A backend that grows a database</td><td>It is becoming a service, not a view</td><td>Backends hold no state of their own</td></tr><tr><td>Two backends drifting into the same shape</td><td>You are paying twice for one job</td><td>Merge them; a layout difference is a stylesheet</td></tr><tr><td>Treating this as an optimisation</td><td>You will measure bytes and miss ownership</td><td>The win is who may change the shape</td></tr></tbody></table>
+<h2>Backends for Frontends vs. API Gateway vs. API Composition</h2>
+<p>These three are constantly confused, and the difference is what question each one answers.</p>
+<table><thead><tr><th></th><th>Answers</th><th>How many</th><th>Owned by</th></tr></thead><tbody><tr><td><strong>API Gateway</strong></td><td>&quot;Is this request allowed in?&quot;</td><td>One</td><td>The platform team</td></tr><tr><td><strong>API Composition</strong></td><td>&quot;How do I answer one query from several services?&quot;</td><td>A technique, not a process</td><td>Whoever writes the endpoint</td></tr><tr><td><strong>Backends for Frontends</strong></td><td>&quot;What does <em>this screen</em> need?&quot;</td><td>One per disagreeing client</td><td>The team that owns the screen</td></tr></tbody></table>
+<p>A backend for a frontend almost always <em>uses</em> API composition — that is what <code>MobileBff.productScreen</code> is doing when it calls four services. And it almost always <em>sits behind</em> a gateway, which is Act 6&#x27;s whole argument. The patterns compose; they do not compete.</p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><strong>Netflix</strong>, which is where the pattern&#x27;s modern write-up comes from: hundreds of device types, from televisions to phones to browsers, each with its own idea of what a title looks like, served by device-specific adapters over one shared API.</li><li><strong>SoundCloud</strong>, whose 2015 write-up gave the pattern its name and its argument — a shared public API that could not keep up with the needs of its own mobile apps.</li><li><strong>GraphQL</strong>, which is a different answer to the same problem: rather than one backend per client, one endpoint that lets each client describe its own shape. Worth knowing as the alternative, and worth knowing that it moves the ownership question rather than removing it — somebody still owns the schema.</li><li><strong>Any mobile app with a <code>/v2/home-screen</code> endpoint.</strong> If an endpoint is named after a screen rather than after a resource, you are looking at this pattern.</li></ul>
+<h2>Try It Yourself</h2>
+<pre><code>./gradlew run
+./gradlew test</code></pre>
+<p>Then:</p>
+<ol><li><strong>Add a seventh field to <code>MobileBff</code></strong> — anything, say the warehouse name. Run the tests. <code>sendsOnlyWhatIsDrawn</code> fails, because the field is not on <code>Screens.PHONE</code>. That is the guard rail working.</li><li><strong>Give the phone the current rule.</strong> In <code>ProductScreenDemo</code>, pass <code>SavingRules.current()</code> to the phone&#x27;s backend instead of the stale copy. Act 5 now agrees with the desktop. Notice that the fix is one line and that nothing would ever have told you which line.</li><li><strong>Delete the delivery sentence</strong> and return the raw date, as the desktop does. The phone app now has to build the sentence itself — on the device, in three languages, in a release customers may not install.</li><li><strong>Add a fourth client</strong> to <code>ClientEstate</code> and decide, before you run it, whether it disagrees about what a product is. That decision is the design work.</li><li><strong>Make the four internal calls concurrent.</strong> How much would the pattern&#x27;s benefit grow? This is the exercise that shows how much the simulation is understating.</li></ol>
+<h2>See Also</h2>
+<ul><li><code>docs/problem-statement.md</code> — the failure, in full, before the pattern</li><li><code>docs/class-diagram.md</code> — the structure, and the argument in the arrows</li><li><code>docs/uml-diagram.md</code> — the three designs as sequence diagrams</li><li><code>docs/prerequisites.md</code> — what you need to know first</li><li><code>../../micro-services-design-patterns/api-gateway-pattern/</code> — the neighbour this pattern sits behind</li><li><code>../../micro-services-design-patterns/api-composition-pattern/</code> — the technique each backend uses internally</li></ul>
+</main>
+<footer>
+Generated from <code>backends-for-frontends-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

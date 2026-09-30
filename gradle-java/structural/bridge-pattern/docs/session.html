@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Bridge Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Bridge Pattern</h1>
+<p>A 60-minute guided session for teaching or self-studying the Bridge pattern using this project.</p>
+<ul><li><strong>Audience:</strong> beginners comfortable with core Java</li><li><strong>Duration:</strong> ~60 minutes</li><li><strong>Format:</strong> live coding + discussion</li><li><strong>Prerequisites:</strong> see <a href="prerequisites.html"><code>prerequisites.md</code></a></li></ul>
+<blockquote><p><strong>Optional pre-work.</strong> Ask participants to watch the video (<code>video/bridge-pattern-explained.mp4</code>) beforehand. If they do, you can compress the problem and pattern segments and spend the extra time on the exercises. If you are teaching a group that has <em>not</em> watched it, run the session exactly as written below.</p></blockquote>
+<h2>Learning Objectives</h2>
+<p>By the end of this session a participant should be able to:</p>
+<ol><li>Describe, in one sentence, what problem the Bridge pattern solves.</li><li>Explain why <code>Notification</code> holds a <code>MessageChannel</code> field instead of subclassing per channel.</li><li>Identify the four roles — abstraction, refined abstraction, implementor, concrete implementor — in real code.</li><li>Predict how many new classes a new notification type or a new channel costs, with and without Bridge.</li><li>Distinguish Bridge from Adapter.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Segment</th><th>Mode</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td><td>Hands-on</td></tr><tr><td>0:05–0:15</td><td>The problem</td><td>Discussion</td></tr><tr><td>0:15–0:25</td><td>The pattern</td><td>Explanation</td></tr><tr><td>0:25–0:40</td><td>Code walkthrough</td><td>Live coding</td></tr><tr><td>0:40–0:50</td><td>Exercises</td><td>Hands-on</td></tr><tr><td>0:50–0:58</td><td>Pitfalls &amp; comparisons</td><td>Discussion</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td><td>—</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<p>Everyone runs:</p>
+<pre><code>java -version
+./gradlew run</code></pre>
+<p>Anyone whose build fails pairs up with a neighbour. Do not debug installs during the session — that is what the prerequisites doc is for.</p>
+<h2>0:05–0:15 — The Problem</h2>
+<p><strong>Do not show <code>Notification</code>/<code>MessageChannel</code> yet.</strong> Start with the pain.</p>
+<p>Put <code>NaiveOrderConfirmationEmail</code> and <code>NaiveOrderConfirmationSms</code> from <a href="problem-statement.html"><code>problem-statement.md</code></a> side by side and ask:</p>
+<blockquote><p><em>&quot;These two classes both send an order confirmation. What&#x27;s duplicated between them, and what&#x27;s genuinely different?&quot;</em></p></blockquote>
+<p>Land on: the <em>content</em> (subject, body) is duplicated; the <em>delivery mechanics</em> are genuinely different — but both facts are welded into every single class.</p>
+<p><strong>Key question to land:</strong> <em>&quot;If I add a <code>Push</code> channel, how many new classes do I write? If I add a <code>PasswordReset</code> notification type, how many new classes?&quot;</em> Two, then two more (and then a third channel needs three more on top of that) — the N×M explosion.</p>
+<h2>0:15–0:25 — The Pattern</h2>
+<p>Introduce the TV remote / television analogy from <a href="bridge-pattern-explained.html"><code>bridge-pattern-explained.md</code></a>. Ask the group: <em>&quot;If a remote&#x27;s &#x27;volume up&#x27; button is pressed, does the remote need to know whether it&#x27;s talking to a Sony or a Samsung TV?&quot;</em> Land on: no — the remote only knows it&#x27;s talking to <em>something</em> that understands &quot;volume up,&quot; exactly as <code>Notification</code> only knows it&#x27;s talking to <em>something</em> that understands <code>deliver(...)</code>.</p>
+<p>Show the class diagram (<a href="images/class-diagram.png"><code>images/class-diagram.png</code></a>) and name the four roles. Then show the sequence diagram (<a href="images/uml-diagram.png"><code>images/uml-diagram.png</code></a>) and trace a single <code>send()</code> call fanning out to exactly one <code>deliver()</code> call.</p>
+<p>Optionally open <a href="animation.html"><code>animation.html</code></a> in a browser and play it through once. It has a <strong>Narration</strong> button: leave it off if you want to talk over the animation yourself, or switch it on to let it explain each step in its own voice.</p>
+<p><strong>The one point that must land:</strong></p>
+<blockquote><p>If a <code>Notification</code> subclass ever needs an <code>if</code> statement checking which channel it&#x27;s talking to, the pattern has not been applied — the whole point is that content and delivery vary on two axes that never touch.</p></blockquote>
+<h2>0:25–0:40 — Code Walkthrough</h2>
+<p>Open the files in this order. Resist jumping ahead.</p>
+<p><strong>1. The implementor — <code>MessageChannel.java</code></strong> Point out this interface declares the one thing every channel must be able to do: <code>deliver(recipient, subject, body)</code>. Ask: <em>&quot;Why doesn&#x27;t this interface know anything about order confirmations or password resets?&quot;</em></p>
+<p><strong>2. The abstraction — <code>Notification.java</code></strong> This is the heart of the session. Point at the <code>channel</code> field and ask: <em>&quot;Is this inheritance or composition?&quot;</em> Composition — and that one field is the entire bridge. Point at <code>send()</code> being <code>final</code>: subclasses can never override how delivery is triggered, only what gets delivered.</p>
+<p><strong>3. A refined abstraction — <code>OrderConfirmationNotification.java</code></strong> Ask: <em>&quot;Which channel does this class work with?&quot;</em> Trick question — it doesn&#x27;t know, and doesn&#x27;t care. Prove it by running the same notification through <code>EmailChannel</code>, <code>SmsChannel</code>, and <code>PushChannel</code> live.</p>
+<p><strong>4. A concrete implementor — <code>SmsChannel.java</code></strong> Point at <code>MAX_LENGTH</code> and the truncation logic. Ask: <em>&quot;How many places in this codebase know about the 140-character SMS limit?&quot;</em> Exactly one.</p>
+<p><strong>5. The trap — <code>NaiveOrderConfirmationSms.java</code> / <code>NaiveShippingUpdateSms.java</code></strong> Put the truncation block from both naive classes side by side. Ask: <em>&quot;These are identical. What happens when the SMS provider changes the limit to 160 characters?&quot;</em> Two edits instead of one — and that gap grows with every notification type added.</p>
+<p><strong>6. The client — <code>NotificationDemo.java</code></strong> Run <code>./gradlew run</code> live. Point at the section demonstrating truncation with a long shipping-status message, and show the <code>…</code> in the SMS output but not the email output for the exact same notification instance&#x27;s content.</p>
+<h2>0:40–0:50 — Exercises</h2>
+<p>Let participants work; circulate and help.</p>
+<h3>Exercise 1 — Add a channel (everyone)</h3>
+<p>Add a <code>WhatsAppChannel</code> (pick any made-up formatting rule, e.g. prefix every message with <code>&quot;[WA] &quot;</code>). Confirm every existing <code>Notification</code> subclass works with it immediately, with zero changes to <code>Notification</code>/<code>OrderConfirmationNotification</code>/etc.</p>
+<blockquote><p><strong>The payoff:</strong> a whole new delivery mechanism cost exactly one class. Say this out loud when someone finishes.</p></blockquote>
+<h3>Exercise 2 — Add a notification type (everyone)</h3>
+<p>Add a <code>BackInStockNotification</code> refined abstraction. Confirm it works with <code>EmailChannel</code>, <code>SmsChannel</code>, and <code>PushChannel</code> immediately, with zero changes to any channel class.</p>
+<h3>Exercise 3 — Break the bridge on purpose (discussion)</h3>
+<p>Add an <code>if (channel instanceof SmsChannel)</code> check inside a <code>Notification</code> subclass&#x27;s <code>body()</code> method that shortens the body when talking to SMS. Discuss: <em>&quot;What did we just throw away?&quot;</em> The whole point of the abstraction staying ignorant of the implementor — now content and delivery are coupled again, exactly like the naive trap.</p>
+<h3>Exercise 4 — Stretch (for fast finishers)</h3>
+<p>Give <code>Notification</code> a package-private setter so its <code>channel</code> can be swapped after construction (rather than only at construction time via the constructor). Discuss: does this still satisfy Bridge? (Yes — the pattern only requires the connection to be composition, not that it be immutable.)</p>
+<h2>0:50–0:58 — Pitfalls &amp; Comparisons</h2>
+<p>Cover the &quot;What to Watch Out For&quot; section:</p>
+<ul><li>Bridge only pays off with two genuinely independent axes of variation — don&#x27;t introduce it for a single channel or a single notification type.</li><li>The abstraction must never need to know implementor-specific facts (like SMS&#x27;s 140-character limit) to do its job.</li><li>A <code>final</code> implementor field is a deliberate simplicity choice here, not a requirement of the pattern.</li></ul>
+<p>Then the comparison table. The line worth memorising:</p>
+<blockquote><p><strong>Adapter reconciles two interfaces that already exist and disagree. Bridge designs two hierarchies from the start so they never have to agree on more than one seam.</strong></p></blockquote>
+<p>Close with real-world sightings: JDBC drivers, logging facades (SLF4J), cross-platform UI toolkits, device drivers.</p>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>Ask three people for a one-sentence definition. Then assign follow-up:</p>
+<blockquote><p>Find one place in your own codebase where &quot;what&quot; and &quot;how&quot; are welded into one class per combination — a report generator with one class per (report type, output format) pair is a common one — and sketch what the Bridge split would look like.</p></blockquote>
+<h2>Facilitator Notes</h2>
+<p><strong>Common misconceptions to correct:</strong></p>
+<table><thead><tr><th>They say</th><th>Correct with</th></tr></thead><tbody><tr><td>&quot;Isn&#x27;t this the same as Adapter?&quot;</td><td>No — Adapter reconciles an interface you didn&#x27;t design after the fact; Bridge designs two hierarchies together, up front, so they never disagree in the first place</td></tr><tr><td>&quot;Why not just pass a lambda instead of a <code>MessageChannel</code> interface?&quot;</td><td>You could for a single method — but <code>MessageChannel</code> also carries <code>channelName()</code>, and a named interface documents the implementor role clearly for a teaching example</td></tr><tr><td>&quot;This feels like overkill for three channels and three notification types&quot;</td><td>Fair, at this size. The payoff scales with how many types exist on <em>each</em> axis — with two channels and two types it&#x27;s a wash; with five and five it&#x27;s the difference between 10 and 25 classes</td></tr><tr><td>&quot;Shouldn&#x27;t <code>SmsChannel</code> know about <code>OrderConfirmationNotification</code> to format it specially?&quot;</td><td>No — that would break the whole separation. If a channel needs type-specific formatting, that belongs in the notification&#x27;s <code>body()</code>, decided independently of which channel eventually receives it</td></tr></tbody></table>
+<p><strong>If you are running short on time:</strong> cut Exercise 4 and shorten the pitfalls discussion. Never cut Exercise 3 — hitting the &quot;what did we throw away&quot; moment is where the value of keeping the abstraction ignorant of the implementor actually lands.</p>
+<p><strong>If you have extra time:</strong> have participants implement a <code>deliver()</code> for a hypothetical <code>SlackChannel</code> that formats the message as Markdown, and discuss whether that requires any change to <code>Notification</code> or its subclasses (it should not).</p>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>Everyone has JDK 21 and a green <code>./gradlew run</code></li><li>Diagrams open in a tab (<code>images/</code>)</li><li><code>animation.html</code> open in a browser</li><li>Video on hand (<code>../video/bridge-pattern-explained.mp4</code>) — useful as a recap for anyone who joins late, or to send round afterwards</li><li>The printed notification output from <code>./gradlew run</code> ready to put on the board</li><li>IDE font size raised for screen sharing</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

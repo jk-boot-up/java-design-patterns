@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Observer Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Observer Pattern</h1>
+<p>A 60-minute guided session for teaching or self-studying the Observer pattern using this project.</p>
+<ul><li><strong>Audience:</strong> beginners comfortable with core Java</li><li><strong>Duration:</strong> ~60 minutes</li><li><strong>Format:</strong> live coding + discussion</li><li><strong>Prerequisites:</strong> see <a href="prerequisites.html"><code>prerequisites.md</code></a></li></ul>
+<blockquote><p><strong>Optional pre-work.</strong> Ask participants to watch the video (<code>video/observer-pattern-explained.mp4</code>) beforehand. If they do, you can compress the problem and pattern segments and spend the extra time on the exercises. If you are teaching a group that has <em>not</em> watched it, run the session exactly as written below.</p></blockquote>
+<h2>Learning Objectives</h2>
+<p>By the end of this session a participant should be able to:</p>
+<ol><li>Describe, in one sentence, what problem the Observer pattern solves.</li><li>Explain why <code>Order</code> has no field called <code>email</code>, and what that buys.</li><li>Identify the roles — subject, observer, concrete observer, event — in real code.</li><li>State honestly what the pattern costs, starting with the fact that reading <code>moveTo</code> no longer tells you what happens.</li><li>Distinguish Observer from Mediator, and from Strategy.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Segment</th><th>Mode</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td><td>Hands-on</td></tr><tr><td>0:05–0:16</td><td>The problem</td><td>Discussion</td></tr><tr><td>0:16–0:26</td><td>The pattern</td><td>Explanation</td></tr><tr><td>0:26–0:41</td><td>Code walkthrough</td><td>Live coding</td></tr><tr><td>0:41–0:51</td><td>Exercises</td><td>Hands-on</td></tr><tr><td>0:51–0:58</td><td>Costs &amp; comparisons</td><td>Discussion</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td><td>—</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<p>Everyone runs:</p>
+<pre><code>java -version
+./gradlew run</code></pre>
+<p>Anyone whose build fails pairs up with a neighbour. Do not debug installs during the session — that is what the prerequisites doc is for.</p>
+<h2>0:05–0:16 — The Problem</h2>
+<p><strong>Do not show <code>OrderListener</code> yet.</strong> Start with the pain.</p>
+<p>Open <code>NaiveOrderService</code> and put <code>markShipped</code> on the screen. Four lines. Read them out. Then ask:</p>
+<blockquote><p><em>&quot;This is four lines long and you can see everything it does. Convince me it&#x27;s bad.&quot;</em></p></blockquote>
+<p>Let the group struggle for a moment — they should, because for four lines this really is a good program. Steer towards, in this order:</p>
+<ol><li>A fifth reaction edits this method, and everything that depended on it gets re-tested.</li><li>You cannot test the shipping transition without stubbing all four.</li><li>Analytics wants <em>every</em> transition, which means every status-changing method must remember to call it.</li></ol>
+<p><strong>Then point at the second line and ask the question that turns the session:</strong></p>
+<blockquote><p><em>&quot;Email talks to a network. What happens on the day the mail server times out?&quot;</em></p></blockquote>
+<p>Walk it through out loud: the order is already marked shipped. Inventory has already released the stock. Analytics never runs. <strong>The warehouse feed is never written, so nobody picks the parcel.</strong> The caller gets an exception that says <code>SMTP timeout</code> and says nothing at all about the parcel.</p>
+<p>Now run the demo&#x27;s first section live, or show <code>NaiveOrderServiceTest.oneFailureTakesTheRestDown</code>. Seeing <code>warehouse feed : []</code> on screen lands harder than describing it.</p>
+<p>This is the moment the session turns: it converts &quot;a bit tangled&quot; into &quot;an incident that passes code review&quot;.</p>
+<h2>0:16–0:26 — The Pattern</h2>
+<p>Use the newsletter analogy from <a href="observer-pattern-explained.html"><code>observer-pattern-explained.md</code></a>. Ask: <em>&quot;When a shop sends its newsletter, how much does it know about what you do with it?&quot;</em> Land on: nothing — and that is why a thousand new subscribers need no new code.</p>
+<p>Push it one step further, because this is the half people forget:</p>
+<blockquote><p><em>&quot;And who owns the relationship? You do. You can unsubscribe without asking the shop&#x27;s permission.&quot;</em></p></blockquote>
+<p>Show the class diagram (<a href="images/class-diagram.png"><code>images/class-diagram.png</code></a>) and name the roles. Point out that <strong>there is no arrow between the four listeners</strong> — that absence is the design.</p>
+<p>Then show the sequence diagram (<a href="images/uml-diagram.png"><code>images/uml-diagram.png</code></a>) and go straight to the red block. Step 20 is the exception; steps 21 to 24 are the ones that would not have happened.</p>
+<p>Optionally open <a href="animation.html"><code>animation.html</code></a> in a browser and play it through once. It has a <strong>Narration</strong> button: leave it off if you want to talk over it yourself, or switch it on to let it explain each step in its own voice.</p>
+<p><strong>The one point that must land:</strong></p>
+<blockquote><p><code>Order</code> cannot behave differently depending on who is listening, because there is no message it can send to find out. That is why the thousandth listener costs nothing.</p></blockquote>
+<h2>0:26–0:41 — Code Walkthrough</h2>
+<p>Open the files in this order. Resist jumping ahead.</p>
+<p><strong>1. The observer — <code>OrderListener.java</code></strong> Two methods. Ask: <em>&quot;What is deliberately missing?&quot;</em> No priority, no ordering hint, no <code>shouldHandle</code> predicate. Every one of those would let a listener make claims about the other listeners.</p>
+<p>Then ask why <code>name()</code> exists at all, given nothing dispatches on it. Because a stack trace from inside a listener list is otherwise anonymous — and this is exactly the code where a stack trace is all you get.</p>
+<p><strong>2. The event — <code>OrderEvent.java</code></strong> A record with three fields and <strong>no reference back to the <code>Order</code></strong>. Ask: <em>&quot;Why not just pass the order?&quot;</em> Because then a listener can change the subject halfway through a notification, and whether listener three sees the old value depends on registration order. Name the GoF terms: push and pull.</p>
+<p><strong>3. The subject — <code>Order.java</code></strong> The heart of the session. Search the file live, on screen, for &quot;email&quot;, then &quot;inventory&quot;, then &quot;warehouse&quot;. Zero hits each time. Say it out loud: <em>the list of reactions is not in the class that causes them.</em></p>
+<p>Then read <code>moveTo</code> line by line and name the three decisions:</p>
+<ul><li>the no-op guard (or every listener defends itself against duplicates, and the one that forgets sends a second shipping email);</li><li><code>status = next</code> <strong>before</strong> the loop;</li><li>the <code>try</code>/<code>catch</code> inside the loop, which is the fix for the outage from the first segment.</li></ul>
+<p><strong>4. Why <code>CopyOnWriteArrayList</code></strong> Not threads — one-shot subscriptions. Show <code>OrderTest.selfRemovalDuringNotification</code>. Offer to change the field to <code>ArrayList</code> live and watch it throw <code>ConcurrentModificationException</code>; it takes fifteen seconds and nobody forgets it.</p>
+<p><strong>5. Two concrete observers — <code>InventoryListener.java</code>, then <code>AnalyticsListener.java</code></strong> The first ignores most statuses by simply returning; the second wants all of them. Ask what they have in common. Only the interface.</p>
+<p><strong>6. The trap — <code>NaiveOrderService.java</code></strong> Back to it with fresh eyes now the alternative exists. Read the comment on line <code>email.onStatusChanged(event);</code> out loud.</p>
+<p><strong>7. The proof — <code>NaiveOrderServiceTest.java</code></strong> Show <code>thePatternIsolatesTheSameFailure</code> and <code>anUnknownListenerWorksUnchanged</code> back to back. Ask: <em>&quot;Could either test exist against the naive design?&quot;</em></p>
+<p><strong>8. Run it — <code>OrderEventsDemo.java</code></strong> Run <code>./gradlew run</code> live. Compare section 1 and section 4 on screen: same broken mail server, two different outcomes.</p>
+<h2>0:41–0:51 — Exercises</h2>
+<p>Let participants work; circulate and help.</p>
+<h3>Exercise 1 — Add a fifth reaction (everyone)</h3>
+<p>Write a <code>SupplierListener</code> that prints a line only when an order becomes <code>PAID</code>. Attach it in the demo. Then count the files you had to open.</p>
+<blockquote><p><strong>The payoff:</strong> one new class and one <code>addListener</code> call. <code>Order</code> and all four existing listeners were not touched. Say this out loud when someone finishes.</p></blockquote>
+<h3>Exercise 2 — Do the same thing to the naive version (everyone)</h3>
+<p>Add the same supplier notification to <code>NaiveOrderService</code>. You will need a fifth field, a fifth constructor parameter, a fifth call — and every existing test that constructs the service now fails to compile. Compare that diff to Exercise 1&#x27;s.</p>
+<p><strong>Never cut this exercise.</strong> The compile errors are the argument.</p>
+<h3>Exercise 3 — Break the isolation on purpose (discussion)</h3>
+<p>Delete the <code>try</code>/<code>catch</code> from <code>Order.moveTo</code> and run <code>NaiveOrderServiceTest.thePatternIsolatesTheSameFailure</code>. Watch the pattern acquire exactly the bug the naive version had. Discuss: <em>the pattern did not fix that on its own — a deliberate decision inside the loop did.</em></p>
+<h3>Exercise 4 — Stretch (for fast finishers)</h3>
+<p>Make <code>EmailListener</code> remove itself from the order after the <code>DELIVERED</code> message. Confirm <code>listenerCount()</code> drops. Then change <code>Order</code>&#x27;s field to a plain <code>ArrayList</code> and watch it throw.</p>
+<h2>0:51–0:58 — Costs &amp; Comparisons</h2>
+<p>Be honest here; it is what makes the session credible.</p>
+<ul><li><strong>The call graph becomes invisible.</strong> Reading <code>moveTo</code> tells you nothing about what happens when an order ships. Your IDE cannot help, because every call site is typed as the interface. This is a real loss.</li><li><strong>Debugging is harder</strong> in the way it always is with indirection — hence <code>name()</code> and <code>ListenerFailure</code>.</li><li><strong>Notification order is not a contract.</strong> It happens to be registration order. A listener that depends on that is already broken. Two reactions that must be sequenced are one reaction.</li><li><strong>Memory leaks are the classic failure.</strong> A long-lived subject holding a short-lived listener keeps it alive forever. <code>removeListener</code> is the whole of the answer, and somebody has to remember to call it.</li></ul>
+<p>Then the comparison table. The line worth memorising:</p>
+<blockquote><p><strong>Observer decouples; Mediator centralises. In Observer the publisher knows nothing and the subscribers know the publisher. In Mediator a hub knows everyone, deliberately, so it can coordinate them.</strong></p></blockquote>
+<p>Finish with <code>java.util.Observer</code> being deprecated since Java 9, and why: not type-safe, <code>Observable</code> was a class you had to extend, and it promised nothing about ordering or threads. <strong>The pattern was never the problem; that implementation of it was.</strong> Then name what replaced it — <code>java.util.concurrent.Flow</code>, Spring&#x27;s <code>@EventListener</code>, and every UI toolkit ever written.</p>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>Ask three people for a one-sentence definition. Then assign follow-up:</p>
+<blockquote><p>Find one method in your own codebase that changes a status and then calls three or four services by name. Ask whether those services are independent of each other. If they are, you have found an Observer. If the third needs the second&#x27;s result, you have found a workflow — and that is a different pattern.</p></blockquote>
+<h2>Facilitator Notes</h2>
+<p><strong>Common misconceptions to correct:</strong></p>
+<table><thead><tr><th>They say</th><th>Correct with</th></tr></thead><tbody><tr><td>&quot;Isn&#x27;t this just callbacks?&quot;</td><td>Yes, and that is fine. Observer is callbacks with the list owned by the subject and the subscription owned by the subscriber. The pattern is the naming and the discipline</td></tr><tr><td>&quot;So I should use <code>java.util.Observer</code>?&quot;</td><td>No — deprecated since Java 9, for good reasons worth knowing. Use your own interface, <code>Flow</code>, or your framework&#x27;s events</td></tr><tr><td>&quot;Can I make the listeners run in a set order?&quot;</td><td>You can, and the moment you do, you have two listeners that are really one workflow. Merge them instead, or move to Chain of Responsibility</td></tr><tr><td>&quot;Isn&#x27;t this the same as Mediator?&quot;</td><td>Opposite intent. Observer&#x27;s publisher knows nothing; Mediator&#x27;s hub knows everyone on purpose</td></tr><tr><td>&quot;Four classes instead of four lines seems like a lot&quot;</td><td>Agree. For four reactions that will never change, it is. The pattern pays when the list is open-ended — and the list of people interested in an order genuinely is</td></tr><tr><td>&quot;Why not fire the event before updating the status?&quot;</td><td>Then a listener that looks at the order sees the world the event has already contradicted. Show the <code>statusIsUpdatedBeforeListenersRun</code> test</td></tr></tbody></table>
+<p><strong>If you are running short on time:</strong> cut Exercise 4 and shorten the costs discussion. Never cut Exercise 2 — the compile errors are the single most persuasive minute in the session.</p>
+<p><strong>If you have extra time:</strong> have participants write a full test class for their <code>SupplierListener</code>, mirroring the <code>@Nested</code> structure of <code>OrderListenerTest</code>, and then attach it to an <code>Order</code> in a test and confirm nothing else needed changing.</p>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>Everyone has JDK 21 and a green <code>./gradlew run</code></li><li>Diagrams open in a tab (<code>images/</code>)</li><li><code>animation.html</code> open in a browser</li><li>Video on hand (<code>../video/observer-pattern-explained.mp4</code>) — useful as a recap for anyone who joins late, or to send round afterwards</li><li><code>NaiveOrderService</code> open in a second window, so you can put it beside <code>Order</code> at the 0:26 mark</li><li>The demo&#x27;s section 1 and section 4 output ready to show side by side</li><li>IDE font size raised for screen sharing</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

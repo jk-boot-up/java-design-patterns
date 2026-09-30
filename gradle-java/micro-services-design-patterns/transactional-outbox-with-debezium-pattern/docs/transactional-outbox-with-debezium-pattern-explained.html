@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transactional Outbox with Debezium, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Transactional Outbox with Debezium, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>A transactional outbox writes each message as a row beside the record it is about, in the same database transaction, and leaves the sending to someone else — here Debezium, which reads the committed row out of the database&#x27;s own log and sends it to Kafka.</p>
+<h2>The analogy, before any of the tools&#x27; words</h2>
+<p>Think of the out-tray on a desk. You finish the paperwork for a sale and drop the letter in the tray in one movement, and somebody collects the tray later. The letter cannot go missing, because the moment the paperwork was filed the letter was already in the tray.</p>
+<p>Now picture a building where every piece of paper that touches any desk is photocopied into a journal, automatically. The collector reads the journal, not the tray. You could drop the letter in the tray and throw it straight in the bin, and it would still go out. The building keeps every page of the journal the collector has not read yet, however long the collector is away. And a collector who posts a letter and is called away before ticking it off in the journal will post it again when they come back. Those three things are this project.</p>
+<h2>What the tools call these things</h2>
+<p>The <strong>write-ahead log</strong>, or <strong>WAL</strong>, is Postgres&#x27;s journal. Every change is written to it before any table is touched. With <strong><code>wal_level=logical</code></strong>, Postgres writes enough for an outside program to read the changes back as rows, and the decoder built into Postgres that does this is called <strong><code>pgoutput</code></strong>.</p>
+<p>A <strong>replication slot</strong> is a bookmark Postgres keeps for one reader of the log. Postgres keeps every part of the log the reader has not confirmed. The setting that caps it, <strong><code>max_slot_wal_keep_size</code></strong>, is -1 by default: no cap.</p>
+<p><strong>Debezium</strong> is change data capture: it holds the slot and turns each committed change into a message. Its <strong>outbox event router</strong> turns each new outbox row into one event, with the order id as the message key and the row&#x27;s id and type as headers. Debezium writes down how far it has read, its <strong>offset</strong>, and confirms it to the slot. Here it runs as the <strong>embedded engine</strong>, inside the demo&#x27;s own program.</p>
+<p><strong>Kafka</strong> keeps messages in a <strong>topic</strong>, split into <strong>partitions</strong> that are read side by side. The message <strong>key</strong> picks the partition, and order is kept within a partition only.</p>
+<h2>The six acts</h2>
+<h3>Two Writes, One Crash</h3>
+<p>With no outbox and no Debezium, the checkout saves the order in Postgres and sends the event to Kafka itself. It dies between the two. The order is saved and nobody hears of it. Swap the lines, send first, die before saving, and Kafka announces an order that does not exist.</p>
+<pre><code>  save, then send. the process dies in between. ORD-1 in Postgres: yes. events in Kafka: 0. the customer is charged and nobody is told.
+  swap the lines: send, then save, and die in between. events in Kafka: 1. ORD-2 in Postgres: no. the shop announced an order that does not exist.</code></pre>
+<h3>One Transaction, And Debezium Sends</h3>
+<p>The pattern. Postgres runs with logical decoding, and Debezium holds the replication slot. The checkout writes each order and an outbox row in one transaction, and has no Kafka code at all. Debezium reads the three commits from the log and sends three events. Then ORD-4 writes both rows, the card is declined, and the transaction rolls back. ORD-5 commits after it. Kafka receives ORD-5 and nothing for ORD-4, because the log only hands over committed work.</p>
+<pre><code>  Postgres runs with wal_level logical. Debezium 3.6.3.Final runs inside this program and holds replication slot orders_outbox. slot active: yes.
+  the checkout writes each order and an outbox row in one transaction, and has no Kafka code at all. orders: 3, outbox rows: 3.
+  Debezium reads the 3 commits from Postgres&#x27;s log and sends them. events in Kafka: 3.
+  events in Kafka: 4. events for ORD-4: 0. the log only hands over committed work, so the order and its event live or die together.</code></pre>
+<h3>The Log, Not The Table</h3>
+<p>This is the headline find. Each transaction writes the outbox row and deletes it again before committing. The table ends with no rows. Kafka still receives all three events, because Debezium read the inserts from the log. A relay that polls the table would have had nothing to send.</p>
+<pre><code>  orders: 3. outbox rows: 0. events in Kafka: 3.</code></pre>
+<h3>Debezium Is Down</h3>
+<p>Debezium stops and lets go of the slot. The checkout takes three orders anyway. The log Postgres keeps for the slot grows, and the limit is -1, which means none. Debezium starts again, carries on from the slot, and sends all three. Nothing was lost and nobody wrote a retry. The same property is a danger: a slot nobody reads keeps the log for ever.</p>
+<pre><code>  Debezium is stopped. slot active: no. the checkout still takes 3 orders. orders: 3. events in Kafka: 0.
+  the slot makes Postgres keep every part of the log Debezium has not confirmed. log kept for the slot: grew while it was down. limit: -1, which means none.
+  Debezium starts again, carries on from its slot, and sends 3: ORD-1, ORD-2, ORD-3. nothing was lost and nobody wrote a retry.</code></pre>
+<h3>Sent, But Not Written Down</h3>
+<p>Debezium sends ORD-1 and ORD-2, then dies before writing down how far it has read. It starts again from the last place it wrote down and sends both again. Four events for two orders, each pair carrying the same event id. Delivery is at least once.</p>
+<pre><code>  Debezium sends ORD-1 and ORD-2 to Kafka, then dies before writing down how far it has read. events in Kafka: 2. slot active: no.
+  it starts again from the last place it wrote down, and sends both again. events in Kafka: 4 for 2 orders.
+  ORD-1/OrderPlaced arrived 2 times, ORD-2/OrderPlaced arrived 2 times, with the same event id each time. delivery is at least once.</code></pre>
+<h3>Order Per Key, And The Bill</h3>
+<p>Three orders are placed, paid and shipped, each step its own transaction, the orders taking turns. Each order&#x27;s three events land on one partition, in the order they were committed. ORD-1 is alone on partition 1; ORD-2 and ORD-3 share partition 2 and interleave. Across orders, nothing is promised. The bill: two containers, Postgres started with logical decoding, one slot that must be dropped when Debezium is retired, and readers that must recognise an event id they have already seen.</p>
+<pre><code>  ORD-1: partition 1, OrderPlaced, OrderPaid, OrderShipped.
+  ORD-2: partition 2, OrderPlaced, OrderPaid, OrderShipped.
+  ORD-3: partition 2, OrderPlaced, OrderPaid, OrderShipped.
+  partition 0 holds none, partition 1 holds only ORD-1, partition 2 holds ORD-2 and ORD-3 taking turns. the order id is the key, and the key picks the partition.
+  the bill: 2 containers, Postgres started with wal_level logical, and 1 replication slot.
+  a slot whose reader has gone keeps log for ever: limit -1. retiring Debezium means dropping its slot. slot exists now: no.</code></pre>
+<h2>The verdict</h2>
+<p>Commit to one system only. Let the database&#x27;s own log carry the message out. Pay for it with a slot to watch and a reader that forgives duplicates.</p>
+</main>
+<footer>
+Generated from <code>transactional-outbox-with-debezium-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

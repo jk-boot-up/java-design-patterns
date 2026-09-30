@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Problem Statement — An Order That Behaves Differently Depending On Where It Is</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Problem Statement — An Order That Behaves Differently Depending On Where It Is</h1>
+<h2>The Scenario</h2>
+<p>An order in an online shop moves through a small, well understood lifecycle.</p>
+<pre><code>PLACED --pay--&gt; PAID --pack--&gt; PACKED --ship--&gt; SHIPPED --deliver--&gt; DELIVERED</code></pre>
+<p>Two of those are the end of the story: <code>CANCELLED</code> and <code>REFUNDED</code>. Nothing happens to an order after it reaches either.</p>
+<p>Six things can be asked of an order — <code>pay</code>, <code>pack</code>, <code>ship</code>, <code>deliver</code>, <code>cancel</code> and <code>refund</code> — and the answer to every one of them depends on where the order currently is:</p>
+<table><thead><tr><th>Asked to…</th><th>PLACED</th><th>PAID</th><th>PACKED</th><th>SHIPPED</th><th>DELIVERED</th></tr></thead><tbody><tr><td>pay</td><td>takes the money</td><td>no</td><td>no</td><td>no</td><td>no</td></tr><tr><td>pack</td><td>no</td><td>boxes it</td><td>no</td><td>no</td><td>no</td></tr><tr><td>ship</td><td>no</td><td>no</td><td>books a courier</td><td>no</td><td>no</td></tr><tr><td>deliver</td><td>no</td><td>no</td><td>no</td><td>signs it for</td><td>no</td></tr><tr><td>cancel</td><td>yes, nothing to refund</td><td>yes, refund</td><td>yes, refund <strong>and put the stock back</strong></td><td><strong>no</strong></td><td>no, that is a return</td></tr><tr><td>refund</td><td>no</td><td>no</td><td>no</td><td>no</td><td>yes, once</td></tr></tbody></table>
+<p>Read the <code>cancel</code> row twice. It is not a permission check with a yes and a no in it. It is four genuinely different pieces of work: cancelling a <code>PLACED</code> order moves no money at all, cancelling a <code>PAID</code> one refunds, cancelling a <code>PACKED</code> one refunds <em>and</em> unpacks a box that somebody has already taped shut, and cancelling a <code>SHIPPED</code> one is not a thing you can do — the goods are on a van and the shop has nothing to put back on a shelf.</p>
+<h2>The Obvious First Move</h2>
+<p>A status field and a check at the top of each method.</p>
+<pre><code>public enum Status { PLACED, PAID, PACKED, SHIPPED, DELIVERED, CANCELLED, REFUNDED }
+
+public void cancel(String reason) {
+    if (status == Status.DELIVERED || status == Status.CANCELLED
+            || status == Status.REFUNDED) {
+        throw new IllegalTransitionException(status.name(), &quot;cancel&quot;,
+                &quot;it is not cancellable&quot;);
+    }
+    Money back = ledger.charged().minus(ledger.refunded());
+    if (!back.isZero()) {
+        ledger.refund(back);
+    }
+    move(Status.CANCELLED, reason + &quot; — refunded &quot; + back);
+}</code></pre>
+<p>Be fair to this. It is short, it needs no vocabulary, one file holds the whole lifecycle, and a new reader can see every rule by scrolling. For a machine this size, an enum and a map of permitted transitions is often the <em>right</em> answer, and this project says so out loud at the end. The problem is not the enum. The problem is what happens to the conditionals around it.</p>
+<h2>Where It Breaks</h2>
+<p>The rules are not written down once. They are written down once <strong>per method</strong>, and each copy is phrased slightly differently.</p>
+<h3>Drift one: the guard that was phrased as a sentence</h3>
+<p><code>cancel</code> above was written as &quot;anything that has not arrived yet can be cancelled&quot;, and so it lists the three states where it must refuse. It reads sensibly. It is also wrong, because <code>SHIPPED</code> is not on that list — the parcel is on a van, and the method takes the money out of the till and gives it back.</p>
+<pre><code>A SHIPPED order, and the screen the agent is looking at:
+  status          : SHIPPED
+  buttons drawn   : [deliver]
+  cancel() anyway : accepted — status is now CANCELLED</code></pre>
+<h3>Drift two: the guard somebody widened on purpose</h3>
+<p><code>refund</code> originally accepted only <code>DELIVERED</code>. Support asked for <code>CANCELLED</code> to be added so they could &quot;sort out&quot; cancelled orders. A cancel has already refunded, so the second refund pays the customer a second time.</p>
+<pre><code>A CANCELLED order, already refunded once:
+  ledger          : charge £97.49; refund £97.49
+  refund() anyway : accepted — status is now REFUNDED
+  the shop is out : -£97.49 over 2 refunds</code></pre>
+<h3>Drift three: the copy that is right, and disagrees</h3>
+<p>There is a third copy of the same rules, written for the screen:</p>
+<pre><code>public List&lt;String&gt; allowedActions() {
+    return switch (status) {
+        case SHIPPED -&gt; List.of(&quot;deliver&quot;);
+        ...
+    };
+}</code></pre>
+<p>That one is correct. It says a shipped order can only be delivered. So the cancel button is never drawn — and the endpoint accepts the call anyway. The bug is invisible from the UI, and reachable from anything that is not the UI.</p>
+<p>Every one of these is a single condition inside a chain that was copied and then edited. None of them is a mistake anybody would make while looking at the whole lifecycle at once. They happen precisely because nobody ever is.</p>
+<h2>What We Actually Want</h2>
+<ul><li>One place per state, holding <strong>everything</strong> true about that state.</li><li>Refusals that exist by default, so a rule that was never written is a refusal rather than an accident.</li><li>Behaviour that varies by state, not just permissions — cancelling a <code>PAID</code> order and a <code>PACKED</code> one do different work, and the code should show that.</li><li>A screen and an endpoint that cannot disagree, because they ask the same object.</li><li>A new state that does not mean editing six chains of conditionals.</li></ul>
+<h2>What This Costs</h2>
+<p>Seven classes where there was one enum, and a transition table that no longer exists anywhere you can read it — it is distributed across the states, one arrow at a time. Adding a state means editing whichever state hands over to it. That trade is only worth making when the <em>behaviour</em> varies by state and not merely the permissions. Here it does.</p>
+<p>The <a href="state-pattern-explained.html">pattern write-up</a> shows the design, and the <a href="class-diagram.html">class diagram</a> shows the shape it ends up as.</p>
+</main>
+<footer>
+Generated from <code>problem-statement.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

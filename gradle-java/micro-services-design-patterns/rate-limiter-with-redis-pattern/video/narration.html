@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rate Limiter with Redis Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Rate Limiter with Redis Pattern — Video Narration Script</h1>
+<h2>1. Rate Limiter with Redis</h2>
+<p>Hello, and welcome. This video explains the Rate Limiter pattern in Java, using a real Redis server and a library called Bucket4j. It is written and presented by Jayasekhar Konduru. Here is the plain definition, in general words. A rate limiter gives each caller a bucket of tokens. Every request spends one token. When the bucket is empty, the request is refused, and the bucket is filled up again on a timer. Now the same thing in our online store. The shop has a product search. A price-comparison robot sends searches as fast as it can, and the shop allows each client ten searches, filled back up once an hour. The search runs as several copies on several servers, so the ten has to mean ten, however many copies are running. By the end you will have seen the limit leak when each server keeps its own bucket, hold when the bucket moves into Redis, survive ninety searches at the same instant, and be broken by one server whose clock runs an hour fast.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The shop&#x27;s product search is open to the world. Customers use it, and so does a price-comparison robot, which we will call client forty-two. The rule is ten searches per client, filled back up once an hour. The hour is deliberate. The demo runs for a few seconds, so no token comes back while it runs, and every count is exact on every machine. The search service runs as three copies, on three servers, behind a load balancer. A load balancer is the part that deals each incoming search to the next server in turn. On a busy day the shop runs six copies. The hand-built twin of this project kept each bucket inside one Java program. This time the bucket has to work across separate programs.</p>
+<h2>3. A Bucket In Each Server</h2>
+<p>Act one. Each of the three servers keeps its own bucket for each client, in its own memory, exactly as a single server would. Client forty-two sends ninety searches, and the load balancer deals them out, thirty to each server. Each server sees a fresh client with a full bucket, and lets ten through. So thirty searches are allowed, not ten. Now the shop scales out to six servers, and the same ninety searches arrive. Sixty are allowed. Every server the shop adds loosens the limit by another ten. The limit gets weaker at exactly the moment the shop is busiest.</p>
+<h2>4. The Tools&#x27; Words</h2>
+<p>Before the next act, the tools&#x27; words, each in plain language first. Think of a shared whiteboard, which anyone in the office can read, rub out and write on. Redis is that whiteboard: a separate program that keeps small values in memory, and lets many programs read and change them over the network. A heading on the whiteboard, the name a value is kept under, is what Redis calls a key. Here there is one key per client. A countdown after which a key deletes itself is its time to live. Bucket4j is the Java library that does the token bucket. The part of it that fetches a client&#x27;s bucket from Redis and writes it back is called the proxy manager. When it writes, it writes only if nobody has changed the bucket since it read it, and if somebody has, it reads again and tries again. Bucket4j calls that compare-and-swap. And the clock it uses to work out how many tokens have come back is the clock of the server it runs on. It calls that the client clock.</p>
+<h2>5. One Bucket In Redis</h2>
+<p>Act two. Now no server keeps a bucket at all. Each has its own connection to one Redis, and on every search it asks Redis for the client&#x27;s bucket. Client forty-two sends ninety searches through three servers. Ten are allowed, and eighty refused. The shop scales out to six servers, and a second robot, client seventy-seven, sends ninety. Still ten. Redis is holding two keys: one bucket per client, not one per server. Then server one is restarted, and comes back with empty memory. Client forty-two&#x27;s next search is refused, and the refusal says to come back in sixty minutes. The bucket was never in the server, so restarting the server does not refill it. In the hand-built twin, a restart handed every client a full bucket.</p>
+<h2>6. Where The Bucket Lives</h2>
+<p>Here is where everything lives, in words. Client forty-two sends a search. The load balancer hands it to the next server. That server runs Bucket4j, and Bucket4j does three things. It reads the client&#x27;s bucket from Redis. It does the sum on the server: how many tokens have come back since the last visit, and is there one to spend. And it writes the new bucket back to Redis, only if nobody changed it in between. So Redis keeps the bucket, and the servers do the sums. Hold on to that sentence, because the fifth act turns on it.</p>
+<h2>7. All At The Same Moment</h2>
+<p>Act three. Sending searches one after another is the easy case. So now ninety searches, thirty on each of three servers, each on its own thread, are held at a gate and released at the same instant. Exactly ten are allowed, and eighty refused. No server holds a lock, and no server waits its turn. Each one writes its answer back only if the bucket has not changed since it read it. The ones that lose that race simply read again and try again. The order the threads reach Redis is different on every run. The count that comes out is not.</p>
+<h2>8. Why Not Just A Number?</h2>
+<p>Act four asks why Bucket4j goes to that trouble. The first thing most people write is a plain number in Redis: read it, check it, write it back one lower. The demo puts two servers&#x27; steps in a fixed order by hand, so this happens on every run, not only on a busy day. One token is left. Server one reads one. Server two reads one. Both write back zero, and both serve a search. Two searches, from one token. And afterwards Redis says zero, so nothing looks wrong. That is what makes it dangerous. Now the same again, but each write lands only if the number is still what was read. Server one&#x27;s write lands. Server two&#x27;s is turned down. It reads again, finds zero, and refuses. One search from one token. That second way is what Bucket4j does on every search.</p>
+<h2>9. The Whole Pattern, In One Builder</h2>
+<p>In the code, the whole pattern is one builder chain on each server. It is built on the server&#x27;s own connection to Redis. The name of the method says compare-and-swap, the careful write from act four. The builder is given the clock this server will use for its sums. It is told to set a countdown on each key, so Redis deletes a bucket by itself once the bucket would be full again. Then, on every search, the server asks for the bucket under the key for this client, with the rule of ten an hour, and tries to spend one token. The answer is yes or no.</p>
+<h2>10. Whose Clock?</h2>
+<p>Act five is the headline of this project. Two servers with correct clocks spend client forty-two&#x27;s ten searches, and the next one is refused. The bucket is empty. Now a third server joins, and its clock runs one hour fast. Client forty-two sends twenty searches through it. Ten are allowed. The fast server read the empty bucket. By its own clock, an hour had passed since the bucket was last filled. So it filled the bucket, spent a token, and wrote the answer to Redis. Redis stored it, because Redis never looks at a clock. Redis keeps the bucket. The sums are done on each server, with that server&#x27;s clock. A limit shared by every server is only as good as the worst clock among them.</p>
+<h2>11. The Clocks Must Agree</h2>
+<p>Why could the hand-built twin never show this? It had one clock, a test clock the demo moved by hand, so time could never disagree with itself. Here, every server brings its own clock. A server whose clock runs fast decides the refill time has come early, and because the bucket is shared, it refills early for every server at once. So the rule is simple. Keep the servers&#x27; clocks in step, and treat a clock that drifts like any other fault.</p>
+<h2>12. The Bill</h2>
+<p>Act six is the bill. One thousand different clients search once each, and Redis holds one thousand keys. Each is set to delete itself in sixty minutes, when its bucket would be full again, because a full bucket and no bucket mean the same thing. So the keys do not pile up for ever. Then Redis is stopped. Five searches reach the limiter, and get five errors. Not a yes, and not a no. Let them through, and there is no limit at all. Refuse them, and five real customers see an error. Bucket4j cannot choose for you. The shop must. And every search, allowed or not, now waits for a trip across the network to Redis before it is served. One container, for six servers.</p>
+<h2>13. What The Simulation Left Out</h2>
+<p>So what did the hand-built simulation get right? All of the bucket. Tokens, one per search, a refusal when it is empty, a refill on a timer, a bucket per client, and a refusal that says when to come back. And it found the leak: three servers with a bucket each let thirty through. What it left out were the things that only happen when the bucket lives somewhere else. Inside one program, there was nowhere outside the servers to keep it. It ran one search at a time, so two servers could never read the same last token. It had one clock, so time could never disagree. And a bucket that is a field in memory can never be unreachable.</p>
+<h2>14. The Verdict</h2>
+<p>The verdict. When a service runs as more than one copy, keep the bucket outside all of them, in a store they can all reach. Then say three things out loud, because the store will not. One. The check and the write must be one step. Bucket4j&#x27;s compare-and-swap does that for you, and a plain number does not. Two. The servers&#x27; clocks must agree, because they, not Redis, do the refill sums. Three. Somebody must decide what the limiter answers when the store cannot be reached.</p>
+<h2>15. What Is Real, And When Not</h2>
+<p>What is real here? The store is Redis, version eight point ten point two, the newest release, running in a container that the demo starts at the beginning and stops at the end, on a random free port. Bucket4j is version eight point twenty, and it talks to Redis through a client library called Lettuce. Nothing is installed and nothing is left running. The one thing you need is a container runtime, such as Docker Desktop, switched on before you start. Every number in this video comes from the program&#x27;s own output, and two runs one after the other print the same thing. So when is this too much? On one server, a bucket in memory, like the twin&#x27;s, is exact, free, and cannot go down. If a limit only needs to be roughly right, a bucket per server with the limit divided between them costs no network trip. Redis is one more system to run and watch. It earns that when there are many servers, and the limit has to be one number however many there are.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s Rate Limiter with Redis. If you take one sentence away, take this one: Redis keeps the bucket, but the servers do the sums, so the write must be careful and the clocks must agree. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, make the fast server&#x27;s clock run an hour slow instead, guess how many searches it allows, and then run it. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

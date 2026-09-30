@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>What you need before starting this project, what you can pick up as you go, and what you explicitly do not need to know.</p>
+<p>There is no database here, and that surprises people. The bar is Java and a rough sense of what a <code>SELECT</code> with a join does.</p>
+<h2>Knowledge Prerequisites</h2>
+<h3>Required</h3>
+<ul><li><strong>Java basics</strong> — classes, records, <code>List</code>, <code>Map</code>, <code>final</code> fields.</li><li><strong>What a join is, roughly.</strong> One query that reads two tables and returns rows with columns from both. If you can say that sentence, you have enough.</li><li><strong>What a foreign key is, roughly.</strong> A constraint that stops one table referring to a row that does not exist in another. You need to believe that the database enforces it, not that somebody remembered to.</li><li><strong>What a schema migration is.</strong> A change to the shape of a table — adding a column, renaming one — run as part of a deployment.</li><li><strong>Reading a JUnit test</strong> — <code>assertEquals</code>, <code>assertThrows</code>, <code>assertTrue</code>.</li></ul>
+<h3>Helpful, but explained as we go</h3>
+<ul><li><strong>Database credentials and grants.</strong> The real enforcement mechanism for this pattern is a database user that cannot see another service&#x27;s tables. The primer below is enough.</li><li><strong>The idea of a bounded context</strong> — that a &quot;product&quot; means something slightly different to the catalog team than to the orders team. Useful, not required.</li><li><strong>API Composition</strong> (<a href="../api-composition-pattern"><code>../api-composition-pattern</code></a>), which is about doing this project&#x27;s assembly step properly. Read this one first; that one answers the question this one raises.</li></ul>
+<h3>Explicitly NOT required</h3>
+<ul><li><strong>SQL.</strong> Not one line of it appears in this project. Tables are <code>Map</code>s and a column is a map key, which is what makes a rename a real rename rather than a story about one.</li><li><strong>Any actual database.</strong> No Postgres, no MySQL, no H2, no Docker, no JDBC, no connection string.</li><li><strong>ORMs, JPA, Hibernate, Spring Data.</strong> None of it.</li><li><strong>Distributed transactions, two-phase commit, or eventual consistency theory.</strong> The hole this pattern opens up is real and this project names it, but filling it is Saga&#x27;s job, not yours today.</li><li><strong>Kafka, message brokers, CDC.</strong> Later projects in the category.</li></ul>
+<h2>A 60-Second &quot;Database per Service&quot; Primer</h2>
+<p>Each service keeps its own data. Nobody else may read it directly. If you want somebody else&#x27;s data, you ask them for it.</p>
+<p>That is the whole thing. The mechanism in this project is that every database method takes the name of whoever is asking and throws <code>NotYourDataException</code> at anybody but the owner.</p>
+<p>In production that check is not in your code at all. The Orders service connects with a database user that has no grant on the Catalog tables, so a cross-service read fails as a permissions error before any Java runs. <strong>If the rule in your system is a comment asking people not to, you do not have this pattern.</strong></p>
+<h2>A 60-Second &quot;Why A Rename Breaks Somebody Else&quot; Primer</h2>
+<p>In a shared schema, the order history page is one query that names <code>product_name</code>.</p>
+<p>The catalog team owns the products table. One Tuesday they rename <code>product_name</code> to <code>title</code>. Their migration is correct, their tests pass, their service works.</p>
+<p>The order history query, in a different repository, is now broken.</p>
+<p>Nobody did anything wrong. The failure lives in the gap between two codebases, and a test suite only ever tests one codebase, which is why <code>SharedSchemaTest</code> can contain a <strong>passing</strong> test called <code>aRenameBreaksTheOrderHistoryPage</code>.</p>
+<h2>A 60-Second &quot;What You Lose&quot; Primer</h2>
+<p>Two things, and the second is the one people forget.</p>
+<p><strong>The join.</strong> A question spanning both services is now two calls plus code that stitches the answers together. Batch that second call or you will turn a fifty-row page into fifty network requests — <code>CatalogService.namesFor</code> takes a list for exactly this reason.</p>
+<p><strong>The foreign key.</strong> The two rows are in different databases, so no constraint can span them. Catalog can delete a product an order refers to, and nothing stops it. Something in application code then has to decide what to render, and here that decision is the string <code>(no longer in the catalogue)</code>.</p>
+<p>A rule that used to be impossible to break is now merely impolite to break.</p>
+<h2>Why There Is No Real Database Here</h2>
+<p>A real database would add setup, a container, a schema file, and about four minutes to every run — and it would teach nothing this project is about.</p>
+<p>The subject is <strong>who is allowed to read what</strong>, and that is a question about ownership, not about SQL. Storing rows in <code>LinkedHashMap</code>s keeps the whole argument visible in a file you can read in one sitting, and it makes the column rename literal: a map key genuinely moves, and the query that names the old key genuinely finds nothing.</p>
+<p><code>SimulatedClock</code> does the same job for time. Each service call advances it by ten milliseconds, so the timings in act three are exact, repeatable, and free. Nothing in this project sleeps.</p>
+<h2>Software Prerequisites</h2>
+<ul><li><strong>JDK 21 or newer.</strong> Nothing else.</li><li><strong>Gradle:</strong> not needed globally. The project ships a wrapper.</li></ul>
+<h3>Installing JDK 21</h3>
+<p>macOS, with Homebrew:</p>
+<pre><code>brew install openjdk@21
+sudo ln -sfn $(brew --prefix)/opt/openjdk@21/libexec/openjdk.jdk \
+    /Library/Java/JavaVirtualMachines/openjdk-21.jdk</code></pre>
+<p>Linux (Debian or Ubuntu):</p>
+<pre><code>sudo apt install openjdk-21-jdk</code></pre>
+<p>Windows: install the Microsoft Build of OpenJDK 21 or Temurin 21 from the installer, and let it set <code>JAVA_HOME</code>.</p>
+<h3>Verify Your Setup</h3>
+<pre><code>java -version          # expect 21 or newer
+cd micro-services-design-patterns/database-per-service-pattern
+./gradlew test         # expect BUILD SUCCESSFUL
+./gradlew run          # expect five acts</code></pre>
+<p>If <code>./gradlew</code> will not execute on macOS or Linux, make it executable:</p>
+<pre><code>chmod +x gradlew</code></pre>
+<p>The first <code>./gradlew</code> command downloads Gradle itself and needs a network connection. Everything after that works offline.</p>
+<h2>Troubleshooting</h2>
+<p><strong>&quot;Unsupported class file major version&quot;</strong> — Gradle is using an older JDK than the toolchain asks for. Check <code>java -version</code>, and set <code>JAVA_HOME</code> to a 21 install.</p>
+<p><strong>Act 2 prints an error and the build still succeeds</strong> — correct. The broken page <em>is</em> act two. <code>aRenameBreaksTheOrderHistoryPage</code> is a passing test that asserts a page is broken, which is the most pointed thing this project has to say.</p>
+<p><strong>Act 3 looks worse than act 1, and that seems backwards</strong> — it is worse, and that is the point. Two service calls and 20ms instead of one query. The split bought no speed; it bought the catalog team the right to change their minds.</p>
+<p><strong>Act 5 shows a row with no product name and the demo does not crash</strong> — deliberate. There is no foreign key any more, so <code>OrderHistoryPage</code> has to decide what to render for a sku Catalog has never heard of, and it chooses a placeholder.</p>
+<p><strong>The timings are always 0, 10 and 20ms</strong> — they are meant to be. <code>SimulatedClock</code> is not a real clock; ten milliseconds per service call is a stated assumption, not a measurement.</p>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the Tuesday rename, and why no test suite owns the failure</li><li><code>SharedSchema.java</code> — read it <strong>generously</strong>. One query, one join, a complete page. It is the thing being given up, and the rest of the category is the price</li><li>Run <code>./gradlew run</code> and read all five acts in order, comparing act 1&#x27;s round-trip count against act 3&#x27;s timeline</li><li><a href="database-per-service-pattern-explained.html"><code>database-per-service-pattern-explained.md</code></a> — the shared filing cabinet, and what the split does and does not buy</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> and <a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the structure, including the arrows that are missing on purpose, then the five acts as sequences</li><li><a href="animation.html"><code>animation.html</code></a> — the rename spreading through a shared schema, and then failing to spread at all</li><li>The tests, which are the specification. Read <code>aRenameBreaksTheOrderHistoryPage</code> first, then <code>aRenameIsNowANonEvent</code>, then <code>anOrderCanReferToAProductThatIsGone</code> — which is the bill</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

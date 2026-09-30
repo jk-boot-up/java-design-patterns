@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Problem Statement — Checkout Screening</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Problem Statement — Checkout Screening</h1>
+<p>Before an online store accepts an order it screens it. Four questions, none of them optional:</p>
+<table><thead><tr><th>Check</th><th>Question</th><th>Rejects when</th></tr></thead><tbody><tr><td>address</td><td>is this somewhere a courier goes?</td><td>outside GB/IE, or an excluded postcode</td></tr><tr><td>stock</td><td>can the warehouse pick every line?</td><td>any line wants more than is on the shelf</td></tr><tr><td>fraud-score</td><td>what does the risk model think?</td><td>score at or above 80</td></tr><tr><td>payment-limit</td><td>will the issuer authorise this?</td><td>total above the card&#x27;s limit</td></tr></tbody></table>
+<p>Written the obvious way, that is one method:</p>
+<pre><code>public Result validate(CheckoutRequest request) {
+    if (!servedCountry(request))    return no(&quot;we do not ship to ...&quot;);
+    if (excludedPostcode(request))  return no(&quot;no courier covers ...&quot;);
+    if (outOfStock(request))        return no(&quot;... is out of stock&quot;);
+    if (overCardLimit(request))     return no(&quot;card limit exceeded ...&quot;);
+    if (request.fraudScore() &gt;= 80) return no(&quot;we are unable to process this order&quot;);
+    return OK;
+}</code></pre>
+<p>Read it on its own and there is nothing wrong with it. It is short, it is in one file, and a new joiner can tell you the whole screening policy in thirty seconds. <strong>For one market and a fixed set of rules this is the right answer</strong>, and if the store never changes, this project is over-engineering. What follows is what happens when it does change.</p>
+<h2>What Goes Wrong</h2>
+<h3>1. The order of the checks is welded into the method</h3>
+<p>The payment check is written above the fraud check. Nobody decided that; it is where somebody&#x27;s cursor was in 2022.</p>
+<pre><code>  A monitor, on a £250 card, scoring 92 out of 100 for fraud:
+    naive says      : REJECTED — card limit exceeded, please try another card</code></pre>
+<p>The customer is told to try another card. They do — and the second card works, because there is nothing wrong with the <em>cards</em>. The risk model shouted 92 and nobody was listening, because the method returned before it got there.</p>
+<p>Fixing this means editing <code>validate</code>, which is also the file where the checks themselves live, so the change that reorders the policy and the change that alters a rule land in the same diff and get reviewed as one thing.</p>
+<h3>2. A boolean has no third answer</h3>
+<p>The risk model does not deal in yes and no. It produces a score, and the reason the business pays for it is the middle band — the orders that should go to a human. <code>Result</code> is a <code>boolean</code> and a <code>String</code>, so the middle band has to be forced into one of two answers, and it is forced into the cheap one:</p>
+<pre><code>  Headphones, scoring 64 — the band risk asked us to review:
+    naive says      : ACCEPTED — nothing objected</code></pre>
+<h3>3. Variants are copies, and copies drift</h3>
+<p>Trade accounts are invoiced monthly rather than charged at checkout, so the card limit does not apply to them. Somebody copied <code>validate</code>, deleted the card check, and called it <code>validateTradeAccount</code>. In the same edit, the address check went too.</p>
+<pre><code>  A trade account ordering two desks to St Helier, Jersey:
+    validate()      : REJECTED — no courier covers JE2 3AB
+    trade copy      : ACCEPTED — nothing objected</code></pre>
+<p>Two desks are now on their way to an island no courier serves. The two methods are not related by anything the compiler can see. No test failed, because the trade method&#x27;s tests were copied too.</p>
+<h3>4. The result cannot say who decided</h3>
+<p><code>Result</code> has exactly two components: a <code>boolean</code> and a <code>String</code>. When support asks &quot;which check rejected order R-2003?&quot;, the only evidence is the message text, and the only way to answer programmatically is to match on it. Change a message and you break a dashboard.</p>
+<h3>5. Testing one check means satisfying the four above it</h3>
+<p>The fraud rule is the fifth statement of the method. To reach it a test must construct a deliverable address, a basket the warehouse can pick, and a card with enough headroom — none of which the fraud rule cares about. Every one of those is a chance for a test to fail for a reason that has nothing to do with what it is testing.</p>
+<h2>What We Actually Want</h2>
+<ul><li><strong>One class per check</strong>, testable on its own, with nothing above it to satisfy first.</li><li><strong>The order as configuration.</strong> Reordering the policy should be a line in the wiring, not an edit inside the file where the rules live.</li><li><strong>A variant built by leaving a link out</strong>, not by copying a method.</li><li><strong>A third answer</strong>, so &quot;a person should look at this&quot; is expressible.</li><li><strong>Evidence</strong>: which link decided, and which links never ran.</li><li><strong>A deliberate answer to &quot;what if nobody decides?&quot;</strong> — because once the checks are separate objects, a request really can travel past all of them without anyone taking responsibility for it.</li></ul>
+<h2>What This Costs</h2>
+<p>The pattern buys all six, and this project is explicit that it is not free. The policy that was readable top to bottom in one method is now spread across four check classes and a line of wiring; answering &quot;which link rejected this?&quot; needs the report to record who ran, which four sequential <code>if</code> statements never did; and a handler holds its own successor, so an instance belongs to exactly one chain.</p>
+<p>The last thing the demo prints is the honest version of that: when the checks and their order never change, write the four <code>if</code> statements.</p>
+</main>
+<footer>
+Generated from <code>problem-statement.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

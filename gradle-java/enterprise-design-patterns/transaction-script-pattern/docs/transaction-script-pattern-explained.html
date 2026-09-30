@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transaction Script, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Transaction Script, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>A transaction script organises business logic as one procedure per request, run as one transaction, with no domain objects behind it.</p>
+<h2>The six acts</h2>
+<h3>One Request, One Procedure</h3>
+<p>Two mugs are ordered: sixteen pounds, and the stock falls to eight. The whole action is one method, read from top to bottom.</p>
+<pre><code>  ORD-1 for £16.00. stock of MUG-BLUE: 8.
+  the whole business action is one method, read from the top to the bottom.</code></pre>
+<h3>One Transaction</h3>
+<p>The card is declined after the stock was taken. The transaction undoes the stock change together with everything else, so the stock is back to ten and no order exists.</p>
+<pre><code>  card declined after the stock was taken.
+  stock of MUG-BLUE: 10. orders saved: 0. the script&#x27;s changes were undone together.</code></pre>
+<h3>A Second Script Copies The Rule</h3>
+<p>The bulk discount moved from ten items to five. One script was told. Seven mugs cost fifty pounds forty when placed, and fifty six pounds when the same order is amended.</p>
+<pre><code>  7 mugs placed: £50.40. the same 7 mugs amended: £56.00.
+  the bulk discount changed from 10 items to 5. one script was told, the other was not.</code></pre>
+<h3>Share A Procedure</h3>
+<p>The pricing moves into one helper function that both scripts call. They agree again, and the design is still procedural.</p>
+<pre><code>  7 mugs priced by the shared helper: £50.40 in both scripts.
+  it is still procedural. there is no Order object, only a function both scripts call.</code></pre>
+<h3>The Bill: Growth</h3>
+<p>The first script has three decisions, so eight paths. After a year of new rules it has seven decisions, so one hundred and twenty eight paths, and every rule went in the middle of one method.</p>
+<pre><code>  decisions in the first script: 3, so 8 paths to test.
+  decisions after three more rules: 7, so 128 paths to test.
+  every new rule went in the middle of one method.</code></pre>
+<h3>Where A Script Is Right</h3>
+<p>A month-end job that adds up the orders is a dozen lines, read once and changed rarely. That is a script at its best.</p>
+<pre><code>  month end: 2 orders, £316.00 taken.
+  a job with one purpose and a few rules is clearer as a script than as a set of objects.</code></pre>
+<h2>The verdict</h2>
+<p>Use a transaction script when the logic is simple, mostly sequential and unlikely to grow, and when a team wants the shortest path from request to result. Keep shared rules in helper functions. Move to a domain model when the same rules start to appear in several scripts, or when a script&#x27;s decisions outgrow what anyone can test.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>A method named for a use case, such as <code>placeOrder</code>, that does everything from validation to saving.</li><li>Service classes with long methods and no domain objects, only data holders.</li><li>Two methods that each contain the same price calculation.</li><li><code>@Transactional</code> on a method that contains most of the business logic.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Most small Spring and Java EE services, and nearly every report or batch job.</p>
+<h2>When this is too much</h2>
+<p>A script is the opposite of too much. Its risk is too little structure as the rules grow, so watch the decisions in the middle of the method.</p>
+</main>
+<footer>
+Generated from <code>transaction-script-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dead Letter Channel with RabbitMQ, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Dead Letter Channel with RabbitMQ, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>A dead letter channel is somewhere for a message to go when it cannot be handled, so that it stops blocking the messages behind it and a person can look at it later.</p>
+<h2>The same sentence, with a real broker in it</h2>
+<p>The shop writes a rule on the queue saying where a dead order should be sent. After that the broker does the moving, and writes down which rule it applied. The application has no code that puts an order in the dead letter queue.</p>
+<p>Three words are worth saying in plain language before RabbitMQ&#x27;s names for them appear.</p>
+<ul><li>A <strong>queue</strong> is the line orders wait in.</li><li>An <strong>exchange</strong> is the broker&#x27;s sorting desk. You hand a message to a desk with a label on it, and the desk decides which queues get a copy. The desk that parked orders are handed to is what RabbitMQ calls a <strong>dead letter exchange</strong>.</li><li><strong>Refusing an order</strong> is the worker telling the broker it will not finish this one. The worker can refuse it and ask for it back, which puts it at the head of the queue again, or refuse it for good, which hands it to the desk.</li></ul>
+<h2>The six acts</h2>
+<h3>An Order That Can Never Succeed</h3>
+<p>Four orders go on a queue with no rule written on it. The second has an address nothing can read. The worker takes each order in turn, and when one fails it refuses it and asks for it back. The broker puts it back at the head of the line, so it is the next thing the worker gets. Over twelve turns, eleven of them are the same unreadable order. The two good orders behind it never move.</p>
+<pre><code>  four orders, one with an address nothing can read. handled: [ORD-1001]. still waiting: 3. deliveries of ORD-1002: 11.
+  the worker refuses it and asks for it back, so the broker returns it to the head of the queue. ORD-1003 and ORD-1004 never get their turn.</code></pre>
+<h3>A Dead Letter Channel, Made Of A Real Exchange And A Real Queue</h3>
+<p>The same four orders, on a queue declared with a rule: a dead order goes to the parked exchange under the key <code>rejected</code>, and a queue called <code>orders.parked.rejected</code> is tied to that key. The worker gives each order three deliveries. On the third failure it refuses the unreadable order for good, and the broker takes it out of the queue and hands it to the desk. The two good orders behind it go through. One of them had failed once on a payment gateway timeout, and succeeded the next time it was delivered.</p>
+<pre><code>  the worker gives each order three deliveries. after the third it refuses ORD-1002 for good, and the broker takes it out of the queue.
+  handled: [ORD-1001, ORD-1003, ORD-1004]. still waiting: 0. parked: 1. deliveries in all: 7.
+  ORD-1003 failed once on a payment gateway timeout and went through on its second delivery. a slow day is not a dead order.</code></pre>
+<p>Seven deliveries: one for the first order, three for the unreadable one, two for the one that timed out, one for the last.</p>
+<h3>The Broker Writes Down Why</h3>
+<p>Reading the parked queue gives back the order with a note attached. The note names the queue it died in, <code>orders.work</code>, counts the deaths, one, and gives the reason in one word: <code>rejected</code>. The body of the order is byte for byte what the shop sent.</p>
+<pre><code>  ORD-1002: reason rejected, from queue orders.work, died 1 time.
+  the order itself is exactly as the shop sent it: ORD-1002 ship to ??? ?? ?????, card ending 9930
+  the application wrote none of that. the broker did, and it will be there tomorrow morning.</code></pre>
+<h3>Not Every Death Is A Refusal</h3>
+<p>Two more orders die, and no worker touches either one.</p>
+<p>The first goes on a queue declared with a time limit of five hundred milliseconds. Nobody reads it in time, and the broker parks it with the reason <code>expired</code>.</p>
+<p>The second goes on a queue declared to hold two orders. Three are sent. To take the third, the broker pushes the oldest out, and parks it with the reason <code>maxlen</code>. Two orders are left waiting there.</p>
+<pre><code>  ORD-1005 sat in a queue with a time limit of 500 milliseconds and nobody read it: reason expired, from queue orders.slow.
+  a queue that holds two orders was sent three. the broker pushed the oldest out: ORD-1006, reason maxlen. still waiting there: 2.
+  no worker refused either order. the broker decided both times, and named the rule it applied.</code></pre>
+<p>This is the act the hand-built version cannot have. In plain Java, nothing but the worker can act, so the only way a message can die is for the worker to decide it has died.</p>
+<h3>Fix It, And Put It Back</h3>
+<p>The unreadable order is parked. An operator finds the cause — the address parser — and fixes it. The parked order is published back onto the working queue, and this time it goes through. It is handled last, after the two orders that were behind it, because a replay puts a message at the back of the line.</p>
+<pre><code>  before the fix: handled [ORD-1001, ORD-1003, ORD-1004], parked 1.
+  the address parser is fixed and 1 parked order is published back onto the working queue. handled: [ORD-1001, ORD-1003, ORD-1004, ORD-1002]. parked: 0.
+  note the order: ORD-1002 was handled after ORD-1003 and ORD-1004. a replay does not restore the order things were sent in.
+  and it goes back as a new message, so the broker&#x27;s note is gone unless the operator copies it across first.</code></pre>
+<h3>The Bill: Nobody Is Looking</h3>
+<p>Forty orders, every second one unreadable. The worker refuses each bad one for good on its first delivery, and the broker parks it. Twenty orders are shipped and twenty are parked. Every one of the forty was paid for by a customer who was told the order went through. The working queue reports nothing waiting, so every dashboard shows the shop healthy.</p>
+<pre><code>  40 orders, half of them unreadable: 20 parked, 20 shipped, and every one of those 40 was paid for by a customer.
+  the working queue reports 0 waiting, so every dashboard shows the shop healthy. the loss is in the parked queue, and nothing tells anyone to look at it.
+  a parked queue needs an owner, an alert on its depth, and a limit on how long an order may stay, because each parked order is a copy of a customer&#x27;s address.
+  and a broker is another thing to run: this demo declared 11 queues and 1 exchange in 1 RabbitMQ container, and took the container away at the end.</code></pre>
+<h2>The three reasons, in one place</h2>
+<table><thead><tr><th>The broker&#x27;s word</th><th>What happened</th><th>Who decided</th></tr></thead><tbody><tr><td><code>rejected</code></td><td>A worker refused the message and did not ask for it back</td><td>The worker started it, the broker carried it out</td></tr><tr><td><code>expired</code></td><td>The message sat in the queue past its time limit</td><td>The broker alone</td></tr><tr><td><code>maxlen</code></td><td>The queue was full, and this was the oldest message in it</td><td>The broker alone</td></tr></tbody></table>
+<h2>The verdict</h2>
+<p>Write the rule on every queue where a message can fail for ever. Let the worker try a few times, for the failures that pass, and then refuse for good, for the ones that do not. Let the broker do the moving, because it will do it when your process has crashed as well as when it has not. Read the note it attaches, because it is the only account of the death you will have at three in the morning. Then put an alert on the depth of the parked queue, give the queue an owner, and decide how long an order may stay in it.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>A queue declared with <code>x-dead-letter-exchange</code> in its arguments.</li><li>A queue whose name ends in <code>.dlq</code>, <code>.parked</code> or <code>-dead-letter</code>.</li><li>A consumer calling <code>basicReject</code> or <code>basicNack</code> with <code>requeue</code> set to false.</li><li>An <code>x-death</code> header read out of a message&#x27;s headers, or <code>x-first-death-reason</code>.</li><li>In Spring AMQP, a <code>RepublishMessageRecoverer</code>, or a retry policy ending in a rejection.</li><li>In Amazon SQS, a redrive policy with a <code>maxReceiveCount</code>.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Every managed queue service has one, under a different name, with the same three parts: a rule on the queue, somewhere for the dead message to go, and a note saying why.</p>
+<h2>When this is too much</h2>
+<p>For a queue where failure is impossible, or where losing a message costs nothing, this is more to run than it is worth. Where a message can be poison, its absence is the outage.</p>
+</main>
+<footer>
+Generated from <code>dead-letter-channel-with-rabbitmq-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

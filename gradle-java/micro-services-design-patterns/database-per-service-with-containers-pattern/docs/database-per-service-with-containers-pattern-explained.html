@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Database per Service with Containers, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Database per Service with Containers, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>Each service keeps its own data in its own database, which no other service may read directly — and once those databases are on different engines, &quot;may not&quot; becomes &quot;cannot&quot;: there is no query left that joins them.</p>
+<h2>The analogy, before any of the tools&#x27; words</h2>
+<p>Think of two departments that used to share one filing cabinet. Anyone could pull a folder from either drawer and lay two folders side by side. That was quick. It also meant that when one department relabelled its folders, the other department&#x27;s routine broke.</p>
+<p>So they split. Accounts keeps its ledgers in a locked cabinet of fixed-format ledger books. Design keeps its samples in a drawer of index cards, each card with whatever notes that sample needs. Now nobody can lay a ledger page beside a card, because they are different kinds of thing in different rooms. A question about both needs two conversations. And if the Design department throws a card away, nothing in Accounts&#x27; cabinet stops it.</p>
+<h2>What Postgres and MongoDB call these things</h2>
+<p><strong>PostgreSQL</strong>, or <strong>Postgres</strong>, is the cabinet of ledger books: a relational database, holding <strong>tables</strong> with fixed <strong>columns</strong>, asked questions in <strong>SQL</strong>.</p>
+<p>A <strong>join</strong> is one question answered from two tables at once, by matching a value in one with a value in the other.</p>
+<p>A <strong>foreign key</strong> is a rule the database keeps: a value in one table must exist in another. Postgres refuses any change that would break it.</p>
+<p>A <strong>transaction</strong> is a group of changes kept together or undone together. Undoing them is a <strong>rollback</strong>.</p>
+<p>A <strong>SQLSTATE</strong> is the five-character code Postgres puts on every error. 23503 means a foreign key would be broken; 42703, no such column; 42P01, no such table; 0A000, not supported.</p>
+<p><strong>MongoDB</strong> is the drawer of index cards: a document database. A <strong>document</strong> is one record of named fields, like one filled-in form. A <strong>collection</strong> is a drawer of them. Two documents in one collection need not have the same fields.</p>
+<p>A <strong>find</strong> asks MongoDB for the documents that match. <strong><code>$lookup</code></strong> is MongoDB&#x27;s join: for each document, attach the matching documents from another collection in the same database.</p>
+<p><strong>Testcontainers</strong> is the Java library that starts both databases in containers when the demo begins and removes them when it ends.</p>
+<h2>The six acts</h2>
+<h3>One Shared Database</h3>
+<p>Both teams&#x27; tables live in one Postgres database called shop, with a foreign key from orders to products. The order history page for cust-7 is one SQL join, and it takes 1 round trip — one question to a database. Then the Catalog team tries to delete the kettle, which order ord-101 still names. Postgres refuses, with code 23503.</p>
+<pre><code>  the order history page for cust-7 is one SQL join:
+    ord-101   SKU-KETTLE   Stainless Steel Kettle       x1
+    ord-102   SKU-MUG      Blue Stoneware Mug           x4
+  round trips to a database: 1
+  Catalog tries to delete SKU-KETTLE, which ord-101 still names. Postgres refuses:
+    ERROR 23503: update or delete on table &quot;products&quot; violates foreign key constraint &quot;orders_sku_fkey&quot; on table &quot;orders&quot;</code></pre>
+<p>This is the arrangement working well: fast, correct, and guarded by the database itself.</p>
+<h3>The Rename</h3>
+<p>The Catalog team renames its column product_name to title. The change is correct, their queries are updated, their tests pass. The order history page belongs to the Orders team, and its query still names product_name. Postgres answers with 42703: no such column.</p>
+<pre><code>  ALTER TABLE products RENAME COLUMN product_name TO title: done. Catalog&#x27;s own queries updated, its tests green.
+  the order history page, which belongs to Orders:
+    ERROR 42703: column p.product_name does not exist
+  nobody did anything wrong. the column was Catalog&#x27;s; the query naming it was Orders&#x27;.</code></pre>
+<h3>Two Services, Two Engines</h3>
+<p>Now the split. Orders keeps Postgres, in a database of its own called orders, holding 1 table. Catalog moves to MongoDB, in a database called catalog, holding 1 collection of documents. The kettle&#x27;s document has a wattage; the mug&#x27;s has a capacity in millilitres; nobody changed a table to allow either.</p>
+<p>The page is now two questions: one SQL query to Orders for the customer&#x27;s orders, and one find to Catalog for both products&#x27; names at once. Java puts the two answers side by side. 2 round trips, where the join took 1. Then the Catalog team renames the name field to title in every document — MongoDB changed 2 documents — and changes its own code in the same release. The page is unchanged, because nothing outside Catalog ever named that field.</p>
+<pre><code>  Orders owns the orders database on Postgres 18.6: 1 table.
+  Catalog owns the catalog database on MongoDB 8.3.11: 1 collection of documents.
+  two products, two shapes, and no table to change first:
+    SKU-KETTLE: _id, name, priceInPence, stock, wattage
+    SKU-MUG: _id, name, priceInPence, stock, capacityMl
+  round trips to a database: 2
+  Catalog renames name to title in every document: MongoDB changed 2 documents. Catalog&#x27;s own code reads title from now on.
+  the page is unchanged. nothing outside Catalog ever named that field.</code></pre>
+<h3>The Join, Tried Anyway</h3>
+<p>This is the headline of the project. The old join is tried from both sides.</p>
+<p>From the Orders side, the old SQL: Postgres says there is no table called products here, code 42P01. Then a reach across to the shop database, which is on the very same Postgres server: code 0A000, cross-database references are not implemented. Postgres will not join two of its own databases, let alone one of MongoDB&#x27;s.</p>
+<p>From the Catalog side, MongoDB&#x27;s own join, <code>$lookup</code>, pointed at a collection called orders. MongoDB has no such collection — the orders are in Postgres. It does not complain. It treats the missing collection as empty and returns both products, each with 0 orders.</p>
+<pre><code>  from Orders, the old SQL join:
+    ERROR 42P01: relation &quot;products&quot; does not exist
+  from Orders, reaching across to the shop database on the same Postgres server:
+    ERROR 0A000: cross-database references are not implemented: &quot;shop.public.products&quot;
+  from Catalog, MongoDB&#x27;s own join, $lookup, into a collection called orders:
+    no error. 2 products came back: SKU-KETTLE with 0 orders, SKU-MUG with 0 orders.
+    MongoDB has no collection called orders, so it treated it as empty and said nothing.
+  no engine holds both halves. the join is not forbidden; it cannot be written.</code></pre>
+<p>The plain-Java twin could only throw an exception it had written for the purpose. Two real engines give two different answers, and the quiet one is the dangerous one: a report built on that lookup would say nobody ever bought a kettle, and no log anywhere would say why.</p>
+<h3>No Foreign Key Between Two Engines</h3>
+<p>The Catalog team deletes the kettle. MongoDB deleted 1 document; nothing refused. Postgres still holds 1 order naming the kettle, and has no way of knowing it has gone. The page has to decide what to show, and shows &quot;no longer in the catalogue&quot;.</p>
+<pre><code>  Catalog deletes SKU-KETTLE: MongoDB deleted 1 document. nothing refused.
+  Postgres still holds 1 order naming SKU-KETTLE.
+    ord-101   SKU-KETTLE   (no longer in the catalogue) x1
+  in act ONE Postgres refused this delete. across two engines nothing can.</code></pre>
+<h3>The Bill</h3>
+<p>Customer cust-7 checks out 2 more mugs. Orders writes ord-103 inside a Postgres transaction, and Catalog takes 2 mugs off the shelf in MongoDB. Then the payment is declined, and Orders rolls back. Postgres forgets ord-103: the customer has 2 orders again. MongoDB keeps its change: 38 mugs, where there were 40. The rollback reached one engine, not both. In the shared database, the stock and the order would have been one transaction.</p>
+<p>Then MongoDB is stopped. The page asks Orders, which answers with 2 orders, and asks Catalog, which does not answer. Every name reads &quot;catalog unreachable&quot;. The page is half there. And the shop now runs 2 containers, 2 drivers and 2 query languages where it had 1 of each.</p>
+<pre><code>  Postgres: ord-103 is gone. orders for cust-7: 2.
+  MongoDB: SKU-MUG stock 38, was 40. the rollback reached one engine, not both.
+  MongoDB is stopped. the order history page for cust-7:
+    ord-101   SKU-KETTLE   (catalog unreachable)        x1
+    ord-102   SKU-MUG      (catalog unreachable)        x4
+  Orders still answered; Catalog did not. the page is half there.
+  this demo runs 2 containers, 2 drivers and 2 query languages, where the shared database had 1 of each.</code></pre>
+<h2>The verdict</h2>
+<p>Give each service its own database when two teams keep breaking each other, and let each pick the engine that suits its data. Then accept, out loud, what that gives up: the join becomes two questions and some code; the foreign key becomes an agreement between teams; one transaction becomes two that can disagree; and one engine can be down while the other is up. And never trust a cross-engine answer of &quot;nothing&quot; without asking where the other half lives.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>Each service&#x27;s configuration names one database address and one set of credentials, and no service names two.</li><li>A page or report built by calling two services and matching their answers in code, often by collecting ids into one batch call.</li><li>Code that shows a placeholder when a name, price or product is missing: the foreign key that used to make that impossible.</li><li>A <code>$lookup</code>, or any join, whose <code>from</code> names data that lives in another service. It will not fail. It will be empty.</li><li>A rollback in one service followed by nothing in the other: the transaction stopped at the edge of its engine.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Any shop split into services: orders on Postgres or MySQL, the catalogue on MongoDB, Elasticsearch or DynamoDB, sessions in Redis. The arrangement is often called polyglot persistence — many kinds of storage — and it only becomes possible once each service owns its own.</p>
+<h2>When this is too much</h2>
+<p>If one small team owns both halves, one database is faster, simpler and safer. If two teams need separating but their data is the same shape, two databases on the same engine is often enough. A second engine earns its place only when the data genuinely differs in shape, because every engine added is another thing to back up, upgrade, watch and learn.</p>
+</main>
+<footer>
+Generated from <code>database-per-service-with-containers-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

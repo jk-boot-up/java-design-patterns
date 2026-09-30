@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Serverless with LocalStack Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Serverless with LocalStack Pattern — Video Narration Script</h1>
+<h2>1. Serverless with LocalStack</h2>
+<p>Hello, and welcome. This video explains the Serverless pattern, in Java, using LocalStack and A W S Lambda. This video is presented by Jayasekhar Konduru. First, a simple definition. Serverless runs each piece of work as a short function, started by an event, and you pay for each call. With A W S Lambda, you upload a function once. The platform starts a container for each call that runs at the same time. It keeps that container warm for a while, and removes it when it is idle. Think of a taxi rank. When a crowd arrives, more taxis pull in. When the street is quiet, they drive away. This is the framework version of the Serverless video, with the same online store. We will upload a real function, watch five real containers start for five orders, and watch them disappear. We will hear a real cold start, a function that forgets, and a job stopped at its time limit.</p>
+<h2>2. The Partner Project</h2>
+<p>Before we start, a quick note. This video has a partner: the hand-built Serverless video. That one simulates a function platform, counting in ticks. It shows scaling to zero, a cold start, lost memory, and the price when busy. If you are new to the pattern, watch that one first. Here, we keep the same example, and ask what a real Lambda platform does with it.</p>
+<h2>3. Before The First Line</h2>
+<p>Two things are new in this project. First, A W S Lambda, which is Amazon&#x27;s function platform. And LocalStack, a program that offers the same Lambda interface on your own machine. It runs each copy of a function in its own container. Second, the A W S software kit for Java, which our program uses to talk to it. You need Docker running. Without it, the demo tells you so, and stops. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.</p>
+<h2>4. A Machine That Is Always On</h2>
+<p>First, the traditional way: a machine that is always on. Using the same price units as the earlier video, a server costs two per tick. One hundred ticks, with three orders, costs two hundred. We paid for one hundred ticks, and used it for three orders.</p>
+<h2>5. A Function Per Event</h2>
+<p>Second demo: one function per event. The receipt function is uploaded to a real Lambda interface. Then it is called once for each of three orders. Three receipts are sent. At one unit per call, the bill is three. Between orders, nothing needs to run, and nothing is paid for.</p>
+<h2>6. Scale Out, And Back To Zero</h2>
+<p>Third demo: scaling out, and back to zero. Before any order arrives, no copies are running. Then five orders arrive at the same moment. Five different copies answer, and five containers are running. Five quiet seconds later, none are running.</p>
+<h2>7. The Cold Start</h2>
+<p>Fourth demo: the cold start. After a quiet time, the first call takes several hundred milliseconds. The call right after it takes just a few milliseconds. Why? The first call had to start a container for the function. The second call found one already running.</p>
+<h2>8. No Memory Between Calls</h2>
+<p>Fifth demo: a function has no memory between calls. We call the copy that is running. It says it has handled three calls so far. Then there is a quiet time, and we call again. A different copy answers. It says it has handled one call. Whatever the first copy kept in its variables is gone. Anything that must last belongs in a store outside the function.</p>
+<h2>9. The Bill</h2>
+<p>Finally, the bill, in the same price units as before. In a quiet hundred ticks, with three calls, functions cost three, and the server costs two hundred. In a busy hundred ticks, with three hundred calls, functions cost three hundred, and the server still costs two hundred. So paying per call is cheap when quiet, and expensive when busy all the time. And there is a time limit. A job that needs six seconds, on a function limited to three, fails. The platform reports that the task timed out after three seconds.</p>
+<h2>10. The Verdict</h2>
+<p>So, here is the verdict. Use functions for work that is short, comes in bursts, and keeps nothing between calls. Keep any lasting state outside. Expect a cold start after a quiet time. Set the time limit on purpose. Work out the price at your busiest. And keep long jobs somewhere else.</p>
+<h2>11. How To Recognise It</h2>
+<p>How can you spot this in code someone else wrote? Look for a handler method that takes an event and a context. Look for a function&#x27;s timeout and memory size settings. And look for Invoke Request calls in the A W S software kit.</p>
+<h2>12. Where You Have Met This</h2>
+<p>Where have you met this before? In A W S Lambda, Google Cloud Functions, and Azure Functions. And in jobs like resizing images, sending receipts, and handling webhooks.</p>
+<h2>13. What Was Used</h2>
+<p>For the record, here are the versions. LocalStack four point fourteen. The A W S software kit for Java, two point fifty-five point one. And the Lambda runtime, Python three point twelve.</p>
+<h2>14. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything in it is real. A real Lambda interface, real containers for each copy, and a real cold start. The prices, though, use the earlier video&#x27;s units. They are not real charges.</p>
+<h2>15. When This Is Too Much</h2>
+<p>So, when is this too much? For heavy, steady traffic, for long jobs, or for work that needs memory between calls, an ordinary server is cheaper and simpler.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s Serverless with LocalStack. If you remember one sentence, make it this one. A real function platform starts a container for each call that runs at once, and removes it when idle, and the price is the cold start, lost memory, and a time limit. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Raise the function&#x27;s time limit to ten seconds. Then run the last demo again. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

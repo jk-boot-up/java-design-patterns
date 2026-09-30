@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Plan — The Prototype Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Plan — The Prototype Pattern</h1>
+<p>A guided session for teaching this project to people who are new to design patterns.</p>
+<ul><li><strong>Audience:</strong> anyone comfortable writing a Java class. No pattern knowledge assumed, though having done the builder-pattern session first helps for contrast, not prerequisite.</li><li><strong>Duration:</strong> ~50 minutes</li><li><strong>Format:</strong> live coding and discussion. Slides optional; the code is the material.</li><li><strong>Group size:</strong> works from 1 to about 20. Beyond that, the exercises need pairs.</li></ul>
+<blockquote><p><strong>Optional pre-work.</strong> Ask participants to watch the video (<a href="../video/"><code>../video/</code></a>) beforehand. If they do, you can compress the first two blocks and spend the time on the exercises instead.</p></blockquote>
+<h2>Before You Start</h2>
+<p>Check that every machine can run:</p>
+<pre><code>./gradlew build</code></pre>
+<p>Have open in tabs: <code>ProductListing.java</code>, <code>Prototype.java</code>, <code>ListingRegistry.java</code>, <code>ProductListingDemo.java</code>, <code>animation.html</code>.</p>
+<h2>The One Thing They Should Leave With</h2>
+<p>If they remember nothing else:</p>
+<blockquote><p><strong>When you already have one fully-assembled object and need another that&#x27;s almost the same, copy it instead of rebuilding it from scratch — and decide, field by field, what &quot;copy&quot; should mean: a fresh copy for anything mutable, a shared reference for anything that can&#x27;t change.</strong></p></blockquote>
+<p>Everything in the session is in service of that sentence.</p>
+<h2>Timings</h2>
+<table><thead><tr><th>Time</th><th>Block</th><th>Goal</th></tr></thead><tbody><tr><td>0:00–0:08</td><td>The repeated eleven-argument call</td><td>Make them feel the duplication</td></tr><tr><td>0:08–0:16</td><td>The <code>Cloneable</code> trap</td><td>Show why Java&#x27;s own answer disappoints</td></tr><tr><td>0:16–0:28</td><td>The fix, live</td><td><code>Prototype&lt;T&gt;</code> and <code>copy()</code></td></tr><tr><td>0:28–0:34</td><td>Deep copy vs. shared reference</td><td>The judgment call at the heart of the pattern</td></tr><tr><td>0:34–0:40</td><td>The registry</td><td>Connect to the GoF book&#x27;s named variant</td></tr><tr><td>0:40–0:48</td><td>Exercises</td><td>Hands on keyboard</td></tr><tr><td>0:48–0:50</td><td>Wrap up</td><td>The one sentence</td></tr></tbody></table>
+<h2>0:00–0:08 — The Repeated Eleven-Argument Call</h2>
+<p>Open a scratch file. Type the black earbuds listing in front of them, then the white one right below it:</p>
+<pre><code>ProductListing black = new ProductListing(&quot;EARBUD-BLK&quot;, &quot;Wireless Earbuds&quot;,
+        longDescription, &quot;Electronics&quot;, &quot;Acme Audio&quot;, Money.pounds(59.99),
+        List.of(&quot;black-1.jpg&quot;), Map.of(&quot;color&quot;, &quot;Black&quot;), standardShipping, 30, 12);
+
+ProductListing white = new ProductListing(&quot;EARBUD-WHT&quot;, &quot;Wireless Earbuds (White)&quot;,
+        longDescription, &quot;Electronics&quot;, &quot;Acme Audio&quot;, Money.pounds(59.99),
+        List.of(&quot;white-1.jpg&quot;), Map.of(&quot;color&quot;, &quot;White&quot;), standardShipping, 30, 12);</code></pre>
+<p>Ask: <em>&quot;How many of these eleven arguments actually changed?&quot;</em> Count them together — two, maybe three. Then: <em>&quot;What happens when the compliance team edits <code>longDescription</code>?&quot;</em> Every call site needs the same edit, and it is only a matter of time before one is missed.</p>
+<h2>0:08–0:16 — The <code>Cloneable</code> Trap</h2>
+<p>Ask: <em>&quot;Java already has a way to copy an object — who&#x27;s used <code>clone()</code>?&quot;</em> Usually a few hands. Write <code>Object.clone()</code> on the board and ask what&#x27;s odd about it: it&#x27;s <code>protected</code>, it throws a checked exception that can never actually happen, and it copies fields shallowly.</p>
+<p>Draw the shallow-copy problem concretely:</p>
+<pre><code>List&lt;String&gt; images = original.getImages();   // via a hypothetical clone()
+copy.getImages().add(&quot;extra.jpg&quot;);
+// now original.getImages() has &quot;extra.jpg&quot; too — same List, two names</code></pre>
+<p>This is the moment to cite <em>Effective Java</em> Item 13 by name: it exists because <code>Cloneable</code> disappoints almost everyone who tries to use it correctly.</p>
+<h2>0:16–0:28 — The Fix, Live</h2>
+<p>Show <code>Prototype&lt;T&gt;</code>:</p>
+<pre><code>public interface Prototype&lt;T&gt; {
+    T copy();
+}</code></pre>
+<p>One method. No exception, no protected access, no marker interface doing invisible work. Then show <code>ProductListing.copy()</code>:</p>
+<pre><code>@Override
+public ProductListing copy() {
+    return new ProductListing(sku, title, description, category, brand, price,
+            images, attributes, shippingProfile, returnWindowDays, warrantyMonths);
+}</code></pre>
+<p>Ask: <em>&quot;Where&#x27;s the deep-copying logic in this method?&quot;</em> Let them look — there isn&#x27;t any. Walk up to the constructor and point at:</p>
+<pre><code>this.images = new ArrayList&lt;&gt;(images);
+this.attributes = new LinkedHashMap&lt;&gt;(attributes);</code></pre>
+<p><em>&quot;This line was already here, to protect the constructor&#x27;s own caller. <code>copy()</code> just gets it for free by calling the constructor again.&quot;</em></p>
+<h2>0:28–0:34 — Deep Copy vs. Shared Reference</h2>
+<p>Point at <code>shippingProfile</code> — passed straight through, no copy:</p>
+<pre><code>this.shippingProfile = shippingProfile;</code></pre>
+<p>Ask: <em>&quot;Why is this one safe to share, when <code>images</code> isn&#x27;t?&quot;</em> Work towards: <code>ShippingProfile</code> is a <code>record</code> — immutable, no setters, nothing can change it out from under either listing. Run the demo and point at:</p>
+<pre><code>shippingProfile is the same instance: true</code></pre>
+<p><em>&quot;Same object, in memory, on both listings. That&#x27;s not a bug — sharing an immutable value costs nothing and loses nothing.&quot;</em></p>
+<h2>0:34–0:40 — The Registry</h2>
+<p>Open <code>ListingRegistry.create(key)</code>. Tell them plainly: the Gang of Four book names this variant too — sometimes called a Prototype Manager — for when the set of templates is decided at runtime rather than known in the caller&#x27;s source code.</p>
+<p>Ask: <em>&quot;Does <code>create()</code> ever write <code>new ProductListing(...)</code>?&quot;</em> It does not — it only ever calls <code>.copy()</code> on whatever was registered. Compare with <code>PurchaseOrderPresets</code> from the builder-pattern project if they&#x27;ve seen it: same idea, a caller asks by name and never sees the construction details.</p>
+<h2>0:40–0:48 — Exercises</h2>
+<h3>Exercise 1 — Add a mutable field (about 5 minutes)</h3>
+<blockquote><p>Add <code>List&lt;String&gt; tags</code> to <code>ProductListing</code>, defensively copied in the constructor the same way <code>images</code> is.</p></blockquote>
+<p>Draw out: <code>copy()</code> needs zero changes. It already forwards every constructor argument.</p>
+<h3>Exercise 2 — Break the deep copy on purpose (about 5 minutes)</h3>
+<blockquote><p>Change <code>this.images = new ArrayList&lt;&gt;(images)</code> to <code>this.images = images</code>. Write a test that mutates a copy&#x27;s <code>images()</code> and asserts the original is unaffected.</p></blockquote>
+<p>Watch it fail. Ask: <em>&quot;Which single line was protecting you?&quot;</em> Put it back, watch the test pass.</p>
+<h2>0:48–0:50 — Wrap Up</h2>
+<p>Back to the one sentence:</p>
+<blockquote><p>When you already have one fully-assembled object and need another that&#x27;s almost the same, copy it instead of rebuilding it from scratch — and decide, field by field, what &quot;copy&quot; should mean.</p></blockquote>
+<p>Then send them somewhere:</p>
+<ul><li><a href="../README.html"><code>../README.md</code></a> to run it themselves</li><li><a href="animation.html"><code>animation.html</code></a> to step through it again slowly</li><li><a href="../video/"><code>../video/</code></a> if they want it narrated</li><li><a href="../../builder-pattern"><code>../../builder-pattern</code></a> for the contrast — one object assembled piece by piece, versus one object cloned and tweaked</li></ul>
+<h2>Facilitator Notes</h2>
+<ul><li><strong>The <code>Cloneable</code> block is the hook.</strong> Most Java developers have typed <code>implements Cloneable</code> at some point without reading Item 13. Naming the specific complaints — protected method, checked exception, shallow copy — turns a vague unease into something concrete.</li><li><strong>Expect &quot;isn&#x27;t this just a copy constructor?&quot;</strong> Worth taking seriously. The answer: yes, mechanically — <code>copy()</code> here <em>is</em> a copy constructor wearing an interface. The value of <code>Prototype&lt;T&gt;</code> is the shared method name and the shared contract (&quot;fully independent&quot;), which lets code that doesn&#x27;t know the concrete type still ask for a copy — exactly what <code>ListingRegistry</code> relies on.</li><li><strong>If you are running short</strong>, cut the registry block (0:34–0:40). It is a real GoF variant but the core pattern survives without it.</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

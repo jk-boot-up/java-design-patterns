@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Database per Service, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Database per Service, Explained</h1>
+<h2>In One Sentence</h2>
+<p>Each service keeps its own data, nobody else is allowed to read it directly, and if you want somebody else&#x27;s data you ask them for it.</p>
+<h2>Everyday Analogy: The Shared Filing Cabinet</h2>
+<p>Two departments in an office share one filing cabinet.</p>
+<p>While they share it, life is easy. A question that spans both departments is one trip to one drawer. Nothing is ever out of date, and the folders are all in the same order, because there is only one order.</p>
+<p>And then one department decides to reorganise. They have every right to — it is their half of the cabinet, and the new arrangement suits their work much better. They do it carefully, they check their own work, and everything they need is exactly where they now expect it.</p>
+<p>The other department comes in on Monday and cannot find anything.</p>
+<p>Nobody was careless. The trouble is that the filing system was a shared decision that neither department was in charge of, and the only way to change it safely was a meeting that nobody thought to call.</p>
+<p>So they buy a second cabinet. Each department keeps its own, arranges it however it likes, and reorganises on a Tuesday afternoon without telling anybody.</p>
+<p><strong>And now notice the price, because it is not small.</strong> A question that spans both departments is no longer one trip to a drawer. It is a phone call, and then another one, and then somebody writing the two answers down on one sheet of paper. And a rule that used to be physically enforced — you could not file a receipt without the matching invoice, because they lived in the same folder — is now just something both departments have agreed to be careful about.</p>
+<p>That is this pattern, exactly. The rest of this document is the same story told with tables.</p>
+<h2>Act One: The Shared Database, Working</h2>
+<pre><code>  ord-101   SKU-KETTLE   Stainless Steel Kettle       x1
+  ord-102   SKU-MUG      Blue Stoneware Mug           x4
+  database round trips: 1
+  every row has a product name, because a join cannot forget one</code></pre>
+<p><code>SharedSchema</code> holds both teams&#x27; tables, and <code>orderHistory</code> is one query with a join. One trip. No assembly. No missing names. <code>queriesForOnePage()</code> returns the constant <code>1</code>, which is not a joke — it is there so that act three&#x27;s number has something to be compared against.</p>
+<p>Read <code>SharedSchema</code> generously. It is the thing being given up, and if you have not appreciated it you will not understand what the rest of the category is paying for.</p>
+<h2>Act Two: The Same Database, Breaking</h2>
+<pre><code>  catalog team: migration ran, catalog tests green, done
+  order history page: no column &#x27;product_name&#x27; in products -- somebody renamed it
+  nobody did anything wrong. The column was theirs.</code></pre>
+<p>The rename is a real rename. In this project a column is a map key, so <code>renameProductNameColumnTo(&quot;title&quot;)</code> genuinely moves every value from one key to another, and the order history query — which names <code>product_name</code> in its own source — finds nothing.</p>
+<p>Three things are worth saying out loud.</p>
+<p><strong>The migration was correct.</strong> The data is all still there. <code>theRenameLosesNothing</code> asserts exactly that: after the rename, every product name is still readable, under its new name, by anybody who knows the new name.</p>
+<p><strong>The catalog team could not have known.</strong> The query that broke is in a different repository, written by people they may never have met.</p>
+<p><strong>Every test passes.</strong> <code>aRenameBreaksTheOrderHistoryPage</code> is a passing test that asserts a page is broken. That is what makes this so hard to see: your test suite is not going to tell you, because a test suite tests a codebase, and the problem is between two codebases.</p>
+<h2>The Mechanism, Which Is Almost Nothing</h2>
+<pre><code>public List&lt;Order&gt; ordersFor(String requester, String customerId) {
+    if (!OWNER.equals(requester)) {
+        throw new NotYourDataException(requester, OWNER);
+    }
+    ...
+}</code></pre>
+<p>Every database method takes the name of whoever is asking, and refuses anybody but the owner. That is the pattern. There is no algorithm, nothing adaptive, nothing clever.</p>
+<p><strong>In a real shop nothing throws that exception</strong>, and this is the most important sentence in the document. The rule is not enforced in Java and it is not a convention in a wiki. The Orders service is given database credentials that simply <em>cannot see</em> the Catalog tables; an attempt to read them fails as a permissions error long before it reaches any application code. <code>NotYourDataException</code> exists here only so the rule is visible in a project small enough to read. When you see it thrown, read it as &quot;the database refused&quot;.</p>
+<p>If the rule is a comment asking people not to, it is not this pattern. It is a wish.</p>
+<h2>Act Three: Two Databases, Doing The Same Job For More Money</h2>
+<pre><code>      0ms -&gt;    10ms  Orders           OK        2 order(s)
+     10ms -&gt;    10ms  OrderDb          QUERY     2 order(s) for cust-7
+     10ms -&gt;    20ms  Catalog          OK        2 name(s) in one call
+     20ms -&gt;    20ms  HistoryPage      ASSEMBLED 2 row(s) from 2 services
+  the same page took 20ms and 2 service calls instead of 1 query</code></pre>
+<p>Ask Orders what the customer bought. Collect the skus. Ask Catalog what they are called. Stitch the two answers together in Java. <code>OrderHistoryPage</code> is those four sentences and nothing else.</p>
+<p>Two details in there earn their place.</p>
+<p><strong><code>catalog.namesFor(skus)</code> takes a list.</strong> That is not a convenience method. Asking once per sku would turn this two-row page into two calls, a fifty-row page into fifty, and a report into an outage. <code>itAsksCatalogOnce</code> asserts that Catalog receives exactly one call no matter how many rows the page has. The batch call is the difference between an assembly step and a disaster.</p>
+<p><strong>An empty order history never troubles Catalog at all.</strong> <code>forCustomer</code> returns early when there are no orders, and <code>itSkipsCatalogWhenThereIsNothingToName</code> holds it to that. A service you do not need to call is the cheapest call there is.</p>
+<p>And <code>itProducesTheSamePage</code> asserts the thing that makes the comparison fair: the assembled page says exactly what the joined page said. Same rows, same names, same order. What changed is the cost, not the answer.</p>
+<h2>Act Four: The Same Rename, Now A Non-Event</h2>
+<pre><code>  ord-101   SKU-KETTLE   Stainless Steel Kettle       x1
+  ord-102   SKU-MUG      Blue Stoneware Mug           x4
+  the page is unchanged. Nothing outside Catalog ever named that column.</code></pre>
+<p>This is the payoff, and it is quiet, which is the point. <code>CatalogDatabase</code> renames the column <em>and updates its own queries in the same class</em>, because the only code that ever names that column lives beside the column, is tested beside it, and is changed in the same commit.</p>
+<p><code>aRenameIsNowANonEvent</code> asserts that the page is byte-for-byte what it was before the migration.</p>
+<p>Be precise about what has been bought here, because it is easy to oversell:</p>
+<ul><li>It bought <strong>no speed</strong>. Act three is slower than act one. The query engine was perfectly happy.</li><li>It bought <strong>no correctness</strong>. The page was already right.</li><li>It bought <strong>the catalog team the ability to change their minds</strong> without asking permission, and to deploy that change without coordinating a release with a team they have never met.</li></ul>
+<p>That is an organisational benefit, and it is the only one on offer. Which gives you the test for whether to do this at all: if the two teams are the same three people, you are paying an organisational price to solve an organisational problem you do not have.</p>
+<h2>Act Five: The Bill</h2>
+<h3>The join is gone</h3>
+<pre><code>  Orders may not read Catalog&#x27;s database directly. Ask Catalog for it.</code></pre>
+<p>Every question that spans both services is now two calls and some code. That is fine for an order history page. It is considerably less fine for the report somebody in finance runs on a Monday, which used to be a <code>SELECT</code> with three joins and now has nowhere to live. Hold that thought — it is the whole reason CQRS exists.</p>
+<h3>The foreign key is gone, and this one is worse</h3>
+<pre><code>  b) no more foreign key. Catalog deletes a product that an order refers to:
+  ord-101   SKU-KETTLE   (no longer in the catalogue) x1
+  ord-102   SKU-MUG      Blue Stoneware Mug           x4
+     the row survives with no name. A foreign key would have refused the delete.</code></pre>
+<p>Catalog deletes a product. An order still refers to it. Nothing stopped the delete, because the two rows are in different databases and no constraint can span them.</p>
+<p>So <code>OrderHistoryPage</code> has to decide what to render for a sku nobody has heard of, and its answer is <code>(no longer in the catalogue)</code> rather than a crash. <code>anOrderCanReferToAProductThatIsGone</code> asserts both halves: the row survives, and the name is that placeholder.</p>
+<p><strong>The page surviving is the good news and the bad news at once.</strong> A rule that used to be impossible to break is now merely impolite to break. It has moved out of the database and into code, tests, and agreements between teams — which is to say, into hope. Two later projects in this category, Transactional Outbox and Idempotent Consumer, exist because hope is not quite enough.</p>
+<h2>What It Buys</h2>
+<ul><li>Each team can change its own schema without asking anybody.</li><li>Each team can deploy without coordinating a release.</li><li>Each team can choose a different kind of database if its data wants one.</li><li>A slow query in one service cannot exhaust the connections another service needed.</li></ul>
+<h2>What It Costs</h2>
+<ul><li>Every cross-service question becomes two calls and a piece of assembly code.</li><li>No foreign keys across the boundary, so referential integrity moves into application code and into agreements.</li><li>No transaction across the boundary either — which is a large enough hole that Saga is a separate project.</li><li>Reporting has nowhere obvious to live.</li><li>More moving parts to run, back up, and restore, and backups that are no longer consistent with each other at a single instant.</li></ul>
+<h2>When Not To Use It</h2>
+<ul><li><strong>One team.</strong> The benefit is that teams stop waiting for each other. One team is never waiting for itself.</li><li><strong>Data that is genuinely one thing.</strong> If two tables are always read together and always written together, splitting them makes an assembly step out of nothing.</li><li><strong>When reporting is the product.</strong> If the main thing the business does with the data is ask arbitrary questions across all of it, losing the join is not a price, it is the end of the road.</li><li><strong>Before the boundary is known.</strong> A split down the wrong line is far more expensive than not splitting, because now the wrong line is in two schemas and a network protocol.</li></ul>
+<h2>What To Remember</h2>
+<ol><li>The unit of ownership is the data, not the code. Two services sharing a schema are one service with two deployment pipelines.</li><li>The mechanism is a refusal, enforced by credentials — not a convention, not a comment, not a wiki page.</li><li>The migration that broke the page was correct, and the team that ran it did nothing wrong. That is what makes shared schemas hard.</li><li>Every test can pass while the system is broken, because the failure lives between two codebases and a test suite only ever tests one.</li><li>The split buys no speed and no correctness. It buys the right to change your mind without asking permission.</li><li>Batch the cross-service call, or you turn one page into fifty requests.</li><li>The join is gone: cross-service questions cost two calls and some Java.</li><li>The foreign key is gone: an order can outlive the product it names, and something has to decide what to show.</li><li>A rule that moves from the database into an agreement between teams has become weaker, and you should be able to say so out loud.</li><li>If the two teams are the same three people, do not do this.</li></ol>
+</main>
+<footer>
+Generated from <code>database-per-service-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

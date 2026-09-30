@@ -5,10 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Architectural Patterns</title>
 <style>
-:root {
+:root, [data-theme=dark] {
+  color-scheme: dark;
   --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
   --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
-  --ok: #34d399;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
 }
 * { box-sizing: border-box; }
 body {
@@ -24,7 +40,7 @@ h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
 h3 { font-size: 19px; margin: 32px 0 4px; }
 p { margin: 14px 0; }
 a { color: var(--link); }
-a:hover { color: #7dd3fc; }
+a:hover { color: var(--link-hover); }
 hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
 code {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
@@ -39,14 +55,14 @@ pre {
 pre code { background: none; border: 0; padding: 0; font-size: 14px; }
 blockquote {
   margin: 20px 0; padding: 4px 20px;
-  background: rgba(167, 139, 250, 0.08);
+  background: var(--quote);
   border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
 }
 table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
 th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
          vertical-align: top; }
 th { background: var(--panel-hi); font-weight: 600; }
-tr:nth-child(even) td { background: rgba(30, 41, 59, 0.55); }
+tr:nth-child(even) td { background: var(--stripe); }
 img {
   display: block; max-width: 100%; height: auto; margin: 24px auto;
   background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
@@ -61,14 +77,33 @@ footer {
   max-width: 860px; margin: 60px auto 0; padding-top: 20px;
   border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
 }
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
 </style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
 </head>
 <body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <main>
 <h1>Architectural Patterns</h1>
 <p>The eighth category. Four patterns, in five projects, that decide the shape of a whole application rather than the shape of a few classes.</p>
 <p><strong>Status: all five built.</strong> Each has code, tests, a README, diagrams, an animation, a narrated video pipeline and a YouTube document. The two documents below fixed what the projects are before any of them was written.</p>
-<ul><li><a href="docs/spec.md"><code>docs/spec.md</code></a> — the feature all four implement, the forced change each is judged by, the architecture test each must ship, and the scale at which each becomes over-engineering.</li><li><a href="docs/implementation-plan.md"><code>docs/implementation-plan.md</code></a> — the order the five get built in, the shared feature written before any of them, and the rules that keep the build from having to redo itself.</li></ul>
+<ul><li><a href="docs/spec.html"><code>docs/spec.md</code></a> — the feature all four implement, the forced change each is judged by, the architecture test each must ship, and the scale at which each becomes over-engineering.</li><li><a href="docs/implementation-plan.html"><code>docs/implementation-plan.md</code></a> — the order the five get built in, the shared feature written before any of them, and the rules that keep the build from having to redo itself.</li></ul>
 <h2>The five projects</h2>
 <table><thead><tr><th>#</th><th>Pattern</th><th>Scenario</th></tr></thead><tbody><tr><td>63</td><td>Layered</td><td>Four layers, and the one call that ruins them</td></tr><tr><td>64</td><td>MVC</td><td>The view that knew too much</td></tr><tr><td>65</td><td>Hexagonal / Ports and Adapters</td><td>The application that does not know it has a database</td></tr><tr><td>66</td><td>Clean Architecture</td><td>Which way does the arrow point?</td></tr><tr><td>67</td><td>Clean Architecture with Spring</td><td>The same graph, wired by a container</td></tr></tbody></table>
 <p>Each is one step from the one before, and every project says which step it takes. A reader who finishes thinking these are four unrelated architectures has learned four things instead of one.</p>
@@ -80,7 +115,7 @@ footer {
 <blockquote><p><strong>If a claim cannot be expressed as a failing test or a counted diff, it does not go in the video.</strong></p></blockquote>
 <p>Every project also carries a <strong>&quot;when this is too much&quot;</strong> section naming the application size at which its architecture is over-engineering. Without that, four videos in a row argue for more structure, which is bad advice.</p>
 <h2>Where this sits</h2>
-<p>Projects 63 to 67. See <a href="../README.md"><code>../README.md</code></a> for the full course.</p>
+<p>Projects 63 to 67. See <a href="../README.html"><code>../README.md</code></a> for the full course.</p>
 <h2>Framework versions</h2>
 <p>Each of these reruns a pattern above on a real framework. They sit beside their partners and replace nothing; watch the partner first.</p>
 <ul><li><a href="layered-architecture-with-spring-boot-pattern">Layered Architecture with Spring Boot</a></li><li><a href="mvc-with-spring-mvc-pattern">MVC with Spring MVC</a></li><li><a href="hexagonal-architecture-with-spring-boot-pattern">Hexagonal Architecture with Spring Boot</a></li><li><a href="clean-architecture-with-spring-pattern">Clean Architecture with Spring</a></li></ul>

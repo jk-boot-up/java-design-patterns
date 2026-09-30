@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strangler Fig Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Strangler Fig Pattern — Video Narration Script</h1>
+<h2>1. Strangler Fig</h2>
+<p>Hello, and welcome. This video explains the Strangler Fig pattern, in Java, and it is written and presented by Jayasekhar Konduru. The plain definition: replace a system by growing the new one around the old, one piece at a time, behind a router that can send each piece to either. This is the last project in the platform category, whose subject is the shape of a system as it changes over time. In our online store, the thing being replaced is the checkout. By the end you will see why the big rewrite fails on a Monday, how a router and shadow reads let you move a piece at a time on evidence, and the outcome that nobody warns you about: the migration that stalls half finished.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The legacy checkout is one large class. It does pricing, stock, payment, and email. It works. It is also where every change is slow, and every incident starts. So the business wants it replaced. The question: how do you replace something that must keep taking orders while you do it?</p>
+<h2>3. The Big-Bang Rewrite</h2>
+<p>The obvious answer is a rewrite. Build the new checkout beside the old one, and switch over. Twenty-six weeks of work, in parallel with production. In that time, the new code serves no real orders at all, so there is no feedback from real traffic for half a year. Then a cutover weekend. And on Monday, one of the four capabilities is faulty: payment declines large orders. There is one switch, so the only rollback is all of it. All four capabilities go back, including the three that were fine.</p>
+<h2>4. An Analogy: The Strangler Fig</h2>
+<p>An analogy. A strangler fig begins as a seed, high in a tree. It sends roots down the trunk, and grows around the host, a little at a time. For years, both are alive, and the old tree is still doing its job. One day the fig is complete, and the tree inside it is gone. At no point in all that time did the forest have no tree. That is the pattern, and the name.</p>
+<h2>5. A Router, And A Switch Per Capability</h2>
+<p>The pattern. Put a router in front of the legacy checkout. Every capability, pricing, stock, payment, email, has its own switch. They all start on legacy. Move pricing first. Now pricing is served by the new code, and the other three still by legacy. An order goes through, and it succeeds. The customer saw no cutover. The checkout never stopped.</p>
+<h2>6. Shadow Reads</h2>
+<p>Before pricing moves, shadow it. Legacy serves the customer. The new code is called as well, and the two answers are compared. Two hundred and one orders. They disagreed on twenty-nine. Two causes. Legacy rounds the V A T on each line. The new code rounds it once, on the total. And legacy gives free delivery only when the goods cost more than fifty pounds. The new code gives it from fifty pounds. Both are reasonable. Both differ from what customers have paid for years. Found before any customer paid a penny differently. The team decides to reproduce legacy exactly, and shadows again: zero differences in two hundred and one. Now pricing can move.</p>
+<h2>7. One Capability Rolls Back</h2>
+<p>Now the Monday, done differently. Pricing and payment are on the new code. Payment misbehaves on a large order, and the order fails. Flip one switch. Payment alone goes back to legacy, and the order succeeds. Pricing never moved back. A fault in one capability is answered by moving one capability.</p>
+<h2>8. The Bill: Two Systems</h2>
+<p>Now the bill. First, two systems are live for months, and both must be maintained. Every business rule that changes while both are live is changed twice: in legacy, and in the new code. There are two on-call rotas, two deployment pipelines. That is a cost, and it is paid every week until legacy is gone.</p>
+<h2>9. The Bill: Two Truths</h2>
+<p>Second cost. Data. Stock has moved to the new service, and an order takes five of one product. The new service says three hundred and ninety-five on hand. The legacy table, which its reports and its invoices still read, says four hundred. Two tables claim to be the truth. Someone must decide which, and keep them in step until legacy is gone.</p>
+<h2>10. The Failure That Actually Happens</h2>
+<p>And the failure that actually happens in the field. The migration stalls. Two capabilities move, and then the budget goes elsewhere. Nobody decides to stop. It just stops. Here is a cost model, and it is a model, stated as one. All legacy costs a hundred a quarter. All new costs sixty. While both are live, there is a fixed extra thirty-five for running two. The stalled state costs a hundred and fifteen a quarter. More than all legacy. More than all new. Two checkouts, forever, is worse than either endpoint. And it is the most likely outcome, and nobody warns you.</p>
+<h2>11. The Verdict</h2>
+<p>My verdict, plainly. Use it. It is how systems that must keep running get replaced. But treat the end date, and the decommissioning of legacy, as part of the migration, not a later job. A strangler you do not finish is worse than the big bang you should have avoided, and worse than not starting at all.</p>
+<h2>12. How To Recognise It</h2>
+<p>How do you recognise this in code you did not write? A gateway with routes, sending one path to an old service, and another to a new one. A feature flag for each capability, with a name like use new pricing. Two implementations of one interface, a selector between them, and a ticket, somewhere, to delete one. And a package called legacy that has been temporary for years.</p>
+<h2>13. What This Model Does Not Show</h2>
+<p>What this model does not show. Two real deployments, and a real network between the router and the systems. Moving real data, rather than comparing two maps. And the organisational part, priorities, budgets, and people, which is where most of these migrations actually stall. The costs are assumptions, chosen to show a shape.</p>
+<h2>14. Where You Have Met This</h2>
+<p>You have met this in every migration that says we are moving to the new platform, one team at a time. And in every slash A P I slash v two, running next to a slash v one.</p>
+<h2>15. When This Is Too Much</h2>
+<p>So when is it too much? For a system small enough to rewrite in a few weeks, the seam and the router cost more than they save.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s the Strangler Fig. If you take one sentence away, take this one: move one piece at a time, on evidence, and finish, because two systems forever is worse than either. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, change the both-live overhead in the cost model to ten, and see whether stalling stops being worse than the endpoints. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

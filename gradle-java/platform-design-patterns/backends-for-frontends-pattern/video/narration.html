@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backends for Frontends Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Backends for Frontends Pattern — Video Narration Script</h1>
+<h2>1. Backends for Frontends</h2>
+<p>Hello, and welcome. This video explains the Backends for Frontends design pattern in Java, and it is written and presented by Jayasekhar Konduru. Let&#x27;s start with the simple definition. Backends for Frontends means giving each kind of client its own small backend service, owned by the team that owns that client, whose only job is to turn what the system knows into the exact shape that one screen draws. Think of a restaurant with one kitchen and two rooms: a dining room, where couples settle in for two hours, and a counter by the window for people who have twenty minutes before a train. Give both rooms the same waiter working from one script, and that script becomes everything either room might want — the full wine list, where the lamb came from, the dessert menu — recited to everybody. The couple enjoy it. The commuter misses their train. And notice what the fix is not. It is not a second kitchen, because the food is the same food and a second kitchen is two places for a recipe to live. The fix is a second waiter, who is allowed to change his own script tomorrow morning. That&#x27;s the idea in a sentence. The rest of the video does it properly, by building a real working Java project: an online shop selling one coffee maker, a phone screen that draws six things, and a desktop page that draws fifteen. By the end you&#x27;ll know why making the response smaller does not solve this, the one question that separates this pattern from an API gateway, and the three ways it costs more than it saves.</p>
+<h2>2. The Scenario</h2>
+<p>So, imagine an online shop, and imagine it sells one copper coffee maker. We are going to look at that one product for the whole of this video. On a phone, the product screen draws six things: the title, the price, one photograph, a star rating, the number of ratings behind that star, and one line saying when the parcel will arrive. Six. That is all that fits on a screen four inches tall. On a desktop, the same product fills a page with fifteen. The title and the price, yes, but also the full description, a specification table, five photographs, and three written reviews. Underneath both of them sit five services: catalog, pricing, inventory, reviews, and recommendations, which builds the strip of other things you might like. Now here is the situation, and it is worth sitting with. Neither screen is wrong. The phone team is being reasonable and the desktop team is being reasonable. They simply disagree about what a product is — and everything in this video comes out of that disagreement.</p>
+<h2>3. The First Design — The Phone Calls Everybody</h2>
+<p>The first design is the one shops arrive at by accident, and it arrives by accident because it is nobody&#x27;s decision. Each service owns its own data and publishes its own endpoint, so the phone just asks all five of them. Five requests out, five answers back, every one of them across the customer&#x27;s own mobile connection. And they cannot happen all at once. You cannot ask pricing about a product until the catalog has said which product it is, so the calls go one after another. Five waits, end to end, before a single pixel can be drawn. On office wifi nobody notices. On a train, each one is a wait of its own. And look at the arithmetic on the way in. Seventeen hundred and sixty-seven bytes land on the phone, carrying twenty-nine fields, and six of them reach the screen. That is wasteful — but hold onto the five, not the bytes, because the five is what actually hurts here.</p>
+<h2>4. The Second Design — One Endpoint For Everybody</h2>
+<p>So the shop does the obvious thing. It puts one endpoint in front of the five services, and every client calls that. And this genuinely helps. One round trip instead of five, which is the expensive part gone, and I want to be fair to it: the pattern we end up with keeps that improvement rather than replacing it. But one endpoint publishes one document. And that document has to satisfy every client the shop has, which means over time it grows into everything that anybody has ever needed. The union of all the screens. So seventeen hundred and fifty-five bytes arrive on the phone. Two hundred and twelve of them are drawn. Fifteen hundred and forty-three are thrown away the moment they arrive — eighty-seven per cent of what the customer&#x27;s connection was asked to carry. Now, that number looks like the problem. It is about to turn out not to be.</p>
+<h2>5. And the Obvious Fix Works</h2>
+<p>Because there is an obvious fix, and it works completely. Let the client say which fields it wants. Add a list of field names to the query string, and the endpoint sends back only those. Seventeen hundred and fifty-five bytes becomes two hundred and twelve. That is the same saving the finished pattern gets, achieved with one query parameter, no new services to run, nothing to deploy and no architecture diagram. So I want to say this as plainly as I can, because it is the most useful sentence in this video. If Backends for Frontends were about payload size, the story would end here. It would not be a pattern. It would be a query parameter. People do stop here. They add the parameter, they measure the bytes, they write it up, and they believe they have applied the pattern. And then the next request comes in.</p>
+<h2>6. The Request That Cannot Be Served</h2>
+<p>The phone team wants one line of text under the price. Free delivery, arrives Friday. That sentence does not exist in any service, and it cannot, because it is not a fact — it is three facts joined together and written out in English. Ask inventory whether the item is in stock. Ask the delivery rules what that means for tomorrow. Look at the clock. Then write the sentence the designer asked for. That is half an hour of work. It is a small method. But it is a new field on a shared endpoint, and that document is also received by five other clients. So it is not half an hour of work any more. It is a change to a contract, which needs a review and a place in a queue, behind work that has nothing to do with the phone. The phone team could have written it in an afternoon. They wait five weeks. And that is the real problem. It is not a technical failure — every service here is well built. It is an organisational failure with a technical cause, and it is the one this pattern removes.</p>
+<h2>7. The Pattern</h2>
+<p>Here, then, is the pattern, in one sentence. Give each frontend its own backend, owned by the team that owns the screen, whose only job is to turn what the shop knows into the exact shape that one screen draws. Three words in that sentence are carrying it, and each one rules out a near miss, so let me pull them apart. Each. More than one. If you put a single box in front of your services and every client calls it, you have built a gateway, which is a fine thing to build and is not this. Own. The team that draws the screen changes the backend. If the platform team owns something called the mobile API, you have recreated the five-week queue and given it a nicer name. Ownership is not a detail of this pattern. It is most of the value. And shape. Only the shape. Which fields, in what order, formatted how, joined from where. Not rules, not policy, not arithmetic the shop believes. That third word is the one that gets broken, and breaking it is the first item on the bill later in this video.</p>
+<h2>8. Who Does What</h2>
+<p>Let me name the pieces, because they are all small and there are only a handful that matter. At the centre is an interface called client backend. It says two things: what client am I for, and give me the product screen for this product. Two classes implement it — the phone&#x27;s backend and the desktop&#x27;s — and both of them are live, at the same time, in production, answering the same question differently on purpose. That is unusual. Most of the time an interface with two implementations means you will pick one: this store today, that store tomorrow. Not here. Neither is the fallback and nobody will ever choose between them, because the phone always talks to the first and the desktop always talks to the second. Two arrows pointing at one interface is not a detail here. It is the pattern itself. Underneath both sits the shop: the five services. Both backends can reach all of it, so neither has anything the other cannot get. What differs is only what each one chooses to send on. Then there is a class called screens, which is two lists of field names — the six the phone draws and the fifteen the desktop draws. That is the ruler. Everywhere this project says the word waste, it means not on one of those two lists. And off to one side, connected to nothing, sit the chatty phone and the shared endpoint: the two designs this pattern replaces.</p>
+<h2>9. A Backend That Knows One Screen</h2>
+<p>This is the one piece of code worth reading closely, and I will describe it rather than spell out the syntax. The phone&#x27;s backend receives one request. It then makes four calls, inside the data centre: catalog, pricing, inventory, reviews. And it does not call recommendations at all — not because recommendations is slow, but because this screen has no related-products strip, so that data has nowhere to go. A backend that knows exactly one screen can make that decision. A shared endpoint never can. Then it builds six flat fields, and two are worth stopping on. The price. Pricing returned the number four thousand seven hundred and ninety-nine — pence, as an integer, which is the right way for a pricing service to hold money. What the phone is sent is the text: pound sign, forty-seven, point, ninety-nine. That conversion happened in a process the phone team can correct this afternoon, rather than inside an app customers will still be running in two years. And the last line is the delivery promise. Four lines of code, in the phone team&#x27;s own repository, in the phone team&#x27;s own deployment. That is the field they waited five weeks for.</p>
+<h2>10. Two Backends, Two Documents</h2>
+<p>So here are the two documents, and because they are the heart of this let me read them to you rather than leave them on the screen. The phone is sent six fields. The title, Copper Filter Coffee Maker, one litre. The price, as text, forty-seven pounds ninety-nine. One image, the three-hundred-and-twenty-pixel one, because that is what a phone needs. A rating of four point six. A rating count of two hundred and eighteen. And the delivery sentence: free delivery, arrives on the eighteenth. The desktop is sent fifteen — everything the phone got, plus the description, the specification, five images rather than one, and three written reviews. Now compare the delivery field across the two, because this is the part people try to tidy up. The phone was given a whole sentence. The desktop was given the bare date. That is not an inconsistency. The desktop page has a delivery panel with its own layout, so it wants the parts and will write its own sentence. Two backends over the same data, disagreeing about the shape of a product, is not the pattern going wrong. It is the pattern working.</p>
+<h2>11. The Same Product, Three Ways</h2>
+<p>Here are the three designs measured side by side, and I am going to ignore the byte column for a moment, because the two columns to the right of it are the honest ones. The calls made from the phone, across the customer&#x27;s own connection, go five, then one, then one. The calls made inside the shop go five, then five, then four. So the work did not go away. Nothing was eliminated. Four round trips moved off a mobile network, where each one might cost a tenth of a second on a train, and onto a data-centre network, where a call costs well under a millisecond. This pattern relocates cost; it does not delete it. And now the bytes, because they are still good. The phone&#x27;s own document is a hundred and ninety-six bytes against the shared endpoint&#x27;s seventeen hundred and fifty-five. Eighty-nine per cent less. One more thing, and it matters if you are thinking about your own system. Those four internal calls happen one after another in this project. A real backend would fire them off together and wait once. So everything you have heard so far understates the benefit rather than overstating it.</p>
+<h2>12. The Bill, Part One — One Rule, Two Answers</h2>
+<p>So that is the pattern, and it works. Now the bill, because there are three items on it, and all three are the price of the pattern rather than mistakes made while applying it. Item one. The pricing team reviews the discount rule and adds a condition: a higher price may only be advertised as a saving if it was genuinely in force for long enough first. Otherwise you could put the price up on Monday and advertise a discount on Tuesday. This product&#x27;s price went up eleven days ago, which does not qualify, and both backends are told so. The desktop reads the current rule and claims nothing. The phone&#x27;s backend runs a copy of that rule, taken before the review. It does the subtraction, and it advertises twelve pounds off. Same product, same price, same second, and one of those two screens is making a claim the shop is not allowed to make. Now, listen to what is not happening. Nothing throws. Nothing is logged. Both backends have tests and both sets pass. The copy is not careless — it was correct when it was written, and it is wrong only in relation to a decision taken months later by people with no reason to know it existed. The only person who can see the problem is a customer with both screens open. So here is the rule, and it is the thing to write down from this video. A backend for a frontend may hold the shape. Anything the shop would still believe with every client switched off belongs behind it — tax, discounts, stock allocation, what a price means.</p>
+<h2>13. The Bill, Part Two — Where the Shared Jobs Go</h2>
+<p>Item two, and it is the confusion this pattern is most often lost in. There are four things every request needs done to it, whoever sent it. Verify the customer&#x27;s token. Refuse traffic over the rate limit. Terminate the encryption. Write the access log. The nearest place to put any of those is inside whichever backend you happen to have open. Do that, and it is four jobs times two backends — eight copies of work that is identical by definition. Put a gateway in front and it is four, and it stays four however many backends you add. In the project, the method that counts those four takes no argument, and that absence is the whole answer. So here is the question that settles every argument about whether something is a gateway or a backend for a frontend. Ask what the code answers. If it answers, what does this screen need — it belongs in a backend for that frontend. If it answers, is this request allowed in at all — it belongs in front of all of them. A gateway is about entry. A backend for a frontend is about shape. They are neighbours, they are often deployed together, and they are not the same pattern.</p>
+<h2>14. The Bill, Part Three — How Many Is Too Many</h2>
+<p>Item three, and this is the one that turns a good idea into a department. The shop has six clients. A phone app, a desktop store, a tablet app, a smart television app, an in-store kiosk, and a nightly feed for a partner. One backend each would be six. But look at them properly. The tablet shows the phone&#x27;s six fields in a wider column — it disagrees about nothing, so it is the same backend and a different stylesheet. The kiosk is the desktop page with the basket hidden. The partner feed is not a screen at all; it is a file, once a night. Three of the six genuinely disagree about what a product is. Three do not. So the test is not the device, and — this one catches people — it is not the team either. And the reason to be strict about it is that every extra backend costs something every week for as long as it exists. A pipeline. A place in the on-call rota. A dependency upgrade every time one of the shop&#x27;s services changes. And one more process somebody has to read during an incident at three in the morning. Two backends is a pattern. Nine is a department.</p>
+<h2>15. What to Take Away</h2>
+<p>Four things to take away. First, the question that identifies this pattern in the wild: is the endpoint named after a resource, or after a screen? Slash products slash four four one seven belongs to everybody, and therefore to nobody in particular. Slash phone slash product screen belongs to one team, and that team can add a field to it this week. Second, the saving is not bytes. It is whose queue you are standing in. If somebody says they applied this pattern and the evidence is a payload measurement, they may well have added a query parameter. Third, shape goes inside the backend and anything the shop believes goes behind it. The test is one sentence: would this still be true with every client switched off? Fourth, one backend per genuine disagreement about what a product is. Not per device. Not per team. And one warning to leave you with. Every one of those four can be got wrong without anything failing. There is no test you can write inside either backend that notices the two of them have drifted apart, because from inside each one, each one is right.</p>
+<h2>16. Thanks for Watching</h2>
+<p>And that is Backends for Frontends. Each screen gets its own backend, owned by the team that draws the screen, and it holds the shape and nothing else. The whole project is in the repository — the source, forty-six tests, the diagrams, and an interactive animation that shrinks the document one step at a time. All three costs are in there as running code too, so you can watch the two backends disagree and then fix it by changing one line. If this was useful, please like the video and subscribe. Thanks very much for watching, and I&#x27;ll see you in the next one.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

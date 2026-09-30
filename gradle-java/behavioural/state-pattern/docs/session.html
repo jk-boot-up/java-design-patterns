@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — State Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — State Pattern</h1>
+<p>A 60-minute guided session for teaching or self-studying the State pattern using this project.</p>
+<ul><li><strong>Audience:</strong> beginners comfortable with core Java</li><li><strong>Duration:</strong> ~60 minutes</li><li><strong>Format:</strong> live coding + discussion</li><li><strong>Prerequisites:</strong> see <a href="prerequisites.html"><code>prerequisites.md</code></a></li></ul>
+<blockquote><p><strong>Optional pre-work.</strong> Ask participants to watch the video (<code>video/state-pattern-explained.mp4</code>) beforehand. If they do, you can compress the problem and pattern segments and spend the extra time on the exercises. If you are teaching a group that has <em>not</em> watched it, run the session exactly as written below.</p></blockquote>
+<h2>Learning Objectives</h2>
+<p>By the end of this session a participant should be able to:</p>
+<ol><li>Explain why a status field plus one conditional per method drifts, and why extracting a shared <code>checkStatus</code> helper does not fix it.</li><li>Say what &quot;refusal by default&quot; buys, and describe the failure mode it replaces.</li><li>Point at a place where two states do genuinely different work for the same verb, and say why that is the test for whether this pattern is warranted.</li><li>Distinguish State from Strategy without appealing to the class diagram, because the diagram is the same.</li><li>State honestly what the pattern costs, starting with the transition table that no longer exists anywhere readable.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Segment</th><th>Mode</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td><td>Hands-on</td></tr><tr><td>0:05–0:16</td><td>The problem</td><td>Discussion</td></tr><tr><td>0:16–0:26</td><td>The pattern</td><td>Explanation</td></tr><tr><td>0:26–0:41</td><td>Code walkthrough</td><td>Live coding</td></tr><tr><td>0:41–0:51</td><td>Exercises</td><td>Hands-on</td></tr><tr><td>0:51–0:58</td><td>Costs &amp; comparisons</td><td>Discussion</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td><td>—</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<p>Everyone runs:</p>
+<pre><code>java -version
+./gradlew run</code></pre>
+<p>Anyone whose build fails pairs up with a neighbour. Do not debug installs during the session — that is what the prerequisites doc is for.</p>
+<h2>0:05–0:16 — The Problem</h2>
+<p>Open <code>NaiveOrder.java</code> and put the lifecycle on the board:</p>
+<pre><code>PLACED -&gt; PAID -&gt; PACKED -&gt; SHIPPED -&gt; DELIVERED     (+ CANCELLED, REFUNDED)</code></pre>
+<p><strong>Do not</strong> start by saying the conditionals are bad. Start by asking the room to answer one question from the code:</p>
+<blockquote><p>What can a <code>SHIPPED</code> order do?</p></blockquote>
+<p>Let them look. The honest answer is that you have to read all six methods and do the boolean algebra yourself, because the lifecycle is not written down anywhere — it exists only as the intersection of six guards.</p>
+<p>Then read <code>cancel</code> and <code>refund</code> side by side and let somebody notice that one is a blocklist and the other an allowlist. Both are correct-looking. Neither is correct.</p>
+<p>Run section 1 of the demo and let the ledger land:</p>
+<pre><code>buttons drawn   : [deliver]
+cancel() anyway : accepted — status is now CANCELLED
+the shop is out : -£97.49 over 2 refunds</code></pre>
+<p><strong>The question to sit on for a full minute:</strong> the screen is right. The switch in <code>allowedActions()</code> says a shipped order can only be delivered. So who is this bug reachable by? (Answers: retries, scripts, integrations, support tools, the mobile client, next year&#x27;s endpoint. Everybody except the person clicking the button.)</p>
+<p><strong>Anticipate the objection</strong>, because somebody will make it: <em>&quot;just extract a <code>canCancel()</code> helper&quot;</em>. That is the right instinct and it fixes the immediate duplication. Ask what happens next: <code>cancel</code> still needs three different bodies for <code>PLACED</code>, <code>PAID</code> and <code>PACKED</code>, so you now have a shared guard and a switch underneath it, and the two can drift apart from each other. Park it — it comes back at 0:51.</p>
+<h2>0:16–0:26 — The Pattern</h2>
+<p>Give the definition, then throw away the first half of it: <em>the object will appear to change its class.</em> Ask what that would mean literally. A <code>SHIPPED</code> order and a <code>PLACED</code> order are the same instance; if they were different classes, they would accept different messages.</p>
+<p>Use the vending machine analogy from the video. The part worth labouring is the last bit — nobody sets the machine&#x27;s condition from outside; it got there because a coin went in.</p>
+<p>Draw the class diagram on the board <strong>without names</strong>, then say: this is also the Strategy diagram. Do not resolve it yet. Tell them you will come back to it at 0:51, and that anyone who solves it before then should say so.</p>
+<h2>0:26–0:41 — Code Walkthrough</h2>
+<p>Order matters here. Do it in this sequence:</p>
+<ol><li><strong><code>OrderState.java</code> first, and slowly.</strong> Six methods, six bodies, every one throws. Ask: what does a state have to write in order to forbid something? (Nothing.) Then: what is the failure mode when a developer forgets a rule in each version? In the enum, forgetting opens a transition. Here, forgetting closes one. That single asymmetry is the reason for the project.</li></ol>
+<ol><li><strong><code>Order.java</code>.</strong> Read <code>attempt</code> out loud. Note there is no conditional in the file that mentions a status, and that <code>transitionTo</code> is package-private — from outside, a state can only change as a consequence of asking the order to do something.</li></ol>
+<ol><li><strong>The three <code>cancel</code> methods</strong>, opened side by side: <code>PlacedState</code>, <code>PaidState</code>, <code>PackedState</code>. Three different bodies for one word. This is the slide that decides whether the pattern was warranted; if these had all been the same body behind a different guard, the enum was the right answer.</li></ol>
+<ol><li><strong><code>ShippedState.cancel</code>.</strong> Ask why it overrides at all, given the default already refuses. (To give a human a reason worth reading.)</li></ol>
+<ol><li><strong><code>CancelledState</code>.</strong> Show that it is nine lines and overrides nothing. Then ask where the rule &quot;you cannot refund a cancelled order twice&quot; is written. It is not. That is the point.</li></ol>
+<ol><li><strong><code>OrderStateDemo.theButtons()</code>.</strong> The anonymous <code>AT-LOCKER</code> state, and <code>Order</code> — compiled without it — accepting it.</li></ol>
+<h2>0:41–0:51 — Exercises</h2>
+<h3>Exercise 1 — Add <code>RETURN_REQUESTED</code> (everyone)</h3>
+<p>Between <code>DELIVERED</code> and <code>REFUNDED</code>. A delivered order can request a return; a return-requested order can be refunded or cancelled back to delivered.</p>
+<p>Have them <strong>count the files they had to open</strong>: the new class, and <code>DeliveredState</code>. Then have them do the same change to <code>NaiveOrder</code> and count again. The shape of those two diffs is the entire argument.</p>
+<h3>Exercise 2 — Break it on purpose (everyone)</h3>
+<p>Delete <code>ShippedState.cancel</code> entirely. Run the tests.</p>
+<p>The <code>cannotBeCancelled</code> test still passes — because the inherited default refuses. Ask what <em>did</em> change (the message a support agent reads), and what that tells them about which overrides are behaviour and which are ergonomics.</p>
+<h3>Exercise 3 — Try to reach the naive bug (discussion)</h3>
+<p>Ask them to write a line of code, anywhere, that gets an <code>Order</code> from <code>SHIPPED</code> to <code>CANCELLED</code>. They cannot without adding a method to <code>ShippedState</code>. Ask what the equivalent of &quot;cannot&quot; is in <code>NaiveOrder</code>.</p>
+<h3>Exercise 4 — Stretch (for fast finishers)</h3>
+<p>Make the states stateful: give <code>ShippedState</code> a courier name passed to its constructor. Notice what has to go: the shared <code>INSTANCE</code>, <code>assertSame</code> in <code>OrderLifecycleTest</code>, and the assumption that a state is free to allocate.</p>
+<h2>0:51–0:58 — Costs &amp; Comparisons</h2>
+<p>Resolve the diagram question first, and make somebody else say it if you can:</p>
+<blockquote><p>A Strategy is chosen by the caller and does not change itself. A State is entered as a consequence of what the object did, and states hand control to one another.</p></blockquote>
+<p>Point at <code>PaidState.pack</code> ending with <code>transitionTo(PackedState.INSTANCE, …)</code>. A state names its successors. A strategy never names another strategy.</p>
+<p>Then the bill, honestly:</p>
+<ul><li>Seven classes where there was one enum.</li><li><strong>The transition table is gone.</strong> In <code>NaiveOrder</code> you could read the whole lifecycle in one <code>switch</code>. Now it is one arrow per file. Ask whether the <code>stateDiagram</code> in <a href="uml-diagram.html"><code>uml-diagram.md</code></a> is documentation or a second source of truth that can drift — there is no comfortable answer.</li><li>Persistence stores <code>&quot;PACKED&quot;</code>, not an object, so something has to map names back to states and that map is a place a new state gets forgotten.</li><li>Now return to the parked <code>canCancel()</code> helper. It is genuinely the right answer for a machine where every state&#x27;s version of a method is the same body behind a different guard. Say so plainly: reaching for State every time you see a status field is the same mistake in the other direction.</li></ul>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>One sentence each, round the room: <em>when would you not use this?</em></p>
+<p>Good answers mention a small, stable machine; states that differ only in permissions; a lifecycle that has to be readable in one place by non-authors; and anything that has to be serialised across a version boundary.</p>
+<p>Point at <a href="animation.html"><code>animation.html</code></a> and the video for revision, and at <a href="state-pattern-explained.html"><code>state-pattern-explained.md</code></a> for the written version of everything above.</p>
+<h2>Facilitator Notes</h2>
+<ul><li><strong>The best single moment in this session</strong> is the gap between &quot;the screen is right&quot; and &quot;the endpoint takes the call anyway&quot;. Do not rush it. Almost everyone has shipped that bug.</li><li><strong>Expect scepticism at seven classes</strong>, and welcome it. The project agrees. The counter is not &quot;classes are cheap&quot;, it is the three <code>cancel</code> bodies.</li><li><strong>If somebody says &quot;just use an enum with a permitted-transitions map&quot;</strong>, they are right and you should say so out loud, then ask what happens to <code>PackedState</code>&#x27;s stock return in that design.</li><li><strong>Watch for the Strategy confusion resurfacing</strong> at exercise 4. Someone usually asks why states are singletons if strategies often are too. The answer is that it is a coincidence of this domain, not a property of either pattern.</li><li><strong>If you are short on time</strong>, cut exercise 4 and the persistence bullet. Never cut the comparison at 0:51 — it is the reason this pattern is misunderstood.</li></ul>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>Java 21 and the Gradle wrapper working for every participant</li><li><code>./gradlew run</code> output on screen, or printed</li><li><code>docs/images/class-diagram.png</code> and <code>docs/images/state-machine.png</code> visible side by side</li><li><code>docs/animation.html</code> open in a browser tab</li><li>A whiteboard, for the unnamed class diagram at 0:16</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

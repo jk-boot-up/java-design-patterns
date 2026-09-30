@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plugin Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Plugin Pattern — Video Narration Script</h1>
+<h2>1. Plugin</h2>
+<p>Hello, and welcome. This video explains the Plugin pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. With plugins, the code only asks for what it needs by interface, such as a payment gateway. A configuration file for each environment says which class plays that part. And one factory creates it. Think of a theatre. The script says Hamlet enters, but never which actor. A cast sheet on the noticeboard says who plays each part tonight. To change the actor, you change the sheet, not the script. In this video, the domain is an online shop. It runs in development, staging, and production. Only production may charge real cards, or send real emails. By the end, you will hear how scattered choices went wrong. How plugins fix it. How to add an environment without code. And what you give up.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The shop runs in three environments. Development on laptops. Staging, for testing. And production, for real customers. Real card payments and real emails must only happen in production. Every place in the code that needed a payment gateway or an emailer chose one itself, with an if statement on the environment&#x27;s name.</p>
+<h2>3. Act One — Choices scattered in code</h2>
+<p>First demo: each place picks its own implementation, from the environment name. The shop runs in development, staging, and production. Only production should charge real cards, or send real emails. When staging was added, the payment code was updated. Staging uses the fake gateway. The email code was missed. It only knew about development. So staging fell through to the real emailer, and sent a real customer an email.</p>
+<h2>4. Act Two — Plugins from configuration</h2>
+<p>Second demo: plugins, chosen by configuration. Each environment has one small file. It says which class plays each part. Payment gateway: the fake one. Emailer: the sandbox one. One factory reads the file and creates the objects. Checkout only ever names the interfaces. In development, the gateway is fake and the emails stay in a sandbox. In production, the card is really charged, and the email is really sent.</p>
+<h2>5. Act Three — A new environment</h2>
+<p>Third demo: a new environment is a new file, not new code. Staging gets its own file. Two lines. Fake gateway, sandbox emailer. No Java changes at all. And there is no second place to forget. Priya&#x27;s email stays in the sandbox inbox.</p>
+<h2>6. Act Four — Caught at startup</h2>
+<p>Fourth demo: a bad entry is caught when the shop starts. Someone misspells a class name in the demo environment&#x27;s file. When the shop starts, the factory tries to create every plugin, once. It reports: cannot create sandbox emaler, for the emailer. The mistake is found before the first customer, not by the first customer.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. The compiler cannot see the wiring. A misspelt class name is a startup error, not a compile error. And if a developer searches the code for who uses the sandbox emailer, they find nothing. It is only named in text files.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the pattern. The code only asks for interfaces. Payment gateway. Emailer. Each environment has one configuration file. Each line says: this interface, that class. One factory reads the file, creates the objects, and checks them all when the shop starts.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. Payment gateway and emailer are the interfaces. Card gateway, fake gateway, SMTP emailer, and sandbox emailer are the classes that can play those parts. The properties files are the cast sheets, one per environment. The plugin factory reads the right sheet and creates the objects. And scattered choices is the old way, kept for comparison.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met this pattern already. Java&#x27;s service loader finds implementations listed in files. Spring profiles choose different beans for different environments. And J D B C drivers, and logging libraries such as SLF4J, pick their implementation the same way.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use it? When implementations differ between environments or deployments. Keep all the wiring in one factory. Check every plugin when the program starts. And if you already use Spring, use its profiles, rather than writing your own factory.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Plugin pattern. If you remember one sentence, make it this one. The code names the part, and a file per environment names the actor. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Make the factory refuse to start production if any plugin is a fake. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

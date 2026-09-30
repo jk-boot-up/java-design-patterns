@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Problem</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Problem</h1>
+<p>A seller on our marketplace lists &quot;Wireless Earbuds&quot; in black. Getting that one listing right is real work:</p>
+<ul><li>pick a category from the taxonomy (<code>Electronics &gt; Audio &gt; Earbuds</code>)</li><li>write a description that satisfies the platform&#x27;s compliance rules</li><li>choose a shipping profile — carrier, weight, whether shipping is free</li><li>set a return window and a warranty length that match the category&#x27;s policy</li><li>upload photos, fill in a dozen attributes</li></ul>
+<p>Now the seller wants the same earbuds in white, and again in blue. Nothing about the category, the compliance text, the shipping profile, the return window or the warranty changed. Only the sku, the title, one attribute and the photos did.</p>
+<h2>Attempt one: build each variant from scratch</h2>
+<pre><code>ProductListing black = new ProductListing(
+        &quot;EARBUD-BLK&quot;, &quot;Wireless Earbuds&quot;, longCompliantDescription,
+        &quot;Electronics&quot;, &quot;Acme Audio&quot;, Money.pounds(59.99),
+        List.of(&quot;earbuds-black-1.jpg&quot;, &quot;earbuds-black-2.jpg&quot;),
+        Map.of(&quot;color&quot;, &quot;Black&quot;, &quot;connectivity&quot;, &quot;Bluetooth 5.3&quot;),
+        standardShipping, 30, 12);
+
+ProductListing white = new ProductListing(
+        &quot;EARBUD-WHT&quot;, &quot;Wireless Earbuds (White)&quot;, longCompliantDescription,
+        &quot;Electronics&quot;, &quot;Acme Audio&quot;, Money.pounds(59.99),
+        List.of(&quot;earbuds-white-1.jpg&quot;),
+        Map.of(&quot;color&quot;, &quot;White&quot;, &quot;connectivity&quot;, &quot;Bluetooth 5.3&quot;),
+        standardShipping, 30, 12);</code></pre>
+<p>It works, but look at what got repeated: the description, the category, the brand, the price, the shipping profile, the return window, the warranty — eight of eleven arguments are copy-pasted, character for character, between two calls that differ in exactly two facts. Add a blue variant and the seller pastes the same eight arguments a third time. Fix a typo in the compliant description and every call site needs the same edit, and it is only a matter of time before one of them is missed.</p>
+<h2>Attempt two: <code>Cloneable</code></h2>
+<p>Java already ships a way to copy an object — <code>Object.clone()</code> — so why not use it?</p>
+<pre><code>public class ProductListing implements Cloneable {
+    @Override
+    public ProductListing clone() throws CloneNotSupportedException {
+        return (ProductListing) super.clone();
+    }
+}</code></pre>
+<p><em>Effective Java</em>, Item 13, spends an entire chapter explaining why this is worth avoiding. <code>Cloneable</code> is an interface with no methods of its own — it is a marker that changes what <code>Object.clone()</code> does, which is a strange way to opt in to anything. <code>clone()</code> itself is <code>protected</code>, so it has to be overridden and re-exposed as <code>public</code> just to be usable. It throws a checked <code>CloneNotSupportedException</code> that can never actually happen once a class implements <code>Cloneable</code>, so every caller ends up catching an exception that means nothing. And worst of all: <code>super.clone()</code> performs a <strong>shallow</strong> copy — it copies each field&#x27;s value, which for <code>images</code> and <code>attributes</code> here means copying the <em>reference</em> to the same <code>List</code> and the same <code>Map</code> the original holds. Mutate the &quot;copy&#x27;s&quot; image list and the original&#x27;s list changes too, silently.</p>
+<h2>The Question This Project Answers</h2>
+<blockquote><p>How do we take an object that is expensive to assemble correctly, and produce independent variants of it — different in a handful of fields, identical everywhere else — without re-typing the shared fields at every call site, and without inheriting <code>Cloneable</code>&#x27;s baggage?</p></blockquote>
+<p>The answer is the Gang of Four&#x27;s <strong>Prototype</strong> pattern: give the type its own <code>copy()</code> method, built on a plain interface with none of <code>Cloneable</code>&#x27;s history, that returns a fully independent clone a caller can then tweak.</p>
+<p>Read on in <a href="prototype-pattern-explained.html"><code>prototype-pattern-explained.md</code></a>.</p>
+</main>
+<footer>
+Generated from <code>problem-statement.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

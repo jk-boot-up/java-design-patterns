@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Chain of Responsibility Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Chain of Responsibility Pattern</h1>
+<h2>In One Sentence</h2>
+<p>Hand a request to a series of objects, one after another, until one of them takes it.</p>
+<p>Each link either answers — and the run stops there — or says nothing and passes the request along. The caller does not know which link will answer, or even whether any of them will.</p>
+<h2>Intent</h2>
+<blockquote><p>Avoid coupling the sender of a request to its receiver by giving more than one object a chance to handle the request. Chain the receiving objects and pass the request along the chain until an object handles it. — <em>Design Patterns</em>, Gamma, Helm, Johnson, Vlissides</p></blockquote>
+<p>Read the first clause carefully. The pattern is not primarily about running several checks in a row — you can do that with a <code>for</code> loop. It is about the caller not knowing <strong>which</strong> of them will answer.</p>
+<h2>The Thing A Sequence Of <code>if</code>s Cannot Do</h2>
+<p>Four checks in one method are four checks in one method. They can be reordered by editing the method, extracted into private helpers, and tested by constructing enough state to reach them. All of that is achievable and none of it is the problem.</p>
+<p>The problem is that the <em>sequence</em> is not a value. You cannot pass it, store it, print it in a support tool, configure it per market, or have two of them. When the trade flow needs the same checks minus one, the only tool the language gives you is a second method — and a second method is a copy, and copies drift. <code>NaiveScreening.validateTradeAccount</code> lost the address check in exactly this way, and nothing noticed, because nothing in the code says the two methods are related.</p>
+<p>Turning each check into an object makes the sequence a value:</p>
+<pre><code>Decision approveIfNobodyObjects = Decision.approved(&quot;end of chain&quot;, &quot;no link objected&quot;);
+
+ScreeningChain standard = new ScreeningChain(&quot;standard&quot;, approveIfNobodyObjects,
+        new AddressCheck(),
+        new StockCheck(onShelf),
+        new FraudScoreCheck(),
+        new PaymentLimitCheck());
+
+ScreeningChain trade = new ScreeningChain(&quot;trade-account&quot;, approveIfNobodyObjects,
+        new AddressCheck(),
+        new StockCheck(onShelf),
+        new FraudScoreCheck());</code></pre>
+<p>The trade flow is the standard flow with one line deleted from the wiring. No check was copied, so no check could be lost.</p>
+<h2>The Analogy: An Expenses Approval</h2>
+<p>Submit a £40 lunch receipt and your team lead approves it. Submit £4,000 of laptops and your team lead cannot — the claim goes up to their director. £400,000 goes to the board.</p>
+<p>Three things about that office are the pattern:</p>
+<ol><li><strong>You submit once.</strong> You do not address the claim to whoever is empowered to approve that amount; you do not know the thresholds and you should not have to.</li><li><strong>Whoever can answer, answers, and it stops there.</strong> The board does not see your lunch receipt. Not because they would object — because nobody asked them.</li><li><strong>The hierarchy is not printed on the claim form.</strong> It is set up elsewhere, it differs between departments, and it changes without the form changing.</li></ol>
+<p>And the failure mode is the pattern&#x27;s too: a claim that nobody in the hierarchy is authorised to approve sits in a queue forever, and nobody is told. That is the unhandled request, and it is why <code>ScreeningChain</code> will not let you build a chain without saying what &quot;nobody decided&quot; means.</p>
+<h2>Participants</h2>
+<table><thead><tr><th>Role</th><th>In this project</th><th>What it does</th></tr></thead><tbody><tr><td>Handler</td><td><code>ScreeningHandler</code></td><td>holds the successor; declares <code>check</code>; walks the chain in a <code>final</code> method</td></tr><tr><td>Concrete Handlers</td><td><code>AddressCheck</code>, <code>StockCheck</code>, <code>FraudScoreCheck</code>, <code>PaymentLimitCheck</code></td><td>one check each, and nothing else</td></tr><tr><td>Client / builder</td><td><code>ScreeningChain</code></td><td>assembles the links, names the fallback, starts the request off</td></tr><tr><td>Request</td><td><code>CheckoutRequest</code></td><td>immutable; no link can change what the next one sees</td></tr><tr><td>Answer</td><td><code>Decision</code>, <code>Outcome</code></td><td>approved, rejected or referred, plus who said so</td></tr><tr><td>Evidence</td><td><code>ScreeningReport</code></td><td>which links ran, and which never did</td></tr></tbody></table>
+<p>Nine classes in total. <code>ScreeningHandler</code> is the pattern; the other eight give it something to do.</p>
+<h2>The Design in Three Decisions</h2>
+<h3>1. The walk is written once, and it is <code>final</code></h3>
+<pre><code>final Optional&lt;Decision&gt; screen(CheckoutRequest request, List&lt;String&gt; consulted) {
+    consulted.add(name());
+    Optional&lt;Decision&gt; mine = check(request);
+    if (mine.isPresent()) {
+        return mine;
+    }
+    return next == null ? Optional.empty() : next.screen(request, consulted);
+}</code></pre>
+<p>In the textbook version each handler writes its own <code>if (canHandle) ... else next.handle(request)</code>. That version has a bug waiting in it: a handler that declines to handle something and forgets the <code>else</code>. The request vanishes, no exception is thrown, and the symptom appears somewhere else entirely.</p>
+<p>Here there is one copy of that logic, a subclass cannot override it, and a link author writes only:</p>
+<pre><code>protected Optional&lt;Decision&gt; check(CheckoutRequest request);</code></pre>
+<p>Empty means <em>no opinion, pass it on</em>. A present <code>Decision</code> means <em>I am answering, and the chain stops here</em>. Those are two different things, and half the confusion about this pattern is people reading &quot;returns nothing&quot; as &quot;says no&quot;.</p>
+<h3>2. A link is not obliged to reject</h3>
+<p>Most explanations imply handlers only ever say no. A handler stops the chain whenever it is willing to take responsibility for the answer, and the answer can be anything. <code>FraudScoreCheck</code> is the clearest case, because it can produce all three outcomes:</p>
+<pre><code>if (score &gt;= REJECT_AT) return Optional.of(Decision.rejected(name(), ...));
+if (score &gt;= REFER_AT)  return Optional.of(Decision.referred(name(), ...));
+return Optional.empty();</code></pre>
+<p>A score of 64 is neither a yes nor a no — it is &quot;a person should look at this&quot;, and that third answer is the one the naive version cannot express, so it guesses and guesses cheaply. The chain does not care which of the three came back; it only cares that a decision came back at all.</p>
+<h3>3. What is <em>not</em> consulted is part of the answer</h3>
+<pre><code>R2002   £45     GB   JE3 8QX  card limit £2000   fraud 10
+   -&gt; REJECTED  by address        no courier covers JE3 8QX
+              never ran: stock, fraud-score, payment-limit</code></pre>
+<p>The risk model was not called and not billed for. This is the observable difference between this pattern and a validator that collects every problem with a request: <strong>a chain gives you one answer, from one link, and stops.</strong> If your requirement is &quot;tell the customer everything wrong with their order at once&quot;, do not build this — build a collector.</p>
+<h3>4. Falling off the end is a named policy, not a <code>null</code></h3>
+<p><code>ScreeningChain</code>&#x27;s constructor takes the fallback, and there is no constructor that omits it:</p>
+<pre><code>new ScreeningChain(name, Decision.approved(&quot;end of chain&quot;, ...), links...);  // fails open
+new ScreeningChain(name, Decision.referred(&quot;end of chain&quot;, ...), links...);  // fails closed</code></pre>
+<p>Same links, opposite risk appetites, one argument apart. The GoF book lists &quot;receipt isn&#x27;t guaranteed&quot; as a liability of this pattern and leaves it there. It is a real liability, and this is what dealing with it deliberately looks like.</p>
+<h2>Chain of Responsibility vs Decorator</h2>
+<p>Both are objects holding the next object. Both build a run-time structure out of small pieces. On a class diagram they are indistinguishable, which is why the comparison belongs here rather than in a footnote.</p>
+<p><strong>The question a developer can actually ask at the point of choosing:</strong> <em>does every layer have to run?</em></p>
+<ul><li>If the answer is yes — every layer contributes something to a result that is assembled on the way through — you want <strong>Decorator</strong>, and a layer that declined to delegate would be a bug.</li><li>If the answer is no — a layer may be able to settle the matter by itself, and the layers behind it should then not run — you want <strong>Chain of Responsibility</strong>, and a layer that always delegated would be pointless.</li></ul>
+<p>In code the tell is one character deep: in a decorator, the call to the next object is unconditional; in a handler, it is inside an <code>if</code>.</p>
+<h2>Why the Tests Are the Proof</h2>
+<p>An outcome test — &quot;a Jersey order is rejected&quot; — passes against <code>NaiveScreening</code> just as happily as against the chain. It proves nothing about the pattern.</p>
+<p><code>ScreeningChainTest</code> asserts the things only a chain gives you:</p>
+<ul><li>a link behind a decision <strong>never runs</strong>, and the report names it,</li><li>the same links wired in two orders give two different answers,</li><li>an unclaimed request gets the fallback that the wiring named,</li><li>a link declared inside the test file joins a chain that was compiled without it ever having existed.</li></ul>
+<p><code>ChecksTest</code> makes the isolation argument by omission: every test builds one check and asks it one question, with none of the state the other checks need.</p>
+<p><code>NaiveScreeningTest</code> pins the bugs with <em>passing</em> tests — including the one where the standard method catches the Jersey order and the copied trade method does not.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>Each check is one class</strong>, testable with nothing else set up.</li><li><strong>The order is a value</strong> — printable, configurable, and different per flow.</li><li><strong>Variants are subsets</strong>, not copies, so a check cannot be lost in a copy.</li><li><strong>Work is skipped</strong>, and the skipping is visible.</li><li><strong>New checks need no change to any existing class</strong>, including the chain.</li></ul>
+<h2>What You Give Up</h2>
+<ul><li><strong>The policy is no longer readable in one place.</strong> <code>validate</code> could be read top to bottom. The wiring lists the links, but what each does is elsewhere.</li><li><strong>You need the report.</strong> &quot;Which link rejected this?&quot; is not answerable from the verdict alone. Four <code>if</code>s never needed that.</li><li><strong>A request can go unanswered</strong>, and dealing with that is work the naive version did not have.</li><li><strong>Link instances are single-use.</strong> A handler holds its successor, so build a second chain from fresh instances.</li><li><strong>More classes.</strong> Four checks, a handler base, a chain, a report.</li></ul>
+<h2>When Not To Use It</h2>
+<ul><li><strong>The checks and their order never change.</strong> Write the four <code>if</code> statements. The demo says this in the program&#x27;s own output.</li><li><strong>Every problem must be reported, not just the first.</strong> That is a collector, not a chain.</li><li><strong>The order between checks is a genuine dependency</strong> — check B is only meaningful after check A has passed and produced something. That is a pipeline, not a chain of independent links.</li><li><strong>There are two checks.</strong> Two objects, a base class and a wiring line is more machinery than <code>if (a) ... if (b) ...</code> however elegant it is.</li></ul>
+<h2>Related Patterns</h2>
+<table><thead><tr><th>Pattern</th><th>Relationship</th></tr></thead><tbody><tr><td><a href="../../../structural/decorator-pattern">Decorator</a></td><td>same structure; every layer runs, and a layer cannot end the run</td></tr><tr><td><a href="../../../structural/composite-pattern">Composite</a></td><td>often the structure a chain is walked over in GUI event handling — the parent is the successor</td></tr><tr><td><a href="../../command-pattern">Command</a></td><td>a chain answers <em>who handles this request</em>; a command turns <em>the request itself</em> into an object, and the two combine well</td></tr><tr><td><a href="../../strategy-pattern">Strategy</a></td><td>one object chosen to do the work, chosen by the caller; a chain chooses itself, at run time, out of several candidates</td></tr></tbody></table>
+</main>
+<footer>
+Generated from <code>chain-of-responsibility-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

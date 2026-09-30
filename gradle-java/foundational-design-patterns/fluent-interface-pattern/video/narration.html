@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fluent Interface Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Fluent Interface Pattern — Video Narration Script</h1>
+<h2>1. Fluent Interface</h2>
+<p>Hello, and welcome. This video explains the Fluent Interface pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A fluent interface lets method calls be chained together, so the code reads like a sentence. Each call returns something that the next call can be made on. Think of giving directions. Go straight, then turn left, then stop at the bakery. Each step follows naturally from the last. In our online store, a product search takes five arguments. And two of them are true-or-false values that are easy to swap. In this video, swapped values still compile. Then the same search becomes a sentence. We will leave out optional parts, compare a query that changes itself with one that never does, and use guided steps that refuse a wrong order. And then the cost.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The catalogue search takes five things. A category, a price limit, whether to show only items in stock, whether to sort by price, and how many results to show. Two of those five are simply true or false. So here is the question. Can the call read better?</p>
+<h2>3. A Long List Of Arguments</h2>
+<p>First, the naive way: a long list of arguments. Search for mugs, under twenty-five pounds, true, true, and ten. The result is the blue mug and the big mug. Now swap the two true-or-false values. The result is three mugs, including one that is out of stock. Both versions compile. Which true means in stock, and which means sorted? You have to count the arguments to know.</p>
+<h2>4. The Pattern</h2>
+<p>Now, the pattern. Each call returns something you can make the next call on. Each call names the one thing it sets. And the code reads like a sentence.</p>
+<h2>5. A Sentence</h2>
+<p>Second demo: a sentence. Search, category mugs, under twenty-five pounds, in stock, cheapest first, first ten. The same answer as the long call. And every part names itself.</p>
+<h2>6. Leave Out What You Do Not Need</h2>
+<p>Third demo: leave out what you do not need. With only a category, the result is green tea. With only a price limit of ten pounds, any category, the result is the blue mug, and green tea. And the order of the optional parts does not matter.</p>
+<h2>7. Does A Call Change The Query?</h2>
+<p>Fourth demo: does a call change the query? First, a query that never changes. Each call returns a new query. The cheap search gives one mug. The expensive search gives three. And the original base query still gives all four. Now, a query that changes itself. The cheap search and the expensive search both give the same three mugs. Because they are the same object. The cheap query was spoiled by the expensive one.</p>
+<h2>8. Guided Steps</h2>
+<p>Fifth demo: guided steps. At the start, the only step offered is category. After that, only a price limit is offered. After that, cheapest first, in stock, or run. A call made in the wrong order simply does not compile.</p>
+<h2>9. The Bill</h2>
+<p>Finally, the costs. A price limit of minus five was accepted, and nothing complained. It only failed at the end, when the search ran, saying the price limit is below zero. The mistake and the report are on different steps of one long line. A debugger cannot stop between the calls in one chain. And an error report names the line, not the step. Finally, it is a small language someone designed. This one has seven methods to learn, and to maintain.</p>
+<h2>10. How To Recognise It</h2>
+<p>How can you spot this pattern in code someone else wrote? Java streams are fluent: stream, filter, map, and to list. String Builder, with append after append. Testing libraries, like AssertJ, and Mockito&#x27;s when, then return. And builders, where you set a name, then an age, then call build.</p>
+<h2>11. The Verdict</h2>
+<p>So, here is the verdict. Use a fluent interface where many optional settings make a plain call hard to read. Make each call return a new object. Unless the object is a builder, used once. Check values in each call, not at the end. Use guided steps when the order matters. And keep it small, because it is a language you must maintain.</p>
+<h2>12. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything is plain Java. Every result you heard comes from the program&#x27;s own output. And nothing depends on the clock, so every run gives the same result.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, when is this too much? For two or three obvious arguments, a plain call is shorter. A fluent interface costs a class, a design, and ongoing upkeep.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s the Fluent Interface pattern. If you remember one sentence, make it this one. A fluent interface makes calls read like a sentence, and the price is errors found late, harder debugging, and a small language to maintain. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a step that limits results to one brand. And decide where in the chain it may appear. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

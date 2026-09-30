@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Facade Pattern — Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Facade Pattern — Explained</h1>
+<h2>One-Line Definition</h2>
+<blockquote><p><strong>Facade</strong> provides a simplified, unified interface to a set of interfaces in a subsystem, making the subsystem easier to use. — <em>Gang of Four, Design Patterns</em></p></blockquote>
+<p>It is a <strong>structural</strong> pattern: it is about how classes are <em>composed</em>, not about how objects are created or how they behave over time.</p>
+<h2>The Everyday Analogy</h2>
+<p>Think of a <strong>restaurant waiter</strong>.</p>
+<p>You do not walk into the kitchen and speak to the grill chef, the sauce chef, the pastry chef and the dishwasher individually. You talk to <strong>one person</strong> — the waiter — and say <em>&quot;I&#x27;ll have the steak.&quot;</em></p>
+<p>The waiter knows:</p>
+<ul><li>which chefs to talk to,</li><li>in what order,</li><li>and what to bring back to you.</li></ul>
+<p>The kitchen staff still exist and still do specialised work. You are simply shielded from that complexity. <strong>The waiter is a facade.</strong></p>
+<p>In this project, <code>OrderFacade</code> is the waiter and the four services are the kitchen staff.</p>
+<h2>The Participants</h2>
+<table><thead><tr><th>Role</th><th>In this project</th><th>Job</th></tr></thead><tbody><tr><td><strong>Facade</strong></td><td><code>OrderFacade</code></td><td>Exposes one simple method; knows which subsystems to call and in what order</td></tr><tr><td><strong>Subsystem classes</strong></td><td><code>InventoryService</code>, <code>PaymentService</code>, <code>ShippingService</code>, <code>NotificationService</code></td><td>Do the real specialised work; know <em>nothing</em> about the facade</td></tr><tr><td><strong>Client</strong></td><td><code>FacadeDemo</code></td><td>Talks only to the facade</td></tr></tbody></table>
+<p>A crucial detail: <strong>the dependency arrow points one way only.</strong> The facade knows about the subsystems. The subsystems do not know about the facade. This is what keeps them independently reusable.</p>
+<h2>How This Project Implements It</h2>
+<h3>The subsystems stay simple and independent</h3>
+<p>Each service does exactly one thing and has no idea a facade exists:</p>
+<pre><code>public class InventoryService {
+    public boolean reserveStock(String productId, int quantity) {
+        System.out.println(&quot;Inventory: reserving &quot; + quantity + &quot; unit(s) of &quot; + productId);
+        return true;
+    }
+}</code></pre>
+<p><code>PaymentService</code>, <code>ShippingService</code> and <code>NotificationService</code> follow the same shape. You could use any of them on their own tomorrow.</p>
+<h3>The facade owns and orchestrates them</h3>
+<pre><code>public class OrderFacade {
+
+    private final InventoryService inventoryService;
+    private final PaymentService paymentService;
+    private final ShippingService shippingService;
+    private final NotificationService notificationService;
+
+    public OrderConfirmation placeOrder(OrderRequest request) {
+        String orderId = &quot;ORD-&quot; + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+
+        if (!inventoryService.reserveStock(request.productId(), request.quantity())) {
+            throw new IllegalStateException(&quot;Product &quot; + request.productId() + &quot; is out of stock&quot;);
+        }
+
+        String paymentId = paymentService.charge(request.customerId(), request.amount());
+        String trackingId = shippingService.scheduleShipment(orderId, request.shippingAddress());
+        notificationService.sendOrderConfirmation(request.customerId(), orderId, trackingId);
+
+        return new OrderConfirmation(orderId, paymentId, trackingId);
+    }
+}</code></pre>
+<p>Notice what the facade is really providing:</p>
+<ul><li><strong>Sequencing</strong> — stock first, payment second, shipping third, email last.</li><li><strong>A guard rail</strong> — if stock cannot be reserved, it stops before charging anyone&#x27;s card.</li><li><strong>Assembly</strong> — it gathers three separate results into one <code>OrderConfirmation</code>.</li></ul>
+<h3>The client stays blissfully ignorant</h3>
+<pre><code>OrderFacade orderFacade = new OrderFacade();
+OrderRequest request = new OrderRequest(&quot;CUST-001&quot;, &quot;SKU-1234&quot;, 2, 49.98, &quot;221B Baker Street, London&quot;);
+
+OrderConfirmation confirmation = orderFacade.placeOrder(request);</code></pre>
+<p>Three lines. No knowledge of inventory, payment, shipping or email.</p>
+<h3>Java 21 records as the data carriers</h3>
+<p><code>OrderRequest</code> and <code>OrderConfirmation</code> are <code>record</code> types — immutable data holders with automatic constructors, accessors, <code>equals</code>, <code>hashCode</code> and <code>toString</code>:</p>
+<pre><code>public record OrderConfirmation(String orderId, String paymentId, String trackingId) { }</code></pre>
+<p>Records keep the facade&#x27;s signature clean: one object in, one object out, instead of a method with five parameters returning three values.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>Loose coupling.</strong> The client depends on one class instead of four.</li><li><strong>A single place for the workflow.</strong> Change the order of operations once, and every caller benefits.</li><li><strong>Freedom to refactor.</strong> Swap <code>PaymentService</code> for a new provider and no client code changes.</li><li><strong>Easy testing.</strong> Test the workflow through one entry point.</li><li><strong>A readable API.</strong> <code>placeOrder(request)</code> says what it does.</li></ul>
+<h2>What to Watch Out For</h2>
+<ul><li><strong>A facade is not a god object.</strong> If <code>OrderFacade</code> starts holding business rules, validation, tax logic and reporting, it has stopped being a facade. Keep it thin — its job is <em>delegation and sequencing</em>.</li><li><strong>Do not forbid direct access.</strong> The subsystems should remain public and usable. A facade is a convenience, not a wall. An admin tool that only needs to check stock should be free to call <code>InventoryService</code> directly.</li><li><strong>One facade per workflow, not one per application.</strong> If checkout, returns, and refunds are all different flows, they may deserve their own facades.</li></ul>
+<h2>Facade vs. Similar Patterns</h2>
+<table><thead><tr><th>Pattern</th><th>Intent</th><th>Key difference</th></tr></thead><tbody><tr><td><strong>Facade</strong></td><td>Simplify a complex subsystem</td><td>Wraps <em>many</em> objects; interface is new and simpler</td></tr><tr><td><strong>Adapter</strong></td><td>Make an incompatible interface usable</td><td>Wraps <em>one</em> object; interface is dictated by the client&#x27;s expectation</td></tr><tr><td><strong>Mediator</strong></td><td>Coordinate peer objects</td><td>Peers <em>know</em> the mediator and talk back to it; subsystems never know a facade</td></tr><tr><td><strong>Proxy</strong></td><td>Control access to one object</td><td>Same interface as the object it wraps, not a simpler one</td></tr></tbody></table>
+<p>The shortest way to remember it: <strong>Adapter changes an interface. Facade simplifies many of them.</strong></p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><code>javax.faces.context.FacesContext</code> in Java EE</li><li>Spring&#x27;s <code>JdbcTemplate</code> — hides <code>Connection</code>, <code>Statement</code>, <code>ResultSet</code> and all the exception handling behind a few simple methods</li><li>SLF4J&#x27;s <code>LoggerFactory</code></li><li>A REST controller that calls several services and returns one response is usually acting as a facade</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li>Run <code>./gradlew run</code> and read the output — each line is one subsystem speaking.</li><li>Add a <code>FraudCheckService</code> and call it from the facade <em>before</em> payment. Notice that <code>FacadeDemo</code> needs <strong>zero</strong> changes.</li><li>Make <code>InventoryService.reserveStock</code> return <code>false</code> and confirm the customer is never charged.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the problem this solves</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — static structure</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — runtime call flow</li><li><a href="animation.html"><code>animation.html</code></a> — animated walkthrough</li></ul>
+</main>
+<footer>
+Generated from <code>facade-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

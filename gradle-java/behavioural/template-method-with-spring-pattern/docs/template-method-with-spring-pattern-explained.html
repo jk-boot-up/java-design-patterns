@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Template Method with Spring, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Template Method with Spring, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>In Spring, a template owns the fixed steps of a task, and you hand it a lambda for the one step that differs.</p>
+<h2>What is new here</h2>
+<p>The pattern is <a href="../template-method-pattern">Template Method</a>. This page is only what Spring Boot adds.</p>
+<h3>Plain JDBC Leaks</h3>
+<p>Plain JDBC closes on the happy path only. A typo in the SQL throws before the close, and one connection stays in use.</p>
+<pre><code>  a good query returns [ORD-000001, ORD-000002, ORD-000003]. connections in use afterwards: 0.
+  a query with a typo throws JdbcSQLSyntaxErrorException. connections in use afterwards: 1.
+  the pool has two connections, so a second typo leaves one, and a third waits for a connection that never comes back.</code></pre>
+<h3>The Template Closes On Every Path</h3>
+<p>The same query through JdbcTemplate closes on every path. The typo, three times, leaves nothing in use.</p>
+<pre><code>  a good query returns [ORD-000001, ORD-000002, ORD-000003]. connections in use afterwards: 0.
+  the same typo, three times: connections in use afterwards: 0.</code></pre>
+<h3>What Is Ours</h3>
+<p>The only code that is ours is a lambda that turns a row into an order. Everything else is the template&#x27;s.</p>
+<pre><code>  asha&#x27;s orders: [Order[orderNumber=ORD-000001, customer=asha, totalPence=2499], Order[orderNumber=ORD-000003, customer=asha, totalPence=1250]]
+  we wrote one lambda, which turns a row into an Order. The template opened the
+  connection, prepared the statement, bound the customer, ran it, walked the rows,
+  and closed everything.</code></pre>
+<h3>Exceptions, Translated</h3>
+<p>By hand, you catch a checked exception with a vendor state code. The template translates it into Spring&#x27;s own unchecked hierarchy.</p>
+<pre><code>  by hand: JdbcSQLSyntaxErrorException, a checked exception, SQL state 42S02.
+  template: BadSqlGrammarException, unchecked, the same on every database.
+  a repeated order number: DuplicateKeyException.</code></pre>
+<h3>What The Template Decides</h3>
+<p>Ask for one row and the template treats none, and two, as errors. That is a decision the template made, and it is nowhere in your code.</p>
+<pre><code>  one row expected, none found: EmptyResultDataAccessException.
+  one row expected, two found: IncorrectResultSizeDataAccessException.
+  the fixed steps are the template&#x27;s. What counts as a missing row is a decision it made for you.</code></pre>
+<h3>A Transaction Is A Template Too</h3>
+<p>A transaction template owns begin, commit and rollback. The failed checkout inserted an order row first, and it was undone when the stock update failed.</p>
+<pre><code>  before: 3 orders, 3 mugs on hand.
+  after a good checkout: 4 orders, 1 mug on hand.
+  a checkout for 4 mugs fails: DataIntegrityViolationException.
+  after it: 4 orders, 1 mug on hand. the order row was rolled back.</code></pre>
+<h2>The verdict</h2>
+<p>Use the template, not the raw API. Learn what it decides for you. Keep the lambda small. Catch the translated exceptions, not vendor codes.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li><code>jdbcTemplate.query(sql, rowMapper)</code>.</li><li><code>transactionTemplate.execute(...)</code>.</li><li>Other Spring <code>*Template</code> classes: <code>RestTemplate</code>, <code>KafkaTemplate</code>, <code>JmsTemplate</code>.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Every Spring <code>*Template</code> class. Each owns the fixed steps of talking to something and asks for the step that differs.</p>
+<h2>When this is too much</h2>
+<p>For one query in a script, plain JDBC with try-with-resources is fine. The template earns its place when many callers repeat the fixed steps.</p>
+</main>
+<footer>
+Generated from <code>template-method-with-spring-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

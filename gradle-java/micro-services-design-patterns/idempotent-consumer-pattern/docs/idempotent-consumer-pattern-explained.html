@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Idempotent Consumer Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Idempotent Consumer Pattern, Explained</h1>
+<h2>In One Sentence</h2>
+<p>Handling the same message twice has the same effect as handling it once, because the record of having handled it is written in the same transaction as its effect.</p>
+<h2>An Everyday Analogy: The Ticket Stub</h2>
+<p>You hand your ticket to somebody at the door of a concert. They do not just glance at it and wave you through — they tear it, and keep the stub, in the same motion as letting you in.</p>
+<p>If you come back round with the same ticket, the stub is already in their box and you do not get in twice.</p>
+<p>Now notice what would go wrong if the two halves came apart. If the doorman let you in and then intended to tear the ticket afterwards, a shift change in between would let you walk back in. If the doorman only remembered faces rather than keeping stubs, the next doorman on would remember nothing at all.</p>
+<p>That is the whole pattern. The record and the effect are one act, and the record lives somewhere that outlives the person doing the checking.</p>
+<p>Our worked example is an online shop, and the effect is a confirmation email.</p>
+<h2>Act One — A Set Of Ids, And It Works</h2>
+<p>The notification service receives <code>OrderPlaced</code> for <code>ord-7001</code>, queues the confirmation, and adds the message id to a <code>HashSet</code>. The acknowledgement to the broker is lost, so the broker delivers the same message again. The id is in the set, and the second delivery is skipped.</p>
+<pre><code>     10ms -&gt;    10ms  Broker         REDELIVERY msg-1 -- the acknowledgement was lost
+     15ms -&gt;    15ms  Notifications  SKIPPED    msg-1 -- already seen
+  confirmations queued: 1</code></pre>
+<p>One email. The test passes. This is the version everybody writes, and it is worth being clear that it is not stupid — it is correct about <em>what</em> to do, and wrong only about <em>where to keep the evidence</em>.</p>
+<h2>Act Two — The Deploy</h2>
+<p>Same two deliveries, and a restart in between.</p>
+<pre><code>     10ms -&gt;    10ms  Notifications  RESTARTED  and its memory of what it has handled is empty
+  confirmations queued: 2
+    &quot;your order ord-7002 for £70.95 is confirmed&quot;
+    &quot;your order ord-7002 for £70.95 is confirmed&quot;</code></pre>
+<p>The database survived the deploy. The <code>HashSet</code> did not.</p>
+<p>And this is not a rare coincidence. A restart is frequently <em>why</em> the acknowledgement went missing, so the redelivery and the wiped memory arrive as a pair much more often than chance would suggest.</p>
+<h2>Act Three — The Gap</h2>
+<p>Take the restart away and there is still a hole. The consumer queues the email, and then dies before it records the id.</p>
+<pre><code>      5ms -&gt;     5ms  NotifDb        COMMIT  a confirmation on its own
+      5ms -&gt;     5ms  Notifications  DIED    after queueing the email, before remembering the id
+  confirmations queued: 2</code></pre>
+<p>Two writes, two moments, and a gap between them. Anything that can die can die in that gap. Two emails is embarrassing; if this consumer had been the payments service it would have been two charges.</p>
+<h2>Act Four — One Commit</h2>
+<p>The fix is to stop treating &quot;do the work&quot; and &quot;remember that I did it&quot; as two things.</p>
+<pre><code>database.begin()
+        .queueConfirmation(confirmationFor(message))
+        .recordHandled(message.messageId())
+        .commit();</code></pre>
+<p>Two rows. One commit. Both, or neither.</p>
+<pre><code>      5ms -&gt;     5ms  NotifDb        COMMIT   1 confirmation(s) and 1 handled id(s) together
+     15ms -&gt;    15ms  Notifications  IGNORED  msg-1 -- handled already
+  confirmations queued: 1, handled ids stored: 1</code></pre>
+<p>Then the demo runs the two failures that beat the <code>HashSet</code> straight at it:</p>
+<pre><code>    after a restart, confirmations queued: 1
+    the process died before the commit, and nothing at all was written: 0 confirmation(s), 0 id(s)
+    after the redelivery, confirmations queued: 1</code></pre>
+<p>The restart no longer matters, because the memory is in the database. The crash no longer matters, because a crash before the commit leaves nothing at all, and the redelivery then does the work cleanly for the first time.</p>
+<p><strong>Exactly once, out of a broker that only promises at least once.</strong> That sentence is the whole point, and it is worth noticing where the exactly-once lives: not in the broker, and not in the network. It lives in one ordinary database transaction on the receiving side.</p>
+<h2>Act Five — The Handler That Needed None Of This</h2>
+<p>Before reaching for a dedupe store, ask whether the handler needs one.</p>
+<p><code>ShipmentStatusConsumer</code> sets the status of an order to <code>SHIPPED</code>. Handle that message twice and the status is <code>SHIPPED</code>.</p>
+<pre><code>  status of ord-7006: SHIPPED, orders known: 1
+  no dedupe store, no transaction, no expiry policy.</code></pre>
+<p>That is a <strong>naturally idempotent</strong> operation, and it is always the better answer when it is available: no table, no transaction, nothing to operate.</p>
+<p>And often a handler that is not naturally idempotent can be rewritten into one that is. Awarding loyalty points is the classic:</p>
+<pre><code>  &quot;add 70 loyalty points&quot; twice  -&gt;  running total: 140 points for a 70 pound order
+  &quot;set the points for this order to 70&quot;  -&gt;  points awarded: 70 after handling it twice</code></pre>
+<p>Same business outcome, and the second form cannot be got wrong by a duplicate. <code>addingTwiceDoublesIt</code> and <code>theRewriteBeatsTheStore</code> are the two tests, side by side, and they are the most useful pair in the project.</p>
+<h2>What It Costs</h2>
+<p><strong>A table you now operate.</strong> Every handled id is a row. The table grows for as long as messages arrive, so the rows have to be cleared out, which means somebody owns a retention job and somebody gets paged when it stops running.</p>
+<p><strong>An expiry window that is a guess.</strong> The demo makes this explicit rather than glossing it:</p>
+<pre><code>    handled, confirmations queued: 1
+    a minute later, with a thirty second memory, the same message arrives again: 2 confirmation(s)</code></pre>
+<p>The duplicate came back after the memory of it had expired, and the consumer treated it as new. <code>theWindowIsAGuess</code> asserts that outcome deliberately. Too short a window and a duplicate arriving after a long broker outage looks new. Too long and the table is large. There is no correct number; there is a number you choose and defend.</p>
+<p><strong>A transaction that must actually cover both.</strong> The pattern only works if the effect and the record commit together. If the effect goes to one system and the record to another, you are back in act three, with extra machinery.</p>
+<p><strong>Latency and contention, in a busy system.</strong> Every message now reads and writes the dedupe table.</p>
+<h2>When Not To Use It</h2>
+<ul><li><strong>When the handler is already idempotent.</strong> Setting a value, replacing a document, marking a flag. Add nothing.</li><li><strong>When it can be rewritten to be idempotent.</strong> Turn increments into assignments where the business allows it. This is cheaper than any store.</li><li><strong>When the effect is not in a database you control.</strong> If handling the message sends a real email through a third party, the effect and the record cannot share a transaction, and you need a different conversation about what &quot;handled&quot; means.</li><li><strong>When duplicates genuinely do not matter.</strong> A metrics ping counted twice is a rounding error, not an incident. Be honest about which of your messages these are.</li></ul>
+<h2>What To Remember</h2>
+<ol><li>Brokers promise at-least-once delivery. Duplicates are a feature of the contract, not a bug in somebody&#x27;s code.</li><li>A set of seen ids in memory is not a solution, because a deploy empties it — and a deploy is often what caused the redelivery.</li><li>Even without a restart, doing the work and recording the id as two separate writes leaves a gap that a crash fits through.</li><li>Write the record of having handled the message in the <strong>same transaction</strong> as its effect. Both, or neither.</li><li>That single ordinary transaction turns at-least-once delivery into exactly-once processing.</li><li>Ask first whether the handler is naturally idempotent, or can be rewritten to be. That is the better answer whenever it is available.</li><li>The store is a real table with a real retention policy, and the expiry window is chosen rather than derived.</li><li>All the sending side owes you is a stable message id. That one field is the entire handover.</li></ol>
+</main>
+<footer>
+Generated from <code>idempotent-consumer-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

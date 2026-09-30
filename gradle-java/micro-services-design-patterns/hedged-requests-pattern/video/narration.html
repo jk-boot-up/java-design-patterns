@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hedged Requests Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Hedged Requests Pattern — Video Narration Script</h1>
+<h2>1. Hedged Requests</h2>
+<p>Hello, and welcome. This video explains the Hedged Requests pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. If a call has not answered after a short wait, send the same call to a second copy of the service. Use whichever answer comes first. And cancel the other. Think of phoning a shop to ask if something is in stock. Nobody picks up after a few rings. So you call their other branch too. Whichever answers first gets your question, and you hang up on the other. In this video, the domain is an online shop&#x27;s product page. It asks a price service for each price. And there are several copies of that service, called replicas. By the end, you will hear why the average hides slow calls. How a second call after fifty milliseconds fixes them. Why not to send two calls every time. And which calls must never be hedged.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The product page asks the price service for each price. Most answers take twenty milliseconds. But now and then a replica pauses, for example to clean up memory. About one call in thirty-three then takes a whole second.</p>
+<h2>3. Act One — One call, and a slow tail</h2>
+<p>First demo: one call per price. We look up a thousand prices. Half the answers take twenty milliseconds or less. But about one call in thirty-three lands on a paused replica. That call takes a whole second. So the slowest one percent of calls take a full second. And the product page waits for them.</p>
+<h2>4. Act Two — Hedge after 50 ms</h2>
+<p>Second demo: hedge after fifty milliseconds. Fifty milliseconds is longer than a normal call ever takes. If there is no answer by then, the client asks a second replica. Whichever answers first, wins. The slowest calls now take seventy milliseconds. Fifty waiting, and twenty for the backup. And only three percent of calls needed a second call.</p>
+<h2>5. Act Three — Hedge at once</h2>
+<p>Third demo: why wait at all? Send every request to two replicas at once. Now the slowest calls take only twenty milliseconds. But every request is sent twice. The price service does double the work. Twice the load, to save fifty milliseconds on a few calls. Waiting first is the better deal.</p>
+<h2>6. Act Four — A real race</h2>
+<p>Fourth demo: a real race, with real threads. Replica A is paused. It would take a whole second. Replica B answers in twenty milliseconds. The hedger asks A, and waits fifty milliseconds. No answer, so it asks B too. B&#x27;s answer comes back in well under half a second. Then the hedger cancels the call to A. So A stops working on an answer nobody needs.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. Hedging sends the same request twice. So only hedge calls that are safe to repeat. Reading a price, is fine. Placing an order, is not. The customer could be charged twice. And if every replica is slow because they are all overloaded, extra calls make things worse. So keep hedges to a few percent of requests.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the pattern. Call one replica. If there is no answer after a short delay, call a second replica with the same request. The first answer wins. And the other call is cancelled.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. A replica is one copy of the price service. The hedger makes the call. It waits fifty milliseconds, asks a second replica if needed, takes the first answer, and cancels the other. And the latency model measures a thousand calls, so we can compare the slowest ones.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met this pattern already. Google made it famous, in a paper called The Tail at Scale. gRPC can hedge calls, with a setting per method. And Cassandra calls it speculative retry. In Java, racing futures with any-of is the same idea.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use it? When a service has several replicas, and slow calls are rare. Only hedge calls that are safe to repeat. Wait a little before hedging. Cancel the loser. And cap how many hedges you send.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Hedged Requests pattern. If you remember one sentence, make it this one. When one copy is slow, ask another, and keep the first answer. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Add a budget, so hedges stop once they reach five percent of calls. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

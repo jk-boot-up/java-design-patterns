@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Message Filter with Apache Camel Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Message Filter with Apache Camel Pattern — Video Narration Script</h1>
+<h2>1. Message Filter with Apache Camel</h2>
+<p>Hello, and welcome. This video explains the Message Filter pattern, built with Apache Camel, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A message filter sits in front of a receiver. It lets through only the messages that receiver wants, and drops the rest. Apache Camel is an open-source library for moving messages, and it has a filter step built in. Think of a company post room. Each department gives it a rule, such as, only letters marked gift wrap. The post room applies the rules. And a good one keeps a tray of letters nobody wanted. In this video, the domain is an online shop, whose checkout announces every order to its services. By the end, you will hear how a filter step works in Camel. How to change a rule while everything runs. And why a discard channel matters.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Checkout announces ten orders. The gift-wrap service only wants gift orders. The loyalty service only wants registered customers, spending over fifty pounds. Without filters, each service was handed all ten.</p>
+<h2>3. Act One — Every service gets every order</h2>
+<p>First demo: every service is handed every order. Checkout sends each order to one place. Camel copies it to every service. The gift-wrap service is handed all ten orders. It must open each one, to see if it is a gift.</p>
+<h2>4. Act Two — A filter in front</h2>
+<p>Second demo: a filter in front of the gift-wrap service. The rule is one short expression. Is this order a gift? Only two orders get through. O R D two, and O R D four. Eight are dropped. Checkout was not changed. It does not know the filter exists.</p>
+<h2>5. Act Three — Two conditions</h2>
+<p>Third demo: a rule with two conditions. The customer must be registered. And the order must be over fifty pounds. The loyalty service receives three orders. O R D one, four, and six.</p>
+<h2>6. Act Four — Change the rule while running</h2>
+<p>Fourth demo: change the rule while everything keeps running. The threshold is read from the settings, as each order passes. It is raised to sixty pounds. Now only O R D one and four get through. No route was changed. Nothing was restarted.</p>
+<h2>7. Act Five — The bill, and a discard channel</h2>
+<p>Fifth demo: the bill. A filter drops messages. And a wrong rule drops them silently. So rejected orders are sent to a discard channel instead. Eight orders are kept there, and can be counted. The costs. Rules written in text, only checked when they run. And more than ten library files, instead of none.</p>
+<h2>8. The Pattern, in Camel</h2>
+<p>Let&#x27;s name the pattern, in Camel&#x27;s words. A filter step, with a rule, in front of each receiver. The rule is written in Camel&#x27;s Simple language. And rejected messages go to a discard channel, where they can be counted.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. Shop routes holds every route, and every rule. Rules holds the threshold, which can change while the routes run. Order event is the message. And received records what each service was given.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met this already. Camel&#x27;s filter step, and Spring Integration&#x27;s filter. Message selectors in Java messaging. And the rules in your email, that sort or discard incoming mail.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use Camel for this? When many services subscribe to the same messages, and the rules change. Keep each rule short. And add a discard channel, so nothing is lost without a trace.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Message Filter, with Apache Camel. If you remember one sentence, make it this one. Put a rule in front of each receiver, and keep what it rejects. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Add a discard channel to the gift-wrap filter too. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

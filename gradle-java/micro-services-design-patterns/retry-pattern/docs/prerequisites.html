@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>What you need before starting this project, what you can pick up as you go, and what you explicitly do not need to know. The short version: if you can read a <code>try</code>/<code>catch</code> and a <code>for</code> loop, you are ready.</p>
+<h2>Knowledge Prerequisites</h2>
+<h3>Required</h3>
+<ul><li><strong>Java basics</strong> — classes, <code>final</code> fields, constructors, records.</li><li><strong>Exceptions</strong> — <code>throw</code>, <code>catch</code>, and what <code>instanceof</code> means. The heart of this pattern is one <code>instanceof</code> check.</li><li><strong>Lambdas, loosely.</strong> <code>Retrier.call</code> takes a <code>Supplier&lt;T&gt;</code>, which in practice means you pass it <code>() -&gt; payments.charge(request)</code>. You do not need to be comfortable writing functional interfaces; you need to be able to read that one line.</li><li><strong>Reading a JUnit test</strong> — <code>assertEquals</code>, <code>assertThrows</code>. You do not need to be able to write one, though you will be invited to.</li></ul>
+<h3>Helpful, but explained as we go</h3>
+<ul><li><strong>The Load Balancing pattern</strong> (<a href="../load-balancing-pattern"><code>../load-balancing-pattern</code></a>). Retry is what you do when the instance you chose does not answer, so the two combine naturally — the obvious retry is a retry against a <em>different</em> instance. You can do this project first without difficulty.</li><li><strong>Idempotency.</strong> It is the most important word in this project and it is defined in full below. If you have met it before, the only thing new here is how easy it is to break by accident.</li><li><strong>What a payment gateway is.</strong> &quot;Somebody else&#x27;s service that takes card payments over the internet&quot; is entirely sufficient.</li></ul>
+<h3>Explicitly NOT required</h3>
+<ul><li><strong>Spring Retry or Resilience4j.</strong> Neither appears here. The whole retrier is about forty lines of plain Java, and reading it once is worth more than configuring a library twice.</li><li><strong>Any real payment integration.</strong> No API keys, no sandbox account, no Stripe. <code>PaymentGateway</code> is an ordinary object you can tell to misbehave.</li><li><strong>Threads or concurrency.</strong> Everything runs on one thread, in a fixed order, so every number in the output is reproducible.</li><li><strong>A network.</strong> There is none. There is nothing to be offline from.</li></ul>
+<h2>A 60-Second &quot;Idempotency&quot; Primer</h2>
+<p>An operation is <strong>idempotent</strong> if doing it twice has the same effect as doing it once.</p>
+<p>Setting a light switch to &quot;off&quot; is idempotent — flick it off twice and the light is off. Taking £449.99 from a card is not: do it twice and the shopper is £899.98 out of pocket.</p>
+<p>Most interesting operations are not naturally idempotent, so you make them idempotent by attaching a key:</p>
+<pre><code>public static PaymentRequest forOrder(String orderId, Money amount) {
+    return new PaymentRequest(orderId, amount, &quot;key-&quot; + orderId);
+}</code></pre>
+<p>The key is a promise from the caller: <em>if you have already seen this key, you have already done this job — do not do it again, just tell me what happened last time.</em></p>
+<p>Two things about it are easy to get wrong and both are visible in this project. The key must be derived from the <strong>job</strong> and nothing else — not the attempt number, not the clock, not a random value — or the two attempts are not recognisably the same job. And the promise is only worth anything if the <em>other</em> end keeps a record of which keys it has seen. In <code>PaymentGateway</code> that record is one map, checked before any money moves.</p>
+<h2>A 60-Second &quot;Backoff And Jitter&quot; Primer</h2>
+<p><strong>Backoff</strong> means the waits between attempts get longer: 100ms, then 200ms, then 400ms. <code>RetryPolicy</code> computes that by multiplying:</p>
+<pre><code>long base = initialDelayMillis;
+for (int i = 2; i &lt; attempt; i++) {
+    base *= multiplier;
+}</code></pre>
+<p>The reason is that a service which is failing under load needs <em>less</em> traffic, not the same traffic sooner.</p>
+<p><strong>Jitter</strong> is a small random amount added to each wait, so that two callers who failed at the same moment do not retry at the same moment. In the demo you will see <code>WAITED 103ms</code>, not 100. The three milliseconds are the jitter, and with a thousand callers they are the difference between a trickle and a synchronised wave.</p>
+<p>The jitter here comes from a seeded <code>Random</code>, so the demo and the tests produce the same numbers on every machine. In production the seed comes from the machine, which is the entire point.</p>
+<h2>A 60-Second &quot;Simulated Network&quot; Primer</h2>
+<p>There is no network in this project, and there is no waiting.</p>
+<p><code>SimulatedClock</code> is a <code>long</code> with a method to move it forward; it never advances on its own. When the retrier backs off for 103 milliseconds it pushes the clock forward by 103 and continues immediately. When the gateway takes 50 milliseconds to answer, it does the same.</p>
+<p>So when the output says a recovered checkout took 203ms, that is arithmetic rather than a measurement. It is identical on every machine, and the whole test suite — backoff, jitter and all — finishes in about a second.</p>
+<p><code>CallLog</code> keeps the timeline: who called whom, when, and what happened, which is what lets you read afterwards exactly how a double charge occurred.</p>
+<h2>Software Prerequisites</h2>
+<ul><li><strong>JDK 21 or newer.</strong> Nothing else.</li><li><strong>Gradle:</strong> not needed globally. The project ships a wrapper.</li></ul>
+<h3>Installing JDK 21</h3>
+<p>macOS, with Homebrew:</p>
+<pre><code>brew install openjdk@21
+sudo ln -sfn $(brew --prefix)/opt/openjdk@21/libexec/openjdk.jdk \
+    /Library/Java/JavaVirtualMachines/openjdk-21.jdk</code></pre>
+<p>Linux (Debian or Ubuntu):</p>
+<pre><code>sudo apt install openjdk-21-jdk</code></pre>
+<p>Windows: install the Microsoft Build of OpenJDK 21 or Temurin 21 from the installer, and let it set <code>JAVA_HOME</code>.</p>
+<h3>Verify Your Setup</h3>
+<pre><code>java -version          # expect 21 or newer
+cd micro-services-design-patterns/retry-pattern
+./gradlew test         # expect BUILD SUCCESSFUL, 21 tests
+./gradlew run          # expect four acts</code></pre>
+<p>If <code>./gradlew</code> will not execute on macOS or Linux, make it executable:</p>
+<pre><code>chmod +x gradlew</code></pre>
+<p>The first <code>./gradlew</code> command downloads Gradle itself and needs a network connection. Everything after that works offline, including the demo — because the demo has no network to use.</p>
+<h2>Troubleshooting</h2>
+<p><strong>&quot;Unsupported class file major version&quot;</strong> — Gradle is using an older JDK than the toolchain asks for. Check <code>java -version</code>, and set <code>JAVA_HOME</code> to a 21 install.</p>
+<p><strong>Every test in <code>NaiveCheckoutServiceTest</code> passes</strong> — that is correct, and it is the point of the file. One of those passing tests asserts that £899.98 left the customer&#x27;s account. A double charge is not detectable by asking &quot;did it throw&quot;.</p>
+<p><strong>Act four succeeds, and that bothers you</strong> — good. It is supposed to. The checkout returns a valid receipt, nothing is logged as an error, and the order looks perfect. The damage is on a bank statement.</p>
+<p><strong>The wait is 103ms and the docs said 100</strong> — that is the jitter, and it is deliberate. <code>baseDelayBeforeAttempt</code> gives you the promise without the jitter, which is what the tests assert against.</p>
+<p><strong>The numbers differ from the ones in the docs</strong> — they should not. Every latency comes from <code>SimulatedClock</code> and the jitter is seeded. If your output differs from <code>README.md</code>, something has genuinely changed in the source.</p>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — a flaky gateway, a lost fifth of the revenue, and the three-line loop that fixes it and charges people twice</li><li>Run <code>./gradlew run</code> and read the four acts, in order. Read the <em>last line</em> of each act — the number of times the card was charged.</li><li><a href="retry-pattern-explained.html"><code>retry-pattern-explained.md</code></a> — the pattern, starting from an engaged tone</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> and <a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the structure, then the five sequences</li><li><a href="animation.html"><code>animation.html</code></a> — the attempts, the waits and the key, one step at a time</li><li>The tests, which are the specification: <code>RetryTest</code> first, then <code>NaiveCheckoutServiceTest</code> to see a passing test file that describes a disaster</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

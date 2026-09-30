@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rate Limiter Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Rate Limiter Pattern — Video Narration Script</h1>
+<h2>1. Rate Limiter</h2>
+<p>Hello, and welcome. This video explains the Rate Limiter pattern in Java, and it is written and presented by Jayasekhar Konduru. The plain definition: a rate limiter refuses requests beyond an agreed rate, so that one caller cannot use up a service that everyone shares. It says no early, so the service does not fail late. This is another project in the microservices category, whose subject is how many small services stay reliable when they talk to each other. In our online store, the thing that can be overwhelmed is the product search. By the end you will see a thousand requests reach a search that can serve a hundred, see a token bucket allow a burst and then a steady rate, see a bucket each protect a polite caller from a greedy one, hear a refusal say exactly when to come back, and see the bill.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The product search can serve a hundred requests a second. One client, perhaps a script, sends a thousand in a single second, and every other customer waits behind them. The question: what should the search do about the other nine hundred?</p>
+<h2>3. No Limit</h2>
+<p>First, no limit. The search can serve a hundred requests a second. One client sends a thousand. All are accepted. Nine hundred of them are beyond what the search can serve, and every other customer waits behind them.</p>
+<h2>4. The Pattern</h2>
+<p>The pattern. A bucket holds tokens. Each request takes one. The bucket refills at a steady rate, up to its size, and no further. If there is no token, the request is refused at once, and told when to come back.</p>
+<h2>5. A Bucket Of Tokens</h2>
+<p>Second, a bucket of tokens. Ten tokens, refilled at five a second. A burst of twenty at once: ten are allowed, ten are refused. One second later, another twenty: five are allowed, the five that refilled. After ten quiet seconds the bucket is full again, and no fuller. Ten.</p>
+<h2>6. A Steady Rate Always Gets Through</h2>
+<p>Third, a steady rate always gets through. Five requests a second, evenly spaced, for a whole minute: three hundred of three hundred are allowed. A well behaved client never notices the limiter. A burst is tolerated, up to the size of the bucket. A sustained rate above the refill is not.</p>
+<h2>7. One Bucket For Everyone, Or One Each</h2>
+<p>Fourth, one bucket for everyone, or one each. With a single shared bucket, a greedy client takes all ten tokens, and a polite client is refused. That is not protection, it is a different outage. With a bucket each, the greedy client is held to ten, and the polite client is allowed.</p>
+<h2>8. Say When To Come Back</h2>
+<p>Fifth, say when to come back. The bucket is empty, and the refusal says: retry after a thousand milliseconds. One millisecond early, and the request is refused. At the moment it said, it is allowed. The client does not have to guess, and does not hammer.</p>
+<h2>9. The Bill</h2>
+<p>Last, the bill. Three servers, each with its own bucket, allow thirty, not ten. The limit is three times looser than it says. Ten thousand callers mean ten thousand buckets in memory. And a real page that loads twelve things at once gets only ten. The limit cannot tell a person from a script.</p>
+<h2>10. How To Recognise It</h2>
+<p>How do you recognise this in code you did not write? A 429 Too Many Requests response, with a Retry-After header. A class named Bucket, Limiter or Throttle. Resilience4j&#x27;s RateLimiter, Guava&#x27;s RateLimiter, or a gateway plugin. A limit written in the API documentation, such as 100 requests a minute.</p>
+<h2>11. The Verdict</h2>
+<p>Here is my verdict, plainly. Use a rate limiter on any service that shared callers can overwhelm, and on any API you expose. Use a token bucket to allow short bursts, key it by caller, and tell refused callers exactly when to retry. Share the count across servers if the limit must be exact. Set the burst size from real page loads, not from a guess.</p>
+<h2>12. What Is Real Here</h2>
+<p>The same honest admission as everywhere in this course. Everything is plain Java. Every number quoted comes from this program&#x27;s own output. Nothing depends on a clock, so every run is the same.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So when is it too much? For an internal service with one known caller, a limit is only a way to fail. It earns its place with many or unknown callers.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s Rate Limiter. If you take one sentence away, take this one: a rate limiter says no early and says when to come back, and the price is state, and a limit that cannot tell a person from a script. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, make the bucket for a caller larger, and see which polite requests stop being refused. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Proxy Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Proxy Pattern</h1>
+<p>A 60-minute guided session for teaching or self-studying the Proxy pattern using this project.</p>
+<ul><li><strong>Audience:</strong> beginners comfortable with core Java</li><li><strong>Duration:</strong> ~60 minutes</li><li><strong>Format:</strong> live coding + discussion</li><li><strong>Prerequisites:</strong> see <a href="prerequisites.html"><code>prerequisites.md</code></a></li></ul>
+<blockquote><p><strong>Optional pre-work.</strong> Ask participants to watch the video (<code>video/proxy-pattern-explained.mp4</code>) beforehand. If they do, you can compress the problem and pattern segments and spend the extra time on the exercises. If you are teaching a group that has <em>not</em> watched it, run the session exactly as written below.</p></blockquote>
+<h2>Learning Objectives</h2>
+<p>By the end of this session a participant should be able to:</p>
+<ol><li>Describe, in one sentence, what problem the Proxy pattern solves.</li><li>Explain why <code>LazyProductImage</code> holds a SKU instead of a <code>HighResolutionProductImage</code> until <code>render()</code> is called.</li><li>Identify the four roles — subject, real subject, proxy, client — in real code.</li><li>Explain why <code>RestrictedProductImage</code> takes a <code>ProductImage</code>, not a <code>HighResolutionProductImage</code>, in its constructor, and what that buys.</li><li>Distinguish Proxy from Decorator.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Segment</th><th>Mode</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td><td>Hands-on</td></tr><tr><td>0:05–0:15</td><td>The problem</td><td>Discussion</td></tr><tr><td>0:15–0:25</td><td>The pattern</td><td>Explanation</td></tr><tr><td>0:25–0:40</td><td>Code walkthrough</td><td>Live coding</td></tr><tr><td>0:40–0:50</td><td>Exercises</td><td>Hands-on</td></tr><tr><td>0:50–0:58</td><td>Pitfalls &amp; comparisons</td><td>Discussion</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td><td>—</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<p>Everyone runs:</p>
+<pre><code>java -version
+./gradlew run</code></pre>
+<p>Anyone whose build fails pairs up with a neighbour. Do not debug installs during the session — that is what the prerequisites doc is for.</p>
+<h2>0:05–0:15 — The Problem</h2>
+<p><strong>Do not show <code>ProductImage</code>/<code>LazyProductImage</code> yet.</strong> Start with the pain.</p>
+<p>Put <code>NaiveProductListing</code> from <a href="problem-statement.html"><code>problem-statement.md</code></a> on screen and ask:</p>
+<blockquote><p><em>&quot;This listing is built with ten SKUs but only ever shows the first one. How many images get expensively loaded?&quot;</em></p></blockquote>
+<p>Land on: all ten, every time, no matter how many actually get shown.</p>
+<p>Then put <code>NaiveAdminImageViewer</code> alongside it and ask:</p>
+<blockquote><p><em>&quot;A second screen — a thumbnail grid — also needs to check who&#x27;s allowed to see an image. Where does that check go?&quot;</em></p></blockquote>
+<p>Land on: copy-pasted into the new screen, with nothing stopping a third screen from forgetting it entirely.</p>
+<p><strong>Key question to land:</strong> <em>&quot;If the loading strategy or the access rule ever needs to change, how many places does that change have to be made?&quot;</em> Every call site that duplicated the logic — and that count grows with every new screen.</p>
+<h2>0:15–0:25 — The Pattern</h2>
+<p>Introduce the bouncer analogy from <a href="proxy-pattern-explained.html"><code>proxy-pattern-explained.md</code></a>. Ask the group: <em>&quot;Does the guest see a different club, or the same one reached through a checkpoint?&quot;</em> Land on: the same one — the proxy adds a decision-maker in front of the real thing, not a new thing.</p>
+<p>Show the class diagram (<a href="images/class-diagram.png"><code>images/class-diagram.png</code></a>) and name the four roles. Then show the sequence diagram (<a href="images/uml-diagram.png"><code>images/uml-diagram.png</code></a>) and trace a single <code>render()</code> call through the protection proxy, into the virtual proxy, and only then into the real subject — once.</p>
+<p>Optionally open <a href="animation.html"><code>animation.html</code></a> in a browser and play it through once. It has a <strong>Narration</strong> button: leave it off if you want to talk over the animation yourself, or switch it on to let it explain each step in its own voice.</p>
+<p><strong>The one point that must land:</strong></p>
+<blockquote><p>Strip the proxies away and the <em>visible result is identical</em> — <code>render()</code> still returns the same string. That&#x27;s the tell that this is Proxy, not Decorator: nothing new was added, access was just controlled.</p></blockquote>
+<h2>0:25–0:40 — Code Walkthrough</h2>
+<p>Open the files in this order. Resist jumping ahead.</p>
+<p><strong>1. The subject — <code>ProductImage.java</code></strong> Point out this interface declares exactly the shape the real image and every proxy share: <code>render()</code> and <code>sku()</code>. Ask: <em>&quot;Why does a proxy need to expose the exact same interface as the thing it stands in for?&quot;</em></p>
+<p><strong>2. The real subject — <code>HighResolutionProductImage.java</code></strong> Point out the static <code>LOAD_COUNT</code> — a stand-in for &quot;this is expensive.&quot; Ask: <em>&quot;If this constructor actually decoded a file from disk, what would happen if a naive listing built ten of these it never rendered?&quot;</em></p>
+<p><strong>3. The virtual proxy — <code>LazyProductImage.java</code></strong> This is the heart of the session. Point at the <code>realImage == null</code> check in <code>render()</code> and ask: <em>&quot;What happens the first time this runs? What happens the second time?&quot;</em> First: builds and caches. Second: reuses.</p>
+<p><strong>4. The protection proxy — <code>RestrictedProductImage.java</code></strong> Point at the constructor signature: <code>ProductImage image</code>, not <code>HighResolutionProductImage image</code>. Ask: <em>&quot;What does that one detail make possible?&quot;</em> Composing proxies — wrapping this around a <code>LazyProductImage</code> gets lazy loading and access control at once.</p>
+<p><strong>5. The traps — <code>NaiveProductListing.java</code> / <code>NaiveAdminImageViewer.java</code></strong> Put the eager-loading loop and the inline role check side by side. Ask: <em>&quot;What has to change in every caller if the access rule changes?&quot;</em> Everything that copy-pasted the check — versus one class, if it went through the proxy instead.</p>
+<p><strong>6. Run it — <code>ProductImageDemo.java</code></strong> Run <code>./gradlew run</code> live. Point at the load-count numbers before and after each <code>render()</code> call, and the moment an admin&#x27;s proxy loads an image while a denied shopper&#x27;s identical-looking proxy never does. Ask the group to predict the count before it prints.</p>
+<h2>0:40–0:50 — Exercises</h2>
+<p>Let participants work; circulate and help.</p>
+<h3>Exercise 1 — Add a logging proxy (everyone)</h3>
+<p>Add a <code>LoggingLazyProductImage</code> that records every <code>render()</code> call to a <code>List&lt;String&gt;</code> before delegating to a wrapped <code>ProductImage</code>. Confirm it can be composed with the existing proxies in any order.</p>
+<blockquote><p><strong>The payoff:</strong> a whole new concern (auditing) added with zero changes to <code>LazyProductImage</code> or <code>RestrictedProductImage</code>. Say this out loud when someone finishes.</p></blockquote>
+<h3>Exercise 2 — Prove denial short-circuits loading (everyone)</h3>
+<p>Write a test that wraps a fresh <code>LazyProductImage</code> in an <code>RestrictedProductImage</code> with <code>Role.SHOPPER</code>, calls <code>render()</code> expecting a <code>SecurityException</code>, and then asserts <code>HighResolutionProductImage.loadCount()</code> is still zero.</p>
+<h3>Exercise 3 — Break the cache on purpose (discussion)</h3>
+<p>Add an <code>invalidate()</code> method to <code>LazyProductImage</code> that sets <code>realImage</code> back to <code>null</code>. Discuss: <em>&quot;When would you actually want to call this?&quot;</em> Land on: whenever the underlying file can change during the program&#x27;s life — the cache is only safe because nothing here ever mutates the real image.</p>
+<h3>Exercise 4 — Stretch (for fast finishers)</h3>
+<p>Design a <code>RemoteLazyProductImage</code> (on paper, no code needed) that fetches a image from a network service instead of local disk. Discuss which parts of <code>LazyProductImage</code> change (the loading mechanism) and which stay identical (the interface, the caching idea).</p>
+<h2>0:50–0:58 — Pitfalls &amp; Comparisons</h2>
+<p>Cover the &quot;What to Watch Out For&quot; section:</p>
+<ul><li>A proxy that needs to load the real subject just to answer a cheap question (like <code>sku()</code>) has defeated its own purpose — keep enough state in the proxy itself to avoid that.</li><li>Caching hides staleness — <code>LazyProductImage</code> is only safe to cache forever because the underlying image never changes mid-run.</li><li>Reaching for Proxy to add a new feature is a sign Decorator was the pattern actually needed.</li></ul>
+<p>Then the comparison table. The line worth memorising:</p>
+<blockquote><p>**Proxy keeps the same interface and delegates to control <em>access</em> — when to create, whether to allow, where the real thing lives. Decorator keeps the same interface and delegates to add <em>new behaviour</em> on top.**</p></blockquote>
+<p>Close with real-world sightings: Hibernate/JPA lazy-loading entity proxies, <code>java.rmi</code> remote proxies, and Spring&#x27;s <code>@Transactional</code> proxies.</p>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>Ask three people for a one-sentence definition. Then assign follow-up:</p>
+<blockquote><p>Find one place in your own codebase where a client either eagerly builds something expensive it may never use, or re-implements the same access check at more than one call site — and sketch what a proxy would look like instead.</p></blockquote>
+<h2>Facilitator Notes</h2>
+<p><strong>Common misconceptions to correct:</strong></p>
+<table><thead><tr><th>They say</th><th>Correct with</th></tr></thead><tbody><tr><td>&quot;Isn&#x27;t this the same as Decorator?&quot;</td><td>No — Decorator adds new behaviour that wasn&#x27;t there before (a fee, a suffix); Proxy adds no new behaviour at all, it decides whether/when the call reaches the real object</td></tr><tr><td>&quot;Why not just add an <code>if (!loaded)</code> check inline wherever an image is used?&quot;</td><td>That&#x27;s exactly what the naive traps do, scattered across every call site — the proxy centralises the check once, behind the same interface, so no caller can forget it</td></tr><tr><td>&quot;Doesn&#x27;t checking <code>role != Role.CATALOG_ADMIN</code> belong in the real image, not a wrapper?&quot;</td><td>Putting it in <code>HighResolutionProductImage</code> would mean every subject needs to know about roles, even when no caller cares — the proxy keeps that concern out of the subject entirely</td></tr><tr><td>&quot;Isn&#x27;t caching forever a bug?&quot;</td><td>Only if the underlying data can change. Here it&#x27;s a deliberate, documented assumption — the pitfalls section calls this out explicitly</td></tr></tbody></table>
+<p><strong>If you are running short on time:</strong> cut Exercise 4 and shorten the pitfalls discussion. Never cut Exercise 2 — proving that denial stops the load <em>before</em> it happens is the moment composability actually lands.</p>
+<p><strong>If you have extra time:</strong> have participants implement <code>LoggingLazyProductImage</code> from Exercise 1 fully, with its own test class mirroring <code>LazyProductImageTest</code>.</p>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>Everyone has JDK 21 and a green <code>./gradlew run</code></li><li>Diagrams open in a tab (<code>images/</code>)</li><li><code>animation.html</code> open in a browser</li><li>Video on hand (<code>../video/proxy-pattern-explained.mp4</code>) — useful as a recap for anyone who joins late, or to send round afterwards</li><li>The printed load-count output from <code>./gradlew run</code> ready to put on the board</li><li>IDE font size raised for screen sharing</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

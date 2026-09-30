@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Repository Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Repository Pattern — Video Narration Script</h1>
+<h2>1. Repository</h2>
+<p>Hello, and welcome. This video explains the Repository pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A repository is an interface that looks like a collection of your objects, held in memory. So the code that uses it simply asks for objects. And never has to know where they are kept. Think of a library&#x27;s front desk. You ask for a book by title. You never need to know which shelf, which room, or which building it came from. In our online store, the question is how to find customers in London who ordered in the last month. By the end, you will know why the same query in three places goes wrong. How to change where customers are stored, without touching the code that asks. And what that costs.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The marketing team wants a list of customers in London, who have ordered in the last month. So does the support team. So does reporting. Three places in the code need the same answer. So where should the query live?</p>
+<h2>3. SQL In The Service</h2>
+<p>First, the naive way: the database query sits inside each service. For one query, in one place, that is fine. But here it is written three times, each slightly differently. Marketing gets Ada and Grace. Reporting gets Ada and Grace. Support gets Ada, Grace, and Ken. Support wrote, on or after, where the others wrote, after. One day&#x27;s difference, one extra customer, and nobody noticed.</p>
+<h2>4. A Schema Change</h2>
+<p>Then the database changes. The column called city is renamed to town. Now every service returns an empty list. Nothing threw an error. Not one. The word city was written as text in all three places. Each one had to be found by hand. Miss one, and a list is quietly empty in production.</p>
+<h2>5. The Pattern</h2>
+<p>Now, the pattern. An interface that looks like a collection of customers in memory. It has add, find by I D, and finder methods for the questions the business asks. The caller asks for customers. It does not know that a database, a table, or a column exists.</p>
+<h2>6. The Caller Knows Only The Interface</h2>
+<p>Third demo: the caller only knows the interface. Here is the marketing service now. It gets Ada and Grace, the right answer. And listen to what it knows. Its constructor takes one thing: a customer repository. It knows no database, names no table, and mentions no column. The query lives in one place, behind the door.</p>
+<h2>7. Swap The Store</h2>
+<p>Fourth demo, and the strongest moment: swapping the store. There are two repositories behind the same interface. One keeps customers in a simple list, in memory. The other uses the database. The same marketing service runs against both. Ada and Grace, either way. The whole change is one line, where the service is created. Swap the in-memory repository for the database one. The marketing service itself is untouched.</p>
+<h2>8. Cost One: A Method Per Question</h2>
+<p>Now the costs. The first: the interface keeps growing. Every new business question adds a method. Find by city. Find by city, and ordered after a date. Find by city, and ordered after a date, and with a certain status. Until the interface becomes a query language, only clumsier. The Specification pattern fixes this. You combine small conditions, like, in London, and has a pending order, with no new method. The price is one more idea to learn.</p>
+<h2>9. Cost Two: The Leak</h2>
+<p>The second cost: the database leaks through. The door hides the database. But sometimes, good performance needs it. One question, against six customers, costs seven database queries. One for the customers, and then one for each customer&#x27;s orders. The caller has no way to say: fetch the orders together, in one go. Fixing that means the interface must learn about the database again.</p>
+<h2>10. Cost Three: The Swap Is Rarely Used</h2>
+<p>The third cost is about honesty. A repository is often sold as a way to swap your database. That is claimed far more often than it ever happens. The real benefit is different. The calling code speaks in the language of the business: customers, and orders. Not tables, and columns.</p>
+<h2>11. The Toy Database</h2>
+<p>A word about the database in these demos. It is a toy: just rows, and a counter. Every count in this video, including the seven, came from that counter.</p>
+<h2>12. Where You Have Met This</h2>
+<p>You have met this pattern before. A Spring Data repository interface is exactly this pattern. Save, find by I D, find by city: methods shaped like a collection. And the framework writes the rest for you. Spring Data has its own video in this series.</p>
+<h2>13. What Is Real Here</h2>
+<p>A quick, honest note about this demo. The pattern is real. The database is a stand-in, with no query optimiser to rescue the seven queries. The count is a fair picture of a repository that cannot combine queries.</p>
+<h2>14. When This Is Too Much</h2>
+<p>So, when is this too much? For an application with only a few queries, all in one place, a repository is an extra layer. It earns its place when the same questions are asked from several places. Or when the business code should not know about storage at all.</p>
+<h2>15. Thanks for Watching</h2>
+<p>That&#x27;s the Repository pattern. If you remember one sentence, make it this one. A repository lets the caller speak the language of the business, but every question still needs somewhere to live. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Write a specification for customers with no orders. And use it, without adding any new repository method. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Execute Around Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Execute Around Pattern — Video Narration Script</h1>
+<h2>1. Execute Around</h2>
+<p>Hello, and welcome. This video explains the Execute Around pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. Execute Around puts the setting up, and the cleaning up, in one method. The caller only hands in the work that goes in the middle. Think of a car wash. The machine always opens the gate at the start, and closes it at the end. You only drive through the middle. In our online store, every piece of code that reads orders must open a database connection, and close it again. And someone always forgets, when something goes wrong. In this video, a connection leaks on a failure. Then the closing moves into one place. We will get results out, undo a failed transaction, measure time, and then hear the cost.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Every query to the order database needs a connection. And every connection must be closed, whether the query works, or fails. So here is the question. Who does the closing?</p>
+<h2>3. Open, Use, Close, By Hand</h2>
+<p>First, the naive way: open, use, and close, by hand. The query breaks. And the line that would close the connection came after it, so it never runs. Connections still open: one. Repeat that on every failure, and the connection pool runs dry.</p>
+<h2>4. The Pattern</h2>
+<p>Now, the pattern. One method opens the connection, runs the work, and closes it. The caller passes in only the work, as a lambda. The closing sits in a finally block, written once.</p>
+<h2>5. The Caller Gives The Work</h2>
+<p>Second demo: the caller only gives the work. The same failure: the query breaks. Connections opened: one. Still open: none. The closing lives in one place, in a finally block. So it cannot be forgotten.</p>
+<h2>6. Getting An Answer Out</h2>
+<p>Third demo: getting an answer out. The work can return a value. Here, it returns the rows for an order. And here, it returns a number: fifteen. And still, no connections are left open.</p>
+<h2>7. All Or Nothing</h2>
+<p>Fourth demo: all or nothing. A customer has fifty pounds of credit. Two purchases of thirty pounds each are made, inside one transaction. The second fails, because there is not enough credit. Afterwards, the balance is still fifty pounds. The first purchase was undone too. A single purchase of thirty pounds, which works, leaves twenty pounds.</p>
+<h2>8. The Same Shape, For Measuring</h2>
+<p>Fifth demo: the same shape, for measuring time. Sending a receipt took five ticks. And a job that fails, because the mail server timed out, is still measured. Nine ticks. Because the measuring also sits in a finally block.</p>
+<h2>9. The Bill</h2>
+<p>Finally, the costs. First, the caller let the connection out of the block, and used it later. By then, it was closed. The pattern cannot stop that. Second, the caller&#x27;s code now lives inside a lambda. It cannot return early from the outer method. And it cannot throw a checked exception without extra help. Third, with two resources, the blocks nest one inside the other. And the real work drifts further and further to the right.</p>
+<h2>10. How To Recognise It</h2>
+<p>How can you spot this pattern in code someone else wrote? In Spring, look for the JDBC template&#x27;s query method, and the transaction template&#x27;s execute method. In Java itself, look for try-with-resources, which is the language&#x27;s own version. Look for a lock, followed by try, and an unlock in a finally block. And look for methods that take a lambda named work, callback, or action.</p>
+<h2>11. The Verdict</h2>
+<p>So, here is the verdict. Use Execute Around wherever something must be undone, or finished, after use. Connections, files, locks, transactions, and timers. Put the cleaning up in a finally block, once. And do not let the resource escape from the block. For simple files and streams, try-with-resources is the language&#x27;s own form of this pattern.</p>
+<h2>12. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything is plain Java. Every number you heard comes from the program&#x27;s own output. Time is counted in ticks, not by the clock, so every run gives the same result.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, when is this too much? For a resource used once, in one place, try-with-resources is enough. Write your own execute around method when many callers repeat the same setting up, and cleaning up.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s the Execute Around pattern. If you remember one sentence, make it this one. Execute Around puts the opening and closing in one place, and the price is work trapped in a lambda, and a resource that can still escape. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a method that retries the work up to three times. All around the same connection. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

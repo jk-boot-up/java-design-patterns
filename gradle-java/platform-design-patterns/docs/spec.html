@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Platform Patterns — Category Specification</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Platform Patterns — Category Specification</h1>
+<p>The fifth category. Six patterns across <strong>eight projects</strong>, numbered 38 to 45, covering the patterns the microservices category ruled out in its own §8.</p>
+<p>The count differs from the pattern count because Sidecar is taught three times — once per deployment choice — and <strong>each version is a separate project</strong> with its own number, its own README and its own video. See §2a.</p>
+<p>This document fixes what each project is before any of it is written. It is the contract; <a href="implementation-plan.html"><code>implementation-plan.md</code></a> is the schedule.</p>
+<hr>
+<h2>1. Scope</h2>
+<p>Six patterns and eight projects, in learning order:</p>
+<table><thead><tr><th>#</th><th>Project</th><th>One line</th></tr></thead><tbody><tr><td>38</td><td><code>externalised-configuration-pattern</code></td><td>The number that changes without a deploy</td></tr><tr><td>39</td><td><code>distributed-tracing-pattern</code></td><td>Which of the four services made the page slow</td></tr><tr><td>40</td><td><code>backends-for-frontends-pattern</code></td><td>One response cannot serve a phone and a desktop</td></tr><tr><td>41</td><td><code>sidecar-pattern</code></td><td>The retry code that lives outside the service</td></tr><tr><td>42</td><td><code>sidecar-java-proxy-pattern</code></td><td>The same service, with the proxy written in Java</td></tr><tr><td>43</td><td><code>sidecar-on-kubernetes-pattern</code></td><td>Two containers in one Pod, which is where sidecars live</td></tr><tr><td>44</td><td><code>event-sourcing-pattern</code></td><td>Why is this balance 140?</td></tr><tr><td>45</td><td><code>strangler-fig-pattern</code></td><td>Replacing the checkout without a cutover weekend</td></tr></tbody></table>
+<p>Projects 41, 42 and 43 are the same pattern and the same shop service, deployed three ways. 41 is the default and the one a reader is assumed to run; 42 and 43 are additive, each linking back to 41 and stating in one sentence what it adds.</p>
+<p>The order is a dependency order, not a difficulty order. Externalised Configuration needs nothing. Distributed Tracing needs the idea of a call graph. Backends for Frontends builds directly on API Gateway (§26). Sidecar needs &quot;a cross-cutting concern moved out&quot;. Event Sourcing needs CQRS (§34) so it can spend its time being <em>distinguished</em> from it. Strangler Fig needs all of them, and is the capstone.</p>
+<hr>
+<h2>2. Why this category exists, and why these six were excluded before</h2>
+<p>The microservices category&#x27;s §8 excluded all six, and those reasons were correct <strong>for that category</strong>, whose binding rule is that everything runs in one JVM with no network, no broker and no container. Under that rule a pattern whose entire subject is the platform has nothing left once you simulate it.</p>
+<p>This category does not overturn that rule. It changes what is being simulated.</p>
+<blockquote><p><strong>The microservices category simulates calls. This category simulates time, topology and change.</strong></p></blockquote>
+<p>That is the whole difference, and it is what makes these six teachable where they were not before. Concretely, this category adds three harnesses that the microservices projects do not have:</p>
+<ul><li><strong><code>SimulatedClock</code> spanning months, not milliseconds.</strong> Strangler Fig is a migration measured in months. Compressed into a deterministic timeline it becomes a sequence of observable phases.</li><li><strong>A restartable <code>Deployment</code>.</strong> A process that can be stopped, replaced and rolled back, so &quot;changed without a redeploy&quot; and &quot;the old version came back&quot; are things the demo can actually show rather than assert.</li><li><strong>A <code>Topology</code> the demo can reconfigure.</strong> Routes moved one at a time, a proxy inserted in front of a service, a second front door added.</li></ul>
+<h3>The honesty rule</h3>
+<p>Adding those harnesses buys a great deal, but it does not make a single JVM into a cluster. So this category carries an obligation the others do not:</p>
+<blockquote><p><strong>Every project must state, in its explainer, what its simulation does not capture — and the video must say it out loud.</strong></p></blockquote>
+<p>A reader who finishes <code>sidecar-pattern</code> believing they have seen a service mesh has been taught something false. A reader who finishes it knowing they have seen the <em>shape</em> of the decision, and knowing what a real mesh adds, has been taught something true.</p>
+<h3>Rank the six by how well they survive this</h3>
+<p>This was assessed honestly before committing to the category, and the answer is not uniform. It is recorded here so nobody has to rediscover it mid-build.</p>
+<table><thead><tr><th>Project</th><th>Survives simulation</th><th>Note</th></tr></thead><tbody><tr><td>Event Sourcing</td><td><strong>Strongly</strong></td><td>Never needed a network. It was excluded for being large and CQRS-adjacent, not for being unsimulatable.</td></tr><tr><td>Externalised Configuration</td><td><strong>Strongly</strong></td><td>The whole pattern is a value read from somewhere other than the source file.</td></tr><tr><td>Distributed Tracing</td><td><strong>Well</strong></td><td>The original objection was &quot;needs a collector and a UI&quot;. Answered by rendering the waterfall in the console — which is what the UI would have shown.</td></tr><tr><td>Strangler Fig</td><td><strong>Well, with the clock</strong></td><td>Months compress into phases. The pattern is the routing decision, and that is code.</td></tr><tr><td>Backends for Frontends</td><td><strong>Adequately</strong></td><td>Real risk of restating API Gateway. Mitigated by §4.40.</td></tr><tr><td>Sidecar</td><td><strong>Poorly in one JVM</strong></td><td>Rescued by the second tier below, which is the reason that tier exists.</td></tr></tbody></table>
+<hr>
+<h2>2a. The two tiers: a pure core, and an optional real deployment</h2>
+<p>Containers, real REST APIs and any open-source framework that is genuinely needed are permitted in this category. That permission changes what is possible, and it needs a rule or it will quietly destroy the thing that makes this course work.</p>
+<p>Which frameworks, at which versions, and why each one rather than plain Java, is settled in <a href="implementation-plan.html"><code>implementation-plan.md</code></a> § <em>Framework register</em> rather than here. This document says what the projects teach; the plan accounts for what they depend on.</p>
+<h3>Why a rule is needed</h3>
+<p>The repository&#x27;s offline guarantee is its most valuable and least visible asset. Thirty-seven projects run with nothing but a JDK, their tests finish in under two seconds, and a beginner can clone the repository on a train and run any of them. A category that requires Docker before it will start has excluded part of the audience this course is written for, and it will rot: images move, ports clash, a Spring Boot major version lands and a project that worked last year does not.</p>
+<p>So the permission is used deliberately, not by default.</p>
+<h3>The rule</h3>
+<blockquote><p><strong>Every project has a Tier 1 core that runs offline with only a JDK. Tier 2 is optional, additive, and never required to understand the pattern.</strong></p></blockquote>
+<table><thead><tr><th></th><th>Tier 1 — the core</th><th>Tier 2 — the real thing</th></tr></thead><tbody><tr><td>Runs with</td><td>a JDK, offline</td><td>Docker, and whichever frameworks the register names</td></tr><tr><td>Contains</td><td>the pattern, the naive version, the failure, the cost</td><td>the same pattern at a real process boundary</td></tr><tr><td>Location</td><td>the project root, as in every other category</td><td>a <code>real/</code> subdirectory with its own README</td></tr><tr><td>Tests</td><td>deterministic, under two seconds, always run</td><td>excluded from the default <code>./gradlew test</code></td></tr><tr><td>The video</td><td>is built entirely from this</td><td>may show it for two minutes, never depends on it</td></tr><tr><td>If it is missing</td><td>the project is incomplete</td><td>the project is still complete</td></tr></tbody></table>
+<p><strong>The teaching video is built from Tier 1.</strong> A viewer who never installs Docker must still get the whole pattern. Tier 2 earns at most a short scene near the end, and that scene is the one that says what the simulation could not show — which is a better use of it than a separate section making the same claim in prose.</p>
+<h3>REST APIs, and the shop they belong to</h3>
+<p>Tier 2 may expose <strong>real REST endpoints</strong> that a reader calls with <code>curl</code>, and for several of these patterns that is what makes the difference between being told something and seeing it. A response you can fetch, measure and diff is evidence; a method return value described in prose is not.</p>
+<p>The e-commerce rule governs the API surface exactly as it governs the code. Endpoints are shop endpoints and carry the nouns the reader has met across the previous thirty-seven projects:</p>
+<pre><code>GET  /api/products/{id}          the product page, in its various shapes
+GET  /api/products/{id}/reviews  the slow call in the tracing waterfall
+POST /api/carts/{id}/items       the write that triggers a price lookup
+POST /api/orders                 the checkout being strangled
+GET  /api/orders/{id}            the read the router may serve from either side
+GET  /api/customers/{id}/points  the loyalty balance, and why it is 140
+GET  /actuator/health            operational, not part of the teaching</code></pre>
+<p>No <code>/api/foo</code>, no <code>/demo/test</code>, and no borrowed domain. A reader who has watched the API Gateway video must recognise these paths.</p>
+<p>Three consequences worth fixing now rather than discovering later. The endpoints are <strong>read-mostly and idempotent</strong> wherever the demo allows, so a reader can run them repeatedly and get the same answer. Responses are <strong>small enough to print whole on a slide</strong>, because a payload that needs scrolling cannot be shown in a video. And every <code>curl</code> transcript quoted in a README or spoken in narration is <strong>real captured output</strong>, under the same rule that governs <code>./gradlew run</code> output everywhere else in this repository.</p>
+<h3>Where Tier 2 actually earns its place</h3>
+<p>Not everywhere. Ranked by how much it adds:</p>
+<table><thead><tr><th>Project</th><th>Tier 2</th><th>Verdict</th></tr></thead><tbody><tr><td><strong>Sidecar</strong></td><td>Two containers sharing a network: the service, and a proxy beside it</td><td><strong>Essential.</strong> This is the project the permission rescues.</td></tr><tr><td><strong>Backends for Frontends</strong></td><td>Two REST backends over shared services, both serving the product page</td><td><strong>Strong.</strong> Upgraded by the REST permission — see below.</td></tr><tr><td><strong>Externalised Configuration</strong></td><td>Spring Cloud Config Server, a live <code>@RefreshScope</code> refresh, and the threshold visible over HTTP</td><td><strong>Strong.</strong> The canonical implementation, and the refresh is observable from outside.</td></tr><tr><td><strong>Distributed Tracing</strong></td><td>Micrometer Tracing over real HTTP calls into a collector UI</td><td><strong>Useful.</strong> Propagation across a real network hop, not a method call.</td></tr><tr><td><strong>Strangler Fig</strong></td><td>Spring Cloud Gateway routing <code>/api/orders</code> between legacy and new</td><td><strong>Useful.</strong> Routing rules as configuration rather than as code.</td></tr><tr><td><strong>Event Sourcing</strong></td><td>—</td><td><strong>None. Do not build one.</strong> The pattern is entirely in-process; containers would add a database and teach nothing.</td></tr></tbody></table>
+<p>Tier 2 is expected for the first five and explicitly discouraged for the last. A project with no Tier 2 is not deficient.</p>
+<p><strong>Backends for Frontends is the second project the permission changes.</strong> It was marginal when Tier 2 meant only &quot;the same objects, in containers&quot;. With real endpoints it is not: the reader calls the phone backend and the desktop backend for the same product, and sees two different JSON documents of two visibly different sizes come back from the same underlying services. The pattern&#x27;s entire claim is that one response shape cannot serve two clients, and that claim is made of responses. Being able to fetch both, side by side, is the argument.</p>
+<h3>Paired versions: build both, and give each one its own project</h3>
+<p>Where a dependency is contested — where taking it would arguably obscure the lesson — the answer is <strong>not</strong> to pick a side and exclude the other. It is to build both versions and let them be compared. A reader who sees the same thing done two ways can judge it; a reader told that one way was rejected has to take that on trust.</p>
+<p><strong>Each version is a separate project.</strong> Not two variants inside one directory, and not a <code>variant-b/</code> subfolder: a project in this repository is the unit a viewer consumes — one project, one README, one video, one lesson — so a version hidden inside another project is a version nobody is taught. Separate projects also keep the lighter one genuinely light: a reader who never installs Kubernetes clones a project whose build files do not mention it.</p>
+<p>For Sidecar that gives three projects rather than one:</p>
+<table><thead><tr><th>#</th><th>Project</th><th>What it is</th><th>What it adds over the one before</th></tr></thead><tbody><tr><td>41</td><td><code>sidecar-pattern</code></td><td>Tier 1 in-process, then nginx beside the service on Docker Compose</td><td>The default path. The pattern, a real process boundary, a separate lifecycle</td></tr><tr><td>42</td><td><code>sidecar-java-proxy-pattern</code></td><td>The identical service image, with a ~40-line Java proxy beside it instead of nginx</td><td>Turns &quot;language independent&quot; from a claim into a demonstration, and shows what a proxy actually does</td></tr><tr><td>43</td><td><code>sidecar-on-kubernetes-pattern</code></td><td>The same two containers as a Kubernetes Pod</td><td>A shared network namespace and lifecycle by definition rather than by configuration; injection; <code>kubectl</code> showing <code>2/2</code></td></tr></tbody></table>
+<p><strong>Project 41 is the default</strong>, and the one a reader is assumed to run. 42 and 43 are additive, are never required by any test in 41, and earn their place only because the comparison teaches something one project could not.</p>
+<p>The pairing is visible from both sides. Each of 42 and 43 opens by naming 41 and saying in one sentence what it adds, and 41&#x27;s README links forward to both, so a reader who stops at 41 knows what they chose not to install.</p>
+<h3>Explaining a heavy dependency is part of the deliverable</h3>
+<p>The audience is beginners, so a dependency is never assumed knowledge. <strong>Any project that uses Kubernetes, Spring or anything comparable must explain it</strong> — in a <code>docs/dependencies.md</code>, and aloud in the video scene that uses it:</p>
+<ol><li><strong>What it is</strong>, in two or three plain sentences, for someone who has never used it.</li><li><strong>Why it is here</strong> — what this project needed that the lighter variant could not provide.</li><li><strong>What the reader must install</strong>, with the version pinned, and how long it takes.</li><li><strong>What it costs</strong> — the setup, the concepts, and the failure modes it adds.</li><li><strong>How to skip it</strong>, and confirmation that skipping loses none of the pattern.</li></ol>
+<p>A project that runs Kubernetes without explaining Kubernetes has excluded the people it was written for.</p>
+<h3>What Tier 2 costs, and the standing obligations it does not suspend</h3>
+<p>Every Tier 2 addition is a thing that can break while nobody is looking. It must pin every image tag and framework version against the category&#x27;s shared catalogue, carry its own README with a single command to start and a single command to stop, and never be on the path of <code>./gradlew test</code>.</p>
+<p>And the category&#x27;s honesty rule survives the permission intact. Tier 2 narrows the gap between the simulation and reality; it does not close it. Two containers on one laptop are not a fleet, a control plane or a network that partitions. The <strong>&quot;What this simulation does not show&quot;</strong> section is still required, and for projects that have a Tier 2 it now has two jobs: what Tier 1 does not show, and what Tier 2 still does not.</p>
+<hr>
+<h2>3. The store, continued</h2>
+<p>Same online shop, same services, same customers. A reader arriving here has already met Catalog, Pricing, Orders, Payments, Shipping, Notifications and Recommendations across thirty-seven projects, and must not have to learn a new domain to learn a new pattern.</p>
+<p>Continuity is load-bearing in this category specifically: Backends for Frontends must serve the <em>same</em> product page the API Gateway project served, and Strangler Fig must strangle the <em>same</em> checkout the Saga project orchestrated. Reusing the scenario is what lets the project spend its time on the new idea.</p>
+<hr>
+<h2>4. The eight projects</h2>
+<p>Each project shows a naive version failing, then the pattern, then the bill. The third part is not optional — it is the part most treatments skip and the reason these projects are worth making.</p>
+<h3>4.38 Externalised Configuration — the free-delivery threshold</h3>
+<p><strong>Scenario.</strong> Free delivery over £50. The threshold is a constant in the checkout code. Marketing wants £35 for one weekend, starting Saturday.</p>
+<p><strong>The naive version.</strong> Change the constant, rebuild, redeploy. The demo shows the cost honestly: the change is correct, the code review is trivial, and the weekend promotion still misses its start because a deploy is not a thing you do at 9am on a Saturday.</p>
+<p><strong>The pattern.</strong> The threshold is read from a configuration source at runtime. A change takes effect without a rebuild, and the code carries a default so the service starts even when the source is unreachable.</p>
+<p><strong>The bill — and this is the real lesson.</strong> You have just removed the compiler, the code review and the test suite from the path of a production change. The demo must show a bad value — a threshold of <code>-1</code>, or the string <code>&quot;fifty&quot;</code> — reaching the running shop in seconds, because that is the thing teams discover the hard way. Then the mitigations: typed and validated config, a schema, an audit trail of who changed what, and a rollback that is as fast as the change.</p>
+<h3>4.39 Distributed Tracing — which service made the page slow</h3>
+<p><strong>Scenario.</strong> The product page takes 900ms. Four services contribute to it. Nobody can say which one is at fault.</p>
+<p><strong>The naive version.</strong> Timestamps in four logs. The demo interleaves them the way a real log aggregator would and asks the viewer to work out where the time went. It is not possible, and that is the point: with concurrent requests in flight, you cannot even tell which lines belong to the same customer.</p>
+<p><strong>The pattern.</strong> One trace id created at the front door and propagated through every call, with each unit of work recording a span — a start, a duration, and a parent. The demo then prints the waterfall, and the 400ms is visibly in Recommendations.</p>
+<p>That waterfall <em>is</em> the collector&#x27;s UI. Rendering it in the console is not a substitute for tracing; it is the thing tracing exists to produce.</p>
+<p><strong>Tier 2 — propagation over a real hop.</strong> Tier 1 passes context between method calls, where losing it takes effort. Over HTTP the trace id has to survive being written into a header by one service and read out by another, and a service that forgets to forward it breaks the trace for everything downstream. That is the failure teams actually meet, and it needs a real request to show.</p>
+<p><strong>The bill.</strong> Every service must be instrumented or the trace breaks at the first one that is not. Context propagation is the hard part and it silently fails across thread boundaries and async handoffs — the demo must show a trace losing its parent when work moves to another thread. And sampling: you cannot keep every trace, so you keep 1%, and the outage you are investigating is statistically in the 99% you threw away.</p>
+<h3>4.40 Backends for Frontends — one response, two clients</h3>
+<p><strong>Scenario.</strong> The phone app and the desktop site both call the same gateway for the product page.</p>
+<p><strong>The naive version.</strong> One response shaped for both. The phone downloads a large payload it cannot use on a slow connection; the desktop is missing two fields and makes a second call for them. The demo shows the escalation that follows: <code>?fields=</code>, then <code>?view=mobile</code>, then a <code>v2</code> of the endpoint, until the gateway is a switchboard nobody will change without fear.</p>
+<p><strong>The pattern.</strong> One backend per frontend. The phone&#x27;s backend returns what a phone screen shows; the desktop&#x27;s returns what a desktop screen shows. Each is owned by the team that owns its client.</p>
+<p><strong>Guarding against restating API Gateway (§26).</strong> This is the category&#x27;s main redundancy risk, and the mitigation is a rule rather than an intention: the project may not re-teach fan-out, aggregation or the single front door. Those belong to §26 and this project links to them. Its subject is strictly <strong>the moment one response shape stops being able to serve two clients</strong>, and what it costs to split.</p>
+<p><strong>Tier 2 — two real backends.</strong> <code>GET /api/products/{id}</code> served by both a phone backend and a desktop backend, over the same underlying services. The reader calls each in turn and compares: different fields, different nesting, and a payload size difference they can read off <code>curl -s ... | wc -c</code>. Tier 1 can assert that the shapes diverge; only this can show it. This is the closing scene of the video.</p>
+<p><strong>The bill.</strong> Logic duplicated across backends and drifting apart. A third client means a third backend. And the question that has no clean answer: what do you do with the code that genuinely is shared — extract a library that now couples the backends you just decoupled, or accept the duplication?</p>
+<h3>4.41 Sidecar — the retry code that lives outside the service</h3>
+<p><strong>Scenario.</strong> Four services each carry their own copy of retry, timeout, metrics and TLS. A change to the retry policy has to be made four times, and the demo shows the fourth one being missed.</p>
+<p><strong>The pattern.</strong> The cross-cutting concern moves out of the application process and into a proxy alongside it. The service talks to the proxy; the proxy does the retrying. The demo&#x27;s strongest moment is a diff: the service class after the move contains business logic and nothing else.</p>
+<p><strong>Tier 1 is honest about being Decorator.</strong> In one JVM, a proxy the service talks through is a wrapper object, and a wrapper object is Decorator (§11). The core project says so rather than pretending otherwise, and spends its time on what the deployment decision buys and costs rather than on the wrapper.</p>
+<p><strong>Tier 2 is the project.</strong> This is the one case in the category where the optional tier is not an extra — it is the only place the pattern&#x27;s defining claim becomes true. Two containers share a network: the Java service in one, and beside it an off-the-shelf proxy — nginx — in the other. <strong>The proxy is deliberately not Java in this project</strong>, because the real-world answer is a piece of infrastructure rather than code you wrote, and hand-rolling it would teach the re-implementation instead of the pattern. (§42 then builds the Java one on purpose, for a reason of its own.) The nginx configuration file is committed, short and commented, and for this project that file is the most important artefact in the repository. Three things become demonstrable that no simulation can fake:</p>
+<ol><li><strong>A real process boundary.</strong> The service&#x27;s container has no retry code in it at all, and can be inspected to prove it.</li><li><strong>A separate lifecycle.</strong> Restart the proxy and the service does not restart. Kill the proxy and watch what the service does without it — which is the failure mode teams meet first and rarely anticipate.</li><li><strong>Language independence.</strong> The proxy does not know or care that the service is Java. That is the actual argument for sidecars in a polyglot estate, and it cannot be made from inside a JVM.</li></ol>
+<p>The video&#x27;s closing scenes show the two containers running, and they are the payoff for the whole project. The project&#x27;s last scene names its two companions — §42 and §43 — and says in one sentence what each adds, so a reader who stops here knows what they chose not to install.</p>
+<p><strong>The bill.</strong> You now operate the proxy. A bug in it is a bug in every service at once. Debugging is harder because there is a hop in the path that nobody on the team wrote. The latency is real. And the Tier 2 demo should show the uncomfortable one: the proxy is a second thing that can be down, so you have added a dependency to every call in order to make calls more reliable.</p>
+<p><strong>Previously this project was a candidate for being dropped</strong>, because in one JVM it could not teach anything Decorator does not. The container permission is what changed that, and it is the single largest effect that permission has on this category.</p>
+<h3>4.42 Sidecar with a Java proxy — the same service, a different neighbour</h3>
+<p><strong>What it is.</strong> §41 again, with one thing changed: the proxy beside the service is a small Java program, roughly forty lines, instead of nginx. The service image is byte-for-byte identical to §41&#x27;s, and so is its configuration.</p>
+<p><strong>Why it is a project and not a footnote.</strong> §41 <em>claims</em> language independence. This project <em>demonstrates</em> it. The demo starts §41&#x27;s service with nginx beside it, stops the proxy, starts the Java proxy in its place, and the service — never restarted, never reconfigured, never rebuilt — keeps serving the shop. A reader watches the service neither know nor care what is next to it, which is the actual argument for sidecars in a polyglot estate. Asserting that from a slide is not the same thing.</p>
+<p><strong>The second reason is readability.</strong> nginx&#x27;s behaviour lives in a config file and a large C program. Forty lines of Java that accept a connection, retry a failed call and forward the response let a reader see what a proxy <em>is</em>. For many readers this is the project that makes §41 make sense in retrospect.</p>
+<p><strong>The honest warning this project must carry.</strong> A Java proxy beside a Java service is not what you would deploy. It is a teaching instrument: it costs a second JVM&#x27;s memory per service, it re-implements badly what nginx and Envoy do well, and choosing it in production would be a mistake. The project says this plainly, in the README and aloud in the video, and points at §41 as the version to copy.</p>
+<p><strong>The bill.</strong> Everything in §41&#x27;s bill, plus a proxy you now maintain yourself. That is the trade real teams refuse, and naming it is the lesson.</p>
+<h3>4.43 Sidecar on Kubernetes — two containers, one Pod</h3>
+<p><strong>What it is.</strong> §41&#x27;s two containers again, deployed as a <strong>Kubernetes Pod</strong> instead of a Docker Compose file. Same service, same nginx config, different deployment.</p>
+<p><strong>Why it is a project and not a footnote.</strong> This is where sidecars actually live, and where a reader will meet the word. Four things become visible that a compose file can only approximate:</p>
+<ol><li><strong>A shared network namespace by definition, not by configuration.</strong> The two containers reach each other on <code>localhost</code> because they are in one Pod, not because a network was wired up for them.</li><li><strong>A shared lifecycle.</strong> The Pod is scheduled, restarted and deleted as one unit, and the demo shows a container crash taking its neighbour with it.</li><li><strong>Injection.</strong> The sidecar arrives beside a service whose own manifest does not mention it, which is the mechanism every service mesh is built on.</li><li><strong><code>kubectl get pods</code> printing <code>2/2</code></strong> — one logical service, two containers, which is the shape of the thing in every production cluster.</li></ol>
+<p><strong>Kubernetes must be explained, not assumed.</strong> It is the largest dependency anywhere in this course, so §2a&#x27;s rule applies in full: a <code>docs/dependencies.md</code> says what Kubernetes is in plain language, why this project needs it, what to install and how long that takes, what it costs in concepts and failure modes, and that <strong>skipping this project loses none of the pattern</strong> — §41 teaches Sidecar completely. The video says the same aloud, early, before the first <code>kubectl</code> command.</p>
+<p><strong>The local cluster is part of the deal.</strong> <code>kind</code> rather than a cloud cluster: one pinned binary, one command, no account, no bill. The project&#x27;s README starts and stops the cluster in one command each.</p>
+<p><strong>The bill.</strong> Everything in §41&#x27;s bill, plus a cluster. You have added a scheduler, a control plane, a YAML dialect and a networking model to a shop that worked with two containers and a compose file. For a fleet that is a bargain; for four services it is the reason &quot;do you need Kubernetes yet?&quot; is a real question, and the project answers it honestly rather than selling the cluster.</p>
+<h3>4.44 Event Sourcing — why is this balance 140?</h3>
+<p><strong>Scenario.</strong> A customer&#x27;s loyalty balance says 140 points. Support is asked why.</p>
+<p><strong>The naive version.</strong> A current-state row: <code>points = 140</code>. The question is simply unanswerable — the row knows the balance and nothing about how it got there. The demo makes this land by having a bug double-award points, and then showing that after the fact there is no way to tell an affected customer from an unaffected one, because the evidence was overwritten by the thing that went wrong.</p>
+<p><strong>The pattern.</strong> Store the facts, not the conclusion. An append-only log of events — <code>PointsAwarded</code>, <code>PointsRedeemed</code>, <code>PointsExpired</code> — and the balance becomes a fold over that log. The demo then does three things a current-state row cannot: answer <em>why</em> it is 140, rebuild the balance from scratch after a bug is fixed, and answer what it was on the 3rd of March.</p>
+<p><strong>The bill, which is heavy and must not be softened.</strong> Events are a schema you can never migrate, only version, because you cannot rewrite history. Long streams need snapshots, which is a second mechanism with its own staleness. Deleting a customer&#x27;s data is genuinely hard when your store is append-only, and &quot;just delete the events&quot; defeats the point of having them.</p>
+<p><strong>And the confusion this project exists to end:</strong> Event Sourcing is not CQRS. CQRS (§34) separates the read path from the write path. Event Sourcing changes what the write path <em>stores</em>. You can have either without the other, and the project must show one of each, briefly, so the distinction is concrete rather than asserted.</p>
+<h3>4.45 Strangler Fig — replacing the checkout without a cutover weekend</h3>
+<p><strong>Scenario.</strong> The legacy checkout is one large class that does pricing, stock, payment and email. It works. It is also where every change is slow and every incident starts.</p>
+<p><strong>The naive version.</strong> The big-bang rewrite. The demo runs it on a compressed timeline: months of parallel work, a cutover weekend, and a failure on the Monday where the only available rollback is all-or-nothing, so a fault in one capability takes the whole checkout back.</p>
+<p><strong>The pattern.</strong> A router in front of the legacy checkout. Capabilities move across one at a time, each with its own switch. Pricing goes first; if it misbehaves, pricing alone comes back. The demo runs shadow reads — both implementations called, results compared, differences reported — so a route is moved on evidence rather than on hope.</p>
+<p><strong>The bill.</strong> Two systems are live for months and both must be maintained. Data has to stay consistent across both while the fig grows. And the failure mode that actually happens in the field: the migration stalls half-finished, budget moves elsewhere, and the organisation lives with two checkouts forever — which is worse than either endpoint. The project must name that, because it is the most likely outcome and nobody warns about it.</p>
+<hr>
+<h2>5. Relationships to the existing thirty-seven</h2>
+<p>Each project states its cross-reference explicitly. These are the ones that carry teaching weight:</p>
+<table><thead><tr><th>Project</th><th>Depends on</th><th>Why</th></tr></thead><tbody><tr><td>Backends for Frontends</td><td>API Gateway (§26)</td><td>It is the same front door, split. Must not restate it.</td></tr><tr><td>Distributed Tracing</td><td>API Gateway (§26), API Composition (§33)</td><td>The trace id is minted at the front door and spans the fan-out.</td></tr><tr><td>Sidecar</td><td>Decorator (§11), Retry (§29), Circuit Breaker (§30)</td><td>The mechanism is Decorator; the concerns moved out are §29 and §30.</td></tr><tr><td>Event Sourcing</td><td>CQRS (§34), Transactional Outbox (§36)</td><td>Distinguished from the first; the second is how events leave the service.</td></tr><tr><td>Strangler Fig</td><td>Saga (§35), Facade (§12)</td><td>It strangles the checkout Saga orchestrates; the router is a Facade with a switch.</td></tr><tr><td>Externalised Configuration</td><td>Circuit Breaker (§30)</td><td>Its thresholds are the most-tuned numbers in the category.</td></tr></tbody></table>
+<hr>
+<h2>6. Deliverables per project</h2>
+<p>Identical to the microservices category — same twenty-two committed files, same shapes, same generators. <a href="../../micro-services-design-patterns/docs/ai-build-spec.html"><code>../../micro-services-design-patterns/docs/ai-build-spec.md</code></a> is the authority on how they are produced and is not restated here.</p>
+<p>Three additions specific to this category:</p>
+<ul><li>The explainer carries a <strong>&quot;What this simulation does not show&quot;</strong> section. Not a footnote — a named section, placed before the costs. Where the project has a Tier 2, the section covers both gaps: what the core does not show, and what two containers on a laptop still do not.</li><li>The video says the same thing aloud, in the scene before the outro.</li><li>Projects with a Tier 2 add a <code>real/</code> subdirectory holding it, with its own <code>README.md</code> giving one command to start and one to stop, pinned image tags and a pinned Spring Boot version. It is excluded from the root <code>settings.gradle</code> so <code>./gradlew test</code> never reaches it.</li><li>Where Tier 2 exposes REST endpoints, its README lists every path with a ready-to-paste <code>curl</code> line and the <strong>real captured response</strong> beneath it. The endpoints use the shop&#x27;s nouns (§2a). A reader should be able to work through that README without reading any Java.</li></ul>
+<hr>
+<h2>7. Video, poster and publishing</h2>
+<p>Unchanged: 14 to 16 scenes, <code>Samantha</code> at 145 wpm, −16 LUFS, a poster that does not strike out its message, an outro that names no successor pattern, and an opening that states what the video is, credits Jayasekhar Konduru, gives the pattern in plain words, then puts it in the shop.</p>
+<p><strong>Target length is eleven to thirteen minutes.</strong> The microservices category ran to 16–18 and the last two projects, at around eleven, are the better watch. This category takes the shorter target as the standard rather than drifting back.</p>
+<hr>
+<h2>8. Deliberately not included</h2>
+<table><thead><tr><th>Pattern</th><th>Why not</th></tr></thead><tbody><tr><td>Service Mesh, as a project of its own</td><td>It is Sidecar at fleet scale plus a control plane. §4.43 already goes as far as a Kubernetes Pod, which is the honest edge of what one laptop shows; adding Istio or Linkerd on top would make that project a mesh tutorial rather than a pattern lesson. Covered as a section of §4.43, which names what a real mesh adds beyond the Pod.</td></tr><tr><td>Health Check API</td><td>A method returning <code>OK</code>. The interesting part is what the orchestrator does with it, and that is the orchestrator&#x27;s behaviour, not the service&#x27;s.</td></tr><tr><td>Log Aggregation</td><td>An operational concern with no design decision visible in the code a reader would write. The teachable half is the correlation id, which belongs to §4.39.</td></tr><tr><td>Ambassador</td><td>A sidecar for outbound calls specifically. The same objection as Service Mesh, with less to say.</td></tr><tr><td>Blue-Green and Canary Deployment</td><td>Deployment strategies rather than design patterns. They share Strangler Fig&#x27;s routing machinery but none of its design content.</td></tr></tbody></table>
+<p>A seventh <em>pattern</em> requires editing this section first. That rule is what stops the category becoming a survey.</p>
+<hr>
+<h2>9. Conformance</h2>
+<p>Every item from the microservices category&#x27;s §9 applies, plus thirteen:</p>
+<ul class="task"><li>The explainer has a <strong>&quot;What this simulation does not show&quot;</strong> section, and the video says it aloud.</li><li>The project states its cross-reference from §5, and does not re-teach the pattern it depends on.</li><li>The demo shows the pattern&#x27;s <strong>cost</strong>, not only its benefit, as runnable output — not as a paragraph of prose.</li><li>Runtime is between eleven and thirteen minutes.</li><li><strong>Tier 1 runs offline with only a JDK</strong>, and <code>./gradlew test</code> passes with Docker absent from the machine. This is the item to check by actually stopping Docker, not by reasoning about it.</li><li><strong>The video is comprehensible to a viewer who never runs Tier 2.</strong> Tier 2 appears in at most one scene.</li><li>Any <code>real/</code> directory pins every image tag and framework version against the category catalogue, and its README gives one command to start and one to stop.</li><li><strong>Every dependency and every image the project uses has a row in the plan&#x27;s framework register</strong>, with a reason that is stronger than convenience.</li><li><strong>Any proxy, gateway or collector configuration is committed, short and commented</strong>, and a reader can follow it without knowing the product. Where the config expresses the pattern, it is read aloud in the video rather than shown silently.</li><li><strong>Where a version of a pattern is built with a dependency, it is its own project</strong> — its own number, README, documents and video — and it names the lighter project it pairs with in its first paragraph and in its opening scene. The lighter project links forward to it.</li><li><strong>Every heavy dependency has a <code>docs/dependencies.md</code></strong> answering §2a&#x27;s five questions — what it is, why it is here, what to install, what it costs, and that skipping it loses none of the pattern — and the video says it aloud.</li><li><strong>Every REST path uses the shop&#x27;s nouns</strong> — products, carts, orders, payments, customers — and nothing is named <code>foo</code>, <code>test</code> or <code>demo</code>.</li><li><strong>Every <code>curl</code> transcript quoted anywhere is real captured output</strong>, and every response shown on a slide fits on it without scrolling.</li></ul>
+</main>
+<footer>
+Generated from <code>spec.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

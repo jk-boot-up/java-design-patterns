@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proxy Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Proxy Pattern — Video Narration Script</h1>
+<h2>1. The Proxy Pattern</h2>
+<p>Hello, and welcome. This video explains the Proxy pattern in Java, and it is written and presented by Jayasekhar Konduru. Let&#x27;s start with the simple definition. The proxy pattern puts a stand-in in front of a real object, with the same interface as the real thing. The caller cannot tell the difference, but the stand-in is free to delay the expensive work, check who is asking, or count the calls, before it passes anything along. That&#x27;s the idea in a sentence — controlling when an object gets built, and who is allowed to touch it. The rest of the video does it properly, by building a real working Java project: an online store&#x27;s category page, where loading a product&#x27;s full-resolution image is expensive and not every asset is one a shopper may see. By the end you&#x27;ll know how to delay expensive work until it is actually needed, and how to put an access check in one place that no caller can forget.</p>
+<h2>2. The Scenario</h2>
+<p>So, imagine a product listing backed by full-resolution images. Loading a single one of those is expensive — decoding the file, allocating the memory, reading from disk. And there are two things the listing needs that the image itself really shouldn&#x27;t have to know anything about. First, don&#x27;t load an image until it is actually rendered. And second, don&#x27;t let a non-admin render a restricted image at all.</p>
+<h2>3. Where Those Checks End Up</h2>
+<p>Without a stand-in, both of those concerns land in the caller. The listing builds every image up front in its constructor, because that&#x27;s the simplest thing that works. And every screen that shows an image re-implements the same role check inline. Now add a thumbnail grid, a slideshow, a search results page — and each one of those has to remember to do both of those things, and to do them correctly.</p>
+<h2>4. The Naive Approach — Eager Loading and Inline Checks</h2>
+<p>So here&#x27;s the naive approach. NaiveProductListing takes a list of SKUs and, in its constructor, builds a HighResolutionProductImage for every single one — before anything has been rendered at all. And NaiveAdminImageViewer has the role check written directly inside its view method. That check is correct. The problem is that it&#x27;s correct in exactly one place, and the next screen has to copy it.</p>
+<h2>5. Why That Hurts</h2>
+<p>And that does real damage as the system grows. You pay the full loading cost for images that are never shown — build a listing of ten and render one, and nine loads were wasted. The access rule is duplicated in every screen that renders an image. And worse than duplication: a screen that simply forgets the check isn&#x27;t a compile error, it&#x27;s a silent security hole. None of this is a bug. Each naive class does exactly what it says. The waste is structural — access control and lifetime management pushed out into every caller.</p>
+<h2>6. The Proxy Pattern</h2>
+<p>The proxy pattern fixes exactly this. In Gang of Four terms, proxy provides a surrogate or placeholder for another object in order to control access to it. In plain language? Same interface, but it decides whether, and when, the call actually gets through.</p>
+<h2>7. Remember It With the Bouncer on the Door</h2>
+<p>Here&#x27;s how to remember it forever. Think about the bouncer on the door of a club. The bouncer stands in front of the club, not inside it. You talk to the bouncer exactly the way you&#x27;d talk to the club itself — you ask to come in. And the bouncer decides whether that request gets through. Here&#x27;s the part that matters. The club is the same club either way. Nothing was added to it, nothing was changed about it. Somebody just controls the door.</p>
+<h2>8. The Four Roles</h2>
+<p>Every proxy setup has four roles. The subject, ProductImage, the interface the real thing and every stand-in share. The real subject, HighResolutionProductImage, the expensive object we&#x27;re protecting. The proxies — LazyProductImage, which delays construction until the first render call, and RestrictedProductImage, which checks the caller&#x27;s role first. And the client, ProductImageDemo, which holds only a ProductImage and never learns which of those it actually has. Here&#x27;s the single most important idea in this whole video. The proxy exposes exactly the same interface as the real subject, and returns exactly the same result. Nothing new is added. That is what makes it a proxy and not a decorator.</p>
+<h2>9. The Subject — The Shared Shape</h2>
+<p>This is the subject, ProductImage. It&#x27;s the shared interface the real image and every proxy implement — just render, and S K U. And this is the real subject, HighResolutionProductImage. Its constructor bumps a static load count, which is our stand-in for expensive work. Notice it knows nothing about proxies, or roles, or laziness. It just is an image.</p>
+<h2>10. The Virtual Proxy — Build It Late, Build It Once</h2>
+<p>And this is the virtual proxy, LazyProductImage. It holds a S K U, and a realImage field that stays null until somebody actually calls render. First call, it builds the real image and caches it. Every call after that reuses the cached one. And look at the S K U method. It answers straight from the proxy&#x27;s own field, without loading anything. That detail matters — a proxy that has to build the real subject just to answer a cheap question has defeated its own purpose.</p>
+<h2>11. The Protection Proxy — And Why It Takes a ProductImage</h2>
+<p>Here&#x27;s the subtlety worth pausing on. RestrictedProductImage takes a ProductImage in its constructor. Not a HighResolutionProductImage — a ProductImage. That one detail is what lets it wrap a LazyProductImage, so you get the role check and the lazy loading together, from two small classes that were never written with each other in mind. And notice the order. If the role check fails, it throws before it ever calls render on the image it wraps — so a denied shopper never causes a load at all. The expensive work is skipped because the access decision came first.</p>
+<h2>12. Running It</h2>
+<p>When we run the project, the numbers tell the whole story. The naive listing has loaded three images before rendering anything. The virtual proxy has loaded zero — the real subject hasn&#x27;t been touched. After the first render it&#x27;s one. After the second render it&#x27;s still one, because the instance was cached. Then the protection proxy lets an admin through and refuses a shopper. And in the composed section, S K U nine thousand one stays unloaded right up until an admin passes the role check — one proxy wrapped in the other, doing both jobs at once.</p>
+<h2>13. Wrap Up</h2>
+<p>So, to recap. Use proxy when a client shouldn&#x27;t have to manage when an object gets created, or whether it&#x27;s allowed to be used at all. Keep the proxy&#x27;s interface identical to the subject, and keep the cheap questions cheap — never load the real thing just to answer one. And if you remember one sentence from today, make it this one. Proxy keeps the same interface and delegates in order to control access — when to create, whether to allow, where the real thing lives. Decorator keeps the same interface and delegates in order to add new behaviour on top. Same shape, different intent.</p>
+<h2>14. Thanks for Watching</h2>
+<p>And that&#x27;s the proxy pattern. If you got something out of this, do give it a thumbs up, and subscribe. It genuinely helps the channel, and it&#x27;s what makes more of these possible. And if there&#x27;s a pattern you&#x27;d like me to cover next, drop it in the comments. I read every one. All the source code, the written notes and an interactive animation are in the repository. Thanks for watching, and I&#x27;ll see you in the next one.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timeout, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Timeout, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>A timeout is a limit on how long you will wait for an answer, so that a slow or silent service cannot hold you forever.</p>
+<h2>The six acts</h2>
+<h3>No Timeout</h3>
+<p>The supplier never answers, and the product page&#x27;s thread waits, with no limit on for how long. The customer is looking at a spinner.</p>
+<pre><code>  the supplier never answers. the product page&#x27;s thread is: WAITING, with no limit on for how long.
+  nothing in the code says it will ever come back, and the customer is looking at a spinner.</code></pre>
+<h3>A Limit On The Wait</h3>
+<p>With a limit of a hundred milliseconds, the page shows stock unknown, try again shortly, and loads without the number it could not get.</p>
+<pre><code>  the same call, with a limit of 100 milliseconds: the page shows &quot;stock unknown, try again shortly&quot;.
+  the page loaded, without the number it could not get.</code></pre>
+<h3>Giving Up Does Not Stop The Work</h3>
+<p>The caller gave up, but the call at the supplier had only started. Later the supplier finishes it anyway, with nobody waiting.</p>
+<pre><code>  the caller gave up. calls started at the supplier: 1, finished: 0.
+  later the supplier finishes anyway: finished 1. nobody was waiting for the answer, and the work was done.</code></pre>
+<h3>Choosing The Number</h3>
+<p>On a typical hundred calls, fifty milliseconds lets only fifty four succeed, a hundred lets ninety, two hundred fifty ninety eight, and only three seconds lets all one hundred. Too tight fails healthy calls. Too loose holds a thread for seconds.</p>
+<pre><code>  a limit of   50 ms: 54 of 100 calls succeed.
+  a limit of  100 ms: 90 of 100 calls succeed.
+  a limit of  250 ms: 98 of 100 calls succeed.
+  a limit of 1000 ms: 98 of 100 calls succeed.
+  a limit of 3000 ms: 100 of 100 calls succeed.
+  too tight and healthy calls fail. too loose and a slow supplier holds a thread for seconds.</code></pre>
+<h3>One Budget For The Page</h3>
+<p>Three calls in a row, each allowed a second, could take three seconds. One budget of a second shared by all three answers the first, cuts off the second, and skips the third, for one second in total.</p>
+<pre><code>  a page makes 3 supplier calls in a row, each allowed 1000 ms. the worst case for the page is 3000 ms.
+  with one budget of 1000 ms shared by all three: call 1: answered at 400 ms. call 2: cut off at 600 ms. call 3: skipped, no budget left. total 1000 ms.</code></pre>
+<h3>The Bill: You Do Not Know What Happened</h3>
+<p>A payment call times out, and the customer is told it failed. The provider then completes the charge anyway. A timeout says only that you stopped waiting.</p>
+<pre><code>  the payment call timed out. the customer is told: we could not take your payment.
+  the payment provider then completed the charge: charges taken 1. the customer thinks nothing was taken.
+  a timeout says only that you stopped waiting. retrying a payment without an idempotency key would charge again.</code></pre>
+<h2>The verdict</h2>
+<p>Put a timeout on every call to another system, chosen from how long the calls really take, and set it on the caller&#x27;s side. Share one budget across a chain of calls. Decide what to show when time runs out. And never treat a timeout as a failure of the operation: it may have happened, so make the operation safe to ask about or repeat.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li><code>Future.get(timeout, unit)</code> and <code>CompletableFuture.orTimeout</code>.</li><li>A <code>connectTimeout</code> and a <code>readTimeout</code> on an HTTP client.</li><li>A <code>TimeoutException</code> or an HTTP 504 in a log.</li><li>Resilience4j&#x27;s <code>TimeLimiter</code>, and Spring&#x27;s <code>@Timeout</code>-style settings.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Every HTTP client and database driver has a timeout setting, and the default is often none.</p>
+<h2>When this is too much</h2>
+<p>A timeout is never too much. The cost is choosing it well, and handling the case where it fires.</p>
+</main>
+<footer>
+Generated from <code>timeout-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

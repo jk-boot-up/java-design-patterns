@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Memento Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Memento Pattern</h1>
+<p>A 60-minute session plan for teaching the Memento pattern from this project. Written for a facilitator working with beginners; every timing is a suggestion, and the exercises are the part worth protecting if you run late.</p>
+<p><strong>Audience:</strong> developers who can write a class with a few fields, and who have at some point been surprised to find that two variables were pointing at the same object.</p>
+<p><strong>Setup:</strong> everyone has the project cloned and <code>./gradlew test</code> passing before the session starts. See <a href="prerequisites.html"><code>prerequisites.md</code></a>.</p>
+<h2>Learning Objectives</h2>
+<p>By the end, participants can:</p>
+<ol><li>Explain why <code>saved = live</code> saves nothing, and what a snapshot has to do instead.</li><li>Name the three roles — originator, memento, caretaker — and say which one is allowed to look inside a snapshot.</li><li>Write an undo feature without making the object&#x27;s state public.</li><li>Say what a memento costs (memory) and when the Command pattern is the better trade.</li><li>Say why a shallow copy is safe here, and exactly what would make it unsafe.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td></tr><tr><td>0:05–0:17</td><td>The problem</td></tr><tr><td>0:17–0:27</td><td>The pattern</td></tr><tr><td>0:27–0:40</td><td>Code walkthrough</td></tr><tr><td>0:40–0:50</td><td>Exercises</td></tr><tr><td>0:50–0:58</td><td>Pitfalls and comparisons</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<p>Have everyone run:</p>
+<pre><code>./gradlew test    # 16 tests
+./gradlew run</code></pre>
+<p>Anyone whose tests fail should pair for the session rather than debug.</p>
+<p>Then, before showing any code, put this on the board and ask the room what it prints:</p>
+<pre><code>List&lt;String&gt; live  = new ArrayList&lt;&gt;(List.of(&quot;a&quot;, &quot;b&quot;));
+List&lt;String&gt; saved = live;
+live.add(&quot;c&quot;);
+System.out.println(saved);</code></pre>
+<p>Take a show of hands for <code>[a, b]</code> against <code>[a, b, c]</code>. In a beginner room the hands will split, and the split <em>is</em> the session — the entire naive implementation is that one misunderstanding, wearing a business feature as a disguise. Leave the snippet on the board.</p>
+<h2>0:05–0:17 — The Problem</h2>
+<p>Open <a href="problem-statement.html"><code>problem-statement.md</code></a> and set the scene: a basket with lines and a voucher, and a ticket that says &quot;add an undo button&quot;.</p>
+<p>Show <code>NaiveBasket.save()</code> and <code>NaiveBasket.undo()</code> side by side and ask whether they look like opposites. They do. Then run <code>./gradlew run</code> and read the first section out loud together: the shopper removes one line, presses undo, and gets an empty basket.</p>
+<p>Two things to draw out, in this order:</p>
+<ol><li><strong>The aliasing.</strong> Walk it slowly with the board snippet: <code>savedLines</code> and <code>lines</code> are one list, so <code>lines.clear()</code> clears the save, and <code>addAll</code> then copies nothing back. Nobody wrote a bug; somebody wrote <code>=</code>.</li><li><strong>The omission.</strong> The voucher was never saved. Ask &quot;what code review would have caught this?&quot; and let the silence do the work — there is no line to review, which is what makes this class of bug different.</li></ol>
+<p>Then ask what happens when the basket grows a delivery date next month. The answer — undo goes quietly half-right again — is the argument for the pattern.</p>
+<h2>0:17–0:27 — The Pattern</h2>
+<p>Give the definition, and split it deliberately:</p>
+<blockquote><p>Without violating encapsulation, capture and externalize an object&#x27;s internal state so that the object can be restored to this state later.</p></blockquote>
+<p>Everyone can do the second half. The first half is the pattern.</p>
+<p>Use the sealed envelope analogy: you photograph the room, seal the photo in an envelope, and hand it to a friend. They can hold several, in order, and give you back whichever you ask for. They cannot open one, and do not need to, because putting the room back is your job.</p>
+<p>Then name the three roles against the analogy — you are the originator, the envelope is the memento, the friend is the caretaker — and ask the room which one is allowed to look inside. It is worth making them say it.</p>
+<h2>0:27–0:40 — Code Walkthrough</h2>
+<p>In this order:</p>
+<ol><li><strong><code>BasketSnapshot</code></strong> — start with the access modifiers, not the fields. <code>label()</code> is public; <code>lines()</code> and <code>voucher()</code> have no modifier at all. Ask what that means, and land on: only classes in this package, which means only <code>Basket</code>. That is the wide-and-narrow interface, with no framework involved.</li><li><strong>The constructor</strong>, and <code>List.copyOf</code>. Point back at the board snippet. This is the one line that separates a photograph from a window.</li><li><strong><code>Basket.save</code> and <code>Basket.restore</code></strong> — six lines, and the only six in the project that know what a basket&#x27;s state is. Ask what changes if a gift message is added tomorrow. Answer: these two methods, and nothing else.</li><li><strong><code>BasketHistory</code></strong> — read it looking for something it <em>cannot</em> do. It never opens a snapshot. Undo works without this class knowing a basket contains anything.</li><li><strong><code>SnapshotEncapsulationTest</code></strong> — the structural assertion, and why a comment would not have held.</li></ol>
+<h2>0:40–0:50 — Exercises</h2>
+<h3>Exercise 1 — Break the copy (everyone)</h3>
+<p>In <code>BasketSnapshot</code>&#x27;s constructor, change <code>List.copyOf(lines)</code> to <code>lines</code>. Run the tests.</p>
+<p><code>laterChangesCannotReachBackIntoAnOlderSnapshot</code> fails. The point to draw out is that nothing <em>throws</em> — the snapshot quietly becomes a window, and undo starts returning a basket that is wrong rather than a basket that is missing.</p>
+<p>Put it back afterwards.</p>
+<h3>Exercise 2 — Break the encapsulation (everyone)</h3>
+<p>Make <code>lines()</code> public on <code>BasketSnapshot</code>. Run the tests, and watch <code>SnapshotEncapsulationTest</code> name the method back at you.</p>
+<p>This is the exercise most worth protecting if you are short of time. It takes a minute, and it is the moment the structural promise stops being a comment.</p>
+<h3>Exercise 3 — Add a third field (most people)</h3>
+<p>Give <code>Basket</code> a gift message with a getter and a setter, and make undo cover it. Participants should find themselves editing <code>save</code>, <code>restore</code> and the snapshot&#x27;s fields — and nothing else. Ask what they would have had to edit in <code>NaiveBasket</code>, and how they would have known to.</p>
+<h3>Exercise 4 — Stretch (for fast finishers)</h3>
+<p>Add redo. A second <code>Deque</code>, plus the observation that <code>restore</code> never consumed the snapshot, gets it done in about ten lines. Then ask what should happen to the redo stack when the shopper makes a <em>new</em> change after undoing — there is a right answer, and finding it is the interesting part.</p>
+<h2>0:50–0:58 — Pitfalls and Comparisons</h2>
+<p><strong>Memory.</strong> Every snapshot is a full copy. Show <code>MAX_UNDO_STEPS</code> and ask why it is there. If the state were a 200 MB document, this pattern as written would be the wrong tool.</p>
+<p><strong>Memento vs. Command.</strong> Memento stores the <em>state</em> before the change; Command stores the <em>operation</em> and runs an inverse. Memento is smaller to write and bigger to hold. Command is the other way round, and needs every operation to have a genuine inverse — ask the room what the inverse of &quot;clear the basket&quot; is, given that it has to restore the order of the lines too.</p>
+<p><strong>Deep versus shallow.</strong> Ask why the shallow copy is safe here. The answer is <code>BasketLine</code> being a record. Then ask what breaks if someone gives it a setter. Nothing, visibly — which is the point.</p>
+<p><strong>Snapshot timing.</strong> <code>record</code> must be called <em>before</em> the change it describes. Called after, every undo is one step off, and it looks like the pattern failing when it is the caller.</p>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>One sentence to leave them with:</p>
+<blockquote><p>Undo is not &quot;do the opposite&quot;. Undo is &quot;put back the copy you took&quot; — and the object that made the copy is the only one that ever needs to see it.</p></blockquote>
+<p>Point at <a href="memento-pattern-explained.html"><code>memento-pattern-explained.md</code></a> for the written version, and <a href="animation.html"><code>animation.html</code></a> for the stepped walkthrough.</p>
+<h2>Facilitator Notes</h2>
+<ul><li><strong>The board snippet earns its five minutes.</strong> Almost every question later in the session — why copy, why immutable lines, why the naive version empties the basket — resolves back to it, and it is much cheaper to resolve there than in the middle of the walkthrough.</li><li><strong>Do not skip running the naive version.</strong> Reading it convinces nobody; watching a basket empty itself convinces everybody.</li><li><strong>Expect the &quot;why not just make the fields public?&quot; question</strong>, and welcome it. It is the right question, and the honest answer is that it works, and costs the basket&#x27;s encapsulation permanently to buy one feature once.</li><li><strong>Expect a room split on Memento vs. Command.</strong> Both are correct answers to &quot;how do I do undo&quot;; the choice is about the size of the state versus the invertibility of the operations, and saying that plainly settles it.</li></ul>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>Project cloned, <code>./gradlew test</code> green (16 tests)</li><li><code>./gradlew run</code> output visible to the room</li><li>Board or slide with the aliasing snippet</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> and <a href="uml-diagram.html"><code>uml-diagram.md</code></a> open in a tab</li><li><a href="animation.html"><code>animation.html</code></a> open in a browser, for the walkthrough</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

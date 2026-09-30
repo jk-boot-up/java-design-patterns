@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>This is the first project in the platform category, and it is the most demanding pattern in it. The code, though, is deliberately small: three records, a list, and a loop that adds numbers up. If you can read a <code>for</code> loop you can read all of it.</p>
+<h2>Knowledge Prerequisites</h2>
+<h3>Required</h3>
+<ul><li><strong>Java basics</strong> — classes, interfaces, methods, <code>for</code> loops.</li><li><strong>Collections</strong> — <code>List</code> and <code>Map</code>, and what &quot;iterate in order&quot; means.</li><li><strong>Running Gradle</strong> — <code>./gradlew run</code> and <code>./gradlew test</code>. Nothing more.</li></ul>
+<h3>Helpful, but explained as we go</h3>
+<ul><li><strong>Records</strong> (<code>record PointsAwarded(...)</code>). A record is a class whose only job is to hold values, written in one line. <code>record Point(int x, int y) {}</code> gives you a constructor, <code>x()</code>, <code>y()</code>, <code>equals</code>, <code>hashCode</code> and <code>toString</code>. That is all you need to know for this project.</li><li><strong>Sealed interfaces</strong> (<code>sealed interface LoyaltyEvent permits ...</code>). Sealed means &quot;these are the only implementations there will ever be&quot;. The compiler enforces it, which is useful when you want to be told about every place that handles events the day you add a fourth kind.</li><li><strong>Pattern matching for <code>instanceof</code></strong> (<code>if (e instanceof PointsAwarded a)</code>). This is the old <code>instanceof</code> plus a cast, written once instead of twice.</li><li><strong><code>LocalDate</code></strong> — a calendar date with no time and no time zone. Created with <code>LocalDate.of(2025, 3, 1)</code>, compared with <code>isAfter</code> and <code>isBefore</code>.</li></ul>
+<h3>Explicitly NOT required</h3>
+<ul><li><strong>Any database.</strong> There is none. The event store is an <code>ArrayList</code>.</li><li><strong>Kafka, or any message broker.</strong> Event sourcing is regularly taught alongside Kafka and the two are not the same subject. A log here is a list.</li><li><strong>CQRS.</strong> It is in this project, but as a <em>contrast</em> — the whole of Act 9 exists to show that the two patterns are separate. You do not need to know it going in.</li><li><strong>Docker, Spring, Kubernetes, or a network.</strong> The project runs offline with a JDK.</li><li><strong>Functional programming.</strong> &quot;Fold&quot; gets used because it is the standard name for this, but the fold in the code is a <code>for</code> loop with a running total.</li></ul>
+<h2>A 60-Second &quot;Event Sourcing&quot; Primer</h2>
+<p>Most software stores <strong>the current state</strong>. A customer has 140 loyalty points, so there is a row with <code>140</code> in it, and when they earn more you replace the number.</p>
+<p>Event sourcing stores <strong>what happened</strong>, in order, and never changes it. Instead of <code>140</code> there are four records: earned 60, spent 25, earned 120, expired 15. When somebody asks for the balance you add them up and get 140.</p>
+<p>The number is not stored anywhere. It is worked out every time.</p>
+<p>That sounds like more work for the same answer, and it is, right up until somebody asks a question the number cannot answer — <em>why</em> is it 140, what was it three weeks ago, which of these balances did that bug touch — at which point the current-state version has nothing to say and the log has everything.</p>
+<p>The word <strong>fold</strong> means &quot;walk a list, carrying a running total&quot;. The word <strong>projection</strong> means &quot;the thing you get at the end of a fold&quot;. The word <strong>snapshot</strong> means &quot;a saved fold result so you do not have to start from the beginning&quot;. None of the three is harder than that.</p>
+<h2>A 60-Second &quot;Append-Only&quot; Primer</h2>
+<p>The event store in this project has exactly one way to write to it:</p>
+<pre><code>public void append(LoyaltyEvent event) {
+    events.add(event);
+}</code></pre>
+<p>There is no <code>update</code> and no <code>delete</code>. When you find yourself asking &quot;but what if the event was wrong?&quot;, the answer is always the same: you add a new event that corrects it, and both stay in the log forever. This is how bank statements work, how accountants have worked for five hundred years, and how <code>git</code> works — you cannot change a commit, only add one.</p>
+<p>That rule is what everything good about the pattern rests on, and it is also the source of everything hard about it. Half this project is about the rule paying off, and half is about the bill.</p>
+<h2>Software Prerequisites</h2>
+<table><thead><tr><th>Tool</th><th>Version</th><th>Why</th></tr></thead><tbody><tr><td>JDK</td><td>21 or newer</td><td>Records, sealed interfaces and pattern matching</td></tr><tr><td>Gradle</td><td>none needed</td><td>The wrapper is committed; it fetches Gradle 9.2.1 itself</td></tr></tbody></table>
+<h3>Installing JDK 21</h3>
+<p><strong>macOS</strong></p>
+<pre><code>brew install openjdk@21</code></pre>
+<p><strong>Linux</strong></p>
+<pre><code>sudo apt install openjdk-21-jdk     # Debian, Ubuntu
+sudo dnf install java-21-openjdk    # Fedora</code></pre>
+<p><strong>Windows</strong> — download a JDK 21 build from <a href="https://adoptium.net">Adoptium</a> and run the installer.</p>
+<h3>Verify Your Setup</h3>
+<pre><code>java -version      # should say 21 or higher
+./gradlew test     # 31 tests, about a second
+./gradlew run      # nine acts of output</code></pre>
+<p>The first <code>./gradlew</code> run downloads Gradle itself and needs the internet once. Everything after that is offline.</p>
+<h2>Troubleshooting</h2>
+<p><strong><code>Unsupported class file major version</code></strong> — you are on a JDK older than 21. Check <code>java -version</code> and <code>echo $JAVA_HOME</code>.</p>
+<p><strong><code>./gradlew: Permission denied</code></strong> — <code>chmod +x gradlew</code>.</p>
+<p><strong>The demo prints different numbers from the documents</strong> — it should not. Every date in the demo is a fixed <code>LocalDate</code> constant and nothing is random, so two runs are byte-identical. <code>DemoRunsTest</code> asserts that. If it has drifted, the code changed and the documents did not.</p>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the row that cannot answer the question</li><li><code>./gradlew run</code> — nine acts, benefits first, then the bill</li><li><a href="event-sourcing-pattern-explained.html"><code>event-sourcing-pattern-explained.md</code></a> — the bank statement, the code, the costs, and CQRS</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — the types, and the missing balance field</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — four sequences</li><li><a href="animation.html"><code>animation.html</code></a> — the log filling up and the fold running</li><li>The tests, starting with <code>CurrentStateLoyaltyAccountsTest</code>, every one of which passes</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

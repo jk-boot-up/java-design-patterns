@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>This project is written for beginners, but it is a <strong>follow-on</strong>. The one thing it assumes is not a Java feature — it is the previous project.</p>
+<p>Read <a href="../../sidecar-pattern"><code>sidecar-pattern</code></a> first. That project explains what a sidecar is, why the retry code left the service, and what a second process costs. This one explains none of that again. If you arrive here without it, the demo will look like a small program about waiting, and the point will be invisible.</p>
+<p>Everything else is ordinary Java. There is no network, no Docker and no Kubernetes in Tier 1: the whole thing runs offline with a JDK and nothing else.</p>
+<hr>
+<h2>Knowledge Prerequisites</h2>
+<h3>Required</h3>
+<ul><li><strong>The previous project.</strong> Sidecar, in <code>../../sidecar-pattern</code>. This is the real prerequisite.</li><li><strong>Java basics</strong> — classes, methods, fields, interfaces, and a <code>for</code> loop.</li><li><strong>Exceptions</strong> — <code>throw</code>, <code>catch</code>, and the idea that catching one lets you try again.</li><li><strong>The idea that one program can call another over a network</strong>, and that the call can fail for reasons that have nothing to do with either program.</li></ul>
+<h3>Helpful, but explained as we go</h3>
+<ul><li><strong>Retry with backoff</strong> — waiting a little longer before each attempt. Primer below.</li><li><strong>Records</strong> — Java&#x27;s short syntax for a value with named fields. <code>ProxyPolicy</code> is one.</li><li><strong>Reading an nginx configuration file</strong> — you will see about twenty lines of it in the explained document. You do not have to be able to write one, and nothing here asks you to install nginx.</li></ul>
+<h3>Explicitly NOT required</h3>
+<ul><li><strong>Any nginx experience.</strong> The one nginx behaviour that matters — retrying by moving to the next server in an upstream group, immediately — is explained in full where it comes up, twice, from two angles.</li><li><strong>Any Docker or Kubernetes experience.</strong> Those live in <code>real/</code>, which is optional.</li><li><strong>Any concurrency knowledge.</strong> One thread, in order, on a clock that never sleeps.</li><li><strong>Any opinion about nginx.</strong> This project is not a criticism of it. nginx was the right decision in §41 and it stays the right decision for almost everybody.</li></ul>
+<hr>
+<h2>A 60-Second &quot;Retry With Backoff&quot; Primer</h2>
+<p>When a call fails for a reason that might clear on its own, the sensible thing is to wait and ask again. Waiting <em>longer each time</em> is called <strong>backoff</strong>, and it is the entire subject of this project.</p>
+<pre><code>long backoff = policy.firstBackoffMillis();
+for (int attempt = 1; attempt &lt;= policy.maxAttempts(); attempt++) {
+    try {
+        return charge(payment);
+    } catch (PaymentFailed failure) {
+        if (attempt &lt; policy.maxAttempts()) {
+            clock.waitFor(backoff);
+            backoff *= 2;          // 200ms, then 400ms
+        }
+    }
+}</code></pre>
+<p>Read the two proxies in this project side by side and you will find that loop in both, with those four lines present in one and missing from the other. That is the difference, all of it.</p>
+<p>The doubling is not decoration. If every service in the shop retried after a fixed two hundred milliseconds, they would all come back at the same instant and the provider&#x27;s first breath after a bad second would be the whole shop arriving at once.</p>
+<hr>
+<h2>A 60-Second &quot;Who Is Counting?&quot; Primer</h2>
+<p>Every time in this project is recorded by <code>PaymentGateway</code>, at the <strong>provider&#x27;s</strong> end, in a log the provider owns. Not one number comes from a proxy&#x27;s own tally.</p>
+<p>That is the difference between a claim and evidence. A proxy that says it spaced its retries out is a proxy reporting on itself. Arrival times measured at the far end are what actually happened.</p>
+<p>When you read the demo output, read it as the supplier&#x27;s ledger.</p>
+<hr>
+<h2>A 60-Second &quot;What Is A Port, Here?&quot; Primer</h2>
+<p>In Tier 1, <code>LocalPort</code> is an object with one field: whatever proxy is currently bound to it. <code>install</code> puts something there, <code>vacate</code> empties it, and <code>send</code> hands a payment to whoever is there — or throws <em>connection refused</em> if nobody is.</p>
+<p>That is a fair model of one real thing and one real thing only: <strong>the service&#x27;s contract with its proxy is an address, not a type.</strong> It is not a model of sockets, TLS, or what an operating system does when two processes want the same port. For those, go to <code>real/</code>.</p>
+<hr>
+<h2>Software Prerequisites</h2>
+<table><thead><tr><th>Need</th><th>Version</th><th>Check</th></tr></thead><tbody><tr><td>JDK</td><td>21 or newer</td><td><code>java -version</code></td></tr><tr><td>Gradle</td><td>none — the wrapper is included</td><td><code>./gradlew --version</code></td></tr></tbody></table>
+<p>Nothing else for Tier 1. Docker is needed only for <code>real/</code>, and that directory has its own prerequisites.</p>
+<h3>Verify Your Setup</h3>
+<pre><code>cd gradle-java/platform-design-patterns/sidecar-java-proxy-pattern
+./gradlew test
+./gradlew run</code></pre>
+<p><code>test</code> should report 30 tests passing. <code>run</code> should print seven acts, ending with a table comparing twenty-two lines of nginx configuration against forty lines of Java.</p>
+<p>Every number is fixed rather than random and the clock is simulated, so two runs print identical output. That is what lets the documents and the video quote exact figures.</p>
+<hr>
+<h2>Troubleshooting</h2>
+<p><strong><code>./gradlew</code> says permission denied.</strong> <code>chmod +x gradlew</code>.</p>
+<p><strong>The demo finishes instantly even though it waits six hundred milliseconds.</strong> <code>Clock</code> is a counter, not a timer. <code>waitFor(200)</code> adds two hundred to a number and returns. Nothing sleeps, which is why thirty tests run in under a second — and why the arrival times are exactly 1, 202 and 603 on every machine.</p>
+<p><strong>The <code>£</code> signs or em dashes show as question marks.</strong> Your terminal is not on UTF-8. <code>export LANG=en_GB.UTF-8</code> usually fixes it.</p>
+<p><strong>The columns look ragged.</strong> The demo assumes a fixed-width font and seventy-six columns; a test fails if any line grows past that. Widen the window or reduce the font size.</p>
+<p><strong>I added a retry loop to <code>PaymentsService</code> and a test failed.</strong> That is the test working. <code>ServiceStaysEmptyTest</code> reads the service&#x27;s source with comments stripped and fails if the words <em>retry</em>, <em>backoff</em>, <em>timeout</em>, <em>keystore</em> or <em>tls</em> appear in it. The service knowing nothing about any of this is the claim the project makes; a test guards it rather than a sentence.</p>
+<p><strong>I added a second <code>new PaymentsService(...)</code> and a test failed.</strong> Also the test working, and it is the most important one here. There is exactly one construction in the whole program, counted by reading the source, because <em>the service is never restarted</em> is not something a demo should be trusted to remember.</p>
+<hr>
+<h2>Recommended Reading Order</h2>
+<ol><li><code>../../sidecar-pattern</code> — all of it. This is not optional.</li><li><code>docs/problem-statement.md</code> — the sentence nginx has no words for.</li><li><code>./gradlew run</code> — watch all seven acts before reading any source.</li><li><code>docs/sidecar-java-proxy-pattern-explained.md</code> — the swap, then the bill, which is longer than the benefit.</li><li><code>docs/animation.html</code> — the two proxies&#x27; attempts drawn on one timeline.</li><li><code>docs/sequence-diagram.md</code>, then <code>docs/uml-diagram.md</code> — the spacing, and then the four things the main story walks past.</li><li>The source, in this order: <code>ProxyPolicy</code>, <code>Proxy</code>, <code>NginxProxy</code>, <code>JavaProxy</code> (compare the last two line by line), then <code>LocalPort</code>, then <code>PaymentsService</code> — looking for what is <em>not</em> in it.</li><li><code>real/</code> if you want to watch a real container replaced under a service that is not restarted.</li><li><code>docs/session.md</code> if you are running this for a group.</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

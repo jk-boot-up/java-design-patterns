@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Decorator Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Decorator Pattern, Explained</h1>
+<blockquote><p>&quot;Attach additional responsibilities to an object dynamically. Decorators provide a flexible alternative to subclassing for extending functionality.&quot; — Gang of Four, <em>Design Patterns</em></p></blockquote>
+<h2>Wrapping, Not Subclassing</h2>
+<p><code>Product</code> knows its own price and name. <code>GiftWrapDecorator</code>, <code>InsuranceDecorator</code>, and <code>ExpressHandlingDecorator</code> each know how to add <em>one</em> fee and <em>one</em> description suffix on top of whatever they wrap. None of them know or care whether they are wrapping a plain <code>Product</code> or another decorator — they only depend on the shared <code>PricedItem</code> interface.</p>
+<pre><code>public interface PricedItem {
+    BigDecimal cost();
+    String description();
+}
+
+public abstract class ProductDecorator implements PricedItem {
+    protected final PricedItem wrapped;
+
+    protected ProductDecorator(PricedItem wrapped) {
+        this.wrapped = wrapped;
+    }
+}
+
+public final class GiftWrapDecorator extends ProductDecorator {
+    private static final BigDecimal FEE = new BigDecimal(&quot;3.50&quot;);
+
+    @Override
+    public BigDecimal cost() { return wrapped.cost().add(FEE); }
+
+    @Override
+    public String description() { return wrapped.description() + &quot;, gift-wrapped&quot;; }
+}</code></pre>
+<p>Because <code>GiftWrapDecorator</code> implements <code>PricedItem</code> <em>and</em> wraps a <code>PricedItem</code>, decorators nest arbitrarily deep. Each layer adds its own fee on top of whatever total the layer beneath it already computed.</p>
+<h2>Everyday Analogy: Dressing for Weather</h2>
+<p>A base outfit (a shirt) can have a sweater put on over it, and a raincoat put on over the sweater. Each layer adds its own effect — warmth, then water resistance — without the shirt needing to know a raincoat exists, or the raincoat needing to know what&#x27;s underneath it. You can wear any subset of layers, in the order that makes sense, without owning a distinct garment for every combination of &quot;shirt+sweater,&quot; &quot;shirt+raincoat,&quot; and &quot;shirt+sweater+raincoat.&quot;</p>
+<h2>Participants</h2>
+<table><thead><tr><th>Role</th><th>In This Project</th></tr></thead><tbody><tr><td><strong>Component</strong></td><td><code>PricedItem</code> — the interface both plain products and decorated products share.</td></tr><tr><td><strong>Concrete Component</strong></td><td><code>Product</code> — a plain item with a name and a price, no extras.</td></tr><tr><td><strong>Decorator</strong></td><td><code>ProductDecorator</code> — abstract base holding a wrapped <code>PricedItem</code> by composition.</td></tr><tr><td><strong>Concrete Decorators</strong></td><td><code>GiftWrapDecorator</code>, <code>InsuranceDecorator</code>, <code>ExpressHandlingDecorator</code> — each adds one fee and one description suffix.</td></tr><tr><td><strong>The trap</strong></td><td><code>NaiveGiftWrappedProduct</code> / <code>NaiveInsuredProduct</code> / <code>NaiveGiftWrappedInsuredProduct</code> — one hardcoded class per combination.</td></tr></tbody></table>
+<h2>Code Walkthrough</h2>
+<p><strong>The component interface</strong> — the shape every priceable thing shares, decorated or not:</p>
+<pre><code>public interface PricedItem {
+    BigDecimal cost();
+    String description();
+}</code></pre>
+<p><strong>The concrete component</strong> — a plain product, no extras:</p>
+<pre><code>public final class Product implements PricedItem {
+    private final String name;
+    private final BigDecimal price;
+
+    @Override public BigDecimal cost() { return price; }
+    @Override public String description() { return name; }
+}</code></pre>
+<p><strong>The abstract decorator</strong> — holds the wrapped item, implements nothing else:</p>
+<pre><code>public abstract class ProductDecorator implements PricedItem {
+    protected final PricedItem wrapped;
+
+    protected ProductDecorator(PricedItem wrapped) {
+        this.wrapped = wrapped;
+    }
+}</code></pre>
+<p><strong>A concrete decorator that adds a percentage-based fee</strong> — this one is worth reading closely:</p>
+<pre><code>public final class InsuranceDecorator extends ProductDecorator {
+    private static final BigDecimal RATE = new BigDecimal(&quot;0.02&quot;);
+
+    @Override
+    public BigDecimal cost() {
+        BigDecimal base = wrapped.cost();
+        BigDecimal premium = base.multiply(RATE).setScale(2, RoundingMode.HALF_UP);
+        return base.add(premium);
+    }
+}</code></pre>
+<p><code>InsuranceDecorator</code> calls <code>wrapped.cost()</code> — whatever that returns, insured or not, gift-wrapped or not. It has no idea what it is wrapping.</p>
+<h2>Stacking Order Matters</h2>
+<p>Because <code>InsuranceDecorator</code> prices a <em>percentage of whatever it wraps</em>, wrapping order changes the total. Insuring the gift wrap fee is not the same as gift-wrapping an already-insured item:</p>
+<pre><code>PricedItem giftWrappedThenInsured = new InsuranceDecorator(new GiftWrapDecorator(product));
+PricedItem insuredThenGiftWrapped = new GiftWrapDecorator(new InsuranceDecorator(product));
+
+giftWrappedThenInsured.cost();   // $85.16 -- insurance premium includes the gift-wrap fee
+insuredThenGiftWrapped.cost();   // $85.09 -- gift-wrap fee is flat, added after insurance</code></pre>
+<p>Both are legitimate prices for reasonable-sounding but different policies. Decorator does not hide this — it makes stacking order an explicit, visible choice at the call site, rather than a decision buried inside one combination class.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>New optional features cost one class, not several.</strong> Adding express handling required exactly one new decorator; it works with every existing decorator and the plain product, immediately, in any position.</li><li><strong>Fee logic lives in exactly one place per feature.</strong> Fix the insurance rate once, in <code>InsuranceDecorator</code>, and every stack that includes it is fixed.</li><li><strong>Combinations are runtime choices, not compile-time classes.</strong> Which extras a customer picked becomes a matter of which decorators you construct, not which of N pre-written classes you happen to have.</li><li><strong>Decorators are interchangeable with the component they wrap.</strong> A <code>GiftWrapDecorator</code> <em>is a</em> <code>PricedItem</code>, so it can be wrapped again by another decorator, or handed to any code that only knows about <code>PricedItem</code>.</li></ul>
+<h2>What to Watch Out For</h2>
+<ul><li><strong>Decorators should not change the interface.</strong> Every decorator here still exposes exactly <code>cost()</code> and <code>description()</code> — nothing more. A decorator that bolts on new methods breaks substitutability for existing callers.</li><li><strong>Order-sensitive decorators need documentation.</strong> <code>InsuranceDecorator</code>&#x27;s percentage-based fee makes stacking order visible and meaningful; if that is not obvious from the code, say so, the way this project&#x27;s tests and demo do explicitly.</li><li><strong>Too many stacked decorators can get hard to read.</strong> A <code>PricedItem</code> wrapped five layers deep is correct, but debugging &quot;which layer added this fee&quot; gets harder with each layer. Keep decorators small and named for exactly what they add.</li></ul>
+<h2>Decorator vs. Adapter vs. Bridge vs. Facade</h2>
+<table><thead><tr><th>Pattern</th><th>Purpose</th><th>Shape</th></tr></thead><tbody><tr><td><strong>Decorator</strong></td><td>Add responsibilities to an object <em>without changing its interface</em>.</td><td>Same interface in and out, layered, stackable.</td></tr><tr><td><strong>Adapter</strong></td><td>Make an <em>existing, incompatible</em> interface fit one clients already expect.</td><td>One wrapper class translating calls, applied after the fact.</td></tr><tr><td><strong>Bridge</strong></td><td>Let an abstraction and an implementation vary <em>independently</em>, designed together up front.</td><td>Two hierarchies connected by composition, planned from the start.</td></tr><tr><td><strong>Facade</strong></td><td>Simplify a <em>complex subsystem</em> behind one easy-to-use entry point.</td><td>One class hiding many, not necessarily preserving the wrapped shape.</td></tr></tbody></table>
+<p>Decorator and Adapter both wrap an object, but for opposite reasons: Adapter changes the interface so two incompatible shapes can work together; Decorator deliberately keeps the <em>same</em> interface so wrapped and unwrapped objects remain interchangeable.</p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><strong><code>java.io</code> stream wrappers</strong> — <code>BufferedInputStream</code>, <code>GZIPInputStream</code>, and <code>DataInputStream</code> all wrap an <code>InputStream</code> and are themselves <code>InputStream</code>s, stackable in any combination.</li><li><strong><code>Collections.unmodifiableList(...)</code> / <code>synchronizedList(...)</code></strong> wrap a <code>List</code> and return something that is still a <code>List</code>.</li><li><strong>Servlet filters and HTTP middleware chains</strong> each wrap the next handler, adding behavior (logging, auth, compression) before or after delegating.</li><li><strong>Coffee-shop pricing demos</strong> (a classic teaching example): a base beverage decorated with milk, syrup, and whipped cream, each adding a cost — structurally identical to this project&#x27;s <code>Product</code> and fee decorators.</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li>Add a <code>DiscountDecorator</code> that subtracts a flat amount from whatever it wraps (clamped so cost never goes below zero). Prove it can be placed anywhere in an existing stack.</li><li>Write a test that stacks all four decorators (gift wrap, insurance, express handling, your new discount) in two different orders and shows the totals differ.</li><li>Try implementing <code>NaiveDiscountedGiftWrappedInsuredProduct</code> by hand for the naive classes in this project, and count how many total naive classes a fourth feature demands to cover every combination.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the naive code this pattern replaces.</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> and <a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the static and dynamic views.</li><li><a href="session.html"><code>session.md</code></a> — a guided 60-minute walkthrough.</li></ul>
+</main>
+<footer>
+Generated from <code>decorator-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

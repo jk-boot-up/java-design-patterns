@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Observer Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Observer Pattern</h1>
+<blockquote><p><strong>Define a one-to-many dependency between objects so that when one object changes state, all its dependents are notified and updated automatically.</strong> — <em>Design Patterns</em>, Gamma, Helm, Johnson and Vlissides (1994)</p></blockquote>
+<p>In plain language: <strong>let the thing that changed announce it, and let whoever cares sign up.</strong></p>
+<h2>One Announcement, Any Number of Reactions</h2>
+<p>Four systems care when an order ships. In this project none of them appear in <code>Order</code>:</p>
+<pre><code>public final class Order {
+
+    private final List&lt;OrderListener&gt; listeners = new CopyOnWriteArrayList&lt;&gt;();
+    private OrderStatus status = OrderStatus.PLACED;
+
+    public void addListener(OrderListener listener) { ... }
+
+    public List&lt;ListenerFailure&gt; moveTo(OrderStatus next) { ... }
+}</code></pre>
+<p><code>Order</code> knows it has listeners. It does not know what they do, how many there are, or whether there are any at all — an order with an empty list still moves to <code>SHIPPED</code> perfectly happily, and there is a test that says so.</p>
+<h2>Remember It With a Newsletter</h2>
+<p>You subscribe to a shop&#x27;s newsletter. The shop sends an issue; you get it. It does not know your name, whether you read it, or what you do afterwards — you might forward it, you might buy something, you might delete it unread. If a thousand more people subscribe tomorrow, the shop does not write any new code; it presses send exactly as before.</p>
+<p>And crucially, <strong>you can unsubscribe without asking the shop&#x27;s permission</strong>. The relationship is owned by the subscriber, not the publisher.</p>
+<p>That is the whole pattern. The publisher&#x27;s job ends at &quot;I sent it.&quot;</p>
+<h2>The Participants</h2>
+<table><thead><tr><th>Role</th><th>Here</th><th>Job</th></tr></thead><tbody><tr><td><strong>Subject</strong> (publisher)</td><td><code>Order</code></td><td>Holds the state, keeps the listener list, announces changes</td></tr><tr><td><strong>Observer</strong> (listener)</td><td><code>OrderListener</code></td><td>The one small interface every subscriber implements</td></tr><tr><td><strong>Concrete observers</strong></td><td><code>InventoryListener</code>, <code>EmailListener</code>, <code>AnalyticsListener</code>, <code>WarehouseFeedListener</code></td><td>Independent reactions, each knowing only itself</td></tr><tr><td><strong>Event</strong></td><td><code>OrderEvent</code></td><td>What happened, as an immutable value</td></tr><tr><td><strong>Failure report</strong></td><td><code>ListenerFailure</code></td><td>One listener that threw, reported rather than swallowed</td></tr><tr><td><strong>The trap</strong></td><td><code>NaiveOrderService</code></td><td>The version that calls each system by name</td></tr></tbody></table>
+<h2>The Observer Interface</h2>
+<pre><code>public interface OrderListener {
+    String name();
+    void onStatusChanged(OrderEvent event);
+}</code></pre>
+<p>Two methods, and notice what is <em>not</em> there. No priority. No ordering hint. No <code>shouldHandle(...)</code> predicate. Every one of those would be a way for a listener to make claims about the other listeners, and the point of the pattern is that no listener knows there are any others.</p>
+<p><code>name()</code> has no default, so a lambda will not satisfy the interface. That is a deliberate trade against convenience: an anonymous lambda sitting in a listener list is untraceable in a stack trace, and this is exactly the kind of code where a stack trace is all you get at three in the morning.</p>
+<h2>The Event Is a Value, Not a Back-Reference</h2>
+<pre><code>public record OrderEvent(String orderId, OrderStatus from, OrderStatus to) { }</code></pre>
+<p>The listener receives this and nothing else — no reference back to the <code>Order</code>, no way to ask it a follow-up question, no way to change it. That matters more than it looks. A listener that can reach into the publisher can change the publisher&#x27;s state halfway through a notification, and then whether listener three sees the old value or the new one depends on the order they were registered in. The pattern&#x27;s guarantee dies quietly at that moment.</p>
+<p>The GoF book calls the two options <em>push</em> and <em>pull</em>: push everything the listener could need into the event, or hand it the subject and let it pull. This project pushes, and if you ever find yourself writing <code>event.order()</code>, be sure you know why.</p>
+<h2>The Notification Loop</h2>
+<pre><code>public List&lt;ListenerFailure&gt; moveTo(OrderStatus next) {
+    if (next == status) {
+        return List.of();
+    }
+
+    OrderEvent event = new OrderEvent(id, status, next);
+    status = next;
+
+    List&lt;ListenerFailure&gt; failures = new ArrayList&lt;&gt;();
+    for (OrderListener listener : listeners) {
+        try {
+            listener.onStatusChanged(event);
+        } catch (RuntimeException e) {
+            failures.add(ListenerFailure.of(listener, e));
+        }
+    }
+    return List.copyOf(failures);
+}</code></pre>
+<p>Three decisions in eleven lines, each of which is a bug if made the other way.</p>
+<p><strong>Moving to the status it is already in is not an event.</strong> Fire one anyway and every listener has to defend itself against duplicates, and the listener that forgets is the one that sends the customer a second &quot;your order has shipped&quot; email.</p>
+<p><strong>The status is updated before the listeners run.</strong> A listener that does look at the order should see the world the event describes, not the one it replaced.</p>
+<p><strong>One listener throwing does not stop the next.</strong> This is the fix for the outage in <a href="problem-statement.html"><code>problem-statement.md</code></a>. Letting the exception escape means a bug in analytics silently prevents the warehouse feed. Catching it and doing nothing means the same bug is invisible for weeks. Returning the failures lets the caller decide, and lets a test assert on it.</p>
+<h2>Why <code>CopyOnWriteArrayList</code></h2>
+<p>Not for threads — for one-shot subscriptions.</p>
+<p>A listener is entirely within its rights to remove itself while it is being notified. &quot;Email me when this ships, then forget me&quot; is the obvious case, and there is a test for it. Iterating an <code>ArrayList</code> while a listener calls <code>removeListener</code> throws <code>ConcurrentModificationException</code> from inside the notification loop, which is a spectacular way to discover a design assumption. Copy-on-write iterates a snapshot, so a listener added or removed during a notification simply takes effect from the next one.</p>
+<p>It is a real cost — every <code>addListener</code> copies the array — and it is the right one here, because subscriptions are set up once and events fire many times.</p>
+<h2>What This Costs</h2>
+<p>This is the honest part, and it is the part most write-ups skip.</p>
+<p><strong>The call graph becomes invisible.</strong> Under the naive design, reading <code>markShipped</code> tells you the four things that happen. Under this one, reading <code>moveTo</code> tells you <em>nothing at all</em> about what happens when an order ships. To find out you have to find every <code>addListener</code> call, and your IDE cannot help because the call sites are all typed as the interface. That is a genuine loss of legibility, paid in exchange for a genuine gain in independence.</p>
+<p><strong>Debugging gets harder in exactly the way it always does.</strong> A stack trace from inside <code>EmailListener</code> shows <code>Order.moveTo</code> as the caller and gives no clue why email was on the list. This is why <code>OrderListener</code> has a <code>name()</code>, and why <code>ListenerFailure</code> reports it.</p>
+<p><strong>Notification order is not a contract.</strong> It happens to be registration order in this implementation, and a listener that relies on that is broken — it just does not know yet. If two reactions really must be sequenced, they are one reaction, and they belong in one listener.</p>
+<p><strong>Memory leaks are the classic failure.</strong> A long-lived subject holding a strong reference to a short-lived listener keeps it alive forever. In a UI or a server this is the leak everyone eventually meets. If subscriptions outlive their subscribers, you need explicit removal or weak references — and this project&#x27;s <code>removeListener</code> is the whole of its answer.</p>
+<h2>When To Use It</h2>
+<p>Reach for Observer when <strong>one state change has several independent consequences, and the list of consequences will grow</strong>. If there are two consequences and there will always be two, call them directly; you will thank yourself.</p>
+<p>The tell is not the number of reactions but their independence. Four things that must happen in order, where the third needs the second&#x27;s result, are not four observers — they are one workflow, and that is the Template Method or Chain of Responsibility chapter.</p>
+<h2>Observer Compared</h2>
+<table><thead><tr><th>Pattern</th><th>What varies</th><th>Who is in charge</th></tr></thead><tbody><tr><td><strong>Observer</strong></td><td>Who reacts, and how many</td><td>The subscribers — they attach themselves</td></tr><tr><td><strong>Strategy</strong></td><td>How one job is done</td><td>The caller — it picks one and passes it in</td></tr><tr><td><strong>Mediator</strong></td><td>Who talks to whom</td><td>A central object that knows all the parties</td></tr><tr><td><strong>Chain of Responsibility</strong></td><td>Which handler deals with it</td><td>The chain — one handler usually stops it</td></tr></tbody></table>
+<p>Observer versus Mediator is the pair worth pinning down. In Observer the publisher knows nothing and the subscribers know the publisher. In Mediator there is a hub that knows everyone, on purpose, so that it can coordinate them. Observer decouples; Mediator centralises.</p>
+<h2>Sightings in Real Code</h2>
+<ul><li><strong><code>java.util.concurrent.Flow</code></strong> — the JDK&#x27;s reactive-streams API, with back-pressure added; <code>Flow.Subscriber</code> is <code>OrderListener</code> grown up.</li><li><strong>Spring&#x27;s <code>ApplicationEventPublisher</code></strong> and <code>@EventListener</code> — the same shape, with the subscription list assembled by the container.</li><li><strong>Every UI toolkit ever written</strong> — <code>addActionListener</code>, <code>onClick</code>, <code>addEventListener</code>. The pattern is so embedded in UI programming that most people learn it without being told its name.</li><li><strong><code>java.util.Observer</code></strong> — the JDK&#x27;s own version, and <strong>deprecated since Java 9</strong>. It is worth knowing why: it was not type-safe (<code>update(Observable, Object)</code>), <code>Observable</code> was a class so you had to inherit from it, and it said nothing about notification order or thread safety. The pattern was never the problem; that implementation of it was.</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li>Add a <code>SupplierListener</code> that writes a line only for drop-shipped items. Note that <code>Order.java</code> does not change — that is the whole exercise.</li><li>Now do the same thing to <code>NaiveOrderService</code>. Count the files you touch.</li><li>Make <code>EmailListener</code> remove itself after the delivery message and confirm the listener count drops. Then try it with an <code>ArrayList</code> in <code>Order</code> and watch it throw.</li><li>Give <code>moveTo</code> a legal-transition check that refuses <code>DELIVERED -&gt; PAID</code>. When it starts to feel like the wrong place for it, you have found the State pattern.</li></ol>
+</main>
+<footer>
+Generated from <code>observer-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

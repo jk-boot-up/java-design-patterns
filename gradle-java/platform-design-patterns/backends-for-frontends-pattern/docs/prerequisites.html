@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>This project is written for beginners. If you can read a Java method and follow a <code>for</code> loop, you have enough. Everything else is explained as it arrives.</p>
+<p>There is no network, no Docker, no cloud account, no HTTP server and no web framework. The whole project runs offline with a JDK and nothing else.</p>
+<hr>
+<h2>Knowledge Prerequisites</h2>
+<h3>Required</h3>
+<ul><li><strong>Java basics</strong> — classes, methods, <code>final</code>, and reading a stack trace.</li><li><strong>Collections</strong> — <code>List</code> and <code>Map</code>, and being comfortable with a <code>for</code> loop over a list.</li><li><strong>The idea that a program can call another program.</strong> Not the mechanics. Just the idea that when you open a product page, the thing that answers you may ask five other things before it answers.</li></ul>
+<h3>Helpful, but explained as we go</h3>
+<ul><li><strong>Interfaces with more than one implementation</strong> — the heart of this pattern is that two classes implement one interface and answer differently. Primer below.</li><li><strong>Records</strong> — Java&#x27;s short syntax for &quot;a value with named fields&quot;. Primer below.</li><li><strong>Lambdas</strong> — <code>SavingRules</code> is a one-method interface, so its implementations are written as <code>(a, b, c) -&gt; ...</code>. Primer below.</li><li><strong>Streams</strong> — a few methods use <code>.stream().filter(...).count()</code>. Every one of them could be a <code>for</code> loop and means exactly what it looks like it means.</li></ul>
+<h3>Explicitly NOT required</h3>
+<ul><li>Any experience with Spring, Node, GraphQL, REST frameworks or API gateways.</li><li>Any experience with microservices or Kubernetes.</li><li>Any mobile development. The phone in this project is a comment and a byte count.</li><li>Any concurrency knowledge. Everything runs on one thread, in order.</li><li>JSON. <code>Doc</code> is an ordered map that can print itself; no library is involved.</li></ul>
+<hr>
+<h2>A 60-Second &quot;Two Implementations&quot; Primer</h2>
+<p>Most tutorials introduce an interface as a way to swap one thing for another — today a <code>FileStore</code>, tomorrow an <code>S3Store</code>, only one of them live at a time.</p>
+<p>This pattern uses an interface the other way. Both implementations are live, at the same time, in production, answering the same question differently on purpose.</p>
+<pre><code>public interface ClientBackend {
+    String client();
+    Doc productScreen(String sku);
+}</code></pre>
+<p><code>MobileBff</code> returns six fields. <code>WebBff</code> returns fifteen. Neither is the fallback and neither is the real one, and nobody is ever going to &quot;pick&quot; between them, because the phone always talks to the first and the desktop always talks to the second.</p>
+<p>If you find yourself wanting to unify them, that instinct is exactly what the pattern is asking you to resist — and <code>WebBffTest</code> has a test asserting they stay different.</p>
+<hr>
+<h2>A 60-Second &quot;Record&quot; Primer</h2>
+<p>A <code>record</code> is Java&#x27;s short way of saying &quot;a value made of these named fields&quot;.</p>
+<pre><code>public record Client(String name, boolean disagreesAboutTheProduct, String reason) { }</code></pre>
+<p>That one line gives you a constructor taking all three values, a getter for each one named after the field — <code>client.name()</code>, not <code>client.getName()</code> — and sensible equality, so two clients with the same three values are equal.</p>
+<p>Records are immutable. There is no <code>setName(...)</code>. Once a client is described it cannot be edited.</p>
+<hr>
+<h2>A 60-Second &quot;Lambda&quot; Primer</h2>
+<p>An interface with exactly one abstract method can be implemented with an arrow instead of a class.</p>
+<pre><code>static SavingRules current() {
+    return (listPence, nowPence, listPriceHeldLongEnough) -&gt; {
+        if (!listPriceHeldLongEnough) {
+            return &quot;&quot;;
+        }
+        ...
+    };
+}</code></pre>
+<p>Read <code>(a, b, c) -&gt; { ... }</code> as &quot;given these three values, do this and return something&quot;. It is the body of <code>savingLabel</code>, written without the ceremony of a named class, and Java works out which method it is implementing because the interface only has one.</p>
+<p>The reason it matters here is that the project needs <strong>two</strong> versions of the same rule alive in one run — the current one and a stale copy — so that Act 5 can show them disagreeing. Two lambdas is the shortest honest way to do that.</p>
+<hr>
+<h2>A 60-Second &quot;Round Trip&quot; Primer</h2>
+<p>A <strong>round trip</strong> is one request going out and its answer coming back. It is the unit this project counts, and the only thing you need to know about it is that not all round trips cost the same.</p>
+<ul><li><strong>From a phone to the shop</strong>: crosses the customer&#x27;s mobile network. On a good connection, tens of milliseconds. On a train, a tenth of a second or worse, and it happens before any work has been done.</li><li><strong>Between two of the shop&#x27;s own processes</strong>: crosses a data-centre network. Under a millisecond, and nobody is waiting on a train.</li></ul>
+<p><code>CallLog.Origin</code> has exactly two values, <code>DEVICE</code> and <code>INTERNAL</code>, for this reason. When the demo says five device calls became one, and four internal calls appeared in their place, both halves of that are true and only the first half is a saving.</p>
+<hr>
+<h2>A 60-Second &quot;Payload Shape&quot; Primer</h2>
+<p>Two different things can be wrong with a response, and the project keeps them apart because only one of them has an easy fix.</p>
+<p><strong>Size</strong> — the response contains fields this screen does not draw. Easy to fix: add a <code>?fields=</code> parameter and the server sends less. <code>SharedApi.product(sku, fields)</code> does exactly this, and it works.</p>
+<p><strong>Shape</strong> — the response does not contain a field this screen needs, because that field does not exist in any service and has to be composed: three services joined, a clock consulted, a sentence written. No parameter fixes that. Somebody has to write it, and the question is who is allowed to.</p>
+<p>If you remember one distinction from the whole project, make it that one. The pattern is often sold on size and is actually about shape and ownership.</p>
+<hr>
+<h2>Software Prerequisites</h2>
+<table><thead><tr><th>Need</th><th>Version</th><th>Check</th></tr></thead><tbody><tr><td>JDK</td><td>21 or newer</td><td><code>java -version</code></td></tr><tr><td>Gradle</td><td>none — the wrapper is included</td><td><code>./gradlew --version</code></td></tr></tbody></table>
+<p>Nothing else. No Docker, no network access at build time beyond Gradle fetching JUnit once.</p>
+<h3>Verify Your Setup</h3>
+<pre><code>cd gradle-java/platform-design-patterns/backends-for-frontends-pattern
+./gradlew test
+./gradlew run</code></pre>
+<p><code>test</code> should report 46 tests passing. <code>run</code> should print seven acts, ending with <code>one per genuine disagreement: 3 backends</code>.</p>
+<p>If <code>run</code> prints exactly the same numbers twice in a row, that is not luck — the shop&#x27;s data is fixed rather than random precisely so that it does, which is what lets the documents and the video quote exact figures.</p>
+<hr>
+<h2>Troubleshooting</h2>
+<p><strong><code>./gradlew</code> says permission denied.</strong> <code>chmod +x gradlew</code>.</p>
+<p><strong>Gradle downloads things on the first run.</strong> Expected, once, for the wrapper and JUnit. After that the project is offline.</p>
+<p><strong>The comparison table in Act 4 looks ragged.</strong> The demo assumes a fixed-width font and about seventy-five columns. Widen the window or reduce the font size; the arithmetic is unaffected.</p>
+<p><strong>The em dashes and <code>£</code> signs show as question marks.</strong> Your terminal is not on UTF-8. <code>export LANG=en_GB.UTF-8</code> usually fixes it.</p>
+<p><strong>A test fails after I added a field to a backend.</strong> That is the test working. A backend may only send what its screen draws, and the screens are written down in <code>Screens.java</code>. Add it there too if the screen really does draw it.</p>
+<hr>
+<h2>Recommended Reading Order</h2>
+<ol><li><code>docs/problem-statement.md</code> — five calls from a train, and the field the shared endpoint could not give anybody.</li><li><code>./gradlew run</code> — watch all seven acts before reading any source.</li><li><code>docs/backends-for-frontends-pattern-explained.md</code> — the pattern, then the bill.</li><li><code>docs/animation.html</code> — the three designs drawn one after another.</li><li><code>docs/class-diagram.md</code> and <code>docs/uml-diagram.md</code> — the structure and the sequences, including the two rejected designs.</li><li>The source, in this order: <code>Screens</code>, <code>CallLog</code>, <code>Shop</code>, <code>ChattyPhone</code>, <code>SharedApi</code>, <code>ClientBackend</code>, <code>MobileBff</code>, <code>WebBff</code>, then the three bill classes <code>SavingRules</code>, <code>CrossCutting</code> and <code>ClientEstate</code>.</li><li><code>docs/session.md</code> if you are running this for a group.</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

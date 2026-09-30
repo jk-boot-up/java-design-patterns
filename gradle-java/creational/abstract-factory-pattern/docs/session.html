@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Abstract Factory Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Abstract Factory Pattern</h1>
+<p>A 60-minute guided session for teaching or self-studying the Abstract Factory pattern using this project.</p>
+<ul><li><strong>Audience:</strong> beginners comfortable with core Java, especially interfaces</li><li><strong>Duration:</strong> ~60 minutes</li><li><strong>Format:</strong> live coding + discussion</li><li><strong>Prerequisites:</strong> see <a href="prerequisites.html"><code>prerequisites.md</code></a></li></ul>
+<blockquote><p><strong>Optional pre-work.</strong> Ask participants to watch the ~9.5 minute video (<code>video/abstract-factory-pattern-explained.mp4</code>) beforehand. If they do, you can compress the problem and pattern segments and spend the extra time on the exercises. <strong>Even better pre-work:</strong> run the two sibling sessions first — <a href="../../simple-factory-pattern"><code>../../simple-factory-pattern</code></a>, then <a href="../../factory-method-pattern"><code>../../factory-method-pattern</code></a>. This is the third pattern in a progression, and the progression is most of the lesson.</p></blockquote>
+<h2>Learning Objectives</h2>
+<p>By the end of this session a participant should be able to:</p>
+<ol><li>Describe, in one sentence, what problem the Abstract Factory pattern solves.</li><li>Identify the five roles — abstract factory, concrete factories, abstract products, concrete products, client — in real code.</li><li>Explain why &quot;the three objects always match&quot; is a structural guarantee rather than a check.</li><li>Add a whole new family without editing any existing class.</li><li>Explain why adding a new <em>product kind</em> is expensive, and why that is the exact mirror of the pattern&#x27;s strength.</li><li>Say honestly when Abstract Factory is <em>too much</em> machinery for the job.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Segment</th><th>Mode</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td><td>Hands-on</td></tr><tr><td>0:05–0:15</td><td>The problem</td><td>Discussion</td></tr><tr><td>0:15–0:25</td><td>The pattern</td><td>Explanation</td></tr><tr><td>0:25–0:40</td><td>Code walkthrough</td><td>Live coding</td></tr><tr><td>0:40–0:50</td><td>Exercises</td><td>Hands-on</td></tr><tr><td>0:50–0:58</td><td>Pitfalls &amp; comparisons</td><td>Discussion</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td><td>—</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<p>Everyone runs:</p>
+<pre><code>java -version
+./gradlew run</code></pre>
+<p>Anyone whose build fails pairs up with a neighbour. Do not debug installs during the session — that is what the prerequisites doc is for.</p>
+<p>If anyone sees <code>?</code> instead of <code>£</code> or <code>₹</code>, their console is not UTF-8. It does not matter for the session; tell them so and move on.</p>
+<h2>0:05–0:15 — The Problem</h2>
+<p><strong>Do not show <code>MarketFactory</code> yet.</strong> Start with the pain.</p>
+<p>Put the naive <code>CheckoutService</code> from <a href="problem-statement.html"><code>problem-statement.md</code></a> on screen — the one with three consecutive <code>if</code> chains on the same string — and ask:</p>
+<blockquote><p><em>&quot;What happens if I reorder the cases in the middle block and not the other two?&quot;</em></p></blockquote>
+<p>Let them find it: you get British VAT rendered in dollars. It compiles. It runs. It produces a wrong invoice, silently.</p>
+<p>Follow with:</p>
+<blockquote><p><em>&quot;Where in this method would a test catch that?&quot;</em></p></blockquote>
+<p>Guide the group to name the problems themselves:</p>
+<ul><li>Three branches that must stay in step with each other, forever.</li><li>A mismatched family is one copy-paste away.</li><li>Adding Germany means editing working code in three places.</li><li>The client is a directory of nine class names.</li></ul>
+<p><strong>Key question to land:</strong> <em>&quot;There are nine product classes and only three legal combinations. What in this code says so?&quot;</em> Nothing does.</p>
+<p>If someone proposes &quot;extract each <code>if</code> into its own factory method&quot; — excellent, they have just re-invented Factory Method. Acknowledge it, then ask the follow-up: <em>&quot;could a subclass still return a British tax rate and an American validator?&quot;</em> It could. Park that until 0:15.</p>
+<h2>0:15–0:25 — The Pattern</h2>
+<p>Introduce the set-menu analogy from <a href="abstract-factory-pattern-explained.html"><code>abstract-factory-pattern-explained.md</code></a>: à la carte lets you pair a delicate fish with a heavy red; the tasting menu takes that freedom away on purpose, and that is what you are paying for. Let a participant retell it back — if they can, they understand it.</p>
+<p>Show the grid from the prerequisites doc on the board:</p>
+<table><thead><tr><th></th><th>tax</th><th>money</th><th>address</th></tr></thead><tbody><tr><td><strong>UK</strong></td><td></td><td></td><td></td></tr><tr><td><strong>US</strong></td><td></td><td></td><td></td></tr><tr><td><strong>India</strong></td><td></td><td></td><td></td></tr></tbody></table>
+<p>Fill in the nine cells with the class names as a group. Then draw a box round each row and say: <em>&quot;three families. Nine classes, but only three legal selections.&quot;</em></p>
+<p>Show the roles diagram (<a href="images/class-diagram.png"><code>images/class-diagram.png</code></a>) and the families diagram (<a href="images/families.png"><code>images/families.png</code></a>) — the second one is the rows made visible, with no arrow between the columns. Then the sequence diagram (<a href="images/uml-diagram.png"><code>images/uml-diagram.png</code></a>): three creation calls up front, and the factory never consulted again.</p>
+<p>Optionally open <a href="animation.html"><code>animation.html</code></a> in a browser and play it through once. It has a <strong>Narration</strong> button: leave it off if you want to talk over the animation yourself, or switch it on to let it explain each step in its own voice — useful when participants revisit it alone afterwards.</p>
+<p><strong>The one point that must land:</strong></p>
+<blockquote><p>A mismatched family is not caught. It is impossible. No code exists that could produce one.</p></blockquote>
+<p>Expect someone to ask &quot;but what stops me writing that code myself?&quot; The honest answer: nothing stops you writing a new class that mixes markets — but no existing path does it, and you would have to work at it. Compare that with the naive version, where a mismatch is a typo.</p>
+<h2>0:25–0:40 — Code Walkthrough</h2>
+<p>Open the files in this order. Resist jumping ahead.</p>
+<p><strong>1. The three product interfaces — <code>TaxCalculator</code>, <code>CurrencyFormatter</code>, <code>AddressValidator</code></strong> Two methods each. Ask: <em>&quot;which of these mentions a country?&quot;</em> None. Point out that each carries <strong>vocabulary</strong> as well as behaviour — <code>label()</code>, <code>currencyCode()</code>, <code>postcodeLabel()</code>. That is what will let the client write market-correct sentences with no branching.</p>
+<p><strong>2. One family of concrete products — <code>UkVatCalculator</code>, <code>PoundFormatter</code>, <code>UkPostcodeValidator</code></strong> Small and unaware. Ask: <em>&quot;does <code>UkVatCalculator</code> know about pounds?&quot;</em> No. <em>&quot;So what makes these three a family?&quot;</em> Only their name and the factory. Let that land — the relationship is not in the classes, it is in the factory.</p>
+<p>Skim the other six quickly; the repetition is the point.</p>
+<p><strong>3. The abstract factory — <code>MarketFactory.java</code></strong> Four methods, no bodies. Ask the group to find the parameter that says which market. There is none — and that absence is the design.</p>
+<p><strong>4. A concrete factory — <code>UkMarketFactory.java</code></strong> Three <code>new</code> calls in a class whose name says British. Ask: <em>&quot;how much code enforces that these three match?&quot;</em> Zero lines. The consistency comes from there being nowhere else the choice is made.</p>
+<p>Show <code>UsMarketFactory</code> alongside it — same shape, different nouns.</p>
+<p><strong>5. The client — <code>CheckoutService.java</code></strong> This is the heart of the session. Read the constructor: four lines and the world is configured. Then ask the group to search the <em>whole class</em> for &quot;UK&quot;, &quot;US&quot; or &quot;India&quot;. Nothing. Then read <code>quote(...)</code> and ask them to point at any branch on the market. There is none, including in the error message.</p>
+<p>Point at the last statement of the constructor and say: <em>&quot;after this line, the factory has done its job and is never used again.&quot;</em></p>
+<p><strong>6. The value objects — <code>Order.java</code>, <code>Quote.java</code></strong> Cover the <code>record</code> primer if needed. Ask why <code>Quote</code> holds <code>String tax</code> rather than <code>double tax</code>. Target answer: so the currency decision survives all the way out to the caller.</p>
+<p><strong>7. The demo — <code>AbstractFactoryDemo.java</code></strong> One loop, three markets. Ask what changes between iterations: one constructor argument.</p>
+<p><strong>8. The tests — <code>MarketFactoryTest.java</code>, <code>CheckoutServiceTest.java</code></strong> Show <code>newMarketNeedsNoExistingChange</code> — it invents Germany entirely inside one test method, as anonymous classes, and the unchanged <code>CheckoutService</code> quotes €238.00 for it. Show <code>identicalCodeProducesAMarketCorrectQuote</code> — one parameterised test body, three markets, three different totals.</p>
+<p>Run <code>./gradlew run</code> live. Point out that the three blocks are structurally identical and only the money differs, then read the final <code>Rejected:</code> line aloud. That visual is worth more than any slide.</p>
+<h2>0:40–0:50 — Exercises</h2>
+<p>Let participants work; circulate and help.</p>
+<h3>Exercise 1 — Add Germany (everyone)</h3>
+<p>Write <code>GermanVatCalculator</code> (19%, &quot;MwSt&quot;), <code>EuroFormatter</code> (<code>€</code>, &quot;EUR&quot;), <code>GermanPlzValidator</code> (five digits) and <code>GermanyMarketFactory</code>, then add one line to the demo.</p>
+<blockquote><p><strong>The payoff:</strong> ask everyone who finishes <em>&quot;how many existing files did you edit?&quot;</em> The answer is one — the demo, and only because it is a demo. Say this out loud; it is half the lesson of the session.</p></blockquote>
+<h3>Exercise 2 — Feel the expensive direction (everyone)</h3>
+<p>Now add a fourth product kind: <code>ReceiptTemplate</code>, with one method <code>String render(Quote quote)</code>. Add <code>createReceiptTemplate()</code> to <code>MarketFactory</code> and make it compile.</p>
+<blockquote><p><strong>The payoff:</strong> count the files touched. It is every factory, including Germany from Exercise 1. Ask: <em>&quot;which change was cheaper, and why?&quot;</em> Target answer: rows are cheap, columns are expensive, and that trade is the pattern.</p></blockquote>
+<p>This is the other half of the lesson. Do not skip it.</p>
+<h3>Exercise 3 — Try to build a mismatch (everyone)</h3>
+<p>Without editing <code>CheckoutService</code>, give it British tax and American address validation. Let them try for two minutes. The constructor does not offer the opportunity.</p>
+<p>Then ask: <em>&quot;what would you have had to change to make it possible?&quot;</em> Answer: the constructor&#x27;s signature — which is exactly the design decision under discussion.</p>
+<h3>Exercise 4 — Spot the anti-pattern (discussion)</h3>
+<p>Present a <code>MarketFactory</code> with the signature <code>TaxCalculator createTaxCalculator(String market)</code>. Ask: <em>&quot;what have we lost?&quot;</em> Everything — the decision moved back to the call site, per call, and the family guarantee is gone.</p>
+<p>Then present a version where <code>createCurrencyFormatter()</code> returns <code>PoundFormatter</code> instead of <code>CurrencyFormatter</code>. Same question, same answer.</p>
+<h3>Exercise 5 — Stretch (for fast finishers)</h3>
+<p>Delete <code>MarketFactory</code> entirely and inject the three products into <code>CheckoutService</code> directly with a three-argument constructor. It works, it is less code, and a dependency-injection framework would wire it happily.</p>
+<p>Ask: <em>when</em> is that better? Target answer: when nothing enforces a relationship between the three anyway, or when the container is the thing guaranteeing consistency. Then ask what you have lost: any object that means &quot;the British market&quot;, and any compile-time reason the three go together.</p>
+<p>There is no universally right answer here — that is the discussion.</p>
+<h2>0:50–0:58 — Pitfalls &amp; Comparisons</h2>
+<p>Cover the &quot;What to Watch Out For&quot; section:</p>
+<ul><li>Adding a product <em>kind</em> means editing every factory. This is real and it gets worse as you add families.</li><li>The class count is markets × product kinds. Be sure the families are real.</li><li>Something still has to choose the factory. That decision often becomes a Simple Factory, and that is fine as long as you notice and keep it in one place.</li><li>Do not use it when the products have no reason to agree. The test question: <em>would a mismatched pair be a bug?</em></li><li>No parameters on the creation methods, ever.</li><li>Beware the abstract factory with exactly one implementation, added &quot;in case we go international one day&quot;.</li></ul>
+<p>Then the comparison table. The line worth memorising:</p>
+<blockquote><p><strong>Simple Factory chooses with a <code>switch</code>. Factory Method chooses with inheritance. Abstract Factory chooses a whole family at once.</strong></p></blockquote>
+<p>And the one-sentence test for which to reach for:</p>
+<blockquote><p>If getting two objects from different groups would be a bug, you want Abstract Factory.</p></blockquote>
+<p>If the group did the earlier sessions, put all three class diagrams side by side on screen and walk left to right. The arrows tell the whole progression without words.</p>
+<p>Close with real-world sightings: <code>DocumentBuilderFactory</code>, <code>java.sql.Connection</code> handing you a matching <code>Statement</code> and <code>ResultSet</code>, Swing&#x27;s <code>LookAndFeel</code>, and any application that swaps a whole coordinated set of behaviour on a locale, a theme or a cloud provider.</p>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>Ask three people for a one-sentence definition. Then assign follow-up:</p>
+<blockquote><p>Find one place in your own codebase where two or more objects are chosen separately but must agree, and sketch the abstract factory that would make the mismatch impossible.</p></blockquote>
+<h2>Facilitator Notes</h2>
+<p><strong>Common misconceptions to correct:</strong></p>
+<table><thead><tr><th>They say</th><th>Correct with</th></tr></thead><tbody><tr><td>&quot;Isn&#x27;t this just Factory Method with more methods?&quot;</td><td>Factory Method varies <em>one</em> product by subclassing the creator. Here the point is that several products must agree — the guarantee, not the count</td></tr><tr><td>&quot;So it prevents mismatches by validating?&quot;</td><td>No. It prevents them by there being no code that could create one. Nothing is checked</td></tr><tr><td>&quot;Why not just pass the three objects in?&quot;</td><td>You can — that is Exercise 5, and sometimes it is right. The factory earns its place when the three must match and nothing else enforces it</td></tr><tr><td>&quot;Nine classes for three countries?&quot;</td><td>A fair objection. Ask what the naive version costs on the day a fourth country arrives, and what a wrong invoice costs</td></tr><tr><td>&quot;Can I add a product kind later?&quot;</td><td>Yes, and it is the expensive direction. That is Exercise 2, and it is deliberate</td></tr><tr><td>&quot;Is <code>market()</code> part of the pattern?&quot;</td><td>Not strictly — it is a convenience so the client can label output. The three <code>create...</code> methods are the pattern</td></tr><tr><td>&quot;Is this a Builder?&quot;</td><td>No. Builder assembles one complicated object step by step; Abstract Factory hands you several finished ones that match</td></tr></tbody></table>
+<p><strong>If you are running short on time:</strong> cut Exercise 5 and shorten the pitfalls discussion. Never cut Exercises 1 and 2 — they are the two halves of the trade-off, and the session does not work with only one of them.</p>
+<p><strong>If you have extra time:</strong> open the Factory Method project side by side and have the group argue about whether the delivery-tier example could be rewritten as an abstract factory, and whether it should be. The answer is &quot;it could, and it should not&quot; — but the argument is the learning.</p>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>Everyone has JDK 21 and a green <code>./gradlew run</code></li><li>Diagrams open in a tab (<code>images/</code>)</li><li><code>animation.html</code> open in a browser</li><li>Video on hand (<code>../video/abstract-factory-pattern-explained.mp4</code>) — useful as a recap for anyone who joins late, or to send round afterwards</li><li>Naive three-<code>if</code>-chain <code>CheckoutService</code> snippet ready to show first</li><li>The blank 3×3 grid on a whiteboard or slide</li><li>Simple Factory and Factory Method class diagrams ready for the 0:50 comparison</li><li>IDE font size raised for screen sharing</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

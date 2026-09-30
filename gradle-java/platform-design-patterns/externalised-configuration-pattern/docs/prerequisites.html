@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>This is the first project in the platform category as most people will meet it, and it is deliberately the gentlest one. If you have written a Java class with a constant in it and then been asked to change the constant, you already understand the problem.</p>
+<h2>Knowledge Prerequisites</h2>
+<h3>Required</h3>
+<ul><li><strong>Java basics</strong> — classes, interfaces, <code>final</code> fields, and what a <code>static final</code> constant is.</li><li><strong>Records</strong> — Java 16&#x27;s <code>record</code>. If you have not met them, the 60-second primer below covers everything this project uses.</li><li><strong><code>Optional</code></strong> — <code>isEmpty</code>, <code>orElseThrow</code>, <code>map</code>. Used to say &quot;this key has no value&quot; without inventing one.</li><li><strong>Unchecked exceptions</strong> — what it means for an exception to travel up through callers that did not ask about it.</li></ul>
+<h3>Helpful, but explained as we go</h3>
+<ul><li><strong><code>java.time</code></strong> — <code>LocalDateTime</code>, <code>Duration</code>, <code>DayOfWeek</code>. The release pipeline walks a working-hours calendar, but the arithmetic is all in one class and you can read the demo output without it.</li><li><strong>Having deployed something</strong> — if you have ever waited for a pipeline to go green so a one-line change could reach production, act 2 will land harder.</li><li><strong>Spring&#x27;s <code>@Value</code> or a <code>.properties</code> file</strong> — you will recognise the shape immediately, and the interesting question becomes what those tools do <em>not</em> do for you.</li></ul>
+<h3>Explicitly NOT required</h3>
+<ul><li><strong>No Spring, no Docker, no Kubernetes, no config server.</strong> Tier 1 of this project — which is all of the code, all of the tests and all of the video — runs offline with nothing but a JDK. <code>ConfigServer</code> is a map in the same JVM with a clock bolted on.</li><li><strong>No network, no HTTP, no YAML, no JSON.</strong> A configuration source stores text against keys. The file format it happens to use teaches you nothing about the pattern.</li><li><strong>No prior platform patterns.</strong> This project does not depend on any of the other seven. The listed order in the category is a dependency order for the material, not a difficulty order.</li></ul>
+<h2>A 60-Second &quot;Record&quot; Primer</h2>
+<p>A record is a class whose whole job is to hold a few values:</p>
+<pre><code>public record ConfigChange(int sequence, LocalDateTime at, String key,
+                           String was, String now, String who) { }</code></pre>
+<p>That one line gives you a constructor taking all six values, a getter for each one named after the field (<code>change.who()</code>, not <code>change.getWho()</code>), plus <code>equals</code>, <code>hashCode</code> and <code>toString</code>. Records are shallowly immutable: there are no setters and the fields cannot be reassigned.</p>
+<p>You can add methods, and this project does — <code>ConfigChange.asLine()</code> formats a line for the audit report, and <code>MoneySetting.read(String)</code> turns text into money or throws. A record is a normal class with the boilerplate written for you.</p>
+<h2>A 60-Second &quot;Configuration&quot; Primer</h2>
+<p><strong>Configuration</strong> is any value your program needs that is not part of its logic: a free-delivery threshold, a page size, a timeout, the address of another service.</p>
+<p>The question this project is about is <em>where the value lives</em>.</p>
+<p><strong>Internal configuration</strong> lives in the compiled program, as a constant. Changing it means producing a new program: edit, review, build, test, approve, deploy.</p>
+<p><strong>Externalised configuration</strong> lives outside the program — a file, an environment variable, a config server — and is read while the program runs. Changing it means changing a value.</p>
+<p>Two things follow from that, and the second is the one to hold onto.</p>
+<p>First, the change becomes fast. This project measures it: four seconds against two hours fifteen of pipeline work spread over a weekend.</p>
+<p>Second, the value loses its guards. A constant in the source is protected by the compiler (it cannot be the word &quot;fifty&quot;), by the type system (it cannot be a postcode), and by whoever reviews the change (they would query minus one pound). None of that follows the value out of the source file. You have to rebuild those guards deliberately, and most of this project is about doing so.</p>
+<h2>A 60-Second &quot;Release Window&quot; Primer</h2>
+<p>Most organisations do not deploy whenever they feel like it. Releases happen inside a <strong>window</strong> — commonly weekday working hours — because that is when the people who review, approve, and watch a release for problems are at their desks. Outside the window there is a <strong>change freeze</strong>.</p>
+<p>This is a sensible policy and not a failure of nerve. It is also why act 2 of the demo matters: a fifteen-minute edit requested at half past four on a Friday does not go live two hours later. It goes live on Monday, after the weekend the promotion was for.</p>
+<p><code>ReleasePipeline</code> in this project models exactly that: five steps totalling 135 minutes of work, and a window from 09:00 to 17:00, Monday to Friday.</p>
+<h2>Software Prerequisites</h2>
+<table><thead><tr><th>Need</th><th>Version</th><th>Why</th></tr></thead><tbody><tr><td>JDK</td><td>21 or later</td><td>Records, sealed types, the Gradle toolchain</td></tr><tr><td>Gradle</td><td>none to install</td><td>The wrapper (<code>./gradlew</code>) fetches what it needs</td></tr></tbody></table>
+<p>Nothing else. No Spring, no container runtime, no config server.</p>
+<h3>Verify Your Setup</h3>
+<pre><code>java -version          # expect 21 or later
+cd platform-design-patterns/externalised-configuration-pattern
+./gradlew test         # expect BUILD SUCCESSFUL, 54 tests
+./gradlew -q run       # expect nine acts of output</code></pre>
+<p>If <code>java -version</code> reports something older than 21, the Gradle toolchain will try to download a suitable JDK on the first build, which needs a network connection once.</p>
+<h2>Troubleshooting</h2>
+<p><strong><code>./gradlew: Permission denied</code></strong> — <code>chmod +x gradlew</code>.</p>
+<p><strong>The demo prints different times than the documents quote</strong> — it should not. Every date in the demo is fixed and there is no clock or randomness anywhere; <code>DemoRunsTest.theDemoIsDeterministic</code> runs it twice and requires identical output. If you see drift, something has been edited.</p>
+<p><strong><code>£</code> characters appear as mojibake</strong> — your terminal is not reading UTF-8. Try <code>JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8 ./gradlew -q run</code>.</p>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the constant, and what changing it actually costs</li><li>Run <code>./gradlew -q run</code> and read all nine acts of output</li><li><a href="externalised-configuration-pattern-explained.html"><code>externalised-configuration-pattern-explained.md</code></a> — the pattern, the three moves, and the bill</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> and <a href="uml-diagram.html"><code>uml-diagram.md</code></a></li><li><a href="animation.html"><code>animation.html</code></a> — step through the nine acts in a browser</li><li>The source, starting with <code>HardCodedCheckout</code> and then <code>ConfiguredCheckout</code></li><li><code>TheBillTest</code> — the two tests that pass and should worry you</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

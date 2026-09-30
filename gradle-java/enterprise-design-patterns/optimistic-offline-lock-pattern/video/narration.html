@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Optimistic Offline Lock Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Optimistic Offline Lock Pattern — Video Narration Script</h1>
+<h2>1. Optimistic Offline Lock</h2>
+<p>Hello, and welcome. This video explains the Optimistic Offline Lock pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. An optimistic lock lets people edit without locking anything. It only detects a clash when someone saves. By checking that the data has not changed since it was read. Think of editing a shared document offline. When you reconnect, the app checks whether someone else changed it meanwhile, before accepting your version. In our online store, two clerks edit the same product at the same time. In this video, they silently overwrite each other. Then a version number stops it, and a retry keeps both changes. And then we hear three costs.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Two clerks open the same product. One raises its price. The other counts its stock. Each one edits for a while, and then saves the whole product row. So here is the question. What happens to the first clerk&#x27;s change?</p>
+<h2>3. No Lock: The Last Write Wins</h2>
+<p>First, no lock at all. Both clerks read the same row. Clerk A raises the price to twelve pounds, and saves. Clerk B counts forty in stock, and saves the whole row, with the old price still in it. The row now says ten pounds. Clerk A&#x27;s change has vanished. And nobody was told. The last one to save simply wins.</p>
+<h2>4. The Pattern</h2>
+<p>Now, the pattern. Nothing is locked while people work. But every row carries a version number. A save only succeeds if the row still has the version that was read. If not, the save is refused. And the person saving must look again.</p>
+<h2>5. A Version On Every Row</h2>
+<p>Second demo: a version on every row. Clerk A saves, and the row moves to version two. Clerk B saves. But clerk B was working from version one. So the save is refused, with the message: changed by someone else since you read it. The twelve pound price survives.</p>
+<h2>6. Reload, Reapply, Save</h2>
+<p>Third demo: reload, reapply, and save. Clerk B is refused, and reloads the row. Now it shows the new price of twelve pounds. Clerk B reapplies the stock count of forty, and saves again. Two attempts in total. And both changes survive: price twelve pounds, stock forty.</p>
+<h2>7. The Version Is Per Row</h2>
+<p>Fourth demo, and the first cost. One clerk changed the price. Another changed the stock. Different fields, so there was no real clash. But the second save is still refused. Because the version number belongs to the whole row. It is a conflict that was not really a conflict. A version for each field would let both through, but at the cost of more bookkeeping.</p>
+<h2>8. The Bill: A Busy Row</h2>
+<p>Fifth demo: a busy row. Ten clerks each add one to the stock of the same product. Nothing is lost, and the stock ends at ten. But nineteen saves were attempted, and nine were refused. Nine of the ten clerks did their work twice. On a row everyone wants, most of the effort gets repeated.</p>
+<h2>9. The Bill: You Find Out At The End</h2>
+<p>Last demo: the second cost, you only find out at the end. A user makes five changes, over a long editing session. When they save, they are told the row has changed. All five changes are thrown away. And the user only learns this now, at the very end. The cost of a conflict is paid at the moment it is found.</p>
+<h2>10. How To Recognise It</h2>
+<p>How can you spot this pattern in code someone else wrote? Look for a version column, and an update that checks both the I D and the version. Look for the at Version annotation in J P A, or Hibernate. Look for an Optimistic Lock Exception, or a web service answering four hundred and nine, meaning conflict. And look for web requests using the If Match header, with an E Tag.</p>
+<h2>11. The Verdict</h2>
+<p>So, here is the verdict. Use an optimistic lock when conflicts are rare, edits are short, and trying again is cheap. That describes most web applications. Keep the version in the row. Check it in the update. Retry by reloading. And tell the user honestly when their change cannot be applied. Use a pessimistic lock instead, when a conflict is expensive, or an editing session is long.</p>
+<h2>12. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything is plain Java. Every number you heard comes from the program&#x27;s own output. And nothing depends on the clock, so every run gives the same result.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, when is this too much? Where conflicts are frequent and costly, retrying wastes work, and a lock is kinder. And where there is only ever one writer, a version number is pure overhead.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s the Optimistic Offline Lock. If you remember one sentence, make it this one. An optimistic lock costs nothing until there is a clash, and then the clash is paid for in repeated work, or lost edits. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Change the store, so the version is kept per field instead of per row. Then see which conflicts disappear. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

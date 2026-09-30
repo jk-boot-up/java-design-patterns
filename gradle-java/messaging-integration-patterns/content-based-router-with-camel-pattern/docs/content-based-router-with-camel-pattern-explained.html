@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Content-Based Router with Camel, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Content-Based Router with Camel, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>A content-based router looks inside each message and sends it to a different channel depending on what it contains, so that senders and receivers never have to know about each other.</p>
+<h2>What Apache Camel changes</h2>
+<p>Nothing about the idea. Two things about the shape.</p>
+<p>The first is that the rules stop being code you step through and become a route you declare. You write down, once, where messages come from, the list of questions to ask about each one, and the destination each answer leads to. Camel runs that description. The questions are asked in the order you wrote them, and the first one answered yes decides.</p>
+<p>The second is what happens to a message that none of the questions claims. The hand-built router had a fallback channel, and when there was no fallback it dropped the message and <em>counted</em> it, so at least the number was visible. Camel has no counter. A route whose questions all say no, with no otherwise branch to catch it, simply ends. The broker is told the message was handled. The message is then on no queue anywhere.</p>
+<h2>The words, in plain language first</h2>
+<p>A <strong>queue</strong> is a named line that messages wait in until somebody takes them. An <strong>exchange</strong>, to the broker, is the post box a sender drops a message into; it keeps nothing and only passes the message on. A <strong>routing key</strong> is the short label on the message that tells the broker which queue it belongs in.</p>
+<p>A <strong>route</strong>, to Camel, is a written description of where messages come from, what is decided about them, and where they go. An <strong>endpoint</strong> is one end of a route: a queue to read from, or a queue to write to. An <strong>exchange</strong>, to Camel — a different meaning from the broker&#x27;s — is the message while it travels. A <strong>predicate</strong> is a yes-or-no question asked about it.</p>
+<p>An analogy that costs nothing to carry. Think of a sorting office. Letters arrive in one sack. A sorter picks up each letter, reads the address on it, and drops it into one of several pigeonholes. The sorter does not know who posted the letter and does not know who will collect it. That sorter is the router, the address is the content, and the pigeonholes are the queues. Now imagine a letter whose address matches none of the pigeonholes. If there is a tray marked &quot;look at these by hand&quot;, the letter goes there. If there is not, and the sorter simply puts it down, it is lost, and nobody ever finds out.</p>
+<h2>The six acts</h2>
+<p>Every figure below is the output of <code>./gradlew run</code>.</p>
+<h3>One Queue For Everything</h3>
+<p>There is no router. All six orders are posted to the warehouse&#x27;s own queue, and the warehouse is left to sort out what it can do. It can pack and post the three physical ones. It can do nothing at all with the other three, which are two digital orders and a subscription. So the warehouse grows an if for every kind of order, and every new kind of order means changing the warehouse.</p>
+<pre><code>  all 6 orders arrived on the warehouse&#x27;s own queue. it shipped 3 and could do nothing with 3.
+  the warehouse now holds an if for every kind of order, and every new kind means changing the warehouse.</code></pre>
+<h3>The Route Reads The Content And Chooses</h3>
+<p>Now a Camel route reads the orders queue. It asks four questions, in this order. Is this order worth a thousand pounds or more? Is it digital, with nothing to put in a box? Was express delivery paid for? Is it a physical thing at all? The first question answered yes decides, and anything none of them claims goes to the manual review queue, which is the branch Camel calls otherwise.</p>
+<p>The very high value order goes to fraud review even though it is physical, because the value question is asked first. The two digital orders go to digital delivery. The express one goes to express shipping. The ordinary physical one goes to standard shipping. The subscription, which nothing covers, goes to manual review.</p>
+<pre><code>  ORD-1 (physical, express, UK, 49.99) -&gt; express-shipping
+  ORD-2 (digital, none, UK, 25.00) -&gt; digital-delivery
+  ORD-3 (physical, standard, EU, 1200.00) -&gt; fraud-review
+  ORD-4 (digital, none, UK, 900.00) -&gt; digital-delivery
+  ORD-5 (subscription, none, UK, 9.99) -&gt; manual-review
+  ORD-6 (physical, standard, EU, 30.00) -&gt; standard-shipping
+  {express-shipping=[ORD-1], standard-shipping=[ORD-6], digital-delivery=[ORD-2, ORD-4], fraud-review=[ORD-3], manual-review=[ORD-5]}.
+  the shop&#x27;s route asks 4 questions about the content in a fixed order, and nothing but the route knows the answers.</code></pre>
+<h3>The First Question Answered Yes Wins</h3>
+<p>One digital gift card, worth fifteen hundred pounds, sent through two routes that ask the same four questions in two different orders. With the high value question asked first it goes to fraud review. With the same question asked last it goes to digital delivery, because the digital question was reached first and answered yes. Same order, same broker, same four questions, different answer.</p>
+<pre><code>  a digital gift card worth 1500.00. with the high value question asked first: fraud-review. with it asked last: digital-delivery.
+  the order of the questions is part of the design, and Camel does not warn you when it changes.</code></pre>
+<h3>A Message No Question Claims</h3>
+<p>A subscription order. Not high value, not digital, not express, not physical. Every question says no.</p>
+<p>Sent through the route that has an otherwise branch, it arrives on the manual review queue, where a person will see it.</p>
+<p>Sent through a route with no otherwise branch, the route ends. The count of messages left anywhere in the shop, on any of the ten queues, is zero. The broker was told the message had been handled, so the broker no longer has it either. Nothing was logged, nothing was counted, and nobody was told.</p>
+<p>Sent through a route whose otherwise branch goes to a queue named for the problem, it lands on a queue called unclaimed, and that queue is the entire difference between an order that is lost and an order that is known about.</p>
+<pre><code>  a subscription order, which no question covers. with an otherwise branch it goes to: manual-review.
+  with no otherwise branch the route simply ends. messages left anywhere in the shop: 0. the broker was told it was handled, so it is gone.
+  an otherwise branch that names the problem sends it to: unclaimed, where somebody can look at it. that queue is the whole difference between a lost order and a known one.</code></pre>
+<h3>A New Question, And Nobody Else Changes</h3>
+<p>A fifth question is added, asked after the other four: is this order from inside the European Union, so the tax has to be worked out before it ships? The route goes from four questions to five. No sender was changed. No receiving queue was changed. Only the route was.</p>
+<p>An order that is a subscription from the European Union used to fall through to manual review. It now goes to the VAT check. But the ordinary physical order from the European Union still goes to standard shipping, because the physical question is asked earlier and is answered yes first.</p>
+<pre><code>  questions before: 4, after: 5. the senders and the receiving queues were not touched; only the route was.
+  an EU subscription used to go to manual-review. it now goes to: eu-vat-check.
+  ORD-6, physical and from the EU, still goes to: standard-shipping, because an earlier question was answered yes first.</code></pre>
+<h3>The Bill</h3>
+<p>Three costs.</p>
+<p>The first is coupling to the content. The sender starts calling physical orders goods instead of physical. The route&#x27;s question still looks for the word physical, so it is answered no, and the order lands on manual review without a word being said about why.</p>
+<p>The second is failure, which is not the same as no match. The fraud branch is broken: the service behind it does not answer. Camel tried it three times, which is the first attempt plus the two redeliveries it was told to make, and then put the order on an errors queue, which ended up holding one message. A route can fail as well as choose, and somebody has to say in advance where the failures go — or they go the same way an unclaimed message goes, which is nowhere.</p>
+<p>The third is the running cost. The routing is now a broker and a route to keep running: one container, one exchange and ten queues.</p>
+<pre><code>  the sender starts calling physical orders goods. the route&#x27;s question still looks for physical, so ORD-9 lands on: manual-review, quietly.
+  the fraud branch is broken. Camel tried it 3 times and then put the order on router-errors, which now holds 1. a route can fail as well as choose, and somebody has to say where the failures go.
+  and the routing is now a broker and a route to keep running: this demo needed 1 container, 1 exchange and 10 queues.</code></pre>
+<h2>What the simulation got right, and what it left out</h2>
+<p><strong>Right.</strong> The idea, exactly. Rules in a deliberate order. The first match winning. A fallback. The insight that a router which reads the body is coupled to the body&#x27;s format. Adding a rule without touching anybody else. All of that survives contact with the real tool unchanged, which is the best thing you can say about a teaching model.</p>
+<p><strong>Left out.</strong> Four things.</p>
+<p>One: the router in the simulation was a method you called, so the rules and the callers were in one process and one thread. Here the message genuinely leaves the process, and the destination is a queue that some other program will read at some other time.</p>
+<p>Two: the simulation counted what it dropped. Camel does not. A dropped message in the simulation was a number you could assert on; a dropped message here is silence, and you only find out when a customer asks where their order went.</p>
+<p>Three: the simulation&#x27;s rules could not fail. A predicate either matched or did not. In a real route a branch calls something that can be down, and the question of what happens to a message whose handling failed is a separate design decision from the question of what happens to a message that matched nothing.</p>
+<p>Four: the simulation had no operational cost. Here there is a broker to run, queues to declare, a route to deploy, and a second way of describing behaviour that every reader of the codebase has to learn.</p>
+<h2>The verdict</h2>
+<p>Use a content-based router when one stream carries messages that need different handling and the difference is in the content. With Camel in particular: write the questions in a deliberate order and test that order, because nothing will warn you when somebody reorders them. Always write an otherwise branch, and send it somewhere named for the problem rather than into a general inbox. Always configure an error handler, because a branch that fails is not the same as a branch that does not match. And prefer asking a question about a header the sender filled in on purpose over reaching into the body, at the cost of the sender having to fill it in.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>Camel&#x27;s <code>choice().when(...).otherwise(...)</code> in a <code>RouteBuilder</code>.</li><li>Spring Integration&#x27;s <code>router</code>, and a <code>@Router</code> annotated method.</li><li>A RabbitMQ topic exchange with several bindings, doing the same job in the broker instead.</li><li>An <code>if</code> chain inside a message listener that decides which service to call next.</li><li>A queue with a name like <code>unroutable</code>, <code>parking-lot</code> or <code>manual-review</code>, which is somebody&#x27;s otherwise branch.</li></ul>
+</main>
+<footer>
+Generated from <code>content-based-router-with-camel-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

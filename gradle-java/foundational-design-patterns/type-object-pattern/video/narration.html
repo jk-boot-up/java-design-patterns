@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Type Object Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Type Object Pattern — Video Narration Script</h1>
+<h2>1. Type Object</h2>
+<p>Hello, and welcome. This video explains the Type Object pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A type object turns the kind of a thing into data. Instead of a subclass for each kind, there is one class. And each object points to a type object, which holds whatever differs. Think of a library&#x27;s shelf labels. The labels say how long each kind of book can be borrowed. Change a label, and every book on that shelf follows the new rule. In our online store, books, laptops, and groceries differ in only a few numbers. Yet each one has its own class. In this video, we replace those classes with one class and some data. We will add a new kind while the program runs, change a rule in one place, and let one type inherit from another. And then the cost.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Books have no tax, and cost three pounds to ship. Laptops have twenty percent tax, and ship free. Groceries have five percent tax. And next month, the shop will start selling gift cards. So here is the question. Should each kind of product be its own class?</p>
+<h2>3. A Class For Each Kind</h2>
+<p>First, the naive way: a class for each kind. Three kinds, three classes. And they differ only in three numbers. A novel costs thirteen pounds in total. And a gift card is a fourth kind. That means a fourth class, a new build, and a new release.</p>
+<h2>4. The Pattern</h2>
+<p>Now, the pattern. One class for the product. A type object for its kind, which holds whatever differs. Each product points to its type. And a new kind is just a new type object.</p>
+<h2>5. A Type That Is Data</h2>
+<p>Second demo: a type that is data. Now there is just one product class. A novel costs thirteen pounds. A laptop costs nine hundred and sixty pounds. And a pack of tea costs six pounds twenty. A laptop can be returned after ten days. But not after twenty.</p>
+<h2>6. A New Kind At Run Time</h2>
+<p>Third demo: a new kind, while the program runs. Before, there are three product types. After adding gift cards, there are four. Classes added: none. A twenty-five pound gift card costs exactly twenty-five pounds. And it cannot be returned, even after one day.</p>
+<h2>7. Change The Type, Change Every Product</h2>
+<p>Fourth demo: change the type, and every product follows. The tax on a pack of tea is twenty pence. On a bag of coffee, forty pence. Now grocery tax is raised to ten percent, in one place. The tea&#x27;s tax becomes forty pence. The coffee&#x27;s becomes eighty pence.</p>
+<h2>8. A Type That Inherits</h2>
+<p>Fifth demo: a type that inherits. An ebook type states only its shipping cost: nothing. Its tax, which is zero, and its return period, thirty days, both come from the book type. So the ebook only states what is different.</p>
+<h2>9. The Bill</h2>
+<p>Finally, the costs. First, a typo in a type&#x27;s name, like book spelled b o k, is only found when the program runs. With a class for each kind, that typo would not even compile. Second, laptops need their serial number checked. But a type holds data, not steps. A flag can say a check is needed, but the code that does the check lives somewhere else. Third, every new difference between kinds becomes a new field. And the code must remember to read it. This type already has six fields.</p>
+<h2>10. How To Recognise It</h2>
+<p>How can you spot this pattern in code someone else wrote? Look for a Type, Kind, or Category object, pointed to by another object. Look for a product types table in a database, with products linked to it. Look for card types, unit types, or enemy types in games, defined in data files. And Java&#x27;s own Currency, Locale, and Charset classes, which describe things as data.</p>
+<h2>11. The Verdict</h2>
+<p>So, here is the verdict. Use a type object when kinds differ in data, and new kinds should be added without new code. Let types inherit defaults from each other. Where kinds differ in steps, use a strategy, or a subclass. Check type names early. And keep the number of fields small.</p>
+<h2>12. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything is plain Java. Every number you heard comes from the program&#x27;s own output. And nothing depends on the clock, so every run gives the same result.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, when is this too much? If the kinds are few, fixed, and differ in behaviour, plain subclasses are clearer. A type object pays off when there are many kinds. Or when new kinds are added by people who are not programmers.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s the Type Object pattern. If you remember one sentence, make it this one. A type object turns kinds into data, so a new kind needs no new class, and the price is late errors, and behaviour that data cannot hold. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a type for frozen groceries. Make it inherit from groceries, but cost more to ship. Then check its total. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

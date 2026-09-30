@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Adapter Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Adapter Pattern, Explained</h1>
+<blockquote><p>&quot;Convert the interface of a class into another interface clients expect. Adapter lets classes work together that couldn&#x27;t otherwise because of incompatible interfaces.&quot; — Gang of Four, <em>Design Patterns</em></p></blockquote>
+<h2>One Seam, All the Conversion</h2>
+<p><code>AcmeShippingSdk</code> speaks pounds and cents, with a method called <code>fetchCostInCents</code>. Checkout speaks kilograms and dollars, and wants a method called <code>quoteRate</code>. Nothing about either side is wrong — they were simply designed independently, for different purposes.</p>
+<p>The Adapter pattern puts one small class between them:</p>
+<pre><code>public final class AcmeShippingAdapter implements ShippingRateProvider {
+    private final AcmeShippingSdk sdk;
+
+    @Override
+    public BigDecimal quoteRate(String destinationZip, double weightKg) {
+        double weightLb = toPounds(weightKg);
+        long cents = sdk.fetchCostInCents(destinationZip, weightLb);
+        return toDollars(cents);
+    }
+}</code></pre>
+<p>Every unit conversion, every method-name translation, lives in this one class. Callers never see <code>AcmeShippingSdk</code> at all.</p>
+<h2>Everyday Analogy: The Wall Plug Adapter</h2>
+<p>A laptop charger built for a UK socket does not change when you travel to the US — you do not rewire the charger. You plug a small adapter between the charger and the US wall socket. The adapter&#x27;s whole job is translating one physical interface (US prongs) into another (UK prongs) it was never designed to fit. The charger&#x27;s own logic never changes; neither does the wall socket&#x27;s. Only the thin adapter in between knows about both shapes.</p>
+<h2>Participants</h2>
+<table><thead><tr><th>Role</th><th>In This Project</th></tr></thead><tbody><tr><td><strong>Target</strong></td><td><code>ShippingRateProvider</code> — the interface client code expects.</td></tr><tr><td><strong>Adaptee</strong></td><td><code>AcmeShippingSdk</code> — the existing, incompatible class we cannot (or should not) change.</td></tr><tr><td><strong>Adapter</strong></td><td><code>AcmeShippingAdapter</code> — implements <code>ShippingRateProvider</code>, wraps an <code>AcmeShippingSdk</code>, and translates every call.</td></tr><tr><td><strong>Client</strong></td><td><code>CheckoutService</code> — depends only on <code>ShippingRateProvider</code>, never on <code>AcmeShippingSdk</code>.</td></tr><tr><td><strong>The trap</strong></td><td><code>NaiveCheckoutService</code> / <code>NaiveShippingEstimator</code> — call <code>AcmeShippingSdk</code> directly, duplicating the conversion at every call site.</td></tr></tbody></table>
+<p><code>FlatRateShippingProvider</code> is a second, <em>natively</em> compatible implementation of <code>ShippingRateProvider</code> — written from scratch, no adapting needed. It exists to prove a point: <code>CheckoutService</code> cannot tell the difference between an adapted implementation and a native one. Both are just a <code>ShippingRateProvider</code> at the call site.</p>
+<h2>Code Walkthrough</h2>
+<p><strong>The target interface</strong> — this is the shape checkout was written against, independent of any specific carrier:</p>
+<pre><code>public interface ShippingRateProvider {
+    BigDecimal quoteRate(String destinationZip, double weightKg);
+}</code></pre>
+<p><strong>The adaptee</strong> — third-party, cannot be changed, uses different units and a different method name:</p>
+<pre><code>public final class AcmeShippingSdk {
+    public long fetchCostInCents(String zip, double poundsMass) { ... }
+}</code></pre>
+<p><strong>The adapter</strong> — the only class in the codebase that imports <code>AcmeShippingSdk</code>:</p>
+<pre><code>public final class AcmeShippingAdapter implements ShippingRateProvider {
+    private static final BigDecimal KG_TO_LB = new BigDecimal(&quot;2.20462&quot;);
+    private static final BigDecimal CENTS_PER_DOLLAR = new BigDecimal(&quot;100&quot;);
+    private final AcmeShippingSdk sdk;
+
+    public AcmeShippingAdapter(AcmeShippingSdk sdk) {
+        this.sdk = sdk;
+    }
+
+    @Override
+    public BigDecimal quoteRate(String destinationZip, double weightKg) {
+        double weightLb = BigDecimal.valueOf(weightKg).multiply(KG_TO_LB).doubleValue();
+        long cents = sdk.fetchCostInCents(destinationZip, weightLb);
+        return BigDecimal.valueOf(cents).divide(CENTS_PER_DOLLAR, 2, RoundingMode.HALF_UP);
+    }
+}</code></pre>
+<p><strong>The client</strong> — knows nothing about Acme, pounds, or cents:</p>
+<pre><code>public final class CheckoutService {
+    private final ShippingRateProvider shippingRateProvider;
+
+    public BigDecimal totalWithShipping(BigDecimal itemsSubtotal, String destinationZip, double weightKg) {
+        BigDecimal shipping = shippingRateProvider.quoteRate(destinationZip, weightKg);
+        return itemsSubtotal.add(shipping);
+    }
+}</code></pre>
+<p>Swap in <code>new AcmeShippingAdapter(new AcmeShippingSdk())</code> or <code>new FlatRateShippingProvider()</code> — <code>CheckoutService</code> does not change either way.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>The conversion lives in exactly one place.</strong> Fix a rounding bug once, and every caller is fixed.</li><li><strong>Client code is decoupled from the third-party shape.</strong> <code>CheckoutService</code> never imports <code>AcmeShippingSdk</code>; if Acme&#x27;s SDK version changes its method signature, only <code>AcmeShippingAdapter</code> needs to change.</li><li><strong>You can swap providers without touching the client.</strong> A natively written <code>ShippingRateProvider</code> and an adapted one are interchangeable — <code>CheckoutService</code> cannot tell them apart, by design.</li><li><strong>You can adapt a class you don&#x27;t own.</strong> You never need write access to <code>AcmeShippingSdk</code>&#x27;s source to make it fit your interface.</li></ul>
+<h2>What to Watch Out For</h2>
+<ul><li><strong>Adapter is not a place to add new behavior.</strong> If <code>AcmeShippingAdapter</code> started adding retry logic or caching, it would be doing more than adapting — that belongs in a decorator, not here.</li><li><strong>One adapter per incompatible source.</strong> If you integrate a second carrier later, write a second adapter (<code>OtherCarrierAdapter</code>) implementing the same <code>ShippingRateProvider</code> — don&#x27;t grow one adapter to branch on which SDK it&#x27;s wrapping.</li><li><strong>Don&#x27;t adapt what you already control.</strong> If you own both sides of an interface mismatch, it is usually cheaper to just change one side to match the other, rather than add a permanent translation layer.</li></ul>
+<h2>Adapter vs. Bridge vs. Decorator vs. Facade</h2>
+<table><thead><tr><th>Pattern</th><th>Purpose</th><th>Shape</th></tr></thead><tbody><tr><td><strong>Adapter</strong></td><td>Make an <em>existing, incompatible</em> interface fit one clients already expect.</td><td>One wrapper class translating calls, applied after the fact.</td></tr><tr><td><strong>Bridge</strong></td><td>Let an abstraction and an implementation vary <em>independently</em>, designed together up front.</td><td>Two hierarchies connected by composition, planned from the start.</td></tr><tr><td><strong>Decorator</strong></td><td>Add responsibilities to an object <em>without changing its interface</em>.</td><td>Same interface in and out, layered, stackable.</td></tr><tr><td><strong>Facade</strong></td><td>Simplify a <em>complex subsystem</em> behind one easy-to-use entry point.</td><td>One class hiding many, not necessarily translating a mismatched shape.</td></tr></tbody></table>
+<p>Bridge is designed in advance, so both hierarchies are shaped for each other from day one. Adapter is reactive — it exists because two things that were <strong>not</strong> designed together need to cooperate anyway.</p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><strong><code>java.util.Arrays.asList(...)</code></strong> adapts an array to the <code>List</code> interface.</li><li><strong><code>InputStreamReader</code></strong> adapts a byte-oriented <code>InputStream</code> to the character-oriented <code>Reader</code> interface.</li><li><strong>JDBC-ODBC bridges</strong> (historically) adapted ODBC drivers to the JDBC <code>Driver</code> interface.</li><li><strong>Every REST client wrapper</strong> you have ever written around a vendor SDK, translating their DTOs into your domain objects, is an Adapter.</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li>Add a second carrier, <code>SwiftCourierSdk</code>, with its own quirky shape (say, it wants grams and returns a <code>String</code> like <code>&quot;14.20&quot;</code>). Write <code>SwiftCourierAdapter implements ShippingRateProvider</code> and prove <code>CheckoutService</code> works with it unmodified.</li><li>Write a test that constructs <code>CheckoutService</code> with each of the three providers (<code>AcmeShippingAdapter</code>, <code>FlatRateShippingProvider</code>, your new <code>SwiftCourierAdapter</code>) and asserts each produces <em>some</em> valid total — proving the client truly cannot tell them apart.</li><li>Try adapting in the other direction: write an adapter that makes <code>ShippingRateProvider</code> usable somewhere that expects Acme&#x27;s exact <code>fetchCostInCents(String, double)</code> shape (a &quot;reverse adapter&quot;). Notice how much more awkward that is — you&#x27;d have to convert dollars back to cents and kilograms back to pounds, going the wrong way.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the naive code this pattern replaces.</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> and <a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the static and dynamic views.</li><li><a href="session.html"><code>session.md</code></a> — a guided 60-minute walkthrough.</li></ul>
+</main>
+<footer>
+Generated from <code>adapter-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

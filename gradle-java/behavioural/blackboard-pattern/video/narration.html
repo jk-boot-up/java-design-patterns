@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blackboard Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Blackboard Pattern — Video Narration Script</h1>
+<h2>1. Blackboard</h2>
+<p>Hello, and welcome. This video explains the Blackboard pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. In the blackboard pattern, several independent experts share one board of facts. Each expert adds what it knows, as soon as it has what it needs. And a controller decides who goes next, and stops as soon as the answer is clear. Think of an incident room in a detective story. A board on the wall holds every clue so far. Whoever can add something steps up. And the lead detective closes the case the moment there is enough to go on. In this video, the domain is an online shop. Before it accepts an order, it checks for fraud. Where the card is from, where the shopper is, how many orders they placed recently, and more. By the end, you will hear why one method that runs every check wastes time. How experts on a shared board fix it. How the controller stops early. And what the pattern costs.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Before accepting an order, the shop runs six fraud checks. Where is the card from? Where is the shopper? Do those match? How many orders did this account place in the last hour? How big is the order? And is the device a real phone? That last check is slow: eight hundred milliseconds. Each check adds risk points. Sixty or more, and the order is rejected.</p>
+<h2>3. Act One — Every check, every time</h2>
+<p>First demo: one method runs every check, in a fixed order. Card country. Shopper&#x27;s country. Do they match. Orders in the last hour. Order value. And a device check that takes eight hundred milliseconds. A risky order comes in. After the five cheap checks, the answer is already clear: reject. But the slow device check runs anyway. Nine hundred and two milliseconds in total. And adding a new check means editing this one method, and getting the order right by hand.</p>
+<h2>4. Act Two — The blackboard</h2>
+<p>Second demo: the blackboard. Each check is now an independent expert. It only says two things. What facts it needs, and what it adds. A good order goes on the board. A controller looks for experts that are ready, and lets the cheapest go first. Order value is ready straight away. Then card country, and I P country. The moment both countries are on the board, the comparison becomes ready. Nobody had to write that order down. Six checks, and a risk score of zero. Approved.</p>
+<h2>5. Act Three — Stopping early</h2>
+<p>Third demo: the controller stops as soon as it can decide. The risky order has a British card, but the shopper is in Russia. Forty risk points. The account placed five orders in the last hour. Thirty more. The score is seventy. Anything over sixty is rejected. So the controller stops. Five checks, one hundred and two milliseconds. The slow device check never runs.</p>
+<h2>6. Act Four — A new expert</h2>
+<p>Fourth demo: a new expert joins. Fraudsters start buying gift cards. So a new check is written. Over two hundred pounds of gift cards adds sixty risk points. It is simply added to the list of experts. No other check changes, and neither does the controller. Six gift cards, three hundred pounds. Rejected. Without the new expert, it would have been approved.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. Nobody wrote down the order of events. It is chosen while the program runs. So when someone asks why an order was rejected, the log is the only story. And the board is shared. Every expert can read every fact on it. Including the card number.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the pattern. There are three parts. The blackboard holds the facts, shared by everyone. The experts, called knowledge sources, each say which facts they need, and what they add. They never call each other. And the controller asks who is ready, picks who goes next, and decides when to stop.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. The blackboard holds the facts, the risk score, and a log of every contribution. Knowledge source is the interface every expert follows. Are you ready? Then contribute. The checks class holds the six fraud experts, and later the gift card one. The controller runs the cheapest ready expert, and stops at sixty. And fraud check all is the old way, kept for comparison.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met this pattern already. Fraud and risk engines combine many independent signals into one score. Rule engines such as Drools fire a rule when the facts it needs are present. The pattern was born in early speech recognition systems. And today, AI agents that post findings to a shared memory are using it again.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use it? When many independent pieces of knowledge combine into one decision. When their order depends on what is already known. And when new pieces arrive often. Keep each expert small. Log every contribution. And decide carefully what the board may show to each expert. When the steps are always the same, a plain method is simpler.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Blackboard pattern. If you remember one sentence, make it this one. Let experts share one board, and stop as soon as the answer is known. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Hide the card number from every check, except the one that needs it. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Sidecar, With the Proxy Written in Java</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Sidecar, With the Proxy Written in Java</h1>
+<p><strong>One hour, for a group who have already done the Sidecar session.</strong></p>
+<p>This session does not work on its own. It is the second of a pair, and its whole argument depends on the group already believing that a sidecar is a good idea. If half the room has not seen §41, run that one instead and come back to this next time.</p>
+<p>The shape of the hour is unusual for this course, and it is deliberate: the group spends the first twenty minutes discovering that the tool they were sold last time cannot do something reasonable, the middle twenty fixing it, and the last twenty finding out that the fix costs more than the problem did. People leave persuaded <em>not</em> to write their own proxy, which is the correct outcome.</p>
+<hr>
+<h2>Learning Objectives</h2>
+<p>By the end, participants should be able to:</p>
+<ol><li><strong>Explain why nginx retries immediately</strong>, in terms of upstream groups, and say why that is correct for a pool of machines and wrong in front of a single supplier.</li><li><strong>Name the contract between a service and its sidecar</strong> — an address — and say what that makes replaceable.</li><li><strong>Describe the difference between a claim and a demonstration</strong> in this context: two proxies in two languages on one port, with a service whose source file did not change.</li><li><strong>List what you lose</strong> when twenty-two lines of configuration become forty lines of Java, including the loss that is not on any invoice: the fence.</li><li><strong>State the narrow rule</strong> and apply it to a case from their own system.</li><li><strong>Say why a swap is a rollout</strong>, and what happens to a request that arrives in the gap.</li></ol>
+<hr>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup, and one question from last time</td></tr><tr><td>0:05–0:18</td><td>The sentence that cannot be said</td></tr><tr><td>0:18–0:28</td><td>The swap</td></tr><tr><td>0:28–0:36</td><td>Code walkthrough</td></tr><tr><td>0:36–0:48</td><td>Exercises</td></tr><tr><td>0:48–0:57</td><td>The bill, and the fence</td></tr><tr><td>0:57–1:00</td><td>Wrap-up</td></tr></tbody></table>
+<hr>
+<h2>0:00–0:05 — Setup, And One Question From Last Time</h2>
+<pre><code>cd gradle-java/platform-design-patterns/sidecar-java-proxy-pattern
+./gradlew test    # 30 tests
+./gradlew run     # seven acts</code></pre>
+<p>Open with the question the last session ended on, and take answers before showing anything:</p>
+<blockquote><p>Last time we said a sidecar is language-independent — the proxy can be written in a language nobody here knows, and the service will not care. <strong>How would you prove that?</strong></p></blockquote>
+<p>Let the room propose things. Most groups reach for behaviour: run it with the new proxy and check the payments still work. Note that answer on the board, because you are going to come back and reject it in the walkthrough. A service that merely <em>behaves</em> the same afterwards is a service somebody may have carefully rebuilt.</p>
+<hr>
+<h2>0:05–0:18 — The Sentence That Cannot Be Said</h2>
+<p>Run Acts 2 and 3.</p>
+<p>The move here is to keep the room angry at nginx for as long as possible and then take the anger away. Show Act 2 first — three attempts at 1, 2 and 3 milliseconds against a provider that recovers at 300 — and ask what went wrong. Almost everybody says the retry policy is misconfigured. Someone will offer to fix it.</p>
+<p>Let them try. Ask for the directive they would add. Give it a minute.</p>
+<p>Then explain the upstream group: nginx has no retry counter, it has a list of servers and a rule that says move to the next one, and §41&#x27;s configuration lists the provider&#x27;s address three times because that is how you spell three attempts. Moving to the next server happens immediately, and that is <em>right</em> when the next server is a different machine.</p>
+<p>The sentence to land, slowly:</p>
+<blockquote><p><strong>Nobody wrote a bug. The sentence the provider asked for does not exist in the language the policy is written in.</strong></p></blockquote>
+<p>Two discussion questions, three minutes:</p>
+<ul><li>Where else have you used a tool correctly, inside its design, and still got a bad result because your case was not the case it was designed for?</li><li>Which half of the provider&#x27;s letter did the shop keep? (The half that limits the shop. Sit with that for a moment.)</li></ul>
+<hr>
+<h2>0:18–0:28 — The Swap</h2>
+<p>Run Acts 4 and 5.</p>
+<p>Show <code>port.install(java)</code> on its own and ask the room what that method takes. It takes a proxy. It does not take the service, it has no way to notify one, and it has no way to restart one — <strong>there is no such parameter because there is no such step.</strong></p>
+<p>Then put Act 2 and Act 5 side by side and ask the room what is different. Push until somebody says <em>nothing except when the attempts happen</em>. Three attempts in both. Same allowance, same provider, same payment. The provider was not renegotiated with and did not get less traffic.</p>
+<blockquote><p><strong>The spacing was the difference between a customer walking away and a coffee maker being sold, and it cost the provider nothing.</strong></p></blockquote>
+<hr>
+<h2>0:28–0:36 — Code Walkthrough</h2>
+<p>Four files, in this order.</p>
+<p><strong><code>NginxProxy.forward</code> and <code>JavaProxy.forward</code>, side by side.</strong> Put them on the screen together. They are the same loop with four lines missing from one. End on the comment at the bottom of the nginx version — <em>and here is where the waiting would go, if it could be said at all.</em></p>
+<p><strong><code>LocalPort</code>.</strong> The hinge of the whole project, and it has one field. <code>install</code>, <code>vacate</code>, <code>send</code>. Point out that <code>send</code> throws <em>connection refused</em> when nothing is bound, because the group will need that in ten minutes.</p>
+<p><strong><code>PaymentsService</code>.</strong> Read the whole class out loud; it is short. Two fields and a method that forwards. Then show <code>ServiceStaysEmptyTest</code>, which reads this file with the comments stripped and fails if <em>retry</em>, <em>backoff</em>, <em>timeout</em>, <em>keystore</em> or <em>tls</em> appear in it.</p>
+<p><strong><code>TheSwapTest</code>.</strong> Come back to the board from minute five. The test does not check that the service behaves the same; it asserts <code>assertSame</code> on the service&#x27;s identity, before and after. Ask the room why that is the stronger claim.</p>
+<hr>
+<h2>0:36–0:48 — Exercises</h2>
+<h3>Exercise 1 — Make it greedier, and watch a test object (everyone, 4 min)</h3>
+<p>Change <code>ProxyPolicy.agreedWithTheProvider()</code> to allow six attempts instead of three, and run the tests.</p>
+<p>Several fail. The one to read aloud is the assertion that both proxies spend the <em>same</em> allowance. Discuss: the shop could have fixed Act 2 by asking for more attempts instead of better spacing. Why is that a different — and worse — change? Who pays for it?</p>
+<p>Put it back.</p>
+<h3>Exercise 2 — Stop the doubling (everyone, 3 min)</h3>
+<p>In <code>JavaProxy.forward</code>, delete <code>backoff *= 2;</code> so every wait is two hundred milliseconds. Run the demo. The payment still succeeds — the third attempt lands at 401ms, which is after 300.</p>
+<p>So why keep the doubling? Ask before answering. The answer is not about this one payment: it is about every service in the shop failing at the same instant and coming back at the same instant. A fixed wait synchronises the whole estate against a provider that has just started breathing again.</p>
+<p>Then ask what a production proxy would add here that this one deliberately does not (a small random jitter), and why it is absent (a random number would make the demo print something different on every run, and the tests assert on its exact output).</p>
+<h3>Exercise 3 — Put a business rule in the proxy (discussion, 3 min)</h3>
+<p>Ask the room to write, in Java, a check in <code>JavaProxy.forward</code> that refuses refunds older than ninety days. It takes about four lines and everybody can see how.</p>
+<p>Now ask them to write the same rule in an nginx <code>location</code> block.</p>
+<blockquote><p><strong>The limitation and the fence were the same thing.</strong> You took the fence down at the exact moment you took the limitation away, and nothing in the build will ever tell you that somebody walked through the gap.</p></blockquote>
+<p>This is the most important three minutes of the session.</p>
+<h3>Exercise 4 — Stretch</h3>
+<p>Make <code>LocalPort.install</code> refuse to bind if something is already bound, so a swap <em>must</em> go through <code>vacate</code> first. Then ask what would have to change to make a zero-gap swap possible at all — and notice that the answer involves two ports, a period where both proxies are running, and something deciding when to move the traffic. That answer is §43.</p>
+<hr>
+<h2>0:48–0:57 — The Bill, And The Fence</h2>
+<p>Run Acts 6 and 7.</p>
+<p>Act 6 first, and read the number out: <strong>attempts that reached the provider, zero.</strong> Healthy provider, healthy network, healthy service. Ask where that failure would show up in the provider&#x27;s dashboards. It would not — the request never left the machine.</p>
+<p>Draw the conclusion as an operational rule rather than a warning: start the new proxy before stopping the old one, move one service at a time, keep the old proxy installable. Say plainly why the last one matters — the fastest fix for a bad new proxy at three in the morning is the old one.</p>
+<p>Then Act 7, and go through the bill item by item rather than reading it as a list. Forty lines you now own. TLS termination, the access log, connection pooling — gone until somebody writes them, and forty lines that grow all of that back are not forty lines any more. A JVM beside every service. And the fence from Exercise 3.</p>
+<p>Close the section by asking the room to vote: <strong>would you do this swap in your system?</strong></p>
+<p>Most rooms say no, once they have seen the bill, and that is the right answer. The point of the hour is not the swap. It is that the swap <em>was available</em>, in an afternoon, because the contract was an address.</p>
+<hr>
+<h2>0:57–1:00 — Wrap-Up</h2>
+<p>One rule on the board:</p>
+<blockquote><p><strong>Swap the proxy when the thing you need cannot be said in the configuration language at all.</strong> Not when it is awkward. Not when the config file has grown ugly. Not when you would rather write Java.</p></blockquote>
+<p>And one question to take away:</p>
+<blockquote><p>What does your team talk to through an address rather than through a library — and what could you therefore replace on a Tuesday afternoon without asking anybody&#x27;s permission?</p></blockquote>
+<hr>
+<h2>Facilitator Notes</h2>
+<p><strong>The room will want to blame nginx, and you must not let them.</strong> The session only works if the group ends up respecting the tool. Every time somebody says nginx is limited, agree — and then point out that the limitation is why twenty years of configuration files in their company contain no business logic.</p>
+<p><strong>Do not let Exercise 3 become a joke.</strong> It is funny for about fifteen seconds and then it is the most serious point of the session. If the room laughs, ask who would find the refund rule six months later, and how.</p>
+<p><strong>If somebody asks why not just use Envoy or HAProxy</strong>, that is an excellent question and the honest answer is: usually you should. This project is not an argument for hand-written proxies. It is an argument that the <em>interface</em> — an address — is what makes any of those options reachable at all. If a better off-the-shelf proxy can express the sentence, use it, and the swap is exactly the same swap.</p>
+<p><strong>If somebody asks about the millisecond hop</strong>, that was §41&#x27;s Act 7 and it has not changed here. Both proxies pay it.</p>
+<p><strong>Timing.</strong> The likeliest overrun is the walkthrough, because the two <code>forward</code> methods invite a line-by-line reading. Show them side by side, name the four missing lines, and move on. The exercises are where the learning is.</p>
+<p><strong>If you only have thirty minutes:</strong> setup, Acts 2 and 3, Act 5, Exercise 3, and the bill. Drop the code walkthrough entirely — the two <code>forward</code> methods can be a screenshot.</p>
+<hr>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>JDK 21, and <code>./gradlew test</code> passing (30 tests) before anybody arrives</li><li><code>./gradlew run</code> output on screen, in a fixed-width font, at least 76 columns</li><li><code>NginxProxy.forward</code> and <code>JavaProxy.forward</code> open side by side in one window</li><li><code>docs/animation.html</code> open in a browser tab, for the groups who prefer the picture</li><li><code>docs/sequence-diagram.md</code> rendered, for the two blocks of arrival times</li><li>A whiteboard, for the maintenance question at minute five and the vote at minute fifty-five</li><li>The §41 session&#x27;s closing slide, if the same room did it — the claim you are about to pay off is on it</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Servant Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Servant Pattern — Video Narration Script</h1>
+<h2>1. Servant</h2>
+<p>Hello, and welcome. This video explains the Servant pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A servant is a separate class that does one job for many classes that have nothing else in common. Each class only offers a few facts. The servant does the work, written once. Think of a car wash. Every car gets washed, but no car carries its own brushes and soap. The car wash does not care about the make or model. When its prices change, they change once, for every car. In this video, the domain is an online shop. It posts parcels, letters and gift cards, and later, pallets. By the end, you will hear how copies of the same code drift apart. How one servant fixes it. How a new kind of item needs no new code. And what the pattern costs.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The shop posts parcels, letters, and gift cards. Each one is a different class. Each had its own copy of the postage sum. A base price, plus a charge for every started kilo. Then the carrier raised its prices. Someone had to update every copy.</p>
+<h2>3. Act One — Copied postage</h2>
+<p>First demo: each item carries its own copy of the postage sum. The carrier&#x27;s new rates are one pound twenty, plus one pound sixty for every started kilo. The parcel&#x27;s copy was updated. Two point three kilos costs six pounds. The letter&#x27;s copy was missed. It charges two pounds fifty, not two eighty. So was the gift card&#x27;s. Each copy looks fine on its own. Together, they disagree.</p>
+<h2>4. Act Two — One servant</h2>
+<p>Second demo: one shipping servant serves every item. The rates and the sum now live in one class, the servant. Each item only promises three things. Its name, its weight, and the city it is going to. The servant prints a label for each. Parcel, six pounds. Letter, two eighty. Gift card, two eighty. The items hold no shipping code at all.</p>
+<h2>5. Act Three — A new kind of item</h2>
+<p>Third demo: a new kind of item. The shop starts sending pallets. A pallet only says its name, its weight, and its city. The same servant labels it. One hundred and eighty kilos, to Hull, two hundred and eighty-nine pounds twenty. Not one line of postage code was written for pallets.</p>
+<h2>6. Act Four — Tested alone</h2>
+<p>Fourth demo: the servant can be tested on its own. A test makes up an item of one thousand and one grams. That is two started kilos: four pounds forty. No real parcel, letter or pallet was needed. And the servant keeps nothing between calls. One servant object serves every item in the shop.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. The behaviour is not on the item any more. A developer looking for parcel dot postage finds nothing. They have to know the servant exists. And every item now shows its weight and city, to anyone who asks. Because the servant needs them.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the pattern. Write the behaviour once, in a separate class. That class is the servant. Each class that needs the job done offers a small interface. Just the facts the servant needs. Here: a name, a weight, and a city. The servant takes any object with that interface, and does the work.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. Shippable is the small interface: name, grams, and city. Parcel, letter, gift card, and pallet are the served. They implement Shippable, and hold no shipping code. The shipping servant holds the rates, works out the postage, and prints the label. And copied postage is the old way, kept for comparison.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met this pattern already. Collections dot sort is a servant. It sorts any list of things that can be compared. Java&#x27;s Files and Objects classes work the same way. And so do label printers, export helpers, and many service classes in Spring applications.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use it? When several unrelated classes need the same job done, and a shared parent class does not fit. Keep the interface small. Keep the servant free of state. And give it a name people will find. When only one class needs the behaviour, keep it in that class.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Servant pattern. If you remember one sentence, make it this one. When many unrelated classes need the same job, write it once, in a servant. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Add international postage, and notice that only the servant changes. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

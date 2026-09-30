@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Implementation Plan</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Implementation Plan</h1>
+<p>How the fourteen projects are brought up to <a href="video-and-publishing-spec.html"><code>video-and-publishing-spec.md</code></a>.</p>
+<hr>
+<h2>Current state</h2>
+<p><strong>Phases 1–7 are complete.</strong> All fourteen projects pass every item of the spec&#x27;s conformance checklist; the per-item evidence is in <a href="#phase-7--verify">Phase 7 — Verify</a> below. The table in this section records the position <em>before</em> the work started, and is kept because the plan is easier to read against it.</p>
+<p>Audited before planning. Every project builds, tests pass, and every project has a <code>video/</code> pipeline that produces a real narrated MP4. The gaps are:</p>
+<table><thead><tr><th>Area</th><th>State</th></tr></thead><tbody><tr><td>Domain</td><td>13 of 14 are e-commerce. <strong>proxy</strong> uses a photo gallery.</td></tr><tr><td>Narration rate</td><td>All 14 at 165 wpm. Spec says 145.</td></tr><tr><td>Audio pipeline</td><td>8 of 14 fixed (7 creational + proxy). <strong>6 structural still concatenate per-scene AAC</strong> and still run <code>afftdn</code>.</td></tr><tr><td>Poster</td><td>All 14 strike out the &quot;before&quot; sample. <strong>proxy&#x27;s poster is the decorator poster</strong> — wrong title, wrong content.</td></tr><tr><td><code>docs/youtube.md</code></td><td>Missing from all 14.</td></tr></tbody></table>
+<h3>The two defects worth naming</h3>
+<p><strong>Per-scene AAC concatenation.</strong> The six structural projects listed above encode each scene to AAC and join the results with <code>-c copy</code>. Because AAC is a lapped format this leaves a hole in the timeline at every scene change; the abstract-factory video measured 30 gaps totalling 31 seconds before the fix. Their published videos are audibly broken and must be re-encoded, not patched.</p>
+<p><strong>The proxy poster.</strong> <code>structural/proxy-pattern/video/make_slides.py</code> was copied from decorator and <code>kind_poster</code> was never updated. The rendered <code>poster.png</code> reads &quot;DECORATOR PATTERN&quot; and shows decorator&#x27;s code samples. It would have gone to YouTube as the thumbnail of the proxy video.</p>
+<hr>
+<h2>Order of work</h2>
+<p>Sequenced so that nothing is rendered or encoded twice. Everything that changes what the video <em>contains</em> lands before anything is built, and the fourteen builds run last, once.</p>
+<h3>Phase 1 — Re-domain proxy to e-commerce</h3>
+<p>Proxy moves from a photo gallery to product imagery on a listing page. The structure is unchanged, which is what makes this a rename plus a rewrite of the prose rather than a new project:</p>
+<table><thead><tr><th>Now</th><th>Becomes</th></tr></thead><tbody><tr><td><code>Photo</code></td><td><code>ProductImage</code></td></tr><tr><td><code>HighResolutionPhoto</code></td><td><code>HighResolutionProductImage</code></td></tr><tr><td><code>PhotoProxy</code></td><td><code>LazyProductImage</code> (virtual proxy)</td></tr><tr><td><code>AccessControlledPhotoProxy</code></td><td><code>RestrictedProductImage</code> (protection proxy)</td></tr><tr><td><code>NaivePhotoGallery</code></td><td><code>NaiveProductListing</code></td></tr><tr><td><code>NaiveSecurePhotoViewer</code></td><td><code>NaiveAdminImageViewer</code></td></tr><tr><td><code>PhotoGalleryDemo</code></td><td><code>ProductImageDemo</code></td></tr><tr><td><code>Role.VIEWER</code> / <code>Role.ADMIN</code></td><td><code>Role.SHOPPER</code> / <code>Role.CATALOG_ADMIN</code></td></tr></tbody></table>
+<p>The scenario: a category page shows sixty listings. Each has a full-resolution image that is expensive to decode, and only a handful are ever scrolled into view. Some images — unreleased products, supplier-restricted assets — may only be viewed by catalog staff. Both concerns belong outside the image itself.</p>
+<p>Touches sources, tests, all seven <code>docs/</code> files, both Mermaid diagrams and their PNGs, <code>video/scenes.py</code>, <code>video/make_slides.py</code> (<code>kind_diagram</code>), <code>narration.md</code>, and the two READMEs. Verified with <code>./gradlew build</code> and by running <code>./gradlew run</code> and pasting the real output into the README.</p>
+<h3>Phase 2 — Poster redesign, all 14</h3>
+<p>One change to a shared helper, applied to every project:</p>
+<ul><li><code>pill()</code> loses its <code>strike</code> parameter and gains a <code>tag</code> parameter.</li><li>The tag renders as a small chip on the pill&#x27;s top edge: <code>BEFORE</code> on the rose pill, <code>AFTER</code> on the green one.</li><li>Every <code>kind_poster</code> swaps <code>strike=True</code> for <code>tag=&quot;BEFORE&quot;</code>, and the right-hand pill gains <code>tag=&quot;AFTER&quot;</code>.</li><li>proxy&#x27;s <code>kind_poster</code> is additionally rewritten from scratch for the correct pattern.</li></ul>
+<p>The contrast that made the old poster informative is kept; only the strikethrough goes. See spec §6.</p>
+<p>Each of the fourteen posters is rendered and <strong>visually inspected</strong> before the phase is closed — this is exactly the failure that produced a decorator poster in the proxy project, and only looking at the image catches it.</p>
+<h3>Phase 3 — Audio pipeline, the 6 remaining structural projects</h3>
+<p>The fixed <code>build_video.sh</code> is generated from the abstract-factory reference by substituting the title and the output file names, as was done for the creational batch. That brings all six onto PCM-per-scene, a single AAC encode, two-pass linear <code>loudnorm</code>, the chain-3 <code>CLEANUP</code>, and the gap check.</p>
+<p>Their <code>video/README.md</code> files get the same corrected pipeline description the other eight already have.</p>
+<h3>Phase 4 — Narration rate to 145</h3>
+<p><code>RATE</code> default changes from 165 to 145 in all fourteen scripts. One line each; no other change. Runtimes grow by roughly 14 %.</p>
+<h3>Phase 5 — Build all fourteen videos</h3>
+<p>Sequential, in the background, gated on the built-in continuity check. Each build renders slides, narrates, encodes per-scene clips, concatenates, muxes, generates subtitles, and fails if the audio timeline has a gap.</p>
+<p>Roughly 10–20 minutes per project. Any project whose check fails is diagnosed and rebuilt before the phase closes.</p>
+<h3>Phase 6 — <code>docs/youtube.md</code> for all 14</h3>
+<p>Written last, because the chapter timings are read from the <code>.srt</code> files that phase 5 produces. Seven sections as specified in spec §8, generated per project from <code>scenes.py</code> (chapter titles) and the <code>.srt</code> (timings), with the title, description, tags and end-screen link written by hand per pattern.</p>
+<h3>Phase 7 — Verify</h3>
+<p>Walk the spec&#x27;s conformance checklist against all fourteen projects and report the result per project.</p>
+<p><strong>Result: all fourteen pass all ten items.</strong> How each was established, so that a re-verification does not have to re-invent the method:</p>
+<table><thead><tr><th>Item</th><th>How it was checked</th></tr></thead><tbody><tr><td>E-commerce domain</td><td>The worked scenario named in each top-level README</td></tr><tr><td>Build and run</td><td><code>./gradlew build</code> in all fourteen, then <code>run</code> twice per project, diffed against the README&#x27;s output block</td></tr><tr><td><code>RATE</code> 145, Samantha</td><td>Both defaults read out of <code>build_video.sh</code></td></tr><tr><td><code>CLEANUP</code> per §4.1</td><td>No <code>afftdn</code> and no <code>lowpass</code> in executable lines — the names survive only in the comments explaining why they were removed</td></tr><tr><td>PCM per scene, one AAC</td><td><code>pcm_s16le</code> present and exactly one <code>-c:a aac</code>, at the mux</td></tr><tr><td>Two-pass <code>loudnorm</code></td><td><code>print_format=json</code> measurement feeding <code>measured_I=…:linear=true</code></td></tr><tr><td>Gap check</td><td>The check is present in every script, and every build printed <code>no gaps</code></td></tr><tr><td>Poster</td><td>All fourteen 1920×1080, each carrying its own pattern name, none drawing a strikethrough</td></tr><tr><td><code>youtube.md</code></td><td>All seven sections present; every chapter timestamp matched a cue start in the project&#x27;s current <code>.srt</code>, first at <code>00:00</code></td></tr><tr><td><code>video/README.md</code></td><td>Describes lossless per-scene WAV, the single AAC encode, <code>linear=true</code>, <code>RATE</code> 145, and the absence of a denoiser</td></tr></tbody></table>
+<p>Two things worth recording because they were not obvious going in.</p>
+<p>The &quot;output matches the README&quot; item was <strong>not</strong> met by any project at the start of this phase: no README quoted the program&#x27;s output at all, and no document anywhere reproduced it. The output is now quoted in all fourteen and verified against a second, independent run. Three demos — simple factory, factory method and facade — mint an identifier per run, so their transaction, order and tracking codes differ every time. Those READMEs say so, and the spec item was reworded to match rather than pretending the output is byte-stable.</p>
+<p>Beyond the checklist, every finished MP4 was measured: all fourteen sit at −16.0 LUFS integrated with true peak below −3.5 dBTP and no silence longer than three seconds. That is a level and dropout check, not a fidelity one — see the risk below, which still stands.</p>
+<hr>
+<h2>Risks</h2>
+<p><strong>Build time.</strong> Fourteen full builds at CRF 18 is a few hours of wall clock, and each is CPU-bound. They run sequentially in the background; a failure part way through does not invalidate what came before, because each project&#x27;s build is independent.</p>
+<p><strong>The continuity check is not a quality check.</strong> It verifies that no audio packet is missing. It cannot hear warbling, clipping, or a bad voice — the <code>afftdn</code> problem passed it cleanly. A listen to at least one finished video is required before the work is called done.</p>
+<p><strong>Re-domaining proxy touches prose in eight files.</strong> The risk is a stale reference to a photo surviving in one of them. Mitigated by grepping the whole project for the old vocabulary after the rewrite, not by re-reading each file.</p>
+<p><strong>Chapter timings go stale.</strong> Any later change to narration or rate invalidates every <code>youtube.md</code> chapter list. They are generated from the <code>.srt</code>, so regenerating is cheap, but it has to actually be done.</p>
+</main>
+<footer>
+Generated from <code>implementation-plan.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

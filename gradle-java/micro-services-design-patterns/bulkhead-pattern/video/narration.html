@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bulkhead Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Bulkhead Pattern — Video Narration Script</h1>
+<h2>1. Bulkhead</h2>
+<p>Hello, and welcome. This video explains the Bulkhead pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. Stop letting every kind of work draw from the same pot of resources. Give the work that must never fail a pot of its own. Then one slow job can fill up its own pot, but it cannot take what the important work needs. The name comes from shipbuilding. A bulkhead is a wall that divides a ship&#x27;s hull into separate watertight compartments. A hole floods one compartment, not the whole ship. In our online store, there are two jobs. Taking a shopper&#x27;s money. And importing a supplier&#x27;s catalogue overnight. By the end, you will know how a background job that nobody is waiting for can stop the shop selling. Why a bigger pool does not help. And what the wall costs you, on every day that nothing goes wrong.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The shop runs as one application, with one pool of threads. A thread is a worker that runs one job at a time. Every job asks the pool for a thread, does its work, and gives the thread back. Showing a product page, taking a payment, sending an email. All from the same pool. That is a completely normal design, and for a long time it is the right one. Two of those jobs matter here. The first is checkout. It takes a shopper&#x27;s money. It is fast, it is correct, and it needs exactly one thing: a thread. The second is the supplier feed. It imports the supplier&#x27;s catalogue overnight. Nobody is waiting for it. And it calls a partner service which is, sometimes, very slow. In the code, these two jobs have nothing to do with each other. Keep that in mind.</p>
+<h2>3. One Pool, Shared By Everything</h2>
+<p>Here is the setup. One pool, with four threads. Four import batches are handed to it, one after another. Then a shopper arrives, and the payment is handed to the same pool. To be fair to this code, there is no bug in it. Every test passes. Almost every service starts this way. And in a code review, nobody would say a word. Tonight, the partner service that the feed calls has gone slow. Not failing. Answering, but slowly. Let&#x27;s run it.</p>
+<h2>4. Act One — One Shared Pool Of Four</h2>
+<p>Everything follows from one small fact. A job that is waiting still holds its thread. It uses no processor time, and does nothing. But the thread stays with it, until its call comes back. So, the first import batch starts, and takes a thread. The second takes a thread. The third. The fourth. Four batches, four threads, and the pool only has four. Now the shopper tries to pay. There is no thread free. After three hundred milliseconds, they are still waiting, and the sale is lost. And here is the strange part. There is no line for checkout in the output at all. Not a slow line, and not an error. Checkout never started.</p>
+<h2>5. Starved, Not Broken</h2>
+<p>It would be easier if checkout were broken, because then there would be something to fix. But it is not broken. A test in this project runs the same checkout job the moment a thread is free, and it works perfectly. It was starved, not broken. And from the outside, those two look exactly the same. That is why this is so hard to find at three in the morning. You are looking for a bug in a class that does not have one. So here is the key sentence. The shop stopped selling because of a background job that nobody was waiting for. And the link between them is invisible. Checkout never mentions the feed. The feed never mentions checkout. They are tied together only by the pool they share. So reading either file will never show you the problem.</p>
+<h2>6. The Ship&#x27;s Hull</h2>
+<p>Let&#x27;s leave the code for a moment, and think about a ship. A bulkhead is a wall that divides a ship&#x27;s hull into watertight compartments. Make a hole in a hull with no walls, and the water spreads along the whole ship, and it sinks. Make the same hole in a divided hull, and only one compartment floods. The ship sits a little lower, and keeps going. There are two lessons here. First, the hole did not change. Just as much water came in. The wall only limits how far it spreads. Second, the walls take up space. One compartment can be empty while the next one is full. And you cannot move space from one to the other. That is not a flaw. That is the design. Isolation is paid for in capacity you are not allowed to use. Hold on to that, because we will come back to it.</p>
+<h2>7. Two Tempting Fixes, Both Wrong</h2>
+<p>Before the real fix, here are two tempting fixes. Both are wrong. The first is: make the pool bigger. Forty threads, instead of four. That only buys time. If the partner is slow for long enough, the feed takes all forty threads. And checkout is starved at forty, just as it was at four. The number changed. The failure did not. Worse, a bigger pool takes longer to notice, and uses more memory when it finally fills up. The second is: never refuse a job. Let every job wait in a queue with no limit. That sounds generous, but it is more dangerous. It turns a fast, visible failure into a slow, invisible one. Jobs pile up until the program runs out of memory. And every caller waits for work that will not start for minutes. So neither fix works. The two jobs are only connected by the pool they share. So what if they stop sharing it?</p>
+<h2>8. The Whole Mechanism</h2>
+<p>Here is the whole mechanism, and it is very plain. A pool with a fixed number of threads. A queue that holds a fixed number of waiting jobs. And a name, which every thread in the pool carries. That is all. No clever algorithm. Nothing that adapts to load. Nothing to tune while it runs. So a bulkhead is not clever machinery. It is a decision to stop sharing. The pattern is not in this class. It is in having two of them. The hard part is deciding where the walls go. And that is a business decision, not a coding one. For now, the feed gets two threads of its own. Checkout gets two threads of its own. And we give them exactly the same bad night.</p>
+<h2>9. Act Two — Two Bulkheads</h2>
+<p>Same slow partner. Same four batches. Same moment. Two batches start. The other two wait in the feed&#x27;s queue for a feed thread. On the feed side, nothing has improved. Then the shopper arrives, gets a thread straight away, and pays. The sale goes through in milliseconds. The names of the threads tell the whole story. The import batches run on threads called feed worker. The payment runs on a thread called checkout worker. They come from different pools. The feed cannot borrow from checkout. And checkout is not allowed to help the feed. That is the whole pattern, and it just saved a sale.</p>
+<h2>10. Who Owns What</h2>
+<p>Let&#x27;s name the pieces. There are only a few, and each has one job. A bulkhead is a named pool of threads, with a limit, that one kind of work may use. Underneath, it is a fixed thread pool with a limited queue. When all its threads are busy and its queue is full, it refuses at once. And the error says which bulkhead was full. Not that the system is busy, but which pool ran out. Then there is the work. Checkout, which must never be starved. And the supplier feed, which nobody is waiting for, and which holds its thread the whole time it waits. Those two facts are the most important in the system. And they appear nowhere in the code. They come from the people who run the shop. If nobody writes them down, as a pool and a thread count, then in an outage they are decided by whichever job asked for a thread first. One more piece. The slow partner is not a real network call, and nothing in this project sleeps. It is a gate that a job waits at, until the test opens it. A job waiting at a closed gate holds its thread, just like a job waiting on a slow network.</p>
+<h2>11. How Do We Know It Was The Wall?</h2>
+<p>Before we celebrate, here is a fair question. Checkout worked. But how do we know the wall did that? Suppose the partner service had started answering again, just before the shopper arrived. The output would look exactly the same. We would have proved nothing. So one test checks that the feed is still jammed at the very moment the sale goes through. Two threads busy, and two jobs waiting. Nothing about the partner was fixed. The slow thing is still slow, and the shop is selling anyway. This lesson works far beyond thread pools. A test that only checks the good thing happened has not ruled out that it happened by luck.</p>
+<h2>12. Act Three — A Fifth Batch, With Nowhere To Go</h2>
+<p>The feed&#x27;s bulkhead has two threads, and a queue that holds two. So four batches fit. Now a fifth batch arrives. It is refused, and the refusal takes zero milliseconds. That can feel unfriendly, but it is the opposite. The speed is the whole point. The caller finds out at once, while it still has time to do something useful. Drop the batch, do less, or try again later. It is the same idea as a circuit breaker failing fast, but applied to a queue. Now compare it with a queue that has no limit. That queue would have accepted this batch, and the next one, and every one after that. Nobody would be told anything, until the program ran out of memory instead of threads. Refusing is a feature.</p>
+<h2>13. Refusing Immediately Is A Feature</h2>
+<p>That refusal gives you three things, not just speed. First, the error names the pool that is full. Not, the system is busy. But, the feed&#x27;s pool is full. One of those tells an engineer where to look. Second, the caller is told in a millisecond, so it still has choices. It can drop the work, do a smaller version, or save it for later. A caller that is simply kept waiting has no choices at all. Third, the size of the damage was decided in advance, calmly, in daylight. Not by chance, in the middle of an incident. The failure has not gone away. The partner is no faster. What changed is that you chose the shape of the failure, ahead of time.</p>
+<h2>14. Act Four — What The Partition Costs</h2>
+<p>Now the bill. Any honest explanation of this pattern has to include it. On a quiet afternoon, the divided shop looks like this. The feed has two threads busy, and two more jobs waiting. And checkout has two threads doing nothing at all. Two threads are idle, while two jobs wait for a thread. And they are not allowed to help. One shared pool of four would have run all four batches at once, and finished sooner. A test in this project checks exactly that. On a good day, the shared pool really is faster. So divided pools leave capacity idle, on purpose. That is not a bug, or a tuning problem. It is the price of the isolation. It is the ship again. The empty compartment cannot lend its space to the full one.</p>
+<h2>15. So Where Do The Walls Go?</h2>
+<p>So where should the walls go? The trade is worth it for work whose failure ends the business. In a shop, that is taking money. It is not worth it for everything. Fifteen bulkheads means fifteen pools to size. Fifteen numbers that go out of date as traffic changes. And a lot of threads doing nothing in the afternoon. A good rule is two or three pools, divided by what must survive. Not by how the code is organised into packages, even though that looks tidy. And remember, this is a business decision. Nobody can tell from the code that the supplier feed matters less than checkout. One last point. A bulkhead stops the damage spreading. It does not stop you calling a service that has stopped answering. That is the job of a circuit breaker. The two belong together. A breaker, so you stop calling a service that is down. And a bulkhead, so the calls already waiting cannot drown anything that matters.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s the Bulkhead pattern. If you remember one sentence, make it this one. A bulkhead gives the work that must survive a pool of its own, and pays for that safety with capacity left idle on purpose. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. It uses real threads, but nothing sleeps, so all the tests run in about a second. Here is one exercise to try. Give checkout&#x27;s bulkhead one thread instead of two. Then put two sales through it while the feed is jammed. The second sale waits. The wall protects checkout from the feed, but not from checkout itself. And one question to think about. In your own system, which work must never be starved? And what are you willing to leave idle, to guarantee it? If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

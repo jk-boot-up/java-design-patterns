@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Session Handover — Framework And Infrastructure Versions Batch</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>AI Session Handover — Framework And Infrastructure Versions Batch</h1>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Session started</td><td>2026-09-23, about 19:00 IST</td></tr><tr><td>Last updated</td><td>2026-09-24 (resumed session)</td></tr><tr><td>Branch</td><td><code>main</code>, at <code>8994c81</code></td></tr><tr><td>Commits made this session</td><td>none</td></tr><tr><td>Repository state</td><td>167 projects committed and pushed to <code>origin/main</code>; waves 1 and 2 done; waves 3 (4 platform) and 4 (9 framework versions) not started</td></tr></tbody></table>
+<p>This document exists so that a session working on this batch can be stopped at any point and picked up later, by a different session with no memory of this one, without having to re-derive the state of the work.</p>
+<p>It covers the batch specified in <a href="framework-and-infra-versions-spec.html"><code>framework-and-infra-versions-spec.md</code></a>, which adds 28 projects and takes the repository from 152 to 180. That specification is the authority on <em>what</em> is being built and <em>why</em>; this document records <em>how far it has got</em>.</p>
+<p>There is a second, older handover at <a href="../micro-services-design-patterns/docs/ai-session.html"><code>../micro-services-design-patterns/docs/ai-session.md</code></a> covering the microservices category, which is finished. The two are unrelated except that both point at the same toolchain document, <a href="../micro-services-design-patterns/docs/ai-build-spec.html"><code>../micro-services-design-patterns/docs/ai-build-spec.md</code></a>.</p>
+<hr>
+<h2>1. The instruction this batch is answering</h2>
+<p>The repository owner asked for versions of the existing patterns built on real infrastructure and real framework stacks — Spring Boot and the rest — for the patterns that did not already have one, and asked for a specification to be written and agreed before any building started.</p>
+<p>He then made one constraint explicit, and it governs everything here:</p>
+<blockquote><p><strong>The existing versions&#x27; code is not to be changed.</strong> What is being added is <em>newer versions of the project</em> with an infrastructure and framework stack.</p></blockquote>
+<p>So every project in this batch is a new sibling directory. No existing project is edited, refactored, retitled or deleted. This is checked with <code>git status</code> before any commit: no tracked file belonging to an existing project may show as modified.</p>
+<hr>
+<h2>2. Current state</h2>
+<p><strong>Wave 1 is committed. Wave 2 is building in two groups of five</strong> (Docker has 4 CPUs and 4 GB, so the heavy stacks wait for group B). Wave 1 commits: one per project, then one for registration and READMEs. The messaging category README, its HTML twin and the root README counts (messaging 5 → 10, total 152 → 157) are updated.</p>
+<table><thead><tr><th>Wave</th><th>Projects</th><th>State</th></tr></thead><tbody><tr><td>1</td><td>5 messaging and integration</td><td>committed</td></tr><tr><td>2</td><td>10 microservices</td><td><strong>finished, committed and pushed</strong> 2026-09-25. Microservices README section &quot;With real infrastructure&quot; added; root counts now 38 microservices, 167 projects</td></tr><tr><td>3</td><td>4 platform</td><td>building 2026-09-25, all four in parallel (light stacks): distributed-tracing-with-jaeger, externalised-configuration-with-spring-cloud-config, event-sourcing-with-eventstoredb, strangler-fig-with-nginx. Brief: session scratchpad <code>wave3-brief.md</code> (wave-2 brief with §3.3 and the wave-2 projects as newest references)</td></tr><tr><td>4</td><td>9 framework versions</td><td>not started</td></tr></tbody></table>
+<h3>Wave 1 detail</h3>
+<table><thead><tr><th>Project</th><th>State</th></tr></thead><tbody><tr><td><code>splitter-aggregator-with-camel-pattern</code></td><td><strong>Finished, verified and registered.</strong> 16 scenes, video 8:51, <code>audio timeline continuous: 24925 packets</code>, −16.01 LUFS. Registered in the three generators on 2026-09-24; <code>spec.md</code>, <code>spec.html</code>, <code>thumbnail.png</code>, <code>youtube.md</code> and <code>README.html</code> generated</td></tr><tr><td><code>message-channel-with-rabbitmq-pattern</code></td><td><strong>Finished, verified and registered</strong> 2026-09-24. 16 scenes, video 9:55, 12 tests, <code>audio timeline continuous: 27912 packets</code>, −16.01 LUFS. The best find: keeping a message through a restart takes two settings, a durable queue and persistent messages; after a restart both queues came back but one held 3 orders and the other 0, and an empty queue looks like a quiet day. Prefetch is defined in the docs but not demonstrated</td></tr><tr><td><code>dead-letter-channel-with-rabbitmq-pattern</code></td><td><strong>Finished, verified and registered</strong> 2026-09-24. Moved from Testcontainers 1.21.4 to 2.0.5 (module <code>testcontainers-rabbitmq</code>, package <code>org.testcontainers.rabbitmq</code>) to match the batch; video re-rendered for the version slide. 16 scenes, video 8:13, 9 tests, <code>audio timeline continuous: 23126 packets</code>, −16.00 LUFS. The best find: the working queue reports nothing waiting while twenty paid orders sit parked, so every dashboard shows the shop healthy</td></tr><tr><td><code>content-based-router-with-camel-pattern</code></td><td><strong>Finished, verified and registered</strong> 2026-09-24. 16 scenes, video 10:05, 12 tests, <code>audio timeline continuous: 28398 packets</code>, −16.01 LUFS. The best find: with no otherwise branch Camel acknowledges an unclaimed order and the broker deletes it — zero messages left anywhere and nothing logged, where the hand-built twin counted the drop. Coordinator fix: act two printed pence while act three printed pounds; <code>Order.pounds()</code> now formats both, so the slide&#x27;s <code>1200.00</code> is real output</td></tr><tr><td><code>event-bus-with-nats-pattern</code></td><td><strong>Finished, verified and registered</strong> 2026-09-24. 16 scenes, video 9:40, 8 tests, <code>audio timeline continuous: 27200 packets</code>, −16.01 LUFS. The best find: an event published with nobody listening is gone, and the demo proves it without waiting, because the warehouse&#x27;s first event is ORD-2</td></tr></tbody></table>
+<p>The five were built in parallel by five separate agents, each confined to its own project directory, each forbidden from running git and from touching the shared generators.</p>
+<h3>What the finished project proves</h3>
+<p><code>splitter-aggregator-with-camel-pattern</code> is the reference for the rest of the batch. Its README section &quot;What the simulation got right, and what it left out&quot; is the shape every other project in this batch should copy, and its best find shows why these projects are worth building at all: <strong>Camel&#x27;s completion-by-size counts messages folded into an aggregate, not distinct pieces of it.</strong> A duplicated shipment therefore makes the aggregator declare an order complete holding only two of its three lines, billing £265.97 where £515.96 was due. The plain-Java simulation cannot produce that class of bug, because it counts the thing the author intended rather than the thing the framework actually counts.</p>
+<hr>
+<h2>3. The step that is still owed to every project in wave 1</h2>
+<p><strong>Four files per project are deliberately missing and must be generated centrally</strong>: <code>docs/spec.md</code>, <code>docs/spec.html</code>, <code>docs/thumbnail.png</code> and <code>docs/youtube.md</code>.</p>
+<p>They are missing because <code>make_specs.py</code>, <code>make_thumbnails.py</code> and <code>make_youtube_docs.py</code> each carry a hand-maintained table of slugs, and a project absent from those tables is silently skipped. Those three files are shared by every project in the repository, so five agents editing them in parallel would only produce conflicts. Registration was therefore deferred and is done once, by the coordinating session, after a wave&#x27;s projects exist.</p>
+<p>For each finished project, from the <code>gradle-java</code> directory:</p>
+<pre><code># 1. add the slug by hand to the table in each of the three generators
+#    (slug has the -pattern suffix removed: splitter-aggregator-with-camel)
+# 2. then, and only after the video exists:
+python3 docs/make_specs.py        &lt;slug&gt;
+python3 docs/make_thumbnails.py   &lt;slug&gt;
+python3 docs/make_youtube_docs.py &lt;slug&gt;
+python3 docs/make_readme_html.py  &lt;category-or-project-path&gt;</code></pre>
+<p><strong>Order matters.</strong> <code>make_specs.py</code> measures the rendered mp4 to fill in runtime, subtitle count and loudness. Run before the video exists, it does not fail — it silently writes <code>~not yet built over 0 scenes, 0 subtitle cues</code>. That defect has reached the repository once before. Check the line each run prints; every field in it should look plausible:</p>
+<pre><code>splitter-aggregator-with-camel   spec.md + spec.html  (16 scenes, 8:51, 9 tests, -16.00 LUFS)</code></pre>
+<hr>
+<h2>4. How to establish state at the start of a session</h2>
+<p>Do not trust the tables above. They are a snapshot and the tree may have moved. Run the checks. From the <code>gradle-java</code> directory:</p>
+<pre><code># which of the batch&#x27;s projects exist, and which have a rendered video
+for d in */*-with-*-pattern; do
+  printf &quot;%-60s files:%4s  mp4:%s\n&quot; &quot;$d&quot; \
+    &quot;$(find &quot;$d&quot; -type f | wc -l | tr -d &#x27; &#x27;)&quot; \
+    &quot;$(ls &quot;$d&quot;/video/*.mp4 2&gt;/dev/null | wc -l | tr -d &#x27; &#x27;)&quot;
+done
+
+# the constraint that matters most: no existing project modified
+git status --porcelain | grep -vE &#x27;^\?\?&#x27;     # must print nothing
+
+# no rendered media has leaked into the git surface
+git status --porcelain | grep -Ei &#x27;\.(mp4|m4a|srt|wav|aac|log)$|docs/audio/|video/build/&#x27;
+
+# a spec generated before its video is stale
+for d in */*-with-*-pattern; do
+  [ -f &quot;$d/docs/spec.md&quot; ] &amp;&amp; printf &quot;%-60s %s\n&quot; &quot;$d&quot; \
+    &quot;$(grep -oE &#x27;[0-9]+ scenes&#x27; &quot;$d/docs/spec.md&quot; | head -1)&quot;
+done</code></pre>
+<p>Note that <code>ls *.mp4</code> fails under zsh with <code>no matches found</code> rather than returning empty, which during a render looks like a build failure and is not.</p>
+<hr>
+<h2>5. Standing instructions</h2>
+<p>These are the repository owner&#x27;s, stated explicitly. They are not preferences to be re-litigated, and they override any default behaviour.</p>
+<ul><li><strong>Existing projects are never modified.</strong> See §1. Additive work only.</li><li><strong>Nothing is committed or pushed without being asked.</strong></li><li><strong>Commit messages carry no <code>Co-Authored-By</code> trailer and no mention of any assistant.</strong> Subject and body, then stop. The same applies to pull request descriptions.</li><li><strong>Rendered output never enters the repository</strong> — no mp4, m4a, srt, wav or log, nothing under <code>video/build/</code> or <code>docs/audio/</code>. <code>animation.html</code>, <code>video/poster.png</code>, <code>docs/thumbnail.png</code> and <code>docs/images/*.png</code> are committed, because nothing rebuilds those on GitHub.</li><li><strong>Every worked example uses the e-commerce domain.</strong> One online store across all 180 projects. Analogies used to <em>explain</em> may come from any domain and often should; the code may not.</li><li><strong>Every explanation must work with the listener&#x27;s eyes closed.</strong> Much of the audience listens rather than watches. No &quot;as you can see here&quot;, and nothing that depends on a diagram, a slide or a line of code being visible. The audience is beginners: short sentences, plain language, one idea at a time.</li><li><strong>Posters never strike out their message.</strong> Strikethrough is unreadable at search-result size.</li><li><strong>No video outro names another pattern</strong>, because publishing order is not fixed.</li><li><strong>Scene 1 narration has a required four-step order</strong>: what the video is, credit to Jayasekhar Konduru, the pattern in plain general words, then the same in e-commerce terms.</li><li><strong>Every number</strong> in a README, document, slide or narration line is the real output of <code>./gradlew run</code> for that project. Nothing rounded, nothing invented.</li><li><strong>Any fix to the audio pipeline is rolled out to all projects</strong>, not left where it was found.</li><li><strong>New projects are self-contained</strong> (instruction of 2026-09-24, spec §5.5a). No relative link or path into a sibling project, the twin named in words, the audio pipeline explained in the project&#x27;s own <code>video/README.md</code>. Existing projects are not to be disturbed to retrofit this. <code>gradle-java/docs</code>, including its three registration tables, is the permitted shared place.</li></ul>
+<hr>
+<h2>6. What to do next</h2>
+<ol><li>~~Verify the four wave-1 builds~~ — done 2026-09-24.</li><li>~~Register all five slugs and generate the four files per project~~ — done.</li><li>~~Update the messaging README, its HTML twin and the root README counts~~ — done.</li><li>~~Commit wave 1~~ — done. The owner then asked for a prefetch act in <code>message-channel-with-rabbitmq</code>; that revision is in progress and gets its own commit.</li><li>Then wave 2, the ten microservices projects, which is the largest of the four.</li></ol>
+<p>Three things worth carrying forward into later waves:</p>
+<p><strong>A render takes eight to ten minutes.</strong> Run it in the background and poll for the output file rather than blocking, and delete <code>video/.build.log</code> afterwards — it is not covered by <code>.gitignore</code>.</p>
+<p><strong>Parallel building worked.</strong> Five agents in one working tree, each confined to its own new directory with git and the shared generators off limits, produced no collisions. The only coordination cost is the central registration step in §3, and that is cheap.</p>
+<p><strong><code>make_thumbnails.py</code> and <code>make_readme_html.py</code> need <code>/usr/bin/python3</code>.</strong> The Homebrew <code>python3</code> first on the PATH has no matplotlib and fails with <code>No module named &#x27;matplotlib&#x27;</code>. <code>make_specs.py</code> and <code>make_youtube_docs.py</code> run under either.</p>
+<p><strong>Registration is scripted.</strong> <code>register.py</code> (kept in the session scratchpad; its logic is simply to insert one entry before fixed end markers in each of the three generators) takes a JSON description — group, slug, title, spec purpose/non-goals/problem/roles/requirements, thumbnail lines, hook and badge, YouTube tags — so each project is registered in one step.</p>
+</main>
+<footer>
+Generated from <code>ai-session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

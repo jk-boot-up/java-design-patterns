@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Interpreter Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Interpreter Pattern, Explained</h1>
+<blockquote><p><strong>Given a language, define a representation for its grammar along with an interpreter that uses the representation to interpret sentences in the language.</strong> — Gang of Four</p></blockquote>
+<p>That sentence puts people off, and it should not. Strip the vocabulary and it says: <em>write one small class per kind of phrase, and let a big phrase hold small ones.</em> The tree of objects you end up with <strong>is</strong> the sentence, and running the sentence is calling one method on the top of the tree.</p>
+<p>In this project the language is promotion rules, a sentence is <code>country is UK and basket over 50</code>, and interpreting one is asking a tree of <code>Rule</code> objects whether an order matches.</p>
+<h2>One Interface, Two Kinds of Class</h2>
+<pre><code>public interface Rule {
+    boolean matches(Order order);
+    String describe();
+}</code></pre>
+<p>Everything in the language implements that, and there are only two kinds of implementation.</p>
+<p>A <strong>terminal</strong> is a leaf. It holds no other rule, and answering it is one comparison:</p>
+<pre><code>public record BasketOver(int pounds) implements Rule {
+    public boolean matches(Order order) { return order.basketPounds() &gt; pounds; }
+    public String describe()            { return &quot;basket over &quot; + pounds; }
+}</code></pre>
+<p>A <strong>non-terminal</strong> holds other rules and answers by asking them:</p>
+<pre><code>public record AndRule(List&lt;Rule&gt; parts) implements Rule {
+    public boolean matches(Order order) {
+        for (Rule part : parts) {
+            if (!part.matches(order)) { return false; }
+        }
+        return true;
+    }
+}</code></pre>
+<p>Read <code>AndRule</code> again and notice what is <em>not</em> in it. It does not know what its parts are. It does not know whether they are leaves or more <code>AndRule</code>s. It does not know how many levels are below it, and it never finds out, because it only ever asks. That is the whole trick, and it is why a rule of any shape and any depth is used exactly like a rule with one comparison in it.</p>
+<h2>Everyday Analogy: A Sentence Diagram</h2>
+<p>Think of how a sentence is put together. &quot;The tall man in the blue coat&quot; is a noun phrase, and so is &quot;the man&quot; — one is more elaborate, but both fit in the same slot. You can drop either into &quot;…bought a laptop&quot; without rewriting the sentence around it.</p>
+<p>A rule tree is the same idea. <code>basket over 50</code> and <code>country is UK and basket over 50 or first order</code> are both a <code>Rule</code>, and both fit wherever a <code>Rule</code> fits. The grammar composes, so the objects compose.</p>
+<h2>Participants</h2>
+<table><thead><tr><th>Role</th><th>In this project</th><th>Its job</th></tr></thead><tbody><tr><td><strong>Abstract expression</strong></td><td><code>Rule</code></td><td>Two methods, and everything is one of these</td></tr><tr><td><strong>Terminal expression</strong></td><td><code>BasketOver</code>, <code>CountryIs</code>, <code>ItemsAtLeast</code>, <code>FirstOrder</code></td><td>A leaf: one comparison, no children</td></tr><tr><td><strong>Non-terminal expression</strong></td><td><code>AndRule</code>, <code>OrRule</code>, <code>NotRule</code></td><td>Holds rules, answers by asking them</td></tr><tr><td><strong>Context</strong></td><td><code>Order</code></td><td>What a sentence is interpreted <em>against</em></td></tr><tr><td><strong>Client</strong></td><td><code>PromotionBook</code>, <code>VoucherRuleDemo</code></td><td>Builds a tree, then calls <code>matches</code> once</td></tr></tbody></table>
+<p><code>RuleParser</code> is deliberately absent from that table. Building the tree is not part of the pattern — the Gang of Four say so plainly, and hand-built trees are a perfectly good use of it. The parser is here because a rule language nobody can write in is not much of a language.</p>
+<h2>The Grammar</h2>
+<p>The whole language is five phrases and two connectives:</p>
+<pre><code>rule       :=  group ( &quot;or&quot; group )*
+group      :=  condition ( &quot;and&quot; condition )*
+condition  :=  [ &quot;not&quot; ] terminal
+terminal   :=  &quot;basket over&quot; N | &quot;country is&quot; X | &quot;items at least&quot; N
+               | &quot;first order&quot;</code></pre>
+<p>Splitting on <code>or</code> first and <code>and</code> second is what gives <em>and</em> the tighter grip, so <code>A and B or C</code> reads as <code>(A and B) or C</code> — the way a person says it. There are no brackets, so that is the only precedence there is. It is a real limit, and it is written down as one rather than discovered later.</p>
+<h2>The Tree Can Explain Itself</h2>
+<p><code>describe()</code> looks like a nicety and is not. Each node says its own piece and asks its parts for theirs, so the sentence comes back out of the tree:</p>
+<pre><code>&quot;SAVE15 (15% off) applies when country is UK and basket over 100&quot;</code></pre>
+<p>That string is rebuilt from the objects the checkout actually obeys — not remembered from the line that was read in. If the two ever disagreed, this is the one telling the truth. It is what makes &quot;why did this order get 15% off?&quot; a question the code can answer, in the words the offer was written in, for the audit log and for the shopper alike.</p>
+<p>A round-trip test asserts that parsing a rule and describing it returns the line unchanged, so that guarantee is checked rather than hoped for.</p>
+<h2>A Typo Is Refused on Wednesday</h2>
+<pre><code>throw new IllegalArgumentException(&quot;I do not understand \&quot;&quot; + text + &quot;\&quot;&quot;);</code></pre>
+<p>A rule language that guesses is worse than no rule language. Every phrase the parser cannot read is refused, naming the phrase, and <code>PromotionBook.fromLines</code> therefore fails while the promotion is being <em>saved</em> rather than while an order is being <em>priced</em>. Compare that with a mistyped Java condition, which is valid Java and behaves wrongly at checkout with nothing to object to it.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>Rules are data.</strong> A promotion is a line of text that can live in a database, a spreadsheet or a config file, and be edited by the people who own the offers.</li><li><strong>New rules need no new code.</strong> <code>BIGBASKET | 20 | basket over 200 or items at least 10</code> is a shape that appears nowhere in the code, and adding it is one line — no class, no compile, no deploy.</li><li><strong>Composition is free.</strong> Four terminals and three connectives already express more rules than anybody will write.</li><li><strong>Each piece is testable alone.</strong> <code>BasketOver</code> is one comparison; <code>AndRule</code> is a loop. Both fit in a test that reads like a sentence.</li><li><strong>The rules can be printed.</strong> For an audit log, a support screen, or a &quot;why am I not getting this discount?&quot; page.</li></ul>
+<h2>What to Watch Out For</h2>
+<p><strong>It does not scale to a big language.</strong> One class per phrase is fine for seven phrases and unbearable for seventy. A grammar with real syntax wants a parser generator, not this pattern — the Gang of Four say the same thing, and it is the most commonly ignored sentence in the chapter.</p>
+<p><strong>The parser is the part that grows.</strong> Adding a terminal is a small class and one <code>if</code>. Adding <em>bracketed</em> expressions is a real parser, and that is a much bigger day&#x27;s work than it looks.</p>
+<p><strong>It is slower than an <code>if</code>.</strong> Every node is an object and every evaluation is a virtual call. For three promotions on one order this is irrelevant. For a rule evaluated a million times a second it is not, and the answer then is to compile the tree once rather than to abandon the pattern.</p>
+<p><strong>Do not reach for it when the rules never change.</strong> If the shop has run the same two promotions for four years, the two <code>if</code> statements are better code than a language is. This pattern earns its keep when rules change often enough that <em>shipping code</em> is the bottleneck.</p>
+<p><strong>Keep the context small.</strong> <code>Order</code> has four accessors, and every one of them is a word marketing can use. Passing the whole application state in as the context turns a language into a back door.</p>
+<h2>Interpreter vs. Composite vs. Strategy</h2>
+<table><thead><tr><th></th><th>What it is</th><th>What it is for</th></tr></thead><tbody><tr><td><strong>Interpreter</strong></td><td>a tree of expressions with <code>matches</code></td><td>evaluating a sentence in a small language</td></tr><tr><td><strong>Composite</strong></td><td>a tree of parts with the same interface</td><td>treating one thing and many things alike</td></tr><tr><td><strong>Strategy</strong></td><td>one interchangeable behaviour</td><td>swapping <em>how</em> something is done</td></tr></tbody></table>
+<p>Interpreter <em>is</em> a Composite — the tree, the uniform interface and the &quot;leaves and containers look alike&quot; property are exactly Composite&#x27;s. The difference is intent: Composite is about structure, Interpreter is about meaning. And a whole rule tree is often used as a Strategy: the checkout holds a <code>Rule</code> and does not care which one, which is Strategy&#x27;s shape wrapped around Interpreter&#x27;s insides.</p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><strong>Regular expressions.</strong> A compiled <code>Pattern</code> is a tree of expression objects, and <code>matches</code> walks it.</li><li><strong>Search filters</strong> — <code>price:&lt;50 AND brand:acme</code> on any shop or issue tracker.</li><li><strong>Spreadsheet formulas</strong>, which are parsed into a tree and evaluated against the cells as context.</li><li><strong><code>java.util.function.Predicate</code></strong> with <code>and</code>, <code>or</code> and <code>negate</code>. Those three methods are non-terminal expressions, and the JDK ships them.</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li><strong>Add a terminal.</strong> <code>country is not UK</code> already works via <code>not</code>; try adding <code>basket under N</code> instead. One record, one <code>if</code> in the parser, and no existing class changes — that is the property worth feeling.</li><li><strong>Break the precedence.</strong> Swap the order of <code>parseOr</code> and <code>parseAnd</code> so <code>and</code> splits first, and watch <code>andBindsTighterThanOr</code> fail. Then work out which promotions would have quietly changed meaning.</li><li><strong>Break the round trip.</strong> Make <code>OrRule.describe()</code> join with <code>&quot; OR &quot;</code> and watch the round-trip test catch it. The audit log and the tree are not allowed to drift.</li><li><strong>Add brackets.</strong> This is the hard one, and it is meant to be: it is the moment the parser stops being a convenience and becomes a parser.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — promotions as Java branches, and the two bugs that follow</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — the static structure</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — one order evaluated, message by message</li><li><a href="animation.html"><code>animation.html</code></a> — the same evaluation, stepped through</li></ul>
+</main>
+<footer>
+Generated from <code>interpreter-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

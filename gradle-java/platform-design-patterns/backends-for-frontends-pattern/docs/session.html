@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Backends for Frontends Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Backends for Frontends Pattern</h1>
+<p>A one-hour facilitated session. It works as a live-coded walkthrough, a study-group session, or a lunchtime talk with the exercises cut.</p>
+<p>The session has one shape: spend the first twenty minutes making the group argue themselves into a shared endpoint, so that when it fails they have watched their own reasoning fail rather than somebody else&#x27;s.</p>
+<hr>
+<h2>Learning Objectives</h2>
+<p>By the end, everyone can:</p>
+<ol><li>Say why five calls from a phone is a different problem from five calls inside a data centre, and count both.</li><li>Explain why a <code>?fields=</code> parameter solves the size problem completely and solves nothing that matters.</li><li>State the pattern in one sentence and name the three words that carry it — each, own, shape.</li><li>Draw the line between a backend for a frontend and an API gateway using one question.</li><li>Say what may live inside a backend for a frontend and what must live behind it, and why the wrong answer fails without an error.</li><li>Give the rule for how many backends a shop should have, and defend a case where two clients share one.</li></ol>
+<hr>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:06</td><td>Setup, and a design question</td></tr><tr><td>0:06–0:18</td><td>The problem: five calls, then one endpoint</td></tr><tr><td>0:18–0:28</td><td>The pattern: a backend per frontend</td></tr><tr><td>0:28–0:38</td><td>Code walkthrough</td></tr><tr><td>0:38–0:50</td><td>Exercises</td></tr><tr><td>0:50–0:58</td><td>The bill</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td></tr></tbody></table>
+<hr>
+<h2>0:00–0:06 — Setup, And A Design Question</h2>
+<p>Have everyone run:</p>
+<pre><code>./gradlew run</code></pre>
+<p>While it runs, put this on screen — no code, just the two lists:</p>
+<blockquote><p>The phone&#x27;s product screen draws: title, price, one photo, rating, rating count, and one line about delivery. Six things. The desktop page draws fifteen, including the description, five photos and three reviews. You have five services. Design the API.</p></blockquote>
+<p>Take answers for three minutes and write each one up. You will reliably get: &quot;the phone calls the services&quot;, &quot;one endpoint that returns everything&quot;, and if somebody has read ahead, &quot;GraphQL&quot;. Write all three down without judging any of them.</p>
+<p><strong>Facilitator note:</strong> resist naming the pattern. The room has just proposed the two designs the first two acts demolish, which is exactly the position you want them in.</p>
+<hr>
+<h2>0:06–0:18 — The Problem: Five Calls, Then One Endpoint</h2>
+<p>Walk Act 1 and Act 2 on screen.</p>
+<p><strong>Act 1.</strong> Point at the five, not the bytes. Ask: <em>&quot;How many of these five can happen at the same time?&quot;</em> Somebody will work out that they cannot — pricing needs to know which product, which means the catalog has to answer first. Five waits, in sequence, on a train.</p>
+<p><strong>Act 2.</strong> Give the shared endpoint its due first. One call instead of five is a real win and the pattern keeps it. Then read the waste figure — 87% — and let the room propose the fix. They will propose <code>?fields=</code>, every time.</p>
+<p>Then run it and show that it <em>works</em>: 212 bytes.</p>
+<blockquote><p>This is the moment the session turns. Say plainly: if this pattern were about payload size, we would be finished, and the answer would be a query parameter.</p></blockquote>
+<p>Now show the delivery line:</p>
+<pre><code>delivery sentence: not available -- a field like this belongs to one client, and
+                   this endpoint belongs to all of them</code></pre>
+<p>Ask the room to estimate the work: joining stock, a delivery date and the clock into one sentence. They will say an afternoon. Then ask who has to agree to it.</p>
+<p><strong>Facilitator note:</strong> if the room has lived through this, they will start telling their own five-week stories here. Let it run for a minute — it is the most valuable minute of the session, and it is the only part you cannot supply yourself.</p>
+<hr>
+<h2>0:18–0:28 — The Pattern: A Backend Per Frontend</h2>
+<p>State it once:</p>
+<blockquote><p>Give each frontend its own backend, owned by the team that owns the screen, whose only job is to turn what the shop knows into the exact shape that one screen draws.</p></blockquote>
+<p>Then pull the three words apart, because each one rules out a common near-miss:</p>
+<ul><li><strong>Each</strong> — more than one. One box in front of the services is a gateway, not this.</li><li><strong>Own</strong> — the phone team changes it. A platform-owned &quot;mobile API&quot; recreates the five-week queue with a new name.</li><li><strong>Shape</strong> — not rules. This is the setup for the bill.</li></ul>
+<p>Walk Act 3 and Act 4. On Act 4, cover the bytes column with your hand and read only the last two:</p>
+<pre><code>  five calls from the phone       5 device   5 internal
+  one shared endpoint             1 device   5 internal
+  a backend for the phone         1 device   4 internal</code></pre>
+<p>Ask what happened to the four missing device calls. Answer: nothing happened to them. They are still being made, on a network that costs nothing. <strong>The pattern moves work; it does not remove it.</strong></p>
+<p>Then Act 3&#x27;s price field. <code>4799</code> became <code>&quot;£47.99&quot;</code> — ask where that conversion would have happened otherwise, and how long it takes to fix a formatting bug that shipped inside a mobile app.</p>
+<hr>
+<h2>0:28–0:38 — Code Walkthrough</h2>
+<p>Five files, in this order. Keep it to eight minutes; the code is deliberately small.</p>
+<p><strong><code>Screens.java</code></strong> — two lists of field names. This is the ruler. Everything the project calls &quot;waste&quot; means &quot;not on one of these lists&quot;.</p>
+<p><strong><code>SharedApi.java</code></strong> — show <code>product(sku, fields)</code> and then <code>joinedDelivery()</code>. The second returns a hard-coded sentence, and that is the point: there is no code that could go there.</p>
+<p><strong><code>MobileBff.java</code></strong> — read the returned document <em>first</em>, then the method. Two things to draw out:</p>
+<ul><li>there is no <code>shop.recommendations(sku)</code> call, because the screen has no related-products strip;</li><li><code>deliveryPromise</code> is four lines, and it is the field they waited five weeks for.</li></ul>
+<p><strong><code>WebBff.java</code></strong> — fifteen fields, five services, and <code>delivery</code> is the bare date rather than a sentence. Ask whether that inconsistency is a bug. It is not: the desktop has a delivery panel and wants the parts.</p>
+<p><strong><code>ClientBackend.java</code></strong> — one method, and it could be deleted without breaking anything. Ask why it is there. The answer is that it names the claim: this shop has more than one idea of what a product screen is, and both are legitimate.</p>
+<hr>
+<h2>0:38–0:50 — Exercises</h2>
+<h3>Exercise 1 — Break the guard rail (everyone, 4 min)</h3>
+<p>Add a seventh field to <code>MobileBff.productScreen</code> — the warehouse name, say. Run the tests.</p>
+<p><code>sendsOnlyWhatIsDrawn</code> fails, because the assertion is <code>assertEquals(Screens.PHONE, screen.paths())</code> — equality, not containment.</p>
+<p>Discuss: why equality? Because a field that arrives and is never drawn is exactly the waste the pattern exists to remove, and without this test every backend grows back into a shared endpoint over about eighteen months.</p>
+<h3>Exercise 2 — Move a decision into the app (everyone, 4 min)</h3>
+<p>Change the phone&#x27;s <code>price</code> field to return the raw integer <code>4799</code> instead of <code>Money.format(...)</code>, and change <code>Screens.PHONE</code> so the test still passes.</p>
+<p>Now ask: the app has to format it. It ships in three languages. A customer on an eighteen-month-old Android build sees whatever the app did then. How long is the fix cycle for a formatting bug in each design?</p>
+<h3>Exercise 3 — Find the divergence (discussion, then code, 4 min)</h3>
+<p>Before running anything, ask the room how they would <em>detect</em> the Act 5 failure in production. Take answers. Most rooms arrive at &quot;a customer complains&quot; and are unhappy about it.</p>
+<p>Then fix it: in <code>ProductScreenDemo</code>, pass <code>SavingRules.current()</code> to the phone&#x27;s backend instead of <code>SavingRules.copiedBeforeTheReview()</code>. One line. Point out that nothing in the codebase would ever have told them which line.</p>
+<h3>Exercise 4 — Stretch</h3>
+<p>Make the four internal calls in <code>MobileBff</code> concurrent. How much does the pattern&#x27;s advantage grow? This is the exercise that shows how much the simulation understates the benefit — four sequential internal calls become roughly one.</p>
+<hr>
+<h2>0:50–0:58 — The Bill</h2>
+<p>Three costs, about two and a half minutes each.</p>
+<p><strong>Act 5 — divergence.</strong> Run it. Put the two lines side by side:</p>
+<pre><code>  desktop store says:  (nothing — no saving may be claimed for this price)
+  phone app says:      Save £12.00</code></pre>
+<p>Ask what went wrong. The room will look for the bug. Say plainly: there isn&#x27;t one. The copy was correct when it was written, it is well named, its tests pass, and it is wrong only in relation to a decision made months later by people with no reason to know it existed.</p>
+<p>Then give the rule, and make them write it down: <strong>a backend for a frontend holds the shape. Anything the shop would still believe with every client switched off belongs behind it.</strong></p>
+<p><strong>Act 6 — the gateway line.</strong> Eight copies against four. Ask the question that settles every &quot;is this a gateway or a BFF?&quot; argument:</p>
+<ul><li><em>&quot;What does this screen need?&quot;</em> → a backend for that frontend.</li><li><em>&quot;Is this request allowed in at all?&quot;</em> → in front of all of them.</li></ul>
+<p><strong>Act 7 — how many.</strong> Read the six clients. Stop on the tablet and let the room argue about whether it deserves its own backend. Land on the rule: not per device, not per team — <strong>per genuine disagreement about what a product is.</strong> Then read the four recurring costs and the closing line: two backends is a pattern, nine is a department.</p>
+<hr>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>One sentence back:</p>
+<blockquote><p>Each frontend gets its own backend, owned by the team that draws the screen, and it holds the shape and nothing else.</p></blockquote>
+<p>One question to take away:</p>
+<blockquote><p>In your own system, what is the last thing a client had to wait for because the endpoint it uses belongs to everybody?</p></blockquote>
+<hr>
+<h2>Facilitator Notes</h2>
+<p><strong>The most common wrong turn</strong> is a room deciding early that this is about payload size. Head it off by showing that <code>?fields=</code> works. A session that does not do that produces people who add a query parameter and believe they have applied the pattern.</p>
+<p><strong>The second most common</strong> is confusing this with an API gateway. Keep Act 6&#x27;s question visible from the moment you first say the pattern&#x27;s name.</p>
+<p><strong>The third</strong> is &quot;so we build one per app&quot;. Act 7 exists for that, but if you are short of time, cut something else. A room that leaves with &quot;one per client&quot; will build nine backends.</p>
+<p><strong>If a senior engineer objects that this duplicates logic</strong> — agree with them immediately, and say Act 5 is that objection in code. The objection is right, and the answer is not that it does not happen, it is that only <em>shape</em> goes inside.</p>
+<p><strong>If somebody raises GraphQL</strong> — take it seriously. It is a real alternative to this pattern and answers the same problem by letting each client describe its own shape. Note that it moves the ownership question rather than removing it: somebody still owns the schema, and adding the delivery sentence to it is still somebody&#x27;s queue.</p>
+<p><strong>Timing pressure.</strong> If you are behind at 0:38, cut Exercise 2 and Exercise 4. Never cut the bill — a session that ends at Act 4 has sold a pattern without its cost, and that is the failure mode this whole course is written against.</p>
+<hr>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>Everyone has a JDK 21 and has run <code>./gradlew run</code> before the session starts</li><li>Act 1 and Act 2 output on screen, ready to show</li><li><code>docs/animation.html</code> open in a browser tab</li><li><code>docs/class-diagram.md</code> image ready for the 0:28 walkthrough</li><li>The one-sentence definition written somewhere visible for the whole hour</li><li>Act 6&#x27;s two questions on a slide of their own</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

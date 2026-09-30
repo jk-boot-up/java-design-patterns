@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teaching Video Specification</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Teaching Video Specification</h1>
+<p>This is the specification the video in <a href="../video/"><code>../video/</code></a> is built to. It describes <em>what the video must be</em>, not how to run the build — for the build steps see <a href="../video/README.html"><code>../video/README.md</code></a>.</p>
+<p>This file is a port of <a href="../../static-factory-pattern/docs/video-spec.html"><code>../../static-factory-pattern/docs/video-spec.md</code></a>, which is the portable contract every teaching video in these repositories is built to. Only §11 (this project&#x27;s scenes) and the identifiers named in §4 and §12 differ from that original.</p>
+<hr>
+<h2>1. What gets produced</h2>
+<p>One build produces exactly four artefacts, all in <code>video/</code>:</p>
+<table><thead><tr><th>File</th><th>Format</th><th>Purpose</th></tr></thead><tbody><tr><td><code>builder-pattern-explained.mp4</code></td><td>1920×1080, H.264 High, 30 fps, yuv420p, AAC-LC 192 kbps stereo @ 48 kHz, <code>+faststart</code></td><td>The video. Uploaded to YouTube as-is.</td></tr><tr><td><code>builder-pattern-explained.m4a</code></td><td>AAC 192 kbps stereo</td><td>Audio-only, for revision on the move.</td></tr><tr><td><code>builder-pattern-explained.srt</code></td><td>SubRip</td><td>Captions. Uploaded alongside the video.</td></tr><tr><td><code>poster.png</code></td><td>1920×1080 PNG</td><td>The opening frame, used as the custom thumbnail.</td></tr></tbody></table>
+<p>None of the four are committed. They are build output; the scripts that produce them are what lives in git. This project&#x27;s <code>.gitignore</code> therefore carries:</p>
+<pre><code>/video/*.mp4
+/video/*.m4a
+/video/*.srt
+/video/poster.png
+/video/build/</code></pre>
+<p><strong>Target runtime: 10–13 minutes.</strong> Long enough to teach the idea from nothing, short enough that a student finishes it. That works out at roughly 15–19 scenes.</p>
+<hr>
+<h2>2. Source layout</h2>
+<p>Six files, all in <code>video/</code>, and no others:</p>
+<table><thead><tr><th>File</th><th>Responsibility</th></tr></thead><tbody><tr><td><code>scenes.py</code></td><td>The single source of truth: slide content <em>and</em> the narration spoken over it, in one <code>SCENES</code> list.</td></tr><tr><td><code>make_slides.py</code></td><td>Renders one 1920×1080 PNG per scene into <code>build/</code>.</td></tr><tr><td><code>make_subtitles.py</code></td><td>Writes the SRT, timed from the encoded scene clips.</td></tr><tr><td><code>build_video.sh</code></td><td>The whole pipeline, one command, no arguments.</td></tr><tr><td><code>narration.md</code></td><td>The full spoken script, generated from <code>scenes.py</code>, for human review.</td></tr><tr><td><code>README.md</code></td><td>How to rebuild, what the options are, and how to publish.</td></tr></tbody></table>
+<p>The rule behind this layout is that <strong>slide and narration never live apart</strong>. A scene is a <code>dict</code> holding <code>key</code>, <code>kind</code>, <code>title</code>, <code>body</code> and <code>narration</code> together, so it is impossible to reword the narration and forget the slide, or the other way round.</p>
+<hr>
+<h2>3. The pipeline</h2>
+<p><code>build_video.sh</code> runs five stages and nothing else:</p>
+<ol><li><strong>Slides.</strong> <code>make_slides.py</code> renders <code>build/&lt;key&gt;.png</code> per scene.</li><li><strong>Narration text.</strong> Each scene&#x27;s <code>narration</code> string is written to <code>build/&lt;key&gt;.txt</code>.</li><li><strong>Speech and per-scene clips.</strong> macOS <code>say</code> speaks each <code>.txt</code> to AIFF; the AIFF is cleaned (§6), padded with a 0.9 s tail, and married to its PNG as <code>build/scene-&lt;key&gt;.mp4</code>.</li><li><strong>Concatenation.</strong> The concat demuxer joins the clips with <code>-c copy</code>, then a second lossless remux applies the two opening-frame fixes (§7). The audio track and <code>poster.png</code> are lifted out here.</li><li><strong>Subtitles.</strong> <code>make_subtitles.py</code> measures the encoded clips and writes the SRT.</li></ol>
+<p>Intermediates are deleted afterwards unless <code>KEEP_INTERMEDIATE=1</code> is set. The slide PNGs are kept.</p>
+<p><strong>Requirements:</strong> macOS (for <code>say</code>), <code>ffmpeg</code>, and Python 3 with <code>pillow</code> and <code>matplotlib</code>. <code>matplotlib</code> is a dependency only for the DejaVu TTFs it bundles, which is what makes the slides render identically on any machine without a font install.</p>
+<hr>
+<h2>4. The slide system</h2>
+<p>Canvas is 1920×1080 throughout. Background <code>#0F172A</code>, with an accent rule across the top eight pixels. The palette, scene kinds, and the two hard rules for <code>code</code> and <code>console</code> scenes are unchanged from the original spec — see <a href="../../static-factory-pattern/docs/video-spec.html"><code>../../static-factory-pattern/docs/video-spec.md</code></a> §4 for the full table. The only project-specific change is the footer label, <code>Builder Pattern  ·  Java 21</code>, and the identifiers the syntax-colouring rules in <code>make_slides.py</code> look for (<code>PurchaseOrder</code>, <code>Builder</code>, <code>Address</code>, <code>Money</code> in place of <code>Discount</code>, <code>Money</code>).</p>
+<hr>
+<h2>5. Branding</h2>
+<p>Unchanged from the original spec. Every video opens and closes with the same two cards — the poster doubling as the YouTube thumbnail, the outro asking for the like and the subscribe — and the author credit sits in the same pill, at the same position, for the same reason. See §5 of the original for the full rationale.</p>
+<p>The narration of scene 1 credits the author out loud: <em>&quot;This one is written and presented by Jayasekhar Konduru.&quot;</em></p>
+<hr>
+<h2>6. Narration</h2>
+<p><strong>Voice: <code>Samantha</code>, US English, female. Rate: 165 wpm.</strong> Unchanged from the original spec, for the same reason: consistency across every video in the collection.</p>
+<p>The same three conventions apply — explicit <code>[[slnc NNN]]</code> pauses, maths and symbols spelled out, no references the video cannot show. See §6 of the original spec for the reasoning behind each.</p>
+<p><code>narration.md</code> is regenerated from <code>scenes.py</code> whenever the wording changes substantially. It is the review copy, never the source.</p>
+<hr>
+<h2>7. Audio and container correctness</h2>
+<p>Unchanged from the original spec — the same <code>CLEANUP</code> filter chain, and the same three settings (<code>-bf 0</code>, <code>-ignore_editlist 1</code>, <code>+faststart</code>) for the opening frame. See §7 of the original for the full explanation of why each one is necessary.</p>
+<hr>
+<h2>8. Subtitles</h2>
+<p>Unchanged from the original spec — cues are timed from the encoded scene clips, not the raw narration audio, for the reason given in §8 there.</p>
+<hr>
+<h2>9. Verification</h2>
+<p>A build is not finished until it has been measured. The same commands from §9 of the original spec apply, with <code>builder-pattern-explained.mp4</code> / <code>.srt</code> in place of the static factory filenames.</p>
+<hr>
+<h2>10. Publishing</h2>
+<p>Unchanged from the original spec. See §10 there for the click-by-click YouTube instructions; <code>video/README.md</code> in this project carries the project-specific description text.</p>
+<hr>
+<h2>11. This project&#x27;s scenes</h2>
+<p>Nineteen scenes, matching the shape of the original.</p>
+<table><thead><tr><th>#</th><th>Kind</th><th>Scene</th></tr></thead><tbody><tr><td>1</td><td>poster</td><td>Builder Pattern</td></tr><tr><td>2</td><td>bullets</td><td>The Job</td></tr><tr><td>3</td><td>code</td><td>The Constructor With Nine Parameters</td></tr><tr><td>4</td><td>code</td><td>Telescoping Constructors</td></tr><tr><td>5</td><td>bullets</td><td>Why That Hurts</td></tr><tr><td>6</td><td>quote</td><td>The Builder Pattern</td></tr><tr><td>7</td><td>bullets</td><td>A Made-to-Order Sandwich Counter</td></tr><tr><td>8</td><td>diagram</td><td>The Shape of It</td></tr><tr><td>9</td><td>code</td><td>Required Facts, Optional Pieces</td></tr><tr><td>10</td><td>code</td><td>One Method, One Piece</td></tr><tr><td>11</td><td>code</td><td>A Rule That Lives in One Place</td></tr><tr><td>12</td><td>code</td><td>Checked Only When You Say You&#x27;re Done</td></tr><tr><td>13</td><td>code</td><td>The Product Stops Watching the Builder</td></tr><tr><td>14</td><td>code</td><td>The Director, the Java Way</td></tr><tr><td>15</td><td>console</td><td>Running It</td></tr><tr><td>16</td><td>bullets</td><td>Where It Stops</td></tr><tr><td>17</td><td>bullets</td><td>How It Relates to the Others</td></tr><tr><td>18</td><td>title</td><td>One Sentence to Keep</td></tr><tr><td>19</td><td>outro</td><td>Thanks for Watching</td></tr></tbody></table>
+<p>The shape is the same one the original spec argues for, and it still holds: <strong>pose the problem → show the obvious answer failing → name the technique → give it a physical analogy → draw the structure → walk the real code → run it → say where it stops → one sentence to keep.</strong></p>
+<hr>
+<h2>12. Porting this to a new project</h2>
+<p>Unchanged process from §12 of the original spec. This project is itself an example of following it: <code>make_slides.py</code>, <code>make_subtitles.py</code> and <code>build_video.sh</code> were copied over, the <code>OUT_*</code> names and footer label were renamed, <code>kind_diagram</code> was redrawn for this project&#x27;s structure, the syntax-colouring identifiers were updated, <code>scenes.py</code> was written fresh following §11&#x27;s shape, and the real demo output in the <code>console</code> scene was pasted from an actual <code>./gradlew run</code>.</p>
+</main>
+<footer>
+Generated from <code>video-spec.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

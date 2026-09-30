@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Bulkhead</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Bulkhead</h1>
+<p>A one-hour session. The mechanism takes about eight minutes and is genuinely underwhelming — it is a second thread pool. Everything worth the hour is on either side of it: the invisibility of the failure before, and the cost of the walls after.</p>
+<p>Protect the last twenty minutes. Deciding what must never be starved, and admitting out loud what you are leaving idle to guarantee it, is the part most treatments skip.</p>
+<p><strong>Audience:</strong> developers who know Java. No concurrency experience assumed beyond knowing what a thread pool is.</p>
+<p><strong>Format:</strong> laptops open. Everything runs offline with a JDK.</p>
+<h2>Learning Objectives</h2>
+<p>By the end, a participant can:</p>
+<ol><li>Explain why a background job nobody is waiting for can stop a shop selling, without either job referencing the other.</li><li>Say why starved and broken look identical from outside, and what that does to diagnosis during an incident.</li><li>Say why a bigger shared pool is not a fix, and why an unbounded queue is worse than no fix.</li><li>Describe the mechanism in one sentence, and state honestly how little code it is.</li><li>Explain why proving the slow job is <em>still stuck</em> is the test that makes act two evidence rather than coincidence.</li><li>State the price of a partition — idle threads, lower peak throughput, more numbers to size — and argue for or against paying it in a real system of their own.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check, and the two jobs</td></tr><tr><td>0:05–0:16</td><td>The outage: a background job stops the sale</td></tr><tr><td>0:16–0:24</td><td>Two tempting fixes, both wrong</td></tr><tr><td>0:24–0:34</td><td>The mechanism, and the second act</td></tr><tr><td>0:34–0:42</td><td>Refusing in zero milliseconds</td></tr><tr><td>0:42–0:56</td><td>Exercises, and the bill</td></tr><tr><td>0:56–1:00</td><td>Wrap-up</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check, And The Two Jobs</h2>
+<pre><code>cd micro-services-design-patterns/bulkhead-pattern
+./gradlew test</code></pre>
+<p>12 tests, green, in about a second.</p>
+<p>Introduce the two jobs in words, without code, because the asymmetry between them is the whole setup:</p>
+<blockquote><p><strong>Checkout</strong> takes a shopper&#x27;s money. It is fast, it is correct, and nobody has ever filed a bug against it. It needs exactly one thing: a thread. <strong>The supplier feed</strong> imports a catalogue overnight. Nobody is waiting for it. If it finished an hour late, nothing bad would happen. It calls a partner API that is occasionally very slow.</p></blockquote>
+<p>Then the honest warning, which differs from every other project in this category:</p>
+<blockquote><p>The threads here are real. This is the only project in the category with no fake clock, because the subject <em>is</em> threads genuinely waiting for one another, and you cannot fake a thread being unavailable. Nothing sleeps, though — the slow partner is a latch the test holds shut.</p></blockquote>
+<h2>0:05–0:16 — The Outage</h2>
+<p>Run it and stop at act one:</p>
+<pre><code>./gradlew run</code></pre>
+<pre><code>  ~  10ms  shared     feed-4         started on shared-worker
+  ~  10ms  shared     feed-3         started on shared-worker
+  ~  10ms  shared     feed-2         started on shared-worker
+  ~  10ms  shared     feed-1         started on shared-worker
+  checkout: still waiting for a thread after 300ms</code></pre>
+<p><strong>Ask the room what is missing before you explain anything.</strong> Give it a real thirty seconds. Someone will notice that checkout has no line.</p>
+<p>Then the two facts, in this order:</p>
+<ol><li><strong>A waiting job holds its thread.</strong> It uses no CPU and does nothing at all, but the thread is its until the call returns. Four batches waiting hold four threads.</li><li><strong>Checkout is not broken.</strong> Open <code>theStarvedCheckoutWasNeverBroken</code>: the same job, run the moment a thread is free, completes perfectly.</li></ol>
+<p>Land the sentence:</p>
+<blockquote><p>The shop stopped selling because of a background job nobody was waiting for.</p></blockquote>
+<p>And then the part that makes it hard rather than merely bad:</p>
+<blockquote><p>Neither job mentions the other. No import, no call, no shared field. They are coupled by a resource neither of them names, which is why no amount of reading either file will show you this.</p></blockquote>
+<p>Worth saying plainly: starved and broken look identical from outside, and only one of them is fixable in the code. At three in the morning you are looking for a bug in a class that does not have one.</p>
+<h2>0:16–0:24 — Two Tempting Fixes, Both Wrong</h2>
+<p>Ask for fixes before offering any. Both of these will come up.</p>
+<p><strong>&quot;Make the pool bigger.&quot;</strong> Forty threads instead of four. Draw it out: the feed takes forty whenever the partner is slow enough for long enough, and checkout is starved at forty exactly as it was at four. The number moved; the failure did not. Worse, the bigger pool takes longer to notice and costs more memory when it goes.</p>
+<p><strong>&quot;Never refuse a job — queue them all.&quot;</strong> This sounds like generosity. Ask what the queue is made of. It converts a fast, visible failure into an out-of-memory crash at an hour of its choosing, and every caller waits for work that will not start for minutes.</p>
+<p>Then put the real question on the board and leave it there:</p>
+<blockquote><p>The two jobs are connected only by the pool they share. What happens if they stop sharing it?</p></blockquote>
+<h2>0:24–0:34 — The Mechanism, And Act Two</h2>
+<p>Show the constructor, and let it be a let-down:</p>
+<pre><code>new ThreadPoolExecutor(threads, threads, 0L, MILLISECONDS,
+        new ArrayBlockingQueue&lt;&gt;(queueCapacity),
+        runnable -&gt; new Thread(runnable, name + &quot;-worker&quot;));</code></pre>
+<p>A fixed pool, a bounded queue, and a name. No algorithm, nothing adaptive, nothing to tune at runtime.</p>
+<blockquote><p>A bulkhead is not a clever piece of machinery. It is a decision to stop sharing. The pattern lives in having <em>two</em> of them, not in anything either one does.</p></blockquote>
+<p>Now act two:</p>
+<pre><code>  ~   0ms  feed       feed-1         started on feed-worker
+  ~   0ms  feed       feed-2         started on feed-worker
+  ~   0ms  checkout   checkout       started on checkout-worker
+  ~   0ms  checkout   checkout       finished
+  checkout: paid ORD-5001
+  the feed is jammed -- 2 threads busy, 2 jobs queued</code></pre>
+<p>Point at the thread names. <code>feed-worker</code> against <code>checkout-worker</code>. Different threads; no amount of demand on one side can produce a thread on the other.</p>
+<h3>The question to actually ask</h3>
+<p>Do not let the room celebrate that checkout worked. Ask:</p>
+<blockquote><p>How do we know the isolation did that, and not the partner API quietly recovering?</p></blockquote>
+<p>Sit with it. Then open <code>theFeedIsGenuinelyStuck</code>, which asserts the feed is <em>still</em> jammed at the moment the sale goes through. Without that assertion, a lucky run looks identical to a correct one.</p>
+<p>This generalises well beyond thread pools, and it is worth saying so: <strong>a test that only checks the good thing happened has not ruled out the good thing happening by accident.</strong></p>
+<h2>0:34–0:42 — Refusing In Zero Milliseconds</h2>
+<p>Two threads, a queue of two, and a fifth batch:</p>
+<pre><code>  feed is full: no thread and no room in the queue (in 0ms)
+  4 accepted, 1 refused</code></pre>
+<p>Ask whether refusing is a failure or a feature. Drive at the timing: <code>theRefusalIsFast</code> asserts the answer comes back immediately, and that speed is the entire value. The caller still has time to shed the batch, degrade, or write it down for tonight.</p>
+<p>Same idea as the circuit breaker&#x27;s fast failure, applied to a queue rather than to a broken service. If the group has done that project, this is a good moment to say the two belong together: a breaker so you stop calling a service that has stopped answering, and a bulkhead so the calls still in flight cannot drown anything that matters.</p>
+<h2>0:42–0:56 — Exercises, And The Bill</h2>
+<p>Start with the bill, because it makes the exercises honest:</p>
+<pre><code>  feed:     2 threads, 2 busy, 2 queued and waiting
+  checkout: 2 threads, 0 busy, 2 idle</code></pre>
+<p>Read the two lines together and let them be uncomfortable. Two threads are doing nothing beside two jobs waiting for a thread, and they are not allowed to help. <code>thesharedPoolIsFasterOnAGoodDay</code> asserts the other side: one pool of four runs all four batches at once and finishes sooner.</p>
+<blockquote><p>Partitioned pools are idle capacity by design. Any description of this pattern that does not say so is describing something free, and this is not free.</p></blockquote>
+<h3>Exercise 1 — Starve it again (everyone)</h3>
+<p>Give checkout&#x27;s bulkhead one thread and submit two sales while the feed is jammed. Watch the second sale wait. The wall protects checkout from the feed; it does not protect checkout from checkout.</p>
+<h3>Exercise 2 — Widen the queue (everyone)</h3>
+<p>Raise the feed&#x27;s queue capacity to 50 and submit fifty batches. Note that nothing is refused, the demo appears healthier, and every one of those batches is now waiting on a partner that is not answering. Ask what has actually improved.</p>
+<h3>Exercise 3 — Where do the walls go? (discussion)</h3>
+<p>In pairs, on their own current system: name the work that must never be starved, and then name what they would leave idle to guarantee it. Two or three partitions, not fifteen.</p>
+<p>The point to surface: the classification is a business decision. Nothing in the code can tell you the supplier feed matters less than checkout. If it is not written down — as a pool, as a number — then during the outage it is decided by whichever job asked for a thread first.</p>
+<h3>Exercise 4 — Stretch: a third bulkhead</h3>
+<p>Add one for sending confirmation emails and size it. Then ask what happens when there are fifteen of these: fifteen numbers to size, fifteen that drift out of date, and a lot of threads doing nothing at three in the afternoon.</p>
+<h2>0:56–1:00 — Wrap-Up</h2>
+<p>Five sentences:</p>
+<ol><li>A bulkhead is a decision to stop sharing, not an algorithm.</li><li>Starved and broken look identical from outside, and only one is fixable in the code.</li><li>A bigger pool moves the number; an unbounded queue moves the failure somewhere worse.</li><li>Prove the slow job is still stuck, or you have shown a coincidence.</li><li>Isolation is paid for in idle threads, and you must be able to say that out loud.</li></ol>
+<h2>Facilitator Notes</h2>
+<ul><li><strong>The best thirty seconds of the session is silence in act one.</strong> Do not point out the missing line. Let someone find it. The pattern lands completely differently when the room has experienced absence as a symptom.</li><li><strong>Expect &quot;just use virtual threads&quot;.</strong> It is a good instinct and worth taking seriously: virtual threads make a blocked thread cheap, so pure thread exhaustion gets much harder to hit. But the underlying resource does not disappear — the connection pool, the rate limit, the memory — and neither does the question of what must never be starved. Bulkheads move from threads to permits; the decision is unchanged.</li><li><strong>Expect &quot;this is just a rate limiter&quot;.</strong> No: a rate limiter bounds how fast work arrives, a bulkhead bounds how much of a resource one kind of work may hold. Related instinct, different lever.</li><li><strong>If the group is quiet during exercise 3</strong>, seed it with something concrete from your own system and let them argue with your classification. The argument is the learning.</li><li><strong>Do not oversell it.</strong> If someone leaves thinking bulkheads are free and should go everywhere, the session has taught them something worse than nothing. Fifteen pools is a real failure mode.</li><li><strong>Timings assume a group that talks.</strong> If they do not, act three and exercise 2 are the compressible parts. Act one and the bill are not.</li></ul>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>JDK 21 installed, <code>./gradlew test</code> run once beforehand so nothing downloads live</li><li>A terminal with a font big enough that the thread names are readable from the back of the room — <code>shared-worker</code> versus <code>feed-worker</code> is the argument</li><li><a href="animation.html"><code>animation.html</code></a> open in a browser tab for the threads being taken one at a time</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> open for the four acts as sequences</li><li>A whiteboard for the two tempting fixes, and for exercise 3</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

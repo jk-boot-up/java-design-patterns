@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Splitter and Aggregator with Camel Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Splitter and Aggregator with Camel Pattern — Video Narration Script</h1>
+<h2>1. Splitter and Aggregator with Camel</h2>
+<p>Hello, and welcome. This video explains the Splitter and Aggregator pattern, in Java, using Apache Camel. This video is presented by Jayasekhar Konduru. First, a simple definition. A splitter takes one message and turns it into several. Each piece carries two things: which whole it came from, and its own place in that whole. An aggregator does the opposite. It holds pieces that belong together. And sends out one message, when a rule says they are ready. In our online store, a basket has three items, in three different warehouses: Leeds, Reading, and Glasgow. The order is split into one shipment per warehouse. Each warehouse prices its own line. And the answers are gathered back into one price: two hundred and eighty-three pounds forty-two. By the end, you will hear an aggregator that waits forever, because nobody gave it a deadline. A real deadline ending that wait. And the moment Camel declares an order finished, when it is not.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. One basket has three items. And the three products sit in three different warehouses: Leeds, Reading, and Glasgow. One worker takes the whole basket, and walks all three, one after another. While the other two warehouses do nothing. So here is the question. Can we split the order between the three warehouses, and put the answers back together?</p>
+<h2>3. One Picker, One Order</h2>
+<p>First, one picker, and one order. Order four four seven one has three lines, in three warehouses. One worker handles every line, one after another. Three steps of work, on one thread. And the basket comes to two hundred and eighty-three pounds forty-two. While that worker walks, the other two warehouses stand idle.</p>
+<h2>4. Camel&#x27;s Three Words</h2>
+<p>Camel brings three words with it, and each is simpler than it sounds. A route is the path a message takes, written down. Where it starts, what happens to it, and where it goes. A correlation is the rule for reading which order a message belongs to. Here, that is the order number. And a completion condition is the rule that decides when the gathering is finished. That third word is the heart of this video. You must supply it yourself. And if you supply the wrong one, nothing ever comes out.</p>
+<h2>5. Camel Splits The Order</h2>
+<p>Second demo: Camel splits the order. The split step sends out one message for each line. Shipment one of three, to Leeds. Shipment two of three, to Reading. Shipment three of three, to Glasgow. Camel numbers the pieces itself. And it copies the order number onto every one of them. That number is the only thing that will put the order back together.</p>
+<h2>6. They Come Back In Any Order</h2>
+<p>Third demo: the answers come back in any order. The warehouses answer third, then first, then second. The aggregator does not mind. It files each answer under the place that answer says it belongs. So the result comes out in the customer&#x27;s own order, totalling two hundred and eighty-three pounds forty-two. And Camel records why it finished: size. Three messages had arrived, and three were expected.</p>
+<h2>7. The Completion Condition</h2>
+<p>Fourth demo, and this is what the hand-built version never faced. The Glasgow warehouse is closed. Its message reaches the warehouse, and stops there. Two shipments come back, to an aggregator whose only rule is a count of three. Two is not three. No answer comes out. One order sits open. And nothing will ever change that. An aggregator with only a count is a queue of orders that will never come out.</p>
+<h2>8. A Deadline</h2>
+<p>Fifth demo: a deadline. The same thing happens to a second aggregator. But this one has a second rule: a deadline of six hundred milliseconds, checked every hundred. A background checker watches the clock the whole time. When the deadline passes, it ends the wait, by itself. Camel records the reason as timeout, not size. The answer carries two of three shipments. It names Glasgow as the one that never came. And it comes to two hundred and sixty-five pounds ninety-seven: the basket, without the Glasgow item.</p>
+<h2>9. The Whole Difference</h2>
+<p>The difference between waiting forever, and giving up, is two lines. Both aggregators gather by the order number. And both finish when the expected number of messages has arrived. The second one also names a deadline in milliseconds, and how often to check the clock. Whichever rule is met first ends the wait. So never write the count, without the deadline.</p>
+<h2>10. The Bill</h2>
+<p>Finally, the costs. A thousand orders, each missing one shipment, means a thousand orders held in memory. And memory is where Camel keeps them, unless told otherwise. So a restart throws every one of them away. Then the surprise. Completing by size counts messages, not different pieces. Deliver the Reading shipment twice, and three messages have arrived. So Camel declares the order finished, with only two of its three lines. The duplicate check is yours to write. With it, the customer pays two hundred and sixty-five pounds ninety-seven. Without it, they pay five hundred and fifteen pounds ninety-six.</p>
+<h2>11. What The Simulation Left Out</h2>
+<p>The hand-built partner video got the whole shape right. Split, stamp each piece, gather by the stamp, count a repeat once, and give up after waiting too long. All of that is true of Camel too. But it left out three things. The completion rule is something you must supply, and can forget. The deadline needs something actually watching a clock, while the rest of the program carries on. And a piece that never comes back is a real event, not a line the demo chose to skip.</p>
+<h2>12. How To Recognise It</h2>
+<p>How can you spot this in code someone else wrote? Look for a split step in one place, and an aggregate step in another, joined only by an I D on the messages. Look for a completion size, with no timeout beside it. That is a queue of orders that may never come out. And look for unfinished groups kept only in memory, which a restart will empty.</p>
+<h2>13. The Verdict</h2>
+<p>So, here is the verdict. Split when the pieces can be worked on separately, and the work is slow enough to make parallel work worthwhile. Stamp every piece with what it came from, and its place. Then, on the aggregator, state two things clearly. When it is done. And when it has waited long enough. Never set only the first. And write the duplicate check yourself. Because the framework counts messages, and you care about pieces.</p>
+<h2>14. What Is Real Here</h2>
+<p>A quick, honest note about this demo. This is Apache Camel, version four point twenty, running inside the demo&#x27;s own program. There is no container, no broker, and no network call. So it runs offline, with nothing installed except a Java development kit. Every number you heard comes from the program&#x27;s own output. And two runs, one after the other, print the same results.</p>
+<h2>15. When This Is Too Much</h2>
+<p>So, when is this too much? If the pieces are quick, or each one needs the answer from the one before, splitting costs more than it saves. If nothing can ever go missing, the hand-built version is smaller, and clearer. And a framework must be learned before a route can be trusted. A route is easy to read, but hard to guess.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s Splitter and Aggregator, with Camel. If you remember one sentence, make it this one. An aggregator with only a count will wait forever, so the deadline is not a nice extra, it is the other half of the pattern. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Remove the deadline from the second aggregator, and run it again. Then listen as the deadline demo stops producing any answer at all. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

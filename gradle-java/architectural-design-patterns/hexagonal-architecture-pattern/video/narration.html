@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hexagonal Architecture Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Hexagonal Architecture Pattern — Video Narration Script</h1>
+<h2>1. Hexagonal Architecture</h2>
+<p>Hello, and welcome. This video explains Hexagonal Architecture, in Java. It is also called Ports and Adapters. This video is presented by Jayasekhar Konduru. First, a simple definition. The core of the program says what it needs from the outside world, as interfaces, in its own words. Those interfaces are called ports. Outside the core, adapters plug into those ports. Some adapters do work for the core, like storing data. Others call into the core, like a web request. And every dependency points into the core, never out of it. Think of the sockets on a wall. The wall decides the shape of the socket. A lamp, a kettle, or a charger just plugs in. You can change the lamp without rewiring the house. The previous video, Layered Architecture, ended with one honest problem. Its use case still had to name its storage class. This video fixes exactly that, and proves it twice. By the end, you will have one simple test for telling a port from an adapter: who is allowed to name whom?</p>
+<h2>2. The Scenario</h2>
+<p>Here is the job. It is the same order as every project in this series. A customer called Ada Okafor buys an espresso machine, a coffee grinder, and two bags of coffee beans, for three hundred and eighty-two pounds fifty. The steps are the same too. Check the stock, take the payment, store the order, and notify the customer. What changes is how much the core knows about how those steps happen. The core needs four things: a catalogue, a payment gateway, somewhere to store orders, and a way to notify. Each one is an interface, and the core writes all four itself.</p>
+<h2>3. The Naive Version</h2>
+<p>Let&#x27;s start with the naive version. It is the use case from the previous project, copied honestly. Its fields are three concrete classes. An in-memory order store. An in-memory payment gateway. And an in-memory product catalogue. Not interfaces. The real classes that do the work. Does it work? Yes, it places the order correctly. But two problems follow. One. You cannot test this class without building all three of those classes first. Two. If any of them is replaced, this file must be edited, even though its logic did not change.</p>
+<h2>4. Ports, Declared By The Core</h2>
+<p>Here is the fix, and it is one single move. The core declares four interfaces. Order Store, Payment Gateway, Product Catalog, and Notifier. All four live inside the core, in a package called core dot port. Not in the adapter package. Outside the core, there are two kinds of adapter. A driven adapter implements a port. The core calls it, for example, to store an order. A driving adapter calls into the core. For example, a web request that asks the core to place an order. And here is the rule. The core never names an adapter. Not one it calls, and not one that calls it. So if you are unsure whether something is a port or an adapter, ask one question. Who names whom?</p>
+<h2>5. One Move From The Project Before It</h2>
+<p>This move is smaller than it sounds, so let&#x27;s be precise. In the layered project, the storage interface lived in the bottom layer, called infrastructure. The use case, above it, reached down to use it. Layering allows that. Here, the very same interface, with the same three methods, lives inside the core instead. And the storage class, outside, reaches in to implement it. So the interface itself did not change at all. Only the package it lives in changed. And with it, the direction the dependency points. That is the whole distance between the previous project and this one.</p>
+<h2>6. The Core, Driven By HTTP</h2>
+<p>Let&#x27;s watch the real core run. A pretend web request arrives at an adapter. The adapter calls one method on the core. The core checks stock through the catalogue port. It takes payment through the payment port. It saves the order through the storage port. And it notifies the customer through the notifier port. The order is created, with status two hundred and one, for three hundred and eighty-two pounds fifty. Now think about the core&#x27;s use case class. It imports from only two places: the domain, and the port package. Not one adapter. It truly does not know that the web, or any particular storage, exists.</p>
+<h2>7. The Half Most Treatments Skip</h2>
+<p>Many explanations stop here. They show that storage can be swapped, and call it done. That is only half the story. Hexagonal architecture is often taught as being all about databases. Swap the storage, and the core does not change. That is true. The other half is about who calls into the core. If the core can really be called from anywhere, we should prove it, by calling it from somewhere new. So this project does both. It swaps the storage underneath the core. And it drives the same core from a completely different caller.</p>
+<h2>8. The Same Core, Driven By A CLI Instead</h2>
+<p>Here is the proof. Instead of a web request, a pretend command line calls the core. It is just one line of text, read by hand. It calls exactly the same use case class that the web adapter called. The result is the same order, with the same total. And the use case class was not touched. It takes the same four ports either way. Here is the lesson. If a core has only ever been called one way, it has not proven it is independent of its callers. It has only proven it works with the first caller someone wrote.</p>
+<h2>9. The Rule, Written Where A Build Can Read It</h2>
+<p>All of this fits in one rule, written as a test with a library called ArchUnit. No class in the core package may depend on any class in the adapter package. That one rule catches two mistakes. The core naming an adapter it calls. And the core calling back into an adapter that called it. The test runs with every other test in the build. And a second test points the same rule at the naive version, on purpose, to prove the rule can fail.</p>
+<h2>10. Watching It Go Red</h2>
+<p>So what does a failure sound like? The build reports an architecture violation. It says the rule, no core class may depend on an adapter, was broken once. Then it names the naive use case class, and the in-memory order store it reached for. A promise on a whiteboard is forgotten within a month. This message fails the build, by name, in under a second.</p>
+<h2>11. The Forced Change, Both Halves At Once</h2>
+<p>Now, the big change, with both halves at once. On one side, storage changes from a simple map to an append-only log. On the other side, the caller changes from a web request to a command line. Let&#x27;s count what changed, from the real files. Two files were added. One file was modified: the main setup code, and only four lines of it. The core is fourteen classes. Not one of them was opened, for either change. Two swaps, on opposite sides of the core, and zero core classes touched.</p>
+<h2>12. The Bill</h2>
+<p>Every pattern has a cost, so let&#x27;s name this one honestly. First, interfaces for things that have only one implementation. The Notifier has exactly one adapter in this project. Writing an interface for a class you will never swap is ceremony. This project has some of that, to show the shape clearly. Second, translation. Every driving adapter must translate its own input, like a web body or a line of text, into what the core wants. And then translate the answer back. That is real code, for every adapter.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, is this worth it for an application with one database and one way in? Often, no. Four interfaces, each with one implementation that will never change, is extra complexity with nothing behind it. It becomes worth it when the core truly needs more than one caller. Or more than one store. Or must be tested before any real infrastructure exists. So ask yourself honestly. Will either swap ever really happen? Or are you building for a change that is never coming?</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s Hexagonal Architecture. If you remember one sentence, make it this one. Hexagonal architecture is not about databases, it is about who is allowed to name whom. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Write a third driving adapter, such as a console menu or a scheduled job. Then check that the Place Order Service class needs zero lines changed to accept it. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Session Handover — Microservices Category</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>AI Session Handover — Microservices Category</h1>
+<p>This document exists so that an AI session working on this repository can be stopped at any point and picked up later, by a different session with no memory of the earlier one, without having to re-derive the state of the work or rediscover the conventions.</p>
+<p>Read this first, then <a href="ai-build-spec.html"><code>ai-build-spec.md</code></a> for the mechanics of building a project, then <a href="spec.html"><code>spec.md</code></a> for what each of the twelve projects is supposed to teach.</p>
+<p><strong>Companion documents.</strong> <a href="spec.html"><code>spec.md</code></a> is the category&#x27;s content specification: the twelve scenarios, the one-JVM rule, and the conformance checklist. <a href="implementation-plan.html"><code>implementation-plan.md</code></a> is the build plan, now a record of a finished build with its definition-of-done ticked. <a href="ai-build-spec.html"><code>ai-build-spec.md</code></a> is the toolchain: exact commands, file shapes, and the traps that have actually cost time.</p>
+<hr>
+<h2>1. Current state</h2>
+<p><strong>The category is complete.</strong> All twelve projects are built, tested, documented, rendered and committed. There is no outstanding work item from the original plan.</p>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Projects in this category</td><td>12</td></tr><tr><td>Projects in the repository</td><td>37, across four categories</td></tr><tr><td>Tests</td><td>passing in all 12; none uses <code>Thread.sleep</code></td></tr><tr><td>Videos</td><td>12 rendered, all present on disk, none in git</td></tr><tr><td>Specs</td><td>all 37 regenerate clean</td></tr><tr><td>Working branch</td><td><code>design_patterns_part_1</code></td></tr></tbody></table>
+<p>The twelve projects, in the learning order fixed by <a href="spec.html"><code>spec.md</code></a> §1:</p>
+<table><thead><tr><th>#</th><th>Project</th><th>Scene count</th><th>Runtime</th></tr></thead><tbody><tr><td>26</td><td><code>api-gateway-pattern</code></td><td>15</td><td>17:38</td></tr><tr><td>27</td><td><code>service-discovery-pattern</code></td><td>16</td><td>17:39</td></tr><tr><td>28</td><td><code>load-balancing-pattern</code></td><td>16</td><td>18:31</td></tr><tr><td>29</td><td><code>retry-pattern</code></td><td>16</td><td>16:12</td></tr><tr><td>30</td><td><code>circuit-breaker-pattern</code></td><td>16</td><td>18:06</td></tr><tr><td>31</td><td><code>bulkhead-pattern</code></td><td>16</td><td>17:18</td></tr><tr><td>32</td><td><code>database-per-service-pattern</code></td><td>16</td><td>17:26</td></tr><tr><td>33</td><td><code>api-composition-pattern</code></td><td>16</td><td>18:05</td></tr><tr><td>34</td><td><code>cqrs-pattern</code></td><td>16</td><td>17:26</td></tr><tr><td>35</td><td><code>saga-pattern</code></td><td>16</td><td>18:21</td></tr><tr><td>36</td><td><code>transactional-outbox-pattern</code></td><td>16</td><td>10:36</td></tr><tr><td>37</td><td><code>idempotent-consumer-pattern</code></td><td>16</td><td>10:52</td></tr></tbody></table>
+<p>Every video measures within 0.02 LU of the −16 LUFS target, which is the figure YouTube normalises to.</p>
+<p>The last two projects are noticeably shorter than the other ten. That is a deliberate change of pace rather than an omission: they were written tighter, and the tighter ones are the better watch. If the earlier ten are ever revised, shortening them is an improvement, not a regression.</p>
+<hr>
+<h2>2. How to establish state at the start of a session</h2>
+<p>Do not trust this document&#x27;s claims about what is finished. It is a snapshot, and the tree may have moved since. Run the checks instead. From this directory:</p>
+<pre><code># every project has its full artefact set
+for d in *-pattern; do
+  s=&quot;${d%-pattern}&quot;; miss=&quot;&quot;
+  for f in docs/problem-statement.md &quot;docs/$s-pattern-explained.md&quot; docs/class-diagram.md \
+           docs/uml-diagram.md docs/prerequisites.md docs/session.md docs/animation.html \
+           docs/make_animation_audio.sh docs/youtube.md docs/thumbnail.png docs/spec.md \
+           docs/images/class-diagram.png docs/images/uml-diagram.png \
+           video/scenes.py video/make_slides.py video/build_video.sh video/make_subtitles.py \
+           video/narration.md video/README.md video/poster.png README.md; do
+    [ -f &quot;$d/$f&quot; ] || miss=&quot;$miss $f&quot;
+  done
+  [ -z &quot;$miss&quot; ] &amp;&amp; echo &quot;$d: complete&quot; || echo &quot;$d: MISSING$miss&quot;
+done
+
+# every project builds and tests
+for d in *-pattern; do (cd &quot;$d&quot; &amp;&amp; ./gradlew -q test &gt;/dev/null 2&gt;&amp;1) \
+  &amp;&amp; echo &quot;$d: PASS&quot; || echo &quot;$d: FAIL&quot;; done
+
+# no rendered media has leaked into the git surface
+git status -uall --short . | grep -Ei &#x27;\.(mp4|m4a|srt|wav|aac|log)$|docs/audio/|video/build/&#x27;</code></pre>
+<p>A fourth check is worth running because it has caught a real defect: a <code>spec.md</code> that reports <code>0 scenes</code> or <code>not yet built</code> was generated before its video existed and is stale.</p>
+<pre><code>for d in *-pattern; do
+  printf &quot;%-32s %s\n&quot; &quot;$d&quot; &quot;$(grep -oE &#x27;[0-9]+ scenes&#x27; &quot;$d/docs/spec.md&quot; | head -1)&quot;
+done</code></pre>
+<hr>
+<h2>3. Standing instructions from the repository owner</h2>
+<p>These are not preferences to be re-litigated. They have been stated explicitly and they override any default behaviour or any convention imported from another project.</p>
+<h3>Committing and the git surface</h3>
+<ul><li><strong>Nothing is committed or pushed without being asked.</strong> Build artefacts are added to <code>.gitignore</code>; source and documentation are kept out of it.</li><li><strong>Rendered output never enters the repository.</strong> The mp4, m4a, srt and wav next to each video, everything under <code>video/build/</code>, and the generated <code>docs/audio/</code> narration clips are all ignored. They regenerate from committed scripts. A single video is 24–42 MB, and twelve of them would collide with GitHub&#x27;s file-size limits.</li><li><strong><code>animation.html</code> is committed.</strong> It is source, not output.</li><li><strong><code>video/poster.png</code> and <code>docs/thumbnail.png</code> are committed</strong>, as are the rendered diagrams under <code>docs/images/</code>. Nothing rebuilds those on GitHub, so ignoring them would leave the documentation showing broken images.</li><li><strong>Commit messages carry no <code>Co-Authored-By</code> trailer and no mention of Anthropic or Claude.</strong> This repository is published under the owner&#x27;s name and the history shows them as sole author. Write a subject and a body, and stop.</li></ul>
+<h3>Teaching content</h3>
+<ul><li><strong>Every worked example uses the e-commerce domain</strong> — one online shop, carried across all thirty-seven projects, so a learner moving between patterns only has to absorb the new structure. Analogies used to <em>explain</em> a pattern may come from any domain at all, and often should; the <em>code</em> may not.</li><li><strong>Every explanation must work with the listener&#x27;s eyes closed.</strong> A large share of the audience listens rather than watches. No sentence may say &quot;as you can see here&quot; or depend on a diagram, a class name on a slide, or a line of code being visible. The words alone name the actors, say what each decides, and give the order things happen in.</li><li><strong>The audience is beginners.</strong> Short sentences, plain language, one idea at a time.</li><li><strong>Posters never strike out their message.</strong> Struck-through text is unreadable at search-result size and makes the poster look negative. Signal &quot;this is the approach we are replacing&quot; with colour, a label or an icon.</li><li><strong>No video outro names the next pattern.</strong> Publishing order is not fixed, so a teaser would date the video.</li><li><strong>The opening narration of scene 1 has a required four-step order</strong>: say what the video is, credit Jayasekhar Konduru, give the pattern in plain general words, then elaborate in e-commerce terms.</li></ul>
+<h3>Numbers</h3>
+<p>Every figure quoted in a README, a document, a slide or a narration line comes from the real output of <code>./gradlew run</code> for that project. Nothing is rounded and nothing is invented. When a demo changes, the quoted output changes with it.</p>
+<hr>
+<h2>4. What each project contains</h2>
+<p>Twenty-two committed files plus source, identical in shape across all twelve. <code>cqrs-pattern</code>, <code>api-gateway-pattern</code> and <code>database-per-service-pattern</code> are the reference projects; copy from one of them rather than from an older category.</p>
+<pre><code>README.md                     quotes real run output, including the failure
+build.gradle, settings.gradle, gradlew, gradlew.bat, gradle/wrapper/
+src/main/java/com/jk/explore/&lt;slug&gt;/
+src/test/java/com/jk/explore/&lt;slug&gt;/
+docs/problem-statement.md     the scenario, and what goes wrong
+docs/&lt;slug&gt;-pattern-explained.md   one sentence, an everyday analogy, the acts, the cost
+docs/class-diagram.md         Mermaid classDiagram plus prose
+docs/uml-diagram.md           Mermaid sequenceDiagrams, one per act
+docs/prerequisites.md         required / helpful / explicitly not required
+docs/session.md               a one-hour facilitator guide for teaching the pattern
+docs/animation.html           self-contained interactive animation, no dependencies
+docs/make_animation_audio.sh  generates docs/audio/step-N.m4a for it
+docs/youtube.md               title, description, chapters, thumbnail
+docs/images/*.png             the two Mermaid diagrams rendered
+docs/thumbnail.png            generated
+docs/spec.md, docs/spec.html  generated
+video/scenes.py               the script: 14–16 scenes
+video/make_slides.py          renders one PNG per scene
+video/build_video.sh          narrates and assembles
+video/make_subtitles.py       writes the .srt
+video/narration.md            generated from scenes.py
+video/README.md               scene table and notes on the shape
+video/poster.png              opening title card and YouTube thumbnail</code></pre>
+<p>Note the name collision: <code>docs/session.md</code> inside a <em>project</em> is a teaching guide for running a one-hour session with a room of developers. That is a different thing from this document, which is a handover for an AI session. They are not related.</p>
+<hr>
+<h2>5. If the work were to be extended</h2>
+<p>Nothing is outstanding, so this section is about what a <em>new</em> instruction would most likely be, and where the constraints are.</p>
+<p><strong>A thirteenth project needs a spec change first.</strong> <a href="spec.html"><code>spec.md</code></a> §8 fixes what is out of scope and why. Adding a pattern is a decision made in the spec, not mid-build.</p>
+<p><strong>Shortening the ten long videos</strong> is the most valuable improvement available. The last two projects show the target: a tighter script at around eleven minutes rather than eighteen.</p>
+<p><strong>Re-rendering everything</strong> takes roughly eight to ten minutes of wall time per video, so a full category rebuild is a two-hour job. Build in the background and poll for the output file rather than blocking.</p>
+<p><strong>Any fix to the audio pipeline is rolled out to all thirty-seven projects</strong>, not left in the one project where it was diagnosed. This has been stated explicitly and has already happened twice, once for a denoiser that was making the voice sound underwater and once for a stdin conflict in the animation audio script.</p>
+</main>
+<footer>
+Generated from <code>ai-session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — API Composition</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — API Composition</h1>
+<p>A one-hour session. It has two distinct halves, and the second is the one worth protecting: the parallelism takes fifteen minutes and is arithmetic, while deciding what a page is allowed to do when a dependency is missing is a genuine product argument that most treatments of this pattern skip entirely.</p>
+<p><strong>Audience:</strong> developers who know Java. No distributed-systems experience assumed.</p>
+<p><strong>Format:</strong> laptops open. Everything runs offline with a JDK.</p>
+<h2>Learning Objectives</h2>
+<p>By the end, a participant can:</p>
+<ol><li>State, in one sentence, the difference in cost between sequential and parallel calls.</li><li>Explain why this page is <em>not</em> one flat fan-out of three, and point at the dependency that forces the shape.</li><li>Describe what a fan-out must do with a branch that throws, and why.</li><li>Classify a given dependency as required or optional, and say who in their organisation is actually qualified to make that call.</li><li>Explain why a page must not invent a plausible value for data it does not have.</li><li>Compute, roughly, what adding a fourth required dependency does to a page&#x27;s availability — and say why better services are not the answer.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check, and the page we are building</td></tr><tr><td>0:05–0:14</td><td>The problem: three calls in a queue</td></tr><tr><td>0:14–0:24</td><td>Sending them together, and why it is not a flat fan-out</td></tr><tr><td>0:24–0:34</td><td>The branch that fails, and required versus optional</td></tr><tr><td>0:34–0:44</td><td>Availabilities multiply</td></tr><tr><td>0:44–0:56</td><td>Exercises</td></tr><tr><td>0:56–1:00</td><td>Wrap-up</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check, And The Page</h2>
+<pre><code>cd micro-services-design-patterns/api-composition-pattern
+./gradlew test</code></pre>
+<p>22 tests, green, in about a second.</p>
+<p>Then describe the page in words before showing any code, because everybody has seen it and nobody has thought about it:</p>
+<blockquote><p>A shopper opens one of their orders. The page shows the order reference, a line for each thing they bought with its name and price, the total, and where the parcel currently is. Utterly unremarkable. Now: three different services own those facts, and there is no join any more.</p></blockquote>
+<p>Then the honest warning:</p>
+<blockquote><p>There is no network in this project, no HTTP client, and no <code>CompletableFuture</code>. Services advance a fake clock instead of waiting. You will learn the shape of the pattern and the decisions it forces on you. You will not learn how to configure a particular HTTP library.</p></blockquote>
+<h2>0:05–0:14 — The Problem</h2>
+<p>Show the three lines first, and defend them:</p>
+<pre><code>Order order = orders.fetch(orderId);
+Map&lt;String, String&gt; names = catalog.namesFor(order.skus());
+DeliveryStatus delivery = shipping.statusFor(orderId);</code></pre>
+<p>Ask the room what is wrong with it. Let them look. The useful answer is <em>nothing</em> — there is no bug, it returns the right page, and every test passes.</p>
+<p>Then run act one:</p>
+<pre><code>./gradlew run</code></pre>
+<pre><code>      0ms -&gt;    30ms  Orders           OK
+     30ms -&gt;    90ms  Catalog          OK
+     90ms -&gt;   210ms  Shipping         OK
+  the shopper waited 210ms: 30 + 60 + 120, added up</code></pre>
+<p>Ask: <strong>which of those three calls needed the answer from the one before it?</strong></p>
+<p>Let them find it. Catalog needed the skus, so it genuinely waited for Orders. Shipping needed only the order id, which arrived at 30ms — and it waited sixty milliseconds for Catalog&#x27;s answer and then never looked at it.</p>
+<p>Land it: <em>sequential calls cost the sum. Nobody ever notices the day the page got slower, because the cost is not in the code, it is in the timeline.</em></p>
+<h2>0:14–0:24 — Sending Them Together</h2>
+<p>Run act two, and read the left-hand column rather than talking about <code>Fanout</code>:</p>
+<pre><code>      0ms -&gt;    30ms  Orders           OK
+     30ms -&gt;    90ms  Catalog          OK
+     30ms -&gt;   150ms  Shipping         OK
+  the shopper waited 150ms: 30, then the slower of 60 and 120</code></pre>
+<p>Ask what changed. The answer is on one column: both optional calls now leave at 30ms.</p>
+<blockquote><p>Sequential calls cost the sum of their latencies. Parallel calls cost the maximum.</p></blockquote>
+<p>Now the question that makes this section worth ten minutes rather than three:</p>
+<blockquote><p>Why did we not send all three at zero milliseconds?</p></blockquote>
+<p>Steer until somebody says it: Catalog has to be told <em>which</em> skus to name, and only Orders knows. The shape is one call, then two together. Then generalise:</p>
+<blockquote><p>Working out which calls genuinely depend on which is most of the job. &quot;Just parallelise it&quot; is where this comes unstuck in real systems, and the honest answer is usually a couple of waves rather than one flat burst.</p></blockquote>
+<p>If the room is curious about how it works without threads, show <code>Fanout.awaitAll</code>: the clock is wound back to the departure time before each branch, and forward to the slowest arrival at the end. Do not spend more than two minutes here.</p>
+<h2>0:24–0:34 — The Branch That Fails</h2>
+<p>Run act three and let the two halves of the output sit side by side:</p>
+<pre><code>  sequential: Shipping did not answer -- no page at all
+             the order and the product names had already arrived. Both thrown away.
+  composed:
+    SKU-KETTLE   Stainless Steel Kettle   x1  £34.99
+    delivery: unknown, we cannot check this right now
+  missing: [delivery status]</code></pre>
+<p>Same outage. One shopper gets an error page built out of two perfectly good answers nobody looked at; the other gets their order.</p>
+<p>Show the mechanism, which is four lines inside <code>Branch.run</code> — a <code>catch</code> that parks the failure instead of letting it escape — and then the two accessors:</p>
+<pre><code>public T value()                { if (failure != null) throw failure; return value; }
+public T valueOr(T fallback)    { return failure == null ? value : fallback; }</code></pre>
+<p>Then say the thing worth remembering:</p>
+<blockquote><p>Required versus optional is not configuration in this project, and it is not an annotation. It is which of those two methods the composer calls. One line per dependency, written deliberately by somebody who knows what the page is <em>for</em>.</p></blockquote>
+<p>Then run act four without introducing it:</p>
+<pre><code>  composed: Orders did not answer -- and that is correct
+  a page with no order on it is not a partial page, it is a blank one
+  Catalog was never called: 0 calls</code></pre>
+<p>Ask whether that is a bug. It is not — and being able to say &quot;this one is required&quot; is as much a part of the pattern as being able to degrade. A composer that degrades everything will eventually show somebody a page about nothing.</p>
+<h3>The argument to actually have</h3>
+<p>Point at <code>DeliveryStatus.unknown()</code> and ask the room what they would have written instead. Somebody will suggest &quot;in transit&quot;, and they should — it is nearly always true and it reads better.</p>
+<p>Then land it:</p>
+<blockquote><p>A shopper who is told their parcel is in transit will not ring up about the one that never left. The page is allowed to say it does not know. It is not allowed to make something up.</p></blockquote>
+<p><code>itDoesNotInventADeliveryStatus</code> is a test that exists purely to stop somebody being helpful here. Ask the room who, in their organisation, gets to make that call — and watch them realise it is not an engineer.</p>
+<h2>0:34–0:44 — Availabilities Multiply</h2>
+<p>Ask the room to guess before running it:</p>
+<blockquote><p>Three services. Each is up 99.9% of the time. How available is a page that needs all three?</p></blockquote>
+<p>Most rooms say 99.9%. Then run act five:</p>
+<pre><code>  each service up 99.900% of the time -&gt; 43.2 min down a month
+  a page needing all three: 99.700% -&gt; 129.5 min down a month
+  with only Orders required: 99.900% -&gt; 43.2 min down a month</code></pre>
+<p>Let the two-hours-a-month number sit for a moment.</p>
+<blockquote><p>Three services that each behaved impeccably combine into a page that is worse than any of them, because the page is up only when all three are up at the same moment, and their outages mostly do not overlap.</p></blockquote>
+<p>Then the question that ties the hour together:</p>
+<blockquote><p>So how do you fix it? Make the services better?</p></blockquote>
+<p>No — there is no realistic engineering that takes three teams from 99.9% to 99.97%. The fix is <strong>needing fewer of them</strong>, and that is exactly what the last section&#x27;s classification bought. Once Catalog and Shipping are optional, the page is up whenever Orders is up, and the other two outages cost a gap instead of the page.</p>
+<h2>0:44–0:56 — Exercises</h2>
+<h3>Exercise 1 — Make Shipping required (everyone)</h3>
+<p>In <code>OrderDetailsComposer.pageFor</code>, change <code>delivery.valueOr(DeliveryStatus.unknown())</code> to <code>delivery.value()</code>. Run the tests.</p>
+<p><code>itReturnsAPartialPageWhenShippingIsDown</code> and <code>itSurvivesTwoOptionalFailures</code> fail. One line turned an optional dependency into a required one, and the page&#x27;s availability just dropped by an hour a month. Ask whether a code review would have caught it.</p>
+<h3>Exercise 2 — Break the fan-out (everyone)</h3>
+<p>In <code>Fanout.awaitAll</code>, delete <code>clock.moveTo(leftAt);</code> from inside the loop, so branches no longer start from the same moment.</p>
+<p><code>bothBranchesLeaveTogether</code> and <code>itPaysForTheSlowestBranchOnly</code> fail, and the page costs 210ms again. You have rebuilt the sequential composer without touching the composer.</p>
+<h3>Exercise 3 — Add a fourth dependency (discussion, then arithmetic)</h3>
+<p>Suppose the page must also show a loyalty-points balance from a fourth service at 99.9%. Work out the new availability on paper, then check it against <code>everyExtraDependencyCosts</code>.</p>
+<p>Then discuss: is loyalty points required or optional? Who decides? What does the page say when it is missing? Most teams have never been asked these three questions about a dependency they already shipped.</p>
+<h3>Exercise 4 — Stretch: write the dishonest fallback</h3>
+<p>Change <code>DeliveryStatus.unknown()</code> to return <code>new DeliveryStatus(&quot;Royal Mail&quot;, &quot;in transit&quot;, &quot;tomorrow&quot;)</code> and run the demo. Everything passes except the one test written to stop you.</p>
+<p>Then discuss: could a test have caught this if nobody had thought to write that one? Chase it — assert the carrier is not made up? assert it matches something Shipping said? Then land it: the type system cannot know, the fan-out cannot know, and the only thing that catches it is somebody asking &quot;is this true?&quot; out loud in a review. That has no tidy ending, which is why it is last.</p>
+<h2>0:56–1:00 — Wrap-Up</h2>
+<p>Six sentences, spoken, no slides:</p>
+<ol><li>Sequential calls cost the sum of their latencies; parallel calls cost the maximum.</li><li>It is rarely one flat fan-out — find which calls genuinely depend on which.</li><li>A branch that fails must not destroy the answers the other branches returned.</li><li>Classify every dependency as required or optional before the outage, not during it.</li><li>Never invent a plausible value for data you do not have; name the gap instead.</li><li>Availabilities multiply, so the only real lever is needing fewer required dependencies — and when that runs out, keep a copy already assembled.</li></ol>
+<h2>Facilitator Notes</h2>
+<p><strong>Do not let the parallelism eat the hour.</strong> It is the easy half, it demos beautifully, and a room will happily discuss thread pools until 0:50. Cut it at 0:24 even mid-sentence. What they will still be thinking about on Monday is the delivery status that says &quot;in transit&quot;.</p>
+<p><strong>Make them guess the availability number before you run act five.</strong> The pattern only lands if they have been wrong out loud first. If you show the number before the guess, it is trivia.</p>
+<p><strong>Somebody will say &quot;just use GraphQL&quot; or &quot;that is what a BFF is for&quot;.</strong> Largely right, and not an interruption. The answer: those are places to <em>put</em> this pattern. They give you the fan-out. Neither of them can tell you whether Shipping is optional.</p>
+<p><strong>Somebody will ask about caching.</strong> Good instinct, wrong section — say that keeping a copy already assembled is the next pattern, CQRS, and that it is what you reach for when the timing or the arithmetic here stops working. Note it and move on.</p>
+<p><strong>If the room is senior</strong>, cut the code walkthrough to five minutes and spend the time on Exercise 3 and Exercise 4. Most senior rooms have a story about a page that lied during an outage, and that story is worth more than anything on the slides.</p>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>JDK 21 on every laptop, verified with <code>./gradlew test</code> before the session</li><li><code>./gradlew run</code> output on screen, all five acts, large enough to read the timestamps from the back of the room</li><li>&quot;sum vs maximum&quot; written on the board before anybody arrives</li><li><a href="animation.html"><code>animation.html</code></a> open in a browser tab for 0:14–0:34</li><li><code>SequentialOrderDetailsComposer</code> and <code>OrderDetailsComposer</code> side by side, ready for 0:14</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

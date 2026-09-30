@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Actor, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Actor, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>An actor is an object that owns some state, has a mailbox, and handles one message at a time on its own thread, so that its state is never touched by two threads and nothing can reach in except by sending a message.</p>
+<h2>The six acts</h2>
+<h3>State That Many Threads Can Reach</h3>
+<p>Ten in stock, and two orders, for three and for four, read the stock at the same moment. It should be three left, and it is not. One of the two reservations was lost.</p>
+<pre><code>  10 in stock. two orders, for 3 and for 4, read the stock at the same moment. it should be 3 left. it is 3 left: false. one of the two reservations was lost.
+  every method looked correct. the state was open to anyone.</code></pre>
+<h3>State That One Actor Owns</h3>
+<p>Four threads each send a thousand reservations to an inventory of four thousand. Stock left: zero. There is no lock in the inventory.</p>
+<pre><code>  4 threads each send 1000 reservations of 1 mug to an inventory of 4000. stock left: 0.
+  no lock in the inventory. the actor handled one message at a time, so none was lost.</code></pre>
+<h3>Ask, And Be Answered By A Message</h3>
+<p>Reserving three of five is answered with a reserved message. Reserving three more is answered with an out of stock message, saying two are left. No exception crossed between the two.</p>
+<pre><code>  reserve 3: Reserved[sku=MUG-BLUE, quantity=3].
+  reserve 3 more: OutOfStock[sku=MUG-BLUE, wanted=3, left=2].
+  the answer is a message too, and it can be a refusal. no exception crossed between the two.</code></pre>
+<h3>Nobody Can Reach In</h3>
+<p>The inventory actor has no public method that returns its stock. The only way to learn it is to ask, and the answer is a copy.</p>
+<pre><code>  the inventory actor has a public method that returns its stock: false.
+  the only way to learn the stock is to ask, and the answer is a copy: 5.</code></pre>
+<h3>Let It Crash</h3>
+<p>A message the actor cannot handle fails, the sender is told, and the actor is restarted. The next message is handled. One bad message did not stop the actor. The restart put the stock back to its starting value.</p>
+<pre><code>  after reserving 2, stock is: 3.
+  a message the actor cannot handle: the sender is told, &#x27;a message this actor cannot handle&#x27;.
+  the actor was restarted: restarts 1. the next message is handled: Reserved[sku=MUG-BLUE, quantity=1].
+  one bad message did not stop the actor, or the others.
+  the stock after the restart: 4 (it started at 5, and was back to 5 before that last reservation).</code></pre>
+<h3>The Bill</h3>
+<p>Two actors that each ask the other and wait for the answer never get one. There are no locks, and still a deadlock. A restart forgets state, messages are copied, mailboxes can grow, and finding where a message went takes tools.</p>
+<pre><code>  two actors each ask the other, and wait for the answer before doing anything else: no answer.
+  no locks, and still a deadlock: each is waiting for a message the other can never send.
+  and a restart forgets: an actor&#x27;s state is gone unless it was written somewhere else. messages are copied, mailboxes can grow, and finding where a message went takes tools.</code></pre>
+<h2>The verdict</h2>
+<p>Use actors for state that many parts of a program need to change, where one owner and messages are clearer than locks: a stock count, a session, a connection. Keep messages small and immutable. Do not wait for a reply inside a handler. Decide what a restart does to the state. Use a library such as Akka or Pekko rather than writing the mailbox yourself.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>A class with a mailbox, a <code>receive</code> method and a single thread.</li><li>Akka&#x27;s <code>ActorRef</code> and <code>tell</code> and <code>ask</code>, Erlang processes, Elixir&#x27;s GenServer.</li><li>Message classes that are records or case classes.</li><li>A supervisor strategy that says what to do when a child fails.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Akka and Pekko, Erlang and Elixir systems, and Vert.x verticles, which follow the same idea.</p>
+<h2>When this is too much</h2>
+<p>For a counter, an <code>AtomicInteger</code> is simpler. Actors earn their place when the state is more than one number, and many parts of the system need to change it.</p>
+</main>
+<footer>
+Generated from <code>actor-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

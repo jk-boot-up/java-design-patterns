@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Adapter Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Adapter Pattern</h1>
+<p>A 60-minute guided session for teaching or self-studying the Adapter pattern using this project.</p>
+<ul><li><strong>Audience:</strong> beginners comfortable with core Java</li><li><strong>Duration:</strong> ~60 minutes</li><li><strong>Format:</strong> live coding + discussion</li><li><strong>Prerequisites:</strong> see <a href="prerequisites.html"><code>prerequisites.md</code></a></li></ul>
+<blockquote><p><strong>Optional pre-work.</strong> Ask participants to watch the video (<code>video/adapter-pattern-explained.mp4</code>) beforehand. If they do, you can compress the problem and pattern segments and spend the extra time on the exercises. If you are teaching a group that has <em>not</em> watched it, run the session exactly as written below.</p></blockquote>
+<h2>Learning Objectives</h2>
+<p>By the end of this session a participant should be able to:</p>
+<ol><li>Describe, in one sentence, what problem the Adapter pattern solves.</li><li>Explain why <code>AcmeShippingAdapter</code> holds an <code>AcmeShippingSdk</code> field instead of subclassing it or modifying it.</li><li>Identify the four roles — target, adaptee, adapter, client — in real code.</li><li>Predict what happens to client code when a provider is swapped for a natively compatible one, versus an adapted one.</li><li>Distinguish Adapter from Bridge.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Segment</th><th>Mode</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td><td>Hands-on</td></tr><tr><td>0:05–0:15</td><td>The problem</td><td>Discussion</td></tr><tr><td>0:15–0:25</td><td>The pattern</td><td>Explanation</td></tr><tr><td>0:25–0:40</td><td>Code walkthrough</td><td>Live coding</td></tr><tr><td>0:40–0:50</td><td>Exercises</td><td>Hands-on</td></tr><tr><td>0:50–0:58</td><td>Pitfalls &amp; comparisons</td><td>Discussion</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td><td>—</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<p>Everyone runs:</p>
+<pre><code>java -version
+./gradlew run</code></pre>
+<p>Anyone whose build fails pairs up with a neighbour. Do not debug installs during the session — that is what the prerequisites doc is for.</p>
+<h2>0:05–0:15 — The Problem</h2>
+<p><strong>Do not show <code>ShippingRateProvider</code>/<code>AcmeShippingAdapter</code> yet.</strong> Start with the pain.</p>
+<p>Put <code>NaiveCheckoutService</code> and <code>NaiveShippingEstimator</code> from <a href="problem-statement.html"><code>problem-statement.md</code></a> side by side and ask:</p>
+<blockquote><p><em>&quot;These two classes both need a shipping rate from the same third-party SDK. What&#x27;s duplicated between them?&quot;</em></p></blockquote>
+<p>Land on: the unit conversion (kg→lb, cents→dollars) is copy-pasted, and both classes are coupled directly to <code>AcmeShippingSdk</code>&#x27;s exact method name and parameter order.</p>
+<p><strong>Key question to land:</strong> <em>&quot;If Acme changes <code>fetchCostInCents</code>&#x27;s signature, or we switch carriers entirely, how many classes need to change?&quot;</em> Every single one that calls the SDK directly — and that count only grows as more callers are added.</p>
+<h2>0:15–0:25 — The Pattern</h2>
+<p>Introduce the wall-plug analogy from <a href="adapter-pattern-explained.html"><code>adapter-pattern-explained.md</code></a>. Ask the group: <em>&quot;When you travel with a laptop charger, does the charger&#x27;s internal circuitry change based on which country&#x27;s socket you plug into?&quot;</em> Land on: no — a small adapter in between translates the physical shape; the charger and the wall socket never change.</p>
+<p>Show the class diagram (<a href="images/class-diagram.png"><code>images/class-diagram.png</code></a>) and name the four roles. Then show the sequence diagram (<a href="images/uml-diagram.png"><code>images/uml-diagram.png</code></a>) and trace a single <code>quoteRate()</code> call translating into one <code>fetchCostInCents()</code> call.</p>
+<p>Optionally open <a href="animation.html"><code>animation.html</code></a> in a browser and play it through once. It has a <strong>Narration</strong> button: leave it off if you want to talk over the animation yourself, or switch it on to let it explain each step in its own voice.</p>
+<p><strong>The one point that must land:</strong></p>
+<blockquote><p>If <code>CheckoutService</code> ever needs an <code>import</code> of <code>AcmeShippingSdk</code>, the pattern has not been applied — the whole point is that the client only ever knows about <code>ShippingRateProvider</code>.</p></blockquote>
+<h2>0:25–0:40 — Code Walkthrough</h2>
+<p>Open the files in this order. Resist jumping ahead.</p>
+<p><strong>1. The target — <code>ShippingRateProvider.java</code></strong> Point out this interface declares exactly the shape checkout wants: kilograms in, dollars out. Ask: <em>&quot;Why doesn&#x27;t this interface know anything about Acme, pounds, or cents?&quot;</em></p>
+<p><strong>2. The adaptee — <code>AcmeShippingSdk.java</code></strong> Point out this class is intentionally awkward: pounds, cents, a differently-named method. Ask: <em>&quot;If we owned this class, would we even need an adapter?&quot;</em> No — we&#x27;d just change its shape directly. The adapter exists because we don&#x27;t own it.</p>
+<p><strong>3. The adapter — <code>AcmeShippingAdapter.java</code></strong> This is the heart of the session. Point at the <code>sdk</code> field and ask: <em>&quot;Is this inheritance or composition?&quot;</em> Composition — and this class is the only place in the entire codebase that imports <code>AcmeShippingSdk</code>. Trace the two conversions: kg→lb before the call, cents→dollars after.</p>
+<p><strong>4. The client — <code>CheckoutService.java</code></strong> Ask: <em>&quot;Which shipping provider does this class work with?&quot;</em> Trick question — it doesn&#x27;t know, and doesn&#x27;t care. Prove it by running the same <code>CheckoutService</code> with <code>AcmeShippingAdapter</code> and then with <code>FlatRateShippingProvider</code> live, showing identical calling code.</p>
+<p><strong>5. The trap — <code>NaiveCheckoutService.java</code> / <code>NaiveShippingEstimator.java</code></strong> Put the conversion block from both naive classes side by side. Ask: <em>&quot;These are identical. What happens when the pounds-per-kilogram constant needs a bug fix?&quot;</em> Two edits instead of one — and that gap grows with every caller added.</p>
+<p><strong>6. Run it — <code>ShippingDemo.java</code></strong> Run <code>./gradlew run</code> live. Point at the section quoting the same weight through both <code>AcmeShippingAdapter</code> and the naive classes, and show the totals matching exactly — the naive code isn&#x27;t wrong, just duplicated.</p>
+<h2>0:40–0:50 — Exercises</h2>
+<p>Let participants work; circulate and help.</p>
+<h3>Exercise 1 — Add a second carrier (everyone)</h3>
+<p>Add a <code>SwiftCourierSdk</code> with its own quirky shape (e.g. grams in, a <code>String</code> price like <code>&quot;14.20&quot;</code> out). Write <code>SwiftCourierAdapter implements ShippingRateProvider</code> and confirm <code>CheckoutService</code> works with it immediately, with zero changes to <code>CheckoutService</code>.</p>
+<blockquote><p><strong>The payoff:</strong> a whole new carrier integration cost exactly one class. Say this out loud when someone finishes.</p></blockquote>
+<h3>Exercise 2 — Prove the client can&#x27;t tell (everyone)</h3>
+<p>Write a small test or <code>main</code> snippet that constructs <code>CheckoutService</code> with <code>AcmeShippingAdapter</code>, then again with <code>FlatRateShippingProvider</code>, and confirms both produce a valid total using identical calling code.</p>
+<h3>Exercise 3 — Break the adapter on purpose (discussion)</h3>
+<p>Add a <code>getSdk()</code> getter to <code>AcmeShippingAdapter</code> and have <code>CheckoutService</code> call it directly for some special case. Discuss: <em>&quot;What did we just throw away?&quot;</em> The whole point of the client staying ignorant of the adaptee — now checkout is coupled to Acme again, exactly like the naive trap.</p>
+<h3>Exercise 4 — Stretch (for fast finishers)</h3>
+<p>Try adapting in the <em>other</em> direction: write a class that makes a <code>ShippingRateProvider</code> usable somewhere that expects Acme&#x27;s exact <code>fetchCostInCents(String, double)</code> shape. Discuss why this feels more awkward (you have to convert dollars back to cents and kilograms back to pounds — going against the grain of the units you started with).</p>
+<h2>0:50–0:58 — Pitfalls &amp; Comparisons</h2>
+<p>Cover the &quot;What to Watch Out For&quot; section:</p>
+<ul><li>Adapter is a translator, not a place to add new behavior like retries or caching — that belongs in a decorator.</li><li>One adapter per incompatible source — don&#x27;t grow a single adapter to branch on which SDK it&#x27;s wrapping.</li><li>Don&#x27;t adapt what you already control — if you own both sides, just change one side to match the other.</li></ul>
+<p>Then the comparison table. The line worth memorising:</p>
+<blockquote><p><strong>Adapter reconciles two interfaces that already exist and disagree. Bridge designs two hierarchies from the start so they never have to agree on more than one seam.</strong></p></blockquote>
+<p>Close with real-world sightings: <code>Arrays.asList</code>, <code>InputStreamReader</code>, JDBC-ODBC bridges, and every vendor-SDK wrapper class anyone has ever written.</p>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>Ask three people for a one-sentence definition. Then assign follow-up:</p>
+<blockquote><p>Find one place in your own codebase where a third-party library&#x27;s shape leaks directly into more than one caller — a payment gateway SDK or a cloud storage client are common ones — and sketch what a single adapter class would look like.</p></blockquote>
+<h2>Facilitator Notes</h2>
+<p><strong>Common misconceptions to correct:</strong></p>
+<table><thead><tr><th>They say</th><th>Correct with</th></tr></thead><tbody><tr><td>&quot;Isn&#x27;t this the same as Bridge?&quot;</td><td>No — Bridge designs two hierarchies together up front so they never disagree; Adapter reconciles an interface someone else already designed, after the fact</td></tr><tr><td>&quot;Why not just modify <code>AcmeShippingSdk</code> to match <code>ShippingRateProvider</code>?&quot;</td><td>You often can&#x27;t — it&#x27;s a third-party dependency you don&#x27;t own the source of. Even when you can, editing it means every future SDK upgrade risks losing your changes</td></tr><tr><td>&quot;This feels like overkill for one carrier&quot;</td><td>Fair, at this size. The payoff shows up the moment a second caller or a second carrier appears — that&#x27;s when duplicated conversion logic becomes a real cost</td></tr><tr><td>&quot;Shouldn&#x27;t <code>CheckoutService</code> cache the rate itself?&quot;</td><td>Caching is a separate concern from adapting; it would belong in a decorator wrapping <code>ShippingRateProvider</code>, not inside the adapter</td></tr></tbody></table>
+<p><strong>If you are running short on time:</strong> cut Exercise 4 and shorten the pitfalls discussion. Never cut Exercise 3 — hitting the &quot;what did we throw away&quot; moment is where the value of keeping the client ignorant of the adaptee actually lands.</p>
+<p><strong>If you have extra time:</strong> have participants implement <code>SwiftCourierAdapter</code> from Exercise 1 fully, with its own test class mirroring <code>AcmeShippingAdapterTest</code>.</p>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>Everyone has JDK 21 and a green <code>./gradlew run</code></li><li>Diagrams open in a tab (<code>images/</code>)</li><li><code>animation.html</code> open in a browser</li><li>Video on hand (<code>../video/adapter-pattern-explained.mp4</code>) — useful as a recap for anyone who joins late, or to send round afterwards</li><li>The printed shipping quote output from <code>./gradlew run</code> ready to put on the board</li><li>IDE font size raised for screen sharing</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Iterator Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Iterator Pattern, Explained</h1>
+<blockquote><p><strong>Provide a way to access the elements of an aggregate object sequentially without exposing its underlying representation.</strong> — <em>Design Patterns</em>, Gamma, Helm, Johnson and Vlissides, 1994</p></blockquote>
+<p>The second half of that sentence is the whole pattern. Anybody can hand out elements one at a time. The point is that the caller never finds out <em>how the collection is stored</em> — in pages, in a tree, in a file, over a network — and so never writes code that breaks when the storage changes.</p>
+<h2>One Loop, Written Once</h2>
+<p>Before:</p>
+<pre><code>int pageNumber = 0;
+while (true) {
+    List&lt;Product&gt; page = feed.page(pageNumber);
+    if (page.isEmpty()) break;
+    for (Product product : page) { ... }
+    pageNumber++;
+}</code></pre>
+<p>After:</p>
+<pre><code>for (Product product : catalogue) { ... }</code></pre>
+<p>Both walk the same eight products out of the same paged feed. The difference is where the page loop lives. In the first, it lives at the call site, and there is a copy of it at every call site. In the second, it lives in <code>CatalogueIterator</code>, once, and there is nothing at the call site to get wrong.</p>
+<h2>Everyday Analogy: A Bookmark</h2>
+<p>You are reading a book that a friend also wants to read. You do not tell the book where you are up to — the <em>bookmark</em> holds that. Your friend gets their own bookmark, and the two of you can be on different pages of the same copy without interfering.</p>
+<p>That is exactly the division of labour here. <code>ProductCatalogue</code> is the book: it knows what is in it and nothing about who is reading. <code>CatalogueIterator</code> is the bookmark: it knows where one particular reader has got to. Ask the catalogue for a second iterator and you get a second bookmark.</p>
+<p>This is why <code>ProductCatalogue</code> has no <code>currentPage</code> field. If it did, two readers would fight over it, and a loop inside a loop over the same catalogue would silently produce nonsense.</p>
+<h2>Participants</h2>
+<table><thead><tr><th>Role</th><th>In the GoF book</th><th>Here</th></tr></thead><tbody><tr><td>Iterator</td><td><code>Iterator</code></td><td><code>java.util.Iterator&lt;Product&gt;</code> — the JDK&#x27;s, not one we wrote</td></tr><tr><td>ConcreteIterator</td><td><code>ConcreteIterator</code></td><td><code>CatalogueIterator</code> — holds the position, does the paging</td></tr><tr><td>Aggregate</td><td><code>Aggregate</code></td><td><code>java.lang.Iterable&lt;Product&gt;</code> — again the JDK&#x27;s</td></tr><tr><td>ConcreteAggregate</td><td><code>ConcreteAggregate</code></td><td><code>ProductCatalogue</code> — creates iterators, holds no position</td></tr><tr><td>Element</td><td>—</td><td><code>Product</code></td></tr><tr><td>The awkward storage</td><td>—</td><td><code>CatalogueFeed</code> — the paged source being hidden</td></tr><tr><td>The trap</td><td>—</td><td><code>NaiveCatalogueBrowser</code> — the page loop, written three times</td></tr></tbody></table>
+<p>Notice that two of the four pattern roles are interfaces Java already ships. That is unusual and it is worth saying out loud: <strong>Iterator is the one GoF pattern that is built into the language.</strong> You are not implementing it from scratch so much as plugging into it.</p>
+<h2>Code Walkthrough</h2>
+<h3>The source being hidden</h3>
+<pre><code>public List&lt;Product&gt; page(int number) {
+    pagesFetched++;
+    int from = number * PAGE_SIZE;
+    if (from &gt;= everything.size()) {
+        return List.of();
+    }
+    return new ArrayList&lt;&gt;(everything.subList(from, Math.min(from + PAGE_SIZE, everything.size())));
+}</code></pre>
+<p><code>CatalogueFeed</code> is deliberately unpleasant to use. Page numbers from zero, an empty list for &quot;no more&quot;, no count. It also increments <code>pagesFetched</code>, which is not decoration — it is how the tests prove laziness.</p>
+<h3>The aggregate</h3>
+<pre><code>public class ProductCatalogue implements Iterable&lt;Product&gt; {
+    private final CatalogueFeed feed;
+
+    @Override
+    public Iterator&lt;Product&gt; iterator() {
+        return new CatalogueIterator(feed);
+    }
+}</code></pre>
+<p>Four lines of real code. Implementing <code>Iterable</code> is what buys the for-each loop: when the compiler sees <code>for (Product p : catalogue)</code> over an <code>Iterable</code>, it calls <code>iterator()</code> once and then <code>hasNext()</code> / <code>next()</code> until told to stop. There is no magic — you can write that loop by hand and get the identical bytecode.</p>
+<p>The other thing <code>Iterable</code> buys you is everything else in the ecosystem that takes one. Enhanced for, <code>Iterable.forEach</code>, and a one-liner to a stream if you want it.</p>
+<h3>The iterator</h3>
+<pre><code>@Override
+public boolean hasNext() {
+    if (!started) {
+        currentPage = feed.page(pageNumber);
+        started = true;
+    }
+    while (indexInPage &gt;= currentPage.size()) {
+        if (currentPage.isEmpty()) {
+            return false;
+        }
+        pageNumber++;
+        indexInPage = 0;
+        currentPage = feed.page(pageNumber);
+    }
+    return true;
+}</code></pre>
+<p>This is the only page loop in the project, and it is worth reading slowly.</p>
+<p>The <code>while</code> rather than an <code>if</code> matters: it is what makes the iterator correct if the feed ever returns a <em>short</em> page in the middle. The <code>started</code> flag is what makes the walk lazy — nothing is fetched when you call <code>iterator()</code>, only when you first ask whether there is anything there.</p>
+<p><code>next()</code> is then three lines, because <code>hasNext()</code> has already done the work:</p>
+<pre><code>@Override
+public Product next() {
+    if (!hasNext()) {
+        throw new NoSuchElementException(&quot;the catalogue has no more products&quot;);
+    }
+    return currentPage.get(indexInPage++);
+}</code></pre>
+<p>Calling <code>hasNext()</code> from inside <code>next()</code> looks redundant and is not. It is what makes <code>next()</code> safe to call on its own, and it is why <code>hasNext()</code> had to be written so that calling it twice changes nothing.</p>
+<h3>The class is package-private</h3>
+<p><code>CatalogueIterator</code> is not <code>public</code>. Callers get one from <code>ProductCatalogue.iterator()</code> and only ever hold it as a <code>java.util.Iterator</code>. The name, the fields and the paging are all invisible from outside the package, which is the &quot;without exposing its underlying representation&quot; clause made concrete.</p>
+<h2>Why the Tests Are the Proof</h2>
+<p>Three of the thirteen tests are the ones that would fail if somebody &quot;simplified&quot; the pattern away.</p>
+<p><strong>Laziness.</strong> Walk two products out of an eight-product catalogue and exactly one page should have been fetched:</p>
+<pre><code>assertEquals(1, feed.pagesFetched());</code></pre>
+<p>Move the fetching into <code>ProductCatalogue</code>&#x27;s constructor and this fails immediately.</p>
+<p><strong>Independent positions.</strong> Two iterators from one catalogue:</p>
+<pre><code>outer.next();
+outer.next();
+assertEquals(&quot;SKU-001&quot;, inner.next().sku());</code></pre>
+<p>Put the position in <code>ProductCatalogue</code> instead of the iterator and <code>inner</code> starts at SKU-003. This is the test that catches the single most common mistake people make when writing their first iterator.</p>
+<p><strong>The naive bug, pinned.</strong> <code>NaiveCatalogueBrowserTest</code> asserts that <code>findCheapest()</code> returns SKU-005 while the real cheapest is SKU-002 — and says in the message that if these ever match, the off-by-one has been fixed and the lesson is gone.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>One page loop instead of N.</strong> The paging is written once and reviewed once.</li><li><strong>Callers become readable.</strong> &quot;For each product&quot; says what it means.</li><li><strong>The storage can change.</strong> Move to cursors, change the page size, switch to a local cache — one class changes, and no caller does.</li><li><strong>Laziness for free.</strong> Stop early and the pages you did not reach are never fetched.</li><li><strong>Nesting works.</strong> Independent positions mean a loop inside a loop over the same catalogue is fine.</li></ul>
+<h2>What to Watch Out For</h2>
+<p><strong>Don&#x27;t put the position on the aggregate.</strong> If <code>ProductCatalogue</code> had <code>currentPage</code> and <code>next()</code>, it would be an iterator pretending to be a collection, and two readers would corrupt each other. The split is the pattern.</p>
+<p><strong><code>hasNext()</code> must be repeatable.</strong> Callers will call it twice. If your <code>hasNext()</code> consumes something, code that looks obviously correct will skip elements.</p>
+<p><strong>Don&#x27;t fetch in the constructor.</strong> It is tempting and it throws the laziness away.</p>
+<p><strong>Don&#x27;t reach for it when a <code>List</code> will do.</strong> If the collection is already fully in memory and is a plain list, <code>List</code> already gives you an iterator. Writing one by hand there is ceremony, not design. The pattern earns its keep when the storage is awkward — paged, remote, lazy, or a tree.</p>
+<p><strong>Modification during iteration is a real question.</strong> The JDK collections throw <code>ConcurrentModificationException</code> rather than silently misbehaving. This example sidesteps it by copying each page, which is the honest simple answer for a beginner project; a production iterator over mutable state has to decide the policy deliberately.</p>
+<h2>Iterator vs. Streams vs. for-i</h2>
+<table><thead><tr><th></th><th>Use when</th></tr></thead><tbody><tr><td><strong>Index loop</strong> (<code>for (int i = 0; ...)</code>)</td><td>You genuinely need the index, and the thing is random-access</td></tr><tr><td><strong>Iterator / for-each</strong></td><td>You want each element in turn and do not care how they are stored</td></tr><tr><td><strong>Stream</strong></td><td>You want to <em>describe a pipeline</em> — filter, map, collect — rather than write the loop</td></tr></tbody></table>
+<p>Streams are built on top of this idea, not opposed to it: <code>Iterable</code> and <code>Spliterator</code> are how a stream gets its elements. Understanding the iterator is what makes the stream stop being magic.</p>
+<h2>Where You Have Already Seen It</h2>
+<p>Every time you have written <code>for (String s : list)</code>. Every <code>Scanner</code>. Every <code>BufferedReader.lines()</code>. <code>ResultSet</code> in JDBC is an iterator with a different vocabulary (<code>next()</code> returning a boolean). Paging iterators over cloud APIs — the AWS SDK&#x27;s paginators, for one — are precisely this example with a real network behind them.</p>
+<h2>Try It Yourself</h2>
+<ol><li>Add a ninth and tenth product to <code>CatalogueFeed.sampleShop()</code>. Watch <code>NaiveCatalogueBrowserTest.countProductsStopsEarly</code> start failing while every test of the pattern keeps passing.</li><li>Move the position fields from <code>CatalogueIterator</code> onto <code>ProductCatalogue</code> and see which test catches you.</li><li>Add a <code>CategoryCatalogue</code> that wraps the same feed but only hands out products in one category. Nothing outside it should have to change.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the problem in full</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — static structure</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the call sequence</li><li><a href="../../structural/composite-pattern">Composite</a> — iterators over trees are where this pattern stops being obvious</li><li><a href="../strategy-pattern">Strategy</a> — the other pattern that is mostly &quot;one small interface, held by something bigger&quot;</li></ul>
+</main>
+<footer>
+Generated from <code>iterator-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

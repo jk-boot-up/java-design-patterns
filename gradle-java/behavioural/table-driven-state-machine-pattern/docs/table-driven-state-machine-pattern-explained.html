@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Table-Driven State Machine, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Table-Driven State Machine, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>A table-driven state machine keeps every allowed move, from a status on an action to a new status, in one table, and refuses every move that is not in it.</p>
+<h2>The 5 acts</h2>
+<h3>1. Rules in if statements</h3>
+<p><code>IfElseOrder</code> has one method per action, each with its own check. <code>cancel</code> only refuses a shipped order, so a delivered order is cancelled without complaint. <code>refund</code> only refuses an order that was never paid, so the same order is refunded twice and £63.44 is paid out twice. Each method looks fine on its own; the missing checks are invisible.</p>
+<h3>2. The table</h3>
+<p><code>TransitionTable.orders()</code> holds every allowed move: from PLACED, pay goes to PAID and cancel to CANCELLED; from PAID, ship goes to SHIPPED and refund to REFUNDED; from SHIPPED, deliver goes to DELIVERED. <code>Order.apply</code> looks the move up and nothing else. <code>ORD-1</code> is paid, shipped and delivered.</p>
+<h3>3. Wrong moves refused</h3>
+<p>The same two mistakes are tried again. Cancel on a delivered order is not in the table, so it is refused: &quot;cannot cancel a DELIVERED order&quot;. A second refund is refused: &quot;cannot refund a REFUNDED order&quot;. And because the table knows the allowed moves, it can tell a page which buttons to show: for a paid order, ship and refund.</p>
+<h3>4. A new rule</h3>
+<p>The shop starts accepting returns. Two rows are added: from DELIVERED, return goes to RETURNED; from RETURNED, refund goes to REFUNDED. No method changes. A delivered order now shows one button, return, and <code>ORD-1</code> is returned and refunded.</p>
+<h3>5. The bill</h3>
+<p>Seven statuses and six actions make 42 cells, of which only seven are allowed moves: a bigger shop&#x27;s table can be hard to read, so draw it as a diagram. And the table only says where an order may go. Paying the refund, restocking the item and emailing the customer are still code, attached to each move.</p>
+<h2>The verdict</h2>
+<p>Use a table whenever something has a handful of statuses and rules about which can follow which: orders, payments, tickets, bookings. Keep the table in one place, generate a diagram from it, attach side effects to moves, and let the table tell the page which buttons to show.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>An enum of statuses and a map from (status, action) to status.</li><li>Errors like &quot;cannot ship a PLACED order&quot;.</li><li>A <code>transitions</code> or <code>workflow</code> configuration file.</li><li>A diagram of boxes and arrows in the documentation for an entity&#x27;s status.</li></ul>
+<h2>Where you have already met this</h2>
+<ul><li>Spring State Machine and similar libraries configure transitions as a table.</li><li>Workflow and ticket systems such as Jira, where an admin edits the allowed transitions.</li><li>Order, payment and shipment statuses in almost every shop.</li><li>Parsers and network protocols, which are built on state tables.</li></ul>
+</main>
+<footer>
+Generated from <code>table-driven-state-machine-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

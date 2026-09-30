@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bulkhead, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Bulkhead, Explained</h1>
+<h2>In One Sentence</h2>
+<p>Stop letting every kind of work draw from the same pot of threads: give the work that must never be starved a pot of its own, so that a slow job filling up its own pot cannot take the last thread the important work needed.</p>
+<h2>Everyday Analogy: The Ship&#x27;s Hull</h2>
+<p>A bulkhead is not a metaphor borrowed from somewhere else. It is the actual word for the walls that divide a ship&#x27;s hull into watertight compartments.</p>
+<p>Punch a hole below the waterline in an undivided hull and the water spreads the length of the ship. Punch the same hole in a divided one and one compartment floods. The ship sits lower and it keeps going.</p>
+<p>Two things are worth taking from that, and the second is the one people skip.</p>
+<p><strong>First: nothing about the hole changed.</strong> The bulkhead did not make the hull stronger, or the sea calmer, or the damage smaller. Exactly as much water came in. All that changed is how far it could spread.</p>
+<p><strong>Second: look at where the walls are.</strong> They take up space. A compartment can be sitting completely empty while the one next door is packed, and you cannot move the space between them. That is not a flaw in the design — it <em>is</em> the design. Isolation is paid for in capacity you are not allowed to use.</p>
+<h2>The Mechanism Is Almost Nothing</h2>
+<p>Here is the whole of it, and it is worth being disappointed by:</p>
+<pre><code>new ThreadPoolExecutor(threads, threads, 0L, MILLISECONDS,
+        new ArrayBlockingQueue&lt;&gt;(queueCapacity),
+        runnable -&gt; new Thread(runnable, name + &quot;-worker&quot;));</code></pre>
+<p>A fixed pool, a bounded queue, and a name. There is no algorithm here, nothing adaptive, nothing to tune at runtime.</p>
+<p>Say that out loud, because it is the point: <strong>a bulkhead is not a clever piece of machinery, it is a decision to stop sharing.</strong> The pattern lives in having <em>two</em> of them, not in anything either one does.</p>
+<p>Which means the interesting work is not writing the class. It is deciding where the walls go.</p>
+<h2>Act One: The Shared Pool</h2>
+<p>One pool of four threads, and a partner API that has gone slow:</p>
+<pre><code>  ~  10ms  shared     feed-4         started on shared-worker
+  ~  10ms  shared     feed-3         started on shared-worker
+  ~  10ms  shared     feed-2         started on shared-worker
+  ~  10ms  shared     feed-1         started on shared-worker
+  checkout: still waiting for a thread after 300ms</code></pre>
+<p>Four batches, four threads, and they are all called <code>shared-worker</code>. Checkout has no line in that timeline at all, because it never started.</p>
+<p><code>theStarvedCheckoutWasNeverBroken</code> then takes that same checkout job and runs it the moment a thread is free, and it completes perfectly. There is nothing wrong with it. It was starved, not broken — and the two look identical from the outside, which is exactly what makes this failure so hard to diagnose at three in the morning.</p>
+<h2>Act Two: The Same Outage, Partitioned</h2>
+<p>Now two bulkheads. The feed gets two threads; checkout gets two threads:</p>
+<pre><code>  ~   0ms  feed       feed-1         started on feed-worker
+  ~   0ms  feed       feed-2         started on feed-worker
+  ~   0ms  checkout   checkout       started on checkout-worker
+  ~   0ms  checkout   checkout       finished
+  checkout: paid ORD-5001
+  the feed is jammed -- 2 threads busy, 2 jobs queued --
+  and the shop is still selling, because it never shared.</code></pre>
+<p>Read the thread names, because they are the entire argument. <code>feed-worker</code> and <code>checkout-worker</code>. Those are different threads, and no amount of demand on one side can produce a thread on the other.</p>
+<p>The important claim here is not that checkout worked — it is that the feed is <em>just as stuck as before</em>. <code>theFeedIsGenuinelyStuck</code> asserts that while the sale goes through, and it matters: without it you could not tell isolation from luck. Nothing was fixed about the partner API. <code>checkoutKeepsWorkingIndefinitely</code> then puts a run of sales through while the feed sits there, so it is not a one-off either.</p>
+<h2>Act Three: A Full Bulkhead Refuses</h2>
+<p>Two threads and a queue of two hold four batches. A fifth arrives:</p>
+<pre><code>  feed is full: no thread and no room in the queue (in 0ms)
+  4 accepted, 1 refused</code></pre>
+<p>The refusal is immediate, and <code>theRefusalIsFast</code> asserts that it is. This is the same idea as the circuit breaker&#x27;s fast failure, applied to a queue rather than to a broken service: the caller finds out in a millisecond and still has time to do something — shed the request, degrade, try later, write it somewhere for tonight.</p>
+<p>An unbounded queue would have accepted that batch, and every batch after it, and nobody would have found out anything until the process ran out of memory instead of out of threads. <strong>Refusing is a feature.</strong> A queue that never says no is not generous, it is a slow leak with good manners.</p>
+<h2>Act Four: What It Costs</h2>
+<pre><code>  feed:     2 threads, 2 busy, 2 queued and waiting
+  checkout: 2 threads, 0 busy, 2 idle</code></pre>
+<p>Read those two lines together and let them be uncomfortable. Two threads are doing nothing, while two jobs are waiting for a thread. They are not allowed to help.</p>
+<p>One shared pool of four would have run all four batches at once and finished the import sooner — and <code>thesharedPoolIsFasterOnAGoodDay</code> asserts precisely that, with the shared pool showing four busy threads and an empty queue.</p>
+<p><strong>Partitioned pools are idle capacity by design.</strong> Not a bug, not a tuning problem. That is what you are buying with, and any description of this pattern that does not say so is describing something free, which this is not.</p>
+<h2>So Where Do The Walls Go?</h2>
+<p>The trade is worth making for anything that must never be starved — the thing whose failure ends the business, which in a shop is taking money.</p>
+<p>It is not worth making for everything. A shop with fifteen bulkheads has fifteen pools to size, fifteen numbers that drift out of date, and a lot of threads doing nothing at three in the afternoon. The useful instinct is two or three partitions drawn along the lines of <em>what must survive</em>, not along the lines of the package structure.</p>
+<p>And the classification is a business decision, not a technical one. Nobody can tell from the code that the supplier feed is less important than checkout. That fact lives in the heads of the people who run the shop, and if it is not written down somewhere — as a pool, as a number — then during the outage it is decided by whichever job happened to ask for a thread first.</p>
+<h2>What It Buys</h2>
+<ul><li>A slow dependency can no longer starve unrelated work of threads.</li><li>The failure is contained <em>and named</em>: the feed&#x27;s pool is full, which is a sentence an on-call engineer can act on, unlike &quot;the site is slow&quot;.</li><li>Callers of the saturated work find out immediately and can degrade.</li><li>The blast radius is a decision you made in advance, in daylight, rather than an accident of scheduling during an incident.</li></ul>
+<h2>What It Costs</h2>
+<ul><li><strong>Idle threads beside waiting work</strong>, permanently, by design.</li><li><strong>Lower peak throughput</strong> than one shared pool of the same total size.</li><li><strong>More numbers to size</strong>, and they drift as traffic changes.</li><li><strong>A judgement call per partition</strong> about what must never be starved — which no library can make for you, and which nobody remembers to revisit.</li></ul>
+<h2>When Not To Use It</h2>
+<p>When there is only one kind of work. Partitioning a service that does exactly one thing gives you a smaller pool and no isolation, because there is nothing to isolate it from.</p>
+<p>When the work is genuinely uniform in importance and latency, dividing it just lowers your throughput and gives you two numbers to get wrong instead of one.</p>
+<p>And when the real problem is that a dependency is broken, a bulkhead alone is a bandage. It stops the damage spreading; it does not stop you calling the dead thing. That is the circuit breaker&#x27;s job, and the two belong together: a breaker so you stop calling a service that has stopped answering, and a bulkhead so that the calls still in flight cannot drown anything that matters.</p>
+<h2>What To Remember</h2>
+<ol><li>A bulkhead is a decision to stop sharing, not an algorithm.</li><li>Starved and broken look identical from outside, and only one of them is fixable in the code.</li><li>A bigger shared pool does not fix this. It moves the number and hides the failure for longer.</li><li>Prove the slow job is still stuck, or you have not shown isolation — you have shown a coincidence.</li><li>Bound the queue. A queue that never refuses converts a fast failure into an out-of-memory one.</li><li>Refusing immediately is a feature: it leaves the caller time to do something else.</li><li>Isolation is paid for in idle threads, and you must be able to say that out loud.</li><li>Draw the walls along what must survive, not along the package structure.</li><li>Two or three partitions, not fifteen.</li><li>Pair it with a circuit breaker. They solve the same outage from opposite ends.</li></ol>
+</main>
+<footer>
+Generated from <code>bulkhead-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

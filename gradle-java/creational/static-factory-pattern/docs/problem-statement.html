@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Problem</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Problem</h1>
+<p>Our online store needs discounts. Marketing has asked for four kinds, and promises there will be more:</p>
+<ul><li>a percentage off the subtotal — &quot;10% off&quot;</li><li>a flat amount off — &quot;£5 off&quot;</li><li>free shipping</li><li>and, for most orders, no discount at all</li></ul>
+<p>Something has to turn a coupon code into one of those. The obvious tool is a constructor. Let us try.</p>
+<h2>Attempt one: two constructors</h2>
+<pre><code>public class Discount {
+
+    public Discount(double percent) {      // 10% off
+        ...
+    }
+
+    public Discount(double amountOff) {    // £10 off
+        ...
+    }
+}</code></pre>
+<p>This does not compile.</p>
+<pre><code>error: constructor Discount(double) is already defined in class Discount</code></pre>
+<p>Both take one number. Java tells the two apart by their parameter <em>types</em>, and both are <code>double</code>. There is no way to say &quot;this one means a percentage and that one means pounds&quot;, because a constructor&#x27;s name is fixed — it is the class name, and a class has only one of those.</p>
+<p>That is the whole problem in one line: <strong>a constructor cannot be named.</strong></p>
+<h2>Attempt two: one constructor with a parameter for everything</h2>
+<p>So we widen it until every case fits:</p>
+<pre><code>public class Discount {
+
+    private final double percent;
+    private final double amountOff;
+    private final boolean freeShipping;
+
+    public Discount(double percent, double amountOff, boolean freeShipping) {
+        this.percent = percent;
+        this.amountOff = amountOff;
+        this.freeShipping = freeShipping;
+    }
+
+    public double appliedTo(Order order) {
+        if (freeShipping) {
+            return order.shipping();
+        }
+        if (amountOff &gt; 0) {
+            return Math.min(amountOff, order.subtotal());
+        }
+        return order.subtotal() * percent;
+    }
+}</code></pre>
+<p>And here is what the call sites look like:</p>
+<pre><code>Discount tenPercent   = new Discount(0.10, 0, false);
+Discount fiverOff     = new Discount(0, 5.00, false);
+Discount freeShipping = new Discount(0, 0, true);
+Discount nothing      = new Discount(0, 0, false);</code></pre>
+<p>It compiles. It even works. It is also awful, and it is worth being precise about why.</p>
+<h2>Why That Hurts</h2>
+<p><strong>1. Nobody can read the call sites.</strong> <code>new Discount(0, 5.00, false)</code> — is that 5% or £5? What is the <code>false</code>? A reader has to open <code>Discount</code> and count parameters. Worse, <code>new Discount(0.10, 0, false)</code> and <code>new Discount(0, 0.10, false)</code> are both legal, look almost identical, and one of them charges the customer £119.90 instead of £108.</p>
+<p><strong>2. Illegal objects are constructible.</strong> <code>new Discount(0.10, 5.00, true)</code> asks for all three at once. Nothing stops it. The class has to <em>decide</em> what that means, which is why <code>appliedTo</code> is a chain of <code>if</code>s: it is not computing a discount, it is guessing which field the caller actually meant.</p>
+<p><strong>3. Every new kind of discount widens the constructor.</strong> Marketing asks for &quot;buy one get one free&quot; and &quot;£10 off orders over £100&quot;. Two more parameters, and every one of the four existing call sites has to be edited to pass another <code>0</code> or <code>false</code>. None of them changed behaviour; they changed because the constructor did.</p>
+<p><strong>4. Every discount allocates.</strong> There are millions of orders and almost all of them have no discount. <code>new Discount(0, 0, false)</code> creates a fresh object each time to represent <em>nothing</em>. A constructor is required to return a new instance — that is what <code>new</code> means — so there is no way to hand back a shared one.</p>
+<p><strong>5. The class is welded to its callers.</strong> <code>Discount</code> is public, so its constructor is public, so its shape is now a promise. Splitting it into <code>PercentageDiscount</code> and <code>FreeShippingDiscount</code> — the design it obviously wants — would break every caller in the codebase, because they all say <code>new Discount(...)</code>.</p>
+<p>Every one of those five traces back to the same root. The caller is being made to specify <strong>how to build the object</strong> when all it wanted to say was <strong>what it wants</strong>.</p>
+<h2>What About a Separate Factory Class?</h2>
+<p>You could write a <code>DiscountFactory</code> with <code>createPercentage(...)</code> and <code>createFlat(...)</code>. That is the Simple Factory idiom, and it is covered in <a href="../../simple-factory-pattern"><code>../../simple-factory-pattern</code></a>. It fixes the naming problem.</p>
+<p>But look at what it costs: a second class that exists only to build the first, a name every caller must learn, and a decision about where it lives. For a type whose creation logic is <em>its own business</em>, that class is ceremony. <code>Discount</code> already knows what a discount is. It is the natural home.</p>
+<h2>The Question This Project Answers</h2>
+<blockquote><p>How do we let callers say <em>what they want</em> — &quot;10% off&quot;, &quot;free shipping&quot;, &quot;whatever this coupon code means&quot; — without a separate factory class, and without promising anything about which class comes back?</p></blockquote>
+<p>The answer is the oldest and least glamorous creational technique in Java, and by far the most used: give the type some <strong>static factory methods</strong>, make the constructor private, and let the type create itself.</p>
+<p>Read on in <a href="static-factory-pattern-explained.html"><code>static-factory-pattern-explained.md</code></a>.</p>
+</main>
+<footer>
+Generated from <code>problem-statement.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guaranteed Delivery Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Guaranteed Delivery Pattern — Video Narration Script</h1>
+<h2>1. Guaranteed Delivery</h2>
+<p>Hello, and welcome. This video explains the Guaranteed Delivery pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. With guaranteed delivery, every message is stored safely on disk before it is accepted. It is marked as done only after it has been delivered. And after a crash, everything not marked as done is delivered again. Think of recorded delivery at the post office. Each parcel is written in a ledger before you get your receipt. The recipient signs when it arrives. If a van breaks down, the ledger says exactly what to send out again. In this video, the domain is an online shop. It sends an order confirmation email for every order, through a queue in front of a slow email provider. By the end, you will hear how messages in memory are lost. How a journal on disk keeps them. How acknowledgements work. And why guaranteed means at least once.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Every order gets a confirmation email. The emails wait in a queue, because the email provider is slow. And that queue lived only in the server&#x27;s memory.</p>
+<h2>3. Act One — Only in memory</h2>
+<p>First demo: confirmation emails queued in memory. The email provider is slow today. Ten emails are waiting in the queue. The server restarts, for an ordinary update. The queue lived in memory. Now it is empty. Ten customers will never hear that their order was received.</p>
+<h2>4. Act Two — Written to disk first</h2>
+<p>Second demo: every message is written to disk before it is accepted. Each email is written to a journal file. Only when it is safely on the disk is the email accepted. Ten emails, ten lines in the file. The server restarts. It reads the file. Ten emails are still waiting.</p>
+<h2>5. Act Three — Acknowledgements</h2>
+<p>Third demo: delivered messages are acknowledged. When an email is sent, the journal writes a second line: acknowledged. Six emails are sent and acknowledged. Then the server crashes. After the restart, only emails seven to ten are still waiting. They are sent. All ten customers get exactly one email.</p>
+<h2>6. Act Four — At least once</h2>
+<p>Fourth demo: a crash between sending and acknowledging. Email eleven is sent. And the server crashes, before it writes the acknowledgement. After the restart, the journal cannot know it was sent. So it sends it again. The customer gets two emails. Guaranteed delivery means at least once. Not exactly once.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. The disk is now in the path of every message. Ten emails cost ten forced disk writes to accept, and ten more to acknowledge. The journal keeps growing, until someone trims the acknowledged lines. And the receivers must cope with the odd duplicate.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the pattern. Write each message to disk, and make sure it has reached the disk. Only then tell the sender: accepted. When it is delivered, write a second line: acknowledged. After a crash, read the file, and deliver every message that was never acknowledged.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. The journal writes messages and acknowledgements to one file, and finds what is still waiting. The email sender stands in for the slow email provider. And the memory queue is the old way, kept for comparison.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met this pattern already. RabbitMQ has durable queues and persistent messages. So does J M S. Kafka writes every message to a log, copied across machines. And the transactional outbox stores messages in the database first, for the same reason.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use it? For messages that must not be lost. Orders, payments, and confirmations. Expect duplicates, and make receivers cope with them. Trim what has been acknowledged. And for messages that are cheap to lose, such as live price updates, skip it.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Guaranteed Delivery pattern. If you remember one sentence, make it this one. Write it down before you say yes, and cross it off only when it has arrived. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Make the email sender skip any email it has already sent. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

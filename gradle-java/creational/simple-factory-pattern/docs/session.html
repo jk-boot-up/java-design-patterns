@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Simple Factory Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Simple Factory Pattern</h1>
+<p>A 60-minute guided session for teaching or self-studying the Simple Factory idiom using this project.</p>
+<ul><li><strong>Audience:</strong> beginners comfortable with core Java</li><li><strong>Duration:</strong> ~60 minutes</li><li><strong>Format:</strong> live coding + discussion</li><li><strong>Prerequisites:</strong> see <a href="prerequisites.html"><code>prerequisites.md</code></a></li></ul>
+<blockquote><p><strong>Optional pre-work.</strong> Ask participants to watch the ~7.5 minute video (<code>video/simple-factory-pattern-explained.mp4</code>) beforehand. If they do, you can compress the problem and pattern segments and spend the extra time on the exercises. If you are teaching a group that has <em>not</em> watched it, run the session exactly as written below.</p></blockquote>
+<h2>Learning Objectives</h2>
+<p>By the end of this session a participant should be able to:</p>
+<ol><li>Describe, in one sentence, what problem the Simple Factory idiom solves.</li><li>Identify the four roles — product, concrete products, factory, client — in real code.</li><li>Explain why the client must never name a concrete product type.</li><li>Write a small factory over two or more existing implementations.</li><li>State plainly that Simple Factory violates the Open/Closed Principle, and say why that is an acceptable trade.</li><li>Distinguish Simple Factory from Factory Method, Abstract Factory and a static factory method.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Segment</th><th>Mode</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td><td>Hands-on</td></tr><tr><td>0:05–0:15</td><td>The problem</td><td>Discussion</td></tr><tr><td>0:15–0:25</td><td>The pattern</td><td>Explanation</td></tr><tr><td>0:25–0:40</td><td>Code walkthrough</td><td>Live coding</td></tr><tr><td>0:40–0:50</td><td>Exercises</td><td>Hands-on</td></tr><tr><td>0:50–0:58</td><td>Pitfalls &amp; comparisons</td><td>Discussion</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td><td>—</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<p>Everyone runs:</p>
+<pre><code>java -version
+./gradlew run</code></pre>
+<p>Anyone whose build fails pairs up with a neighbour. Do not debug installs during the session — that is what the prerequisites doc is for.</p>
+<h2>0:05–0:15 — The Problem</h2>
+<p><strong>Do not show the factory yet.</strong> Start with the pain.</p>
+<p>Put the naive <code>if</code>/<code>else</code> chain from <a href="problem-statement.html"><code>problem-statement.md</code></a> on screen and ask:</p>
+<blockquote><p><em>&quot;This same block exists in the web controller, the mobile API and the admin tool. We are adding wallet payments on Monday. What happens?&quot;</em></p></blockquote>
+<p>Guide the group to name the problems themselves:</p>
+<ul><li>Three places to edit, and nothing tells you when you miss one.</li><li>The checkout class knows the name of every payment class.</li><li>One copy trims the string, another does not.</li><li>You cannot test the choosing without running a checkout.</li></ul>
+<p><strong>Key question to land:</strong> <em>&quot;Whose job is it to know that <code>UPI</code> means <code>UpiPayment</code>?&quot;</em> Answer: exactly one class&#x27;s job — and right now it is nobody&#x27;s.</p>
+<h2>0:15–0:25 — The Pattern</h2>
+<p>Introduce the coffee-shop counter analogy from <a href="simple-factory-pattern-explained.html"><code>simple-factory-pattern-explained.md</code></a>. Let a participant retell it back — if they can, they understand it.</p>
+<p>Show the class diagram (<a href="images/class-diagram.png"><code>images/class-diagram.png</code></a>) and name the four roles. Trace the arrows out of <code>PaymentMethodFactory</code> with a finger and say: <em>&quot;these are the dependencies the client no longer has.&quot;</em> Then show the sequence diagram (<a href="images/uml-diagram.png"><code>images/uml-diagram.png</code></a>) and point out the two phases — creation once, then use through the interface.</p>
+<p>Optionally open <a href="animation.html"><code>animation.html</code></a> in a browser and play it through once. It has a <strong>Narration</strong> button: leave it off if you want to talk over the animation yourself, or switch it on to let it explain each step in its own voice — useful when participants revisit it alone afterwards.</p>
+<p><strong>The one point that must land:</strong></p>
+<blockquote><p>The client names the type as <strong>data</strong>. It never names the class.</p></blockquote>
+<p>Ask why that matters. Target answer: data can come from a form, a database or a config file; a class name cannot.</p>
+<h2>0:25–0:40 — Code Walkthrough</h2>
+<p>Open the files in this order. Resist jumping ahead.</p>
+<p><strong>1. The product interface — <code>PaymentMethod.java</code></strong> Two methods, no implementation. Ask: <em>&quot;What does a client that holds one of these know about credit cards?&quot;</em> Nothing.</p>
+<p>Cover the <code>sealed</code> primer here if anyone is new to it — but promise that its real payoff arrives two files later.</p>
+<p><strong>2. A concrete product — <code>UpiPayment.java</code></strong> Point out how small and unaware it is. Ask: <em>&quot;Could I use this class in a totally different app?&quot;</em> Yes. That is the point.</p>
+<p>Skim <code>CreditCardPayment</code>, <code>PayPalPayment</code>, <code>NetBankingPayment</code> — same shape, no surprises.</p>
+<p><strong>3. The value objects — <code>PaymentRequest.java</code>, <code>PaymentReceipt.java</code></strong> Cover the <code>record</code> primer if needed. Emphasise: one object in, one object out.</p>
+<p><strong>4. The factory — <code>PaymentMethodFactory.java</code></strong> This is the heart of the session. Walk through <code>create</code> and ask the group to spot what it is doing. Draw out three answers:</p>
+<ul><li><strong>choosing</strong> the implementation from data,</li><li><strong>constructing</strong> it, so no caller has to,</li><li><strong>validating</strong> the input in one place.</li></ul>
+<p>Then the moment worth waiting for: point at the <code>switch</code> and ask <em>&quot;where is the <code>default</code> branch?&quot;</em> There is none — the enum is exhaustive. Explain that adding a case breaks the build here and nowhere else.</p>
+<p>Also show the <code>String</code> overload and ask <em>why</em> it exists. Answer: real input is text.</p>
+<p><strong>5. The client — <code>CheckoutService.java</code></strong> One line to get the object, then ordinary method calls. Ask what it knows about PayPal. Nothing.</p>
+<p><strong>6. The tests — <code>PaymentMethodFactoryTest.java</code>, <code>CheckoutServiceTest.java</code></strong> Show that the factory&#x27;s selection logic is testable entirely on its own, and that <code>sameCallSiteDifferentImplementation</code> proves the client code does not change when the type does.</p>
+<p>Run <code>./gradlew run</code> live. Point out that the <code>Checkout:</code> lines are identical across all four blocks and only the payment lines differ. That visual is worth more than any slide.</p>
+<h2>0:40–0:50 — Exercises</h2>
+<p>Let participants work; circulate and help.</p>
+<h3>Exercise 1 — Break the build on purpose (everyone)</h3>
+<p>Add <code>WALLET</code> to <code>PaymentType</code>. Compile. Read the error.</p>
+<blockquote><p><strong>The payoff:</strong> the compiler found the one place that needed changing. Say this out loud when someone finishes — it is the lesson of the whole session.</p></blockquote>
+<p>Then write <code>WalletPayment</code>, add it to <code>permits</code> and to the <code>switch</code>. Confirm that <code>CheckoutService</code> was never touched.</p>
+<h3>Exercise 2 — Prove the client is decoupled (everyone)</h3>
+<p>Search <code>CheckoutService.java</code> for the word <code>Payment</code> followed by a concrete class name. There is none. Now search <code>PaymentMethodFactory.java</code> — all four live there. Discuss what that concentration bought you.</p>
+<h3>Exercise 3 — Spot the anti-pattern (discussion)</h3>
+<p>Present a factory that also validates the amount, looks up the customer&#x27;s country, applies a currency conversion and logs to an audit table. Ask: <em>&quot;Is this still a factory?&quot;</em> No — it has absorbed business logic. A factory chooses and constructs; it does not decide anything else.</p>
+<h3>Exercise 4 — Stretch (for fast finishers)</h3>
+<p>Replace the <code>switch</code> with a <code>Map&lt;PaymentType, Supplier&lt;PaymentMethod&gt;&gt;</code> registry. Discuss what this buys (products can register themselves; no central edit) and what it costs (you lose the compiler&#x27;s exhaustiveness check, so a missing entry becomes a runtime failure). There is no universally right answer — that is the discussion.</p>
+<h2>0:50–0:58 — Pitfalls &amp; Comparisons</h2>
+<p>Cover the &quot;What to Watch Out For&quot; section:</p>
+<ul><li>It violates Open/Closed — deliberately, in exchange for one place to change.</li><li>A factory is not a god object; keep logic out of it.</li><li>Forty cases means you want a registry.</li><li>Static is convenient and hard to substitute in tests.</li></ul>
+<p>Then the comparison table. The line worth memorising:</p>
+<blockquote><p><strong>Simple Factory chooses with a <code>switch</code>. Factory Method chooses with inheritance. Abstract Factory chooses a whole family at once.</strong></p></blockquote>
+<p>Close with real-world sightings: <code>Calendar.getInstance()</code>, <code>Charset.forName()</code>, <code>DriverManager.getConnection()</code>.</p>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>Ask three people for a one-sentence definition. Then assign follow-up:</p>
+<blockquote><p>Find one place in your own codebase where a caller picks an implementation with an <code>if</code>/<code>else</code> chain, and sketch the factory that would replace it.</p></blockquote>
+<h2>Facilitator Notes</h2>
+<p><strong>Common misconceptions to correct:</strong></p>
+<table><thead><tr><th>They say</th><th>Correct with</th></tr></thead><tbody><tr><td>&quot;So it&#x27;s a GoF pattern?&quot;</td><td>No — it is an idiom. Factory Method and Abstract Factory are the GoF ones</td></tr><tr><td>&quot;The switch is still there, what did we gain?&quot;</td><td>One copy instead of many, and the compiler guards it</td></tr><tr><td>&quot;Isn&#x27;t this the same as Factory Method?&quot;</td><td>Factory Method chooses by subclassing; here nothing is subclassed</td></tr><tr><td>&quot;Shouldn&#x27;t the factory be an interface?&quot;</td><td>Only when you need to swap it — otherwise you are inventing Abstract Factory for no reason</td></tr><tr><td>&quot;Why not just <code>new</code>?&quot;</td><td>With one implementation, do. This pays off from about three onwards</td></tr></tbody></table>
+<p><strong>If you are running short on time:</strong> cut Exercise 4 and shorten the pitfalls discussion. Never cut Exercise 1 — it is where the concept actually lands.</p>
+<p><strong>If you have extra time:</strong> have participants convert this project to Factory Method (an abstract <code>Checkout</code> class with an abstract <code>createPaymentMethod()</code>), then compare the two side by side. This is the best possible bridge to the next session.</p>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>Everyone has JDK 21 and a green <code>./gradlew run</code></li><li>Diagrams open in a tab (<code>images/</code>)</li><li><code>animation.html</code> open in a browser</li><li>Video on hand (<code>../video/simple-factory-pattern-explained.mp4</code>) — useful as a recap for anyone who joins late, or to send round afterwards</li><li>Naive <code>if</code>/<code>else</code> snippet ready to show first</li><li>IDE font size raised for screen sharing</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

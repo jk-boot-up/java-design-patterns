@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Idempotent Consumer with Kafka Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Idempotent Consumer with Kafka Pattern — Video Narration Script</h1>
+<h2>1. Idempotent Consumer with Kafka</h2>
+<p>Hello, and welcome. This video explains the Idempotent Consumer pattern in Java, using a real Kafka broker and a real Postgres database. It is written and presented by Jayasekhar Konduru. Here is the plain definition, in general words. A message can arrive more than once. So the receiver writes down the id of every message it has handled, in the same step as the work itself, and when a message turns up whose id is already written down, it does nothing. Now the same thing in our online store. Every time a customer places an order, checkout sends a message, and the notifications service queues one confirmation email. If that message arrives twice, the customer must still get exactly one email. By the end you will have seen Kafka hand the same three orders to a second copy of the service, a list of ids in memory fail to notice, and two copies working on the same order at the same time, with the database deciding which one wins.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. When a customer places an order, checkout sends a message saying so. The notifications service reads each message and queues one confirmation email, as a row in its own database. Several copies of the notifications service run at the same time, and every time a new version is deployed, they are stopped and started again. The shop wants exactly one email per order. None missing, and none sent twice.</p>
+<h2>3. Kafka&#x27;s Words</h2>
+<p>Before the demo, a few words, in plain language first. Picture a shared notebook. The till writes one line in it for every sale, and the back office reads down it with a bookmark. In Kafka the notebook is called a topic. Every message sits at a numbered place in it, counting from zero, and Kafka calls that number the offset. A service reading the topic is a consumer group, however many copies of it are running. The broker keeps each group&#x27;s bookmark: the place it has reached. A copy has to ask for the bookmark to be moved, and Kafka calls that committing the offset. Until it is moved, Kafka assumes nothing after it was handled.</p>
+<h2>4. Kafka Sends It Again</h2>
+<p>Act one. Checkout places three orders, and Kafka puts them at places zero, one and two. Copy A of the notifications service is handed all three, and queues three confirmation emails. Then it crashes, before asking Kafka to move the bookmark. So Kafka has written down no place at all for the group. Copy B joins the same group, and Kafka hands it the same three orders again, at the same places, zero, one and two. Nothing on them says they are repeats. Kafka has no such mark. Six deliveries for three orders, and six emails. This is what Kafka means by at least once.</p>
+<h2>5. A List Of Ids In Memory</h2>
+<p>Act two. Copy A now keeps a list of the ids it has handled, in its own memory. It handles three orders, remembers three ids, and crashes before moving the bookmark. Copy B is handed the same three orders. Its list starts with no ids at all, so it queues all three emails again. Six emails. This is the most important find in the video. On Kafka, an order is only handed out again because a copy stopped. So the repeat always lands on a copy whose memory is new. A list in memory never even sees the duplicate it was written to catch.</p>
+<h2>6. Postgres&#x27;s Words</h2>
+<p>The fix needs three words from the database, again in plain language first. A group of changes that are kept together, or thrown away together, is a transaction. Nothing in it is visible to anyone else until it is committed. A column that no two rows may share is a primary key. And when two writers try to write the same key at the same moment, the database makes the second one wait for the first to finish. That waiting is a lock.</p>
+<h2>7. A Table, One Transaction</h2>
+<p>Act three is the pattern. Copy A writes each order&#x27;s id into a table of handled messages, where the id is the primary key, and writes the email beside it, in one transaction. Then it crashes before moving the bookmark. Copy B is handed the same three orders. For each one it tries to write the id, and Postgres says the id is already there. So copy B skips all three and queues none. Six deliveries, three emails, three ids. The table outlived the copy that wrote it.</p>
+<h2>8. Where The Memory Lives</h2>
+<p>Here is the whole arrangement in words. Kafka keeps the orders, and each group&#x27;s bookmark. A copy of the service is handed orders starting from the bookmark. For each order, it opens one database transaction, writes the id first, then the email, and commits. Only after that commit does it ask Kafka to move the bookmark. If it dies before the bookmark moves, the order goes out again, to another copy, and the id is waiting for it. The id and the email land together, or not at all.</p>
+<h2>9. Where The Crash Lands</h2>
+<p>Act four moves the crash. First, the id is written after the email, as a second step. Copy A queues the email for order one, and dies before writing the id. One email, no id. Copy B is handed the order, finds no id, and queues the email again. Two emails for one order. Now the id and the email go in one transaction, and copy A dies before the commit. Its connection drops, and Postgres throws the whole transaction away. No email, no id. Copy B handles the order properly: one email, one id. Exactly once, from a broker that only promises at least once.</p>
+<h2>10. The Pattern In Two Statements</h2>
+<p>In the code, the whole pattern is two statements and a commit. The copy opens a transaction and inserts the message id, asking Postgres to write nothing if the id is already there. Postgres answers with how many rows it wrote. One row means the order is new, so the email is queued in the same transaction. Zero rows means it was handled already. Then the transaction commits, and only after that does the copy ask Kafka to move the bookmark.</p>
+<h2>11. Two Copies At Once</h2>
+<p>Act five is something the plain-Java version could never show. Kafka gives every copy a patience limit: how long it may go without asking for more orders before Kafka decides it is stuck. Kafka calls it max poll interval, and its default is five minutes. Here it is three seconds. Copy A is handed order one, writes the id and the email, and is slow to commit. After three seconds, Kafka hands the same order to copy B. Now two copies are working on one order. Copy B tries to write the same id, and Postgres makes it wait, on copy A&#x27;s lock. Copy A commits. Postgres tells copy B the id is taken, and copy B skips it. One email. Then copy A asks Kafka to move the bookmark, and Kafka refuses. Copy A no longer owns that order. A check done in Java would have let both copies through. Only the primary key could decide.</p>
+<h2>12. The Bill</h2>
+<p>Act six is the bill. The table cannot keep every id for ever, so a cleanup job deletes old ones. Three orders placed two days ago are handled, and their three ids stored. The cleanup keeps ids for twenty four hours, and deletes all three. But a topic keeps its orders for a set time too, and this one keeps them for one hundred and sixty eight hours: seven days, Kafka&#x27;s default. An operator moves the group&#x27;s bookmark back to the start, to replay it. Three orders are handed out again, and with their ids gone, three more emails are queued. Six in all. So keep the ids at least as long as Kafka keeps the orders. And there are two more systems to run: two containers, a broker and a database, for one email per order.</p>
+<h2>13. What The Simulation Left Out</h2>
+<p>How does this compare with the plain-Java version earlier in the course? It got the whole pattern right. The list in memory that loses at a restart, the crash between the work and the id, and the single transaction that fixes both all hold here. What it left out is what Kafka adds. The repeat goes to a different copy, with no mark on it. Two copies can hold the same order at the same moment. And the cleanup window is no longer a free guess: the topic&#x27;s retention sets its floor.</p>
+<h2>14. The Verdict</h2>
+<p>The verdict. Behind Kafka, assume every message will be handed out twice, and to a different copy. Keep the ids in a table in the same database as the work, with the id as the primary key. Write the id first, inside the same transaction as the work, and let the database&#x27;s answer decide whether to go on. Commit the transaction, and only then move the bookmark. And keep the ids at least as long as the topic keeps the messages.</p>
+<h2>15. What Is Real Here</h2>
+<p>What is real here? The broker is Kafka, version four point three point one, and the database is Postgres, version eighteen point six, both the newest releases, each in a container that the demo starts at the beginning and stops at the end. The one thing you need is a container runtime, such as Docker Desktop, switched on before you start. Every number in this video comes from the program&#x27;s own output, and two runs print the same thing. And when is this too much? If the work is naturally safe to repeat, such as setting an order&#x27;s status to shipped, there is nothing to deduplicate, and no table is needed.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s Idempotent Consumer with Kafka. If you take one sentence away, take this one: Kafka will hand the same order to two copies, one after a crash or both at once, and only an id written in the same transaction as the work sees both of them. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, remove the primary key from the table of handled ids, run act five, and count the emails. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

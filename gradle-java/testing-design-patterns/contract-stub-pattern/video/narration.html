@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contract Stub Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Contract Stub Pattern — Video Narration Script</h1>
+<h2>1. Contract Stub</h2>
+<p>Hello, and welcome. This video explains the Contract Stub pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A stub is a stand-in for another service, used in tests. A contract stub is made from a written agreement between the two teams. And the real service is checked against that same agreement. So the stub and the real service can never quietly drift apart. Think of a fire drill. If it used an old floor plan, everyone would practise walking to an exit that has since been bricked up. A contract stub is a drill always run from the current plan. In this video, the domain is an online shop&#x27;s checkout, which calls a payment service run by another team. By the end, you will hear how a hand-written stub let a bug reach production. How a contract feeds both the stub and a check of the real service. Why a strict stub helps. And what the contract costs.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The shop&#x27;s checkout calls a payment service, run by another team. Checkout&#x27;s tests used a stub the checkout team had written by hand. The payment team renamed a field in its reply. The tests stayed green. And production broke.</p>
+<h2>3. Act One — A stub that drifted</h2>
+<p>First demo: a hand-written stub. A stub is a stand-in for another service, used in tests. The checkout team wrote their own stub of the payment service. It replies with a field called result, set to approved. The checkout test passes. But the payment team released version two. They renamed result, to outcome. In production, checkout finds no result in the reply. The order is stuck. And the tests stayed green, because the stub never changed.</p>
+<h2>4. Act Two — A stub made from the contract</h2>
+<p>Second demo: a stub made from a contract. The two teams write down what they have agreed. Three interactions. Each one is a request, and the reply it gets. A normal charge is approved. A card with no funds is declined. A zero amount is rejected. Checkout&#x27;s tests use a stub built from that contract. And they get exactly those three replies.</p>
+<h2>5. Act Three — The provider is checked too</h2>
+<p>Third demo: the real payment service is checked against the same contract. The payment team&#x27;s build replays all three interactions. Version one matches, three of three. Version two, with the rename, matches zero of three. So the payment team&#x27;s own build fails. Before the change reaches anyone. The stub and the real service can never quietly drift apart.</p>
+<h2>6. Act Four — A strict stub</h2>
+<p>Fourth demo: the contract stub is strict. Checkout starts charging in US dollars. The hand-written stub approves it. Nobody asked the payment team. The contract stub refuses. There is no interaction in the contract for that request. So checkout must agree it with the payment team first.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. The contract is shared work. Both teams must keep it, version it, and run it in both builds. And it only covers what is written in it. It says nothing about speed. Or about the real network.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the pattern. Write the contract down, as requests and the replies they get. The consumer tests against a stub made from that contract. The provider&#x27;s build checks the real service against the same contract.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. The contract holds the agreed interactions. The contract stub answers checkout&#x27;s tests from it, and refuses anything else. The provider verifier replays it against the real payment service. And checkout is the consumer being tested.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met this pattern already. Spring Cloud Contract turns contracts into stubs, and tests for the provider. Pact does the same, starting from the consumer&#x27;s tests. And mock servers built from an interface description work the same way.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use it? When separate teams release their services separately. Share and version the contract. Run it in both builds. And when the stub refuses a request, treat it as a prompt to talk to the other team.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Contract Stub pattern. If you remember one sentence, make it this one. Build the stub and check the real service from the same contract. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Add a US dollar interaction to the contract, and make both sides pass. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

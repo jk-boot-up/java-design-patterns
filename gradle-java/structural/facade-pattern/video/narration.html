@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Video Narration Script</h1>
+<p>Narration for the Facade pattern teaching video. Each scene below maps to one slide. The narration is spoken by macOS <code>Samantha</code>, a female US English voice, at 145 words per minute.</p>
+<p>Total scenes: 15. Approximate runtime: about 7 minutes.</p>
+<p>The first and last scenes carry the channel branding: scene 1 credits the author out loud over the poster, and the final scene asks for the thumbs up and the subscribe.</p>
+<p>The script is written to be spoken rather than read, and carries <code>[[slnc NNN]]</code> pause markers in <a href="scenes.py"><code>scenes.py</code></a> that insert NNN milliseconds of silence. Those are instructions to the synthesiser, not words: they are stripped from the text below and from the subtitles.</p>
+<hr>
+<h2>Scene 1 — The Facade Pattern</h2>
+<p>Hello, and welcome. This video explains the Facade pattern in Java, and it is written and presented by Jayasekhar Konduru. Let&#x27;s start with the simple definition. The facade pattern puts one simple interface in front of a complicated set of classes. The subsystem keeps every one of its parts, and the specialist can still reach them, but the ordinary caller talks to a single object with a single method instead of orchestrating six. That&#x27;s the idea in a sentence, and it&#x27;s one of the most useful and most approachable patterns in software. The rest of the video does it properly, by building a real working Java project: the checkout of an online store. By the end you&#x27;ll know what a facade is, why it exists, and how to write one yourself.</p>
+<h2>Scene 2 — The Scenario</h2>
+<p>So, imagine you&#x27;re building an online store. A customer fills up their basket, and clicks the place order button. Now that one click looks simple from the outside. But behind the scenes, four different things have to happen. We reserve the stock, so nobody else buys the last item. We charge the customer&#x27;s card. We schedule the shipment with the warehouse. And finally, we email the customer a confirmation.</p>
+<h2>Scene 3 — Four Separate Services</h2>
+<p>In our project, each of those four jobs lives in its own class. The Inventory Service reserves the stock. The Payment Service charges the card, and gives us back a payment identifier. The Shipping Service books the delivery, and gives us a tracking number. And the Notification Service sends the confirmation email. Each one is small, focused, and does its own job well.</p>
+<h2>Scene 4 — The Problem — Everyone Wires It Up Themselves</h2>
+<p>So here&#x27;s the problem. Without a facade, every single part of our application that wants to place an order has to know about all four of these services. It has to create them, call them in exactly the right order, and carry the results from one across to the next. Our website does this. The mobile app does this. The admin tool does this. The same fragile code, copied into three places.</p>
+<h2>Scene 5 — Why That Hurts</h2>
+<p>And that does real damage. New developers have to learn four classes just to place one order. The ordering is easy to get wrong, and getting it wrong means charging a customer for something we can&#x27;t actually ship. When we add a fifth step tomorrow, we&#x27;re editing every caller. And testing gets painful, because a simple order needs four collaborators standing up, every single time.</p>
+<h2>Scene 6 — The Facade Pattern</h2>
+<p>The facade fixes exactly this. And the definition is short. A facade provides a simplified, unified interface to a set of interfaces in a subsystem, making that subsystem easier to use. In plain language? It gives you one simple front door, to a complicated building.</p>
+<h2>Scene 7 — Remember It With a Waiter</h2>
+<p>Here&#x27;s how to remember it forever. Think about a restaurant. You don&#x27;t walk into the kitchen and talk to the grill chef, and then the sauce chef, and then the pastry chef. You talk to one person. The waiter. And you say, I&#x27;ll have the steak. The waiter knows which chefs to speak to, in what order, and what to bring back to you. The chefs still exist. They&#x27;re still doing skilled, specialised work. You&#x27;re simply protected from all that complexity. The waiter is a facade.</p>
+<h2>Scene 8 — The Three Roles</h2>
+<p>Every facade has three roles. First, the facade itself, which here is the Order Facade class. Second, the subsystems, which are our four services. And third, the client. The code that just wants to place an order. Now here&#x27;s the single most important idea in this whole video. The facade knows about the subsystems. But the subsystems never know about the facade. That arrow points one way only. And that&#x27;s what keeps each service independently reusable.</p>
+<h2>Scene 9 — A Subsystem — Small, Focused, Unaware</h2>
+<p>Let&#x27;s look at some code. This is the Inventory Service. Notice how small it is. How ordinary. It reserves stock, and it returns whether that worked. That&#x27;s all. It has absolutely no idea a facade exists. Which is deliberate. Because it knows nothing about the bigger workflow, you could lift this class into a completely different application tomorrow. The other three services follow exactly the same shape.</p>
+<h2>Scene 10 — The Facade — One Method, Four Subsystems</h2>
+<p>And this is the facade itself. It holds the four services as private fields, and it exposes just one method. Place order. Now look at what that method is really doing. It reserves the stock first. And if that fails, it stops immediately, so the customer is never charged for something we can&#x27;t ship. Only then does it take the payment. Then it schedules the shipment. Then it sends the email. And finally it packages those three results into one confirmation object, and hands it back.</p>
+<h2>Scene 11 — What the Facade Gives You</h2>
+<p>So the facade is giving us three things. It gives us sequencing. The right calls, in the right order, defined in exactly one place. It gives us a guard rail. No payment, unless the stock was secured. And it gives us assembly. Three separate results, gathered into one clean object. Now notice what it doesn&#x27;t contain. There&#x27;s almost no business logic in here at all. A facade delegates. It doesn&#x27;t decide. Keep it thin, and it stays a facade, rather than turning into one of those giant tangled classes we&#x27;ve all met.</p>
+<h2>Scene 12 — The Client — This Is the Whole Thing</h2>
+<p>And now, the payoff. This is the entire client code. Three lines. We create the facade, we build a request, and we place the order. Our client doesn&#x27;t know that payments exist. It doesn&#x27;t know shipping exists. And if we add a fraud check to the facade tomorrow, this code doesn&#x27;t change at all. That&#x27;s the whole point of the pattern.</p>
+<h2>Scene 13 — Running It</h2>
+<p>When we run the project, you can watch it happen. Each line of output comes from a different service, in the exact order the facade arranged. Stock reserved. Card charged. Shipment scheduled. Email sent. And at the end, one single confirmation returned to the client. One call in. One result out. And four subsystems quietly coordinated in between.</p>
+<h2>Scene 14 — Wrap Up</h2>
+<p>So, to recap. Use a facade when a group of classes has to be used together in a particular way, and you want to spare your callers all that complexity. Keep the facade thin. Keep the subsystems public and independent. And remember that a facade is a convenience, not a wall. And if you remember one sentence from today, make it this one. An adapter changes an interface. A facade simplifies many of them.</p>
+<h2>Scene 15 — Thanks for Watching</h2>
+<p>And that&#x27;s the facade pattern. If you got something out of this, do give it a thumbs up, and subscribe. It genuinely helps the channel, and it&#x27;s what makes more of these possible. And if there&#x27;s a pattern you&#x27;d like me to cover next, drop it in the comments. I read every one. All the source code, the written notes and an interactive animation are in the repository. Thanks for watching, and I&#x27;ll see you in the next one.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

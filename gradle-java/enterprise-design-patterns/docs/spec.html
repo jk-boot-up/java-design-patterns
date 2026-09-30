@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enterprise Application Patterns — Category Specification</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Enterprise Application Patterns — Category Specification</h1>
+<p>The seventh category. Seven patterns in <strong>eleven projects</strong>, numbered 52 to 62, on the patterns from Martin Fowler&#x27;s <em>Patterns of Enterprise Application Architecture</em> that sit between an application&#x27;s objects and its database.</p>
+<p>Seven projects build the mechanism by hand. Four more build the same pattern inside the framework a reader actually uses, and <strong>each of those is a separate project</strong> with its own README and its own video rather than a subdirectory of the hand-built one. §2a says which four, and why not all seven.</p>
+<p>This document fixes what each project is before any of it is written. It is the contract; <a href="implementation-plan.html"><code>implementation-plan.md</code></a> is the schedule.</p>
+<hr>
+<h2>1. Scope</h2>
+<p>Seven patterns, in learning order, built by hand:</p>
+<table><thead><tr><th>#</th><th>Project</th><th>One line</th></tr></thead><tbody><tr><td>52</td><td><code>data-mapper-pattern</code></td><td>The object that does not know it is a row</td></tr><tr><td>53</td><td><code>identity-map-pattern</code></td><td>The same customer, loaded twice, in two states</td></tr><tr><td>54</td><td><code>unit-of-work-pattern</code></td><td>Save half an order and nothing else</td></tr><tr><td>55</td><td><code>lazy-load-pattern</code></td><td>Loading one order, and getting the whole catalogue</td></tr><tr><td>56</td><td><code>repository-pattern</code></td><td>Query the collection, not the table</td></tr><tr><td>57</td><td><code>service-layer-pattern</code></td><td>Where does &quot;place an order&quot; actually live?</td></tr><tr><td>58</td><td><code>dto-pattern</code></td><td>The object that crosses the boundary</td></tr></tbody></table>
+<p>Then four framework projects, each pairing with one of the above:</p>
+<table><thead><tr><th>#</th><th>Project</th><th>Pairs with</th><th>One line</th></tr></thead><tbody><tr><td>59</td><td><code>identity-map-with-jpa-pattern</code></td><td>§53</td><td>The persistence context, and the same customer twice</td></tr><tr><td>60</td><td><code>unit-of-work-with-spring-pattern</code></td><td>§54</td><td><code>@Transactional</code>, and the flush you did not write</td></tr><tr><td>61</td><td><code>lazy-load-with-hibernate-pattern</code></td><td>§55</td><td><code>LazyInitializationException</code>, explained from its mechanism</td></tr><tr><td>62</td><td><code>repository-with-spring-data-pattern</code></td><td>§56</td><td>An interface with no implementation</td></tr></tbody></table>
+<p>The framework projects come after all seven hand-built ones, never before their partner, and each one opens by naming the project it pairs with.</p>
+<p>The order is Fowler&#x27;s own dependency order and is not negotiable. Data Mapper is the foundation — everything else assumes objects and rows are separate. Identity Map solves the duplicate-instance problem Data Mapper creates. Unit of Work needs the Identity Map to know what changed. Lazy Load is the performance escape hatch that all three make possible. Repository sits on top of the four and hides them. Service Layer sits above Repository. DTO is last because it is about what leaves the building, and you must know what is inside first.</p>
+<hr>
+<h2>2. Why this category exists</h2>
+<p><strong>This is the most directly useful category in the course.</strong> Every Java developer who touches Spring, JPA or Hibernate is using all seven of these patterns whether they know it or not, and most do not. The persistence context <em>is</em> an Identity Map. <code>@Transactional</code> <em>is</em> a Unit of Work. <code>save()</code> on a Spring Data interface <em>is</em> a Repository over a Data Mapper. <code>LazyInitializationException</code> is what a Lazy Load does when its session has gone.</p>
+<blockquote><p><strong>The category&#x27;s thesis: a framework you cannot explain is a framework you cannot debug.</strong></p></blockquote>
+<p>That fixes the teaching method. Each project builds the mechanism by hand, in plain Java, against an in-memory table — small enough to read in one sitting — and <em>then</em> shows the same thing happening inside the framework, so the reader recognises it. The hand-built version is not a toy standing in for the real thing; it is the real thing with the volume turned down.</p>
+<p>This is also why this category has the strongest case in the whole course for building the framework version too — and for four of the seven patterns that framework version is a project of its own. §2a says which, and why.</p>
+<h3>What makes these teachable in one JVM</h3>
+<p>Everything here already runs in one process. Fowler&#x27;s patterns are about the boundary between objects and <em>storage</em>, not between machines, and an in-memory map with an explicit <code>flush()</code> shows that boundary exactly. No simulation is being strained. That is why this category is low-risk compared with the platform one.</p>
+<hr>
+<h2>2a. By hand first, then in the framework — and the framework version is its own project</h2>
+<p><strong>The hand-built project is the primary one.</strong> Plain Java, offline, an in-memory table, deterministic tests under two seconds. It holds the naive version, the pattern, the failure and the cost, and its teaching video is built entirely from it. A reader who installs nothing gets the whole pattern.</p>
+<p><strong>The framework version is the same pattern inside JPA, Hibernate or Spring Data</strong> — and where it is worth building, it is <strong>a separate project</strong>, not a <code>real/</code> subdirectory of the hand-built one. The reason is that a project in this repository is the unit a viewer consumes: one project, one README, one video, one lesson. A framework demo buried inside another project is a lesson nobody is taught, and it also drags a database and a container onto a project whose whole promise was that it needed neither.</p>
+<h3>Which patterns get a framework project, and which get a scene</h3>
+<p>Not all seven, because a second project has to have its own lesson. The test is whether the framework version has <strong>a failure mode, an artefact or a claim of its own that the hand-built project cannot show</strong>. Four pass that test:</p>
+<table><thead><tr><th>#</th><th>Framework project</th><th>What only it can show</th></tr></thead><tbody><tr><td>59</td><td>Identity Map with JPA</td><td>Load the same customer twice in one persistence context and <code>==</code> is true — the single best &quot;oh, <em>that</em> is what that is&quot; moment in the course — and then the detached-entity trap, where two contexts give you two objects again.</td></tr><tr><td>60</td><td>Unit of Work with Spring</td><td><code>@Transactional</code> on a method, and the writes appearing at commit rather than where the code is. The failure of its own: a rollback triggered by an exception the reader did not expect to be a rollback trigger, and a <code>flush()</code> happening at a moment nobody wrote.</td></tr><tr><td>61</td><td>Lazy Load with Hibernate</td><td>A real <code>LazyInitializationException</code>, on purpose, with the session closed — the most-Googled exception in Java, explained from its mechanism rather than worked around. Then the three usual fixes and what each costs.</td></tr><tr><td>62</td><td>Repository with Spring Data</td><td>An interface with no implementation that works, a derived query method generated from its own name, and the leak: <code>findAll()</code> returning entities the caller then modifies outside a transaction.</td></tr></tbody></table>
+<p>The other three patterns keep their framework material as <strong>one scene inside the hand-built project</strong>, filmed from a small <code>real/</code> directory that is excluded from <code>./gradlew test</code>, because in each case the framework adds recognition rather than a new lesson:</p>
+<table><thead><tr><th>Pattern</th><th>Framework material</th><th>Why a scene rather than a project</th></tr></thead><tbody><tr><td>Data Mapper</td><td>A JPA entity and its generated SQL, logged</td><td>The SQL is worth seeing beside the hand-written mapper, but the interesting failures it leads to belong to §61 and §62.</td></tr><tr><td>Service Layer</td><td>A <code>@Service</code> and where its transaction boundary sits</td><td>Mostly annotation placement. That is a real decision, and it is one scene&#x27;s worth of one.</td></tr><tr><td>DTO</td><td>Jackson serialising a record at a REST boundary</td><td>Shows why the entity must not be the thing returned. The lesson is §58&#x27;s; Jackson only confirms it.</td></tr></tbody></table>
+<h3>Rules that bind every framework project</h3>
+<ol><li><strong>Its partner is built, finished and published first.</strong> §59 to §62 are only legible to someone who has seen the mechanism by hand.</li><li><strong>It copies its partner&#x27;s domain unchanged</strong> — same <code>Customer</code>, <code>Product</code>, <code>Order</code>, <code>OrderLine</code>, same scenario, same numbers — so the comparison is about the mechanism and nothing else.</li><li><strong>It does not re-teach the pattern.</strong> Its partner owns that. It opens by naming the partner, and spends its time on the one thing it adds.</li><li><strong>It explains its dependency.</strong> Hibernate, Spring and H2 are heavy things to ask of a beginner, so each carries a <code>docs/dependencies.md</code> saying what the dependency is in plain language, why the project uses it, what to install with the version pinned, what it costs, and that <strong>skipping the project loses none of the pattern</strong>. The video says the same aloud before the first annotation.</li><li><strong>No framework appears in a hand-built project&#x27;s build files.</strong> Projects 52 to 58 stay plain Java, so a reader who wants the mechanism without the framework gets exactly that. That separation is the reason 59 to 62 exist as projects.</li></ol>
+<hr>
+<h2>3. The store, continued</h2>
+<p>Same online shop. The persistent objects are <code>Customer</code>, <code>Product</code>, <code>Order</code> and <code>OrderLine</code>, and the relationships are the ones every reader already has in their head: an order belongs to a customer and has many lines, each line points at a product.</p>
+<p>One shared scenario runs through the category and is worth naming, because six of the seven projects turn on it:</p>
+<blockquote><p><strong>A customer places an order with three lines, and the stock update for the third line fails.</strong></p></blockquote>
+<p>Data Mapper writes the rows. Identity Map decides whether the customer object in the order is the same object the caller holds. Unit of Work decides whether the first two lines survive. Lazy Load decides how much of the catalogue got loaded on the way. Repository is how the code asked for the customer in the first place. Service Layer is where that whole story is written down. One scenario, seven views of it.</p>
+<hr>
+<h2>4. The eleven projects</h2>
+<p>Each project shows a naive version failing, then the pattern, then the bill.</p>
+<h3>4.52 Data Mapper — the object that does not know it is a row</h3>
+<p><strong>Scenario.</strong> <code>Customer</code> needs to be stored and loaded.</p>
+<p><strong>The naive version.</strong> Active Record: the object saves itself. <code>customer.save()</code>. The demo shows it working, and it works well — the project must be fair to it, because for a simple application it is the right answer and saying otherwise is dishonest teaching.</p>
+<p>Then the cost arrives. <code>Customer</code> now knows about tables, columns and SQL. A change to the schema changes the domain object. Testing the domain needs a database. And the demo shows the moment it really breaks: one object mapped across two tables, and one table feeding two objects — the shape Active Record has no answer for.</p>
+<p><strong>The pattern.</strong> A mapper class that moves data between the object and the row. <code>Customer</code> has no persistence code at all, and the demo prints the class to prove it: fields, behaviour, nothing else.</p>
+<p><strong>The bill.</strong> A second class per entity, and the mapping is written by hand and easy to get subtly wrong — the demo shows a field that silently does not round-trip. Loading an object graph means deciding how far to go, which is §55&#x27;s problem. And you have built an indirection that must be understood before anything can be debugged.</p>
+<h3>4.53 Identity Map — the same customer, twice</h3>
+<p><strong>Scenario.</strong> An order is loaded. Its customer is loaded. Separately, the caller loads the same customer by id.</p>
+<p><strong>The naive version.</strong> Two loads, two objects. The demo shows the bug this causes in a way nobody forgets: change the address on one, save both, and one change silently disappears. Two objects claim to be customer 7, they disagree, and the last writer wins. <code>equals()</code> is a partial fix and the demo shows why it is not enough — the objects are equal and still separately mutable.</p>
+<p><strong>The pattern.</strong> A map, scoped to the session, from id to loaded object. Ask for customer 7 twice and get the <em>same object</em> both times — <code>==</code>, not just <code>equals</code>. The demo prints the identity check.</p>
+<p><strong>The bill.</strong> The map is a cache, so it can be stale: another process changed the row and this session cannot see it. It holds references, so a long session leaks memory — the demo shows the map growing through a bulk load. And its scope is now a decision with consequences: per request, per session, or per application, each wrong in a different way.</p>
+<p><strong>The framework moment.</strong> This is the JPA persistence context. Tier 2 loads the same entity twice in one transaction and shows <code>==</code> being true, and a reader who has fought that behaviour without understanding it finally sees the mechanism.</p>
+<h3>4.54 Unit of Work — save half an order</h3>
+<p><strong>Scenario.</strong> Placing an order writes an order row, three line rows, and three stock decrements. The third stock update fails.</p>
+<p><strong>The naive version.</strong> Each object saves itself as it changes. The demo runs it and prints the wreckage: an order exists with two lines, stock is wrong for two products, and nothing in the system knows it is broken. There is no way to undo it because the writes have already happened.</p>
+<p>The second naive version is the one experienced readers reach for — wrap it in a transaction — and the project must be honest that this mostly works. Its cost is that the transaction is open for the whole computation, including the slow parts, and the demo shows lock contention growing with the duration.</p>
+<p><strong>The pattern.</strong> Register what changed — new, dirty, removed — and write it all at commit, in one go. Nothing touches the database until the unit of work commits, so the failure happens before any write and rolls back to nothing.</p>
+<p><strong>The bill.</strong> Order of writes matters and the unit of work has to work it out — insert the order before the lines, or the foreign key fails. It must know what is dirty, which means either checking every field or being told. In-memory state now disagrees with the database until commit, which surprises people. And the whole change set lives in memory, so a bulk update is a memory problem.</p>
+<h3>4.55 Lazy Load — loading one order, getting everything</h3>
+<p><strong>Scenario.</strong> Load one order to show it on a page.</p>
+<p><strong>The naive version.</strong> Eager loading everything reachable. The demo counts the objects: one order pulls its customer, the customer&#x27;s other orders, their lines, their products, and the products&#x27; categories. The count is printed, and it is absurd, and it comes from an object graph with no cycle in it and no obvious mistake.</p>
+<p><strong>The pattern.</strong> Load the order; load the rest when it is asked for. The demo shows four variants honestly — lazy initialisation, virtual proxy, value holder, ghost — because a reader will meet all four in real code.</p>
+<p><strong>The bill, which is heavy and must not be softened.</strong> You have replaced one large query with many small ones, and the demo shows <strong>N+1</strong> happening: a list of 20 orders, 21 queries, and a page that is slower than the eager version it replaced. You have made a field access into I/O, which means it can now be slow and it can now fail. Threading breaks: the object is passed somewhere its session no longer exists, and the load fails at the point of use rather than at the point of loading.</p>
+<p><strong>The framework moment.</strong> That last failure has a name, and Tier 2 produces it on purpose: <code>LazyInitializationException</code>. It is one of the most-searched Java errors there is, and the project explains it from the mechanism rather than offering the usual workaround.</p>
+<h3>4.56 Repository — query the collection, not the table</h3>
+<p><strong>Scenario.</strong> Find customers in London who have ordered in the last month.</p>
+<p><strong>The naive version.</strong> SQL in the service class. The demo shows the drift: the same query written slightly differently in three places, one of them wrong, and a schema change that requires finding every string in the codebase that mentions a column.</p>
+<p><strong>The pattern.</strong> An interface that looks like an in-memory collection of domain objects. The service asks for customers; it does not know a database exists. The demo swaps the backing store from the in-memory table to a different one <strong>with no change to the calling code</strong>, and that swap is the project&#x27;s strongest moment — it must be shown as a real diff, not asserted.</p>
+<p><strong>The bill.</strong> Every real repository grows query methods until it is a query language with worse ergonomics — <code>findByCityAndOrderDateAfterAndStatusIn</code> — and the demo shows that name being reached honestly. Specifications fix it and cost a concept. The abstraction leaks the moment performance matters, because the caller cannot express a join hint. And &quot;it lets you swap the database&quot; is a benefit that is claimed far more often than it is used, which the project should say.</p>
+<h3>4.57 Service Layer — where does &quot;place an order&quot; live?</h3>
+<p><strong>Scenario.</strong> Placing an order: validate the cart, check stock, take payment, write the order, send an email.</p>
+<p><strong>The naive version.</strong> In the controller. The demo then adds a second entry point — a CLI for support staff — and the logic is copied. It drifts. A bug is fixed in one and not the other, and the demo shows a customer getting different behaviour depending on which door they came through.</p>
+<p>The alternative naive version deserves equal time: put it all in the domain objects. <code>Order.place()</code>. The demo shows where that ends — the domain object needing a payment gateway, an email service and a stock service, and the reader can see it is no longer a domain object.</p>
+<p><strong>The pattern.</strong> A service layer defining the application&#x27;s operations. One <code>placeOrder</code>, called by both the web controller and the CLI. It owns the transaction boundary and the orchestration; the domain objects own the rules.</p>
+<p><strong>The bill, and it is the one that needs naming.</strong> The Anemic Domain Model: push too much into services and the domain objects become bags of getters with no behaviour, which is the most common shape in enterprise Java and is widely considered an anti-pattern. The project must give the honest dividing line — business rules in the domain, orchestration in the service — and admit that the line is genuinely hard to draw and that reasonable teams draw it differently.</p>
+<h3>4.58 DTO — the object that crosses the boundary</h3>
+<p><strong>Scenario.</strong> A REST endpoint returns a customer.</p>
+<p><strong>The naive version.</strong> Return the domain object. The demo prints the JSON and the problems are all visible at once: the password hash is in it, the whole order history is in it (because serialisation touched a lazy collection), it is enormous, and the field name the client depends on is now the name of a private field nobody may rename.</p>
+<p><strong>The pattern.</strong> A separate object shaped for the boundary. A Java <code>record</code>, flat, carrying exactly what the client needs. The domain object stays inside. The demo prints both payloads and their sizes.</p>
+<p><strong>The bill.</strong> Mapping code, everywhere, and it is tedious. Near-duplicate classes that drift. And the failure mode worth naming: DTOs multiply until there is a <code>CustomerDto</code>, a <code>CustomerSummaryDto</code>, a <code>CustomerDetailDto</code> and a <code>CustomerListItemDto</code>, at which point the mapping layer is larger than the domain it protects.</p>
+<p><strong>Its relationship to two other projects.</strong> This is Backends for Frontends (§40) at the object level rather than the deployment level, and the projects link to each other. And a DTO is not a domain model — the project must show one of each, because conflating them is how anemic domains start.</p>
+<h3>4.59 Identity Map with JPA — the persistence context is the map</h3>
+<p><strong>What it is.</strong> §53&#x27;s scenario, unchanged, run through JPA and Hibernate over an in-memory H2. The same customer, loaded twice.</p>
+<p><strong>The moment.</strong> Load customer 7 twice in one transaction and assert <code>first == second</code>. It passes, and nobody told Hibernate to do that. The reader has just built that map by hand, so the assertion lands as recognition rather than magic: the persistence context is an Identity Map with a different name.</p>
+<p><strong>The failure that is this project&#x27;s own.</strong> Close the transaction, open a second one, load customer 7 again — and now <code>==</code> is false, because there are two maps. That is the detached-entity problem, it is where a great deal of real confusion about JPA lives, and the hand-built project cannot show it because it has only ever had one map.</p>
+<p><strong>The bill.</strong> An identity map you did not write is an identity map you cannot see. Its lifetime is the transaction&#x27;s, which means object identity in your application now depends on a boundary drawn somewhere else — often by an annotation on a method you are not looking at.</p>
+<h3>4.60 Unit of Work with Spring — the flush you did not write</h3>
+<p><strong>What it is.</strong> §54&#x27;s half-written order, run under <code>@Transactional</code>.</p>
+<p><strong>The moment.</strong> The method body reads like plain code — save, save, save — and nothing reaches the database until the method returns. The demo prints the SQL with timestamps so the reader hears that all three inserts happened after the last line of the method ran.</p>
+<p><strong>The failures that are this project&#x27;s own.</strong> Two, and both are things teams meet in production. First, the rollback that did not happen: throw a checked exception and Spring commits by default, which surprises almost everyone the first time. Second, the flush nobody wrote: a query issued mid-method forces earlier writes out early, so the order of SQL is not the order of the code.</p>
+<p><strong>The bill.</strong> The transaction boundary is now a property of a method signature. Moving code between methods moves the boundary, and calling a <code>@Transactional</code> method from inside the same class may not start one at all — which is the proxy-based cost of the convenience, and the project shows it happening.</p>
+<h3>4.61 Lazy Load with Hibernate — the exception everybody has met</h3>
+<p><strong>What it is.</strong> §55&#x27;s order and catalogue, mapped with Hibernate, with one association left lazy.</p>
+<p><strong>The moment.</strong> Produce a real <code>LazyInitializationException</code> on purpose: fetch an order, close the session, then touch its lines. It is probably the most-Googled exception in Java, and a reader who has just written a lazy-loading proxy by hand knows exactly what went wrong — the proxy went to fetch and found no session. Explained from its mechanism, it stops being a mystery to be worked around.</p>
+<p><strong>Then the three fixes, with their costs.</strong> A join fetch, which loads more than you needed. An open session in the view, which keeps a database resource open for the length of a web request. A DTO projection, which is §58 arriving as the answer. The project recommends the third and says why.</p>
+<p><strong>The N+1 half.</strong> Twenty orders on a page, twenty-one queries logged, and the count spoken aloud rather than pointed at. Then the same page with a fetch join, and one query.</p>
+<p><strong>The bill.</strong> Laziness moves a decision from write time to read time, and the reader loses the ability to tell by looking at a method whether it hits the database.</p>
+<h3>4.62 Repository with Spring Data — an interface with no implementation</h3>
+<p><strong>What it is.</strong> §56&#x27;s repository, replaced by a Spring Data interface.</p>
+<p><strong>The moment.</strong> Delete the implementation. Leave <code>interface CustomerRepository extends JpaRepository&lt;Customer, Long&gt;</code> with nothing in it, and the application still runs. Having written the implementation by hand an hour ago, the reader can say precisely what was generated for them, which is the difference between using Spring Data and trusting it.</p>
+<p><strong>Then the derived query.</strong> Add <code>findByEmail(String email)</code> — no body, no SQL — and watch the log show the query Spring built from the method name. Then add a method name with a typo and watch the application fail at startup with a message naming the property it could not find, which is the honest cost of names as code.</p>
+<p><strong>The leak that is this project&#x27;s own.</strong> <code>findAll()</code> hands back managed entities. Modify one outside a transaction and nothing is saved; modify one inside a transaction you did not know you were in, and it is saved without a <code>save()</code> call. A repository that returns live objects is not the collection abstraction §56 promised, and the project says so plainly.</p>
+<p><strong>The bill.</strong> Enormous convenience and a real loss of control: the queries are generated, the entities are managed, and the abstraction leaks at exactly the points where performance problems live. The project ends by naming when to drop to a query you wrote yourself.</p>
+<hr>
+<h2>5. Relationships to the existing projects</h2>
+<table><thead><tr><th>Project</th><th>Depends on</th><th>Why</th></tr></thead><tbody><tr><td>Data Mapper</td><td>Adapter (§10), Database per Service (§32)</td><td>It adapts between two representations; §32 is why each service owns its own.</td></tr><tr><td>Identity Map</td><td>Flyweight (§13), Singleton (§4)</td><td>Both are &quot;one instance for one identity&quot;, for different reasons — the contrast is instructive.</td></tr><tr><td>Unit of Work</td><td>Saga (§35), Transactional Outbox (§36)</td><td>The local transaction those two do not have; §36 writes through this.</td></tr><tr><td>Lazy Load</td><td>Proxy (§14)</td><td>The virtual proxy variant <em>is</em> Proxy.</td></tr><tr><td>Repository</td><td>CQRS (§34), Facade (§12)</td><td>CQRS splits the repository in two; Repository is a Facade over mappers.</td></tr><tr><td>Service Layer</td><td>Facade (§12), Command (§17)</td><td>The classic Facade; each operation is close to a Command.</td></tr><tr><td>DTO</td><td>Backends for Frontends (§40), Builder (§2)</td><td>The same shaping decision, one layer down.</td></tr><tr><td>Identity Map with JPA (§59)</td><td>Identity Map (§53)</td><td>The same mechanism, inside the persistence context. Depends on §53 being published first.</td></tr><tr><td>Unit of Work with Spring (§60)</td><td>Unit of Work (§54)</td><td>The same boundary, drawn by <code>@Transactional</code>. Depends on §54.</td></tr><tr><td>Lazy Load with Hibernate (§61)</td><td>Lazy Load (§55), Proxy (§14)</td><td>Hibernate&#x27;s proxy is §14, and its failure is the exception everyone has met. Depends on §55.</td></tr><tr><td>Repository with Spring Data (§62)</td><td>Repository (§56)</td><td>An interface with no implementation, once the implementation is understood. Depends on §56.</td></tr></tbody></table>
+<hr>
+<h2>6. Deliverables per project</h2>
+<p>Identical to the microservices category — the same committed file set and the same generators, per <a href="../../micro-services-design-patterns/docs/ai-build-spec.html"><code>../../micro-services-design-patterns/docs/ai-build-spec.md</code></a>.</p>
+<p>Three additions specific to this category:</p>
+<ul><li>A <strong>&quot;Where you have already met this&quot;</strong> section in the explainer, naming the framework feature the pattern lives inside — the persistence context, <code>@Transactional</code>, <code>JpaRepository</code> — so a reader connects the hand-built thing to the annotated thing they use at work.</li><li><strong>The demo prints the SQL it would issue</strong>, or the operations against the in-memory table. Query counts are this category&#x27;s equivalent of timings, and the N+1 demo is meaningless without them.</li><li>The three patterns whose framework material is a scene rather than a project — Data Mapper, Service Layer and DTO — add a small <code>real/</code> subdirectory with its own README, pinned versions and one command to run it, excluded from the root <code>settings.gradle</code> so <code>./gradlew test</code> never reaches it.</li><li>The four framework projects (§59 to §62) are ordinary projects with the full file set, plus a <code>docs/dependencies.md</code> written for someone who has never used Hibernate or Spring.</li></ul>
+<hr>
+<h2>7. Video, poster and publishing</h2>
+<p>Unchanged: 14 to 16 scenes, <code>Samantha</code> at 145 wpm, −16 LUFS, a poster that does not strike out its message, an outro naming no successor, and the required four-step opening. Target length eleven to thirteen minutes.</p>
+<p>The explanations must work with the listener&#x27;s eyes closed, which here means speaking the <em>counts</em> — <em>&quot;twenty orders on the page; twenty-one queries went to the database&quot;</em> — rather than pointing at a log.</p>
+<hr>
+<h2>8. Deliberately not included</h2>
+<table><thead><tr><th>Pattern</th><th>Why not</th></tr></thead><tbody><tr><td>Active Record</td><td>Taught as the naive version in §52, fairly and without contempt. A project of its own would be the same content twice.</td></tr><tr><td>Table Module, Transaction Script</td><td>Alternative domain-logic organisations from the same book. Genuinely interesting, but they belong in a discussion of domain logic styles rather than as projects; §57 names them.</td></tr><tr><td>Optimistic and Pessimistic Offline Lock</td><td>Concurrency across requests. It needs the concurrency category&#x27;s harness and would be better placed there if it is ever built.</td></tr><tr><td>Front Controller, Page Controller, Template View</td><td>Web-layer patterns largely absorbed by frameworks. What survives is MVC, which is §64 in the architectural category.</td></tr><tr><td>Money, Special Case, Range</td><td>Base patterns. Special Case is Null Object, which is §68.</td></tr><tr><td>Metadata Mapping</td><td>How ORMs read annotations. It is framework construction, not application design.</td></tr></tbody></table>
+<p>An eighth <em>pattern</em> requires editing this section first. Splitting one of the seven into a further project requires editing §2a first.</p>
+<hr>
+<h2>9. Conformance</h2>
+<p>Every item from the microservices category&#x27;s §9 applies, plus nine:</p>
+<ul class="task"><li>The explainer has its <strong>&quot;Where you have already met this&quot;</strong> section naming the framework feature, and the video says it aloud.</li><li><strong>The naive version is treated fairly.</strong> Active Record, SQL in the service and logic in the controller are all reasonable in some contexts, and the project says when, rather than setting up a straw man.</li><li><strong>The demo prints query counts or table operations</strong>, and every count quoted anywhere comes from that output.</li><li>Tier 1 runs offline with only a JDK, and <code>./gradlew test</code> passes with no database installed and no network.</li><li>Any <code>real/</code> directory pins its framework versions, and its README gives one command to run it.</li><li>Every dependency the project declares has a row in the plan&#x27;s framework register.</li><li>The project links to the Gang of Four pattern it is built from (§5) and does not re-teach it.</li><li><strong>No framework appears in the build files of projects 52 to 58.</strong> A reader who wants the mechanism without Hibernate, Spring or H2 gets exactly that.</li><li><strong>Each framework project (§59 to §62) stands on its own</strong> — its own README, documents, poster, thumbnail and video — names its hand-built partner in its first paragraph and in its opening scene, uses that partner&#x27;s domain unchanged, does not re-teach the pattern, and carries a <code>docs/dependencies.md</code> saying what to install, what it costs and that skipping it loses none of the pattern.</li></ul>
+</main>
+<footer>
+Generated from <code>spec.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

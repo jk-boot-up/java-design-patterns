@@ -7881,10 +7881,26 @@ def build_md(group, slug, f):
 # ---------------------------------------------------------------------------
 
 CSS = """
-:root {
+:root, [data-theme=dark] {
+  color-scheme: dark;
   --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
   --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
-  --ok: #34d399;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
 }
 * { box-sizing: border-box; }
 body {
@@ -7900,7 +7916,7 @@ h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
 h3 { font-size: 19px; margin: 32px 0 4px; }
 p { margin: 14px 0; }
 a { color: var(--link); }
-a:hover { color: #7dd3fc; }
+a:hover { color: var(--link-hover); }
 hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
 code {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
@@ -7915,14 +7931,14 @@ pre {
 pre code { background: none; border: 0; padding: 0; font-size: 14px; }
 blockquote {
   margin: 20px 0; padding: 4px 20px;
-  background: rgba(167, 139, 250, 0.08);
+  background: var(--quote);
   border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
 }
 table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
 th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
          vertical-align: top; }
 th { background: var(--panel-hi); font-weight: 600; }
-tr:nth-child(even) td { background: rgba(30, 41, 59, 0.55); }
+tr:nth-child(even) td { background: var(--stripe); }
 img {
   display: block; max-width: 100%; height: auto; margin: 24px auto;
   background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
@@ -7937,13 +7953,33 @@ footer {
   max-width: 860px; margin: 60px auto 0; padding-top: 20px;
   border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
 }
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
 """
 
+#: Runs before the page paints: the reader's saved theme, or the system's light or dark setting.
+THEME_HEAD = """<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>"""
 
-#: The Markdown files that are also published as HTML. A link to one of them
-#: from inside an HTML page should land on the HTML twin rather than offering
-#: the reader a Markdown file to download; every other `.md` link is left
-#: alone, because those files exist only as Markdown and are read on GitHub.
+#: The Light / Dim / Dark switcher on every generated page; the choice is remembered.
+THEME_BAR = """<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>"""
+
+
+#: Historically only these had HTML twins; every .md now has one (see href).
 HTML_TWINS = ("spec.md", "README.md")
 
 #: Directory the Markdown currently being converted lives in. Links are
@@ -7960,20 +7996,20 @@ PLANNED = set()
 
 
 def href(target):
-    """Point a link at its HTML twin, but only when that twin really exists.
+    """Point a Markdown link at its HTML twin, but only when that twin really exists.
 
-    Not every `README.md` and `spec.md` in this repository is published as
-    HTML — the category-level specs are read on GitHub and have no twin. A
-    blanket rewrite sends those readers to a page that is not there, which is
-    strictly worse than the Markdown file they asked for.
+    Every .md is now published with an .html twin by make_readme_html.py, so any
+    Markdown link is a candidate. It is still rewritten only when the twin exists or
+    is planned in this run: sending a reader to a page that is not there is strictly
+    worse than the Markdown file they asked for.
     """
-    # Compare the file name, not the tail of the path: `video-and-publishing-
-    # spec.md` ends in "spec.md" without being one.
-    if LINK_BASE is None or os.path.basename(target) not in HTML_TWINS:
+    if LINK_BASE is None or not target.split("#")[0].endswith(".md"):
         return target
-    twin = target[:-3] + ".html"
+    path, _, frag = target.partition("#")
+    twin = path[:-3] + ".html"
     full = os.path.normpath(os.path.join(LINK_BASE, twin))
-    return twin if full in PLANNED or os.path.exists(full) else target
+    ok = full in PLANNED or os.path.exists(full)
+    return (twin if ok else path) + ("#" + frag if frag else "")
 
 
 #: File types that may be embedded in a page, and the media type to announce.
@@ -8058,7 +8094,7 @@ def to_html(md):
             out.append("<pre><code>%s</code></pre>" % html.escape("\n".join(body)))
             continue
 
-        m = re.match(r'(#{1,3}) (.+)', ln)
+        m = re.match(r'(#{1,6}) (.+)', ln)
         if m:
             lvl = len(m.group(1))
             out.append("<h%d>%s</h%d>" % (lvl, inline(m.group(2)), lvl))
@@ -8119,7 +8155,11 @@ def to_html(md):
             continue
 
         if ln.strip():
-            para = []
+            # The first line always belongs to the paragraph, even when it starts
+            # with a character that opens another block elsewhere (a "#" that is
+            # not a heading, a "|" that is not a table): otherwise nothing would
+            # consume it and the loop would never advance.
+            para, i = [ln.strip()], i + 1
             while i < len(lines) and lines[i].strip() \
                     and not lines[i].startswith(("#", ">", "|", "```")) \
                     and not re.match(r'^(\s*)([-*]|\d+\.) ', lines[i]) \
@@ -8141,8 +8181,10 @@ def wrap_html(title, body):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>%s</title>
 <style>%s</style>
+%s
 </head>
 <body>
+%s
 <main>
 %s
 </main>
@@ -8152,7 +8194,7 @@ edit the generator, not this file.
 </footer>
 </body>
 </html>
-""" % (html.escape(title), CSS, body)
+""" % (html.escape(title), CSS, THEME_HEAD, THEME_BAR, body)
 
 
 def main():

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Behavioural Patterns — Implementation Plan</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Behavioural Patterns — Implementation Plan</h1>
+<p>How the eleven projects specified in <a href="spec.html"><code>spec.md</code></a> were built.</p>
+<p><strong>All eleven are now complete</strong>, so this document is a record rather than a forecast: it is kept in the present tense because the sequence it describes is the one to follow when a twelfth project is added or an existing one is rebuilt. The state of the category as delivered is at the bottom, under <a href="#definition-of-done">Definition of done</a>.</p>
+<p>This is the <em>how</em>. The <em>what</em> is in <code>spec.md</code>, and the video and publishing standard both inherit from is <a href="../../docs/video-and-publishing-spec.html"><code>../../docs/video-and-publishing-spec.md</code></a>.</p>
+<hr>
+<h2>Starting state</h2>
+<p>At the time this plan was written, nothing existed: <code>gradle-java/behavioural/</code> contained this <code>docs/</code> directory and no projects.</p>
+<p>That was the significant difference from the plan that built the other fourteen: that one was a remediation, bringing existing projects up to a standard written after the fact. This one has the standard first, so every project can be correct on the first pass and nothing needs re-rendering. The cost of getting it wrong is high — a project that has to be re-narrated costs a full rebuild — so the sequencing below front-loads the decisions that are expensive to change.</p>
+<hr>
+<h2>Order of work</h2>
+<h3>Phase 0 — Wire the category into the shared tooling</h3>
+<p>Before any project is written, because all eleven depend on it and because doing it later means editing eleven projects instead of four files.</p>
+<ol><li><strong><code>docs/video-and-publishing-spec.md</code></strong> — §1 Scope currently reads &quot;Fourteen projects&quot; with a two-row table. It becomes twenty-five, with a Behavioural row listing the eleven, and a pointer to <code>behavioural/docs/spec.md</code> for the category detail.</li><li><strong><code>docs/make_specs.py</code></strong> — eleven entries appended to <code>ORDER</code> and to <code>NAMES</code>. The per-project <code>META</code> block, which carries the role table and therefore the real class names, cannot be written before the project exists; it lands with the project in Phase 1 or 2. All three generators therefore skip a project in <code>ORDER</code> whose directory is not present yet, rather than failing, so the series can be listed in full from the start.</li><li><strong><code>docs/make_youtube_docs.py</code></strong> — eleven title and tag entries, from <code>spec.md</code> §6.</li><li><strong><code>docs/make_thumbnails.py</code></strong> — eleven entries.</li><li><strong>Root <code>README.md</code></strong> — the behavioural category and its learning order.</li></ol>
+<p>Phase 0 is done when all three generators still run clean over the existing fourteen, and each reports the eleven new slugs as &quot;not built yet&quot; rather than erroring.</p>
+<h3>Phase 1 — Build Strategy end to end, as the category&#x27;s reference</h3>
+<p>Strategy is first in the learning order and is the simplest of the eleven, so it is the right project to shake out the template on. It is built <strong>complete</strong> — code, tests, all ten documents, both diagrams, the animation, the video — and reviewed before anything else starts.</p>
+<p>Everything that is going to be copied eleven times gets settled here: the <code>build_video.sh</code> derived from abstract-factory&#x27;s, the <code>make_slides.py</code> palette and layout, the scene structure, the <code>README.md</code> shape, the <code>session.md</code> shape. A defect fixed at this point is fixed once; the same defect found at project nine has to be fixed nine times, which is exactly how the proxy poster shipped reading &quot;DECORATOR PATTERN&quot;.</p>
+<h3>Phase 2 — Build the remaining ten, in learning order</h3>
+<p>Observer, Command, Template Method, State, Chain of Responsibility, Iterator, Mediator, Memento, Visitor, Interpreter.</p>
+<p>In order, and one at a time, because the cross-references in <code>spec.md</code> §4 read forward: State refers back to Strategy, Mediator back to Observer, Memento back to Command. Building out of order means writing those references against projects that do not exist yet.</p>
+<p>The videos themselves carry no such forward reference. No end screen names the pattern that comes next, because YouTube publishing order is not the build order and a rendered video cannot be corrected without re-uploading it.</p>
+<p>Per project, in this sequence — the code first, because every other artefact quotes it, and the video last, because it is the only step that is expensive to redo:</p>
+<ol><li>Design the domain model against <code>spec.md</code> §3. Confirm the naive alternative is one a competent developer would actually write; a straw man invalidates the whole comparison.</li><li>Scaffold the Gradle project from the previous one.</li><li>Write the production code and the naive counter-example classes.</li><li>Write the tests, including the interaction assertions §5.2 requires.</li><li><code>./gradlew build</code>, then <code>./gradlew run</code>, and quote the real output in the top-level <code>README.md</code>.</li><li>Write <code>docs/</code> — problem statement, explainer, both diagrams, the animation, prerequisites, session plan. Render both Mermaid diagrams to PNG.</li><li>Write the assigned cross-reference from <code>spec.md</code> §4.</li><li>Write <code>video/scenes.py</code> and <code>make_slides.py</code>. Render the poster and <strong>look at it</strong>.</li><li><code>./build_video.sh</code>. Confirm it prints <code>audio timeline continuous</code>.</li><li><code>python3 ../../docs/make_youtube_docs.py &lt;slug&gt;</code> and <code>python3 ../../docs/make_specs.py &lt;slug&gt;</code>.</li><li>Walk the project&#x27;s conformance checklist — the repository-wide fourteen plus the four in <code>spec.md</code> §7.</li></ol>
+<h3>Phase 3 — Verify the category</h3>
+<p>Once all eleven exist, the same sweep that closed out the other fourteen: build and run all eleven, confirm narration rate and filter chain across every build script, confirm every poster shows its own pattern name, confirm every <code>youtube.md</code> chapter list matches its current <code>.srt</code>, and measure loudness on every delivered MP4.</p>
+<p>Then regenerate all twenty-five specs so the cross-category numbers are consistent, and update the root <code>README.md</code>.</p>
+<hr>
+<h2>Sequencing rules</h2>
+<p><strong>Nothing is rendered twice.</strong> Everything that changes what a video <em>contains</em> — narration text, slide content, the code being shown — lands before <code>build_video.sh</code> is run for that project. This is why the video is step 9 of 11 rather than step 3.</p>
+<p><strong>Listen to the first build of each project.</strong> The continuity self-check verifies that no audio is missing; it cannot hear that the audio is bad. It passed cleanly for weeks while <code>afftdn</code> was warbling the voice across the whole repository.</p>
+<p><strong>Look at every poster.</strong> Same reason, visually: <code>poster.png</code> is generated, its correctness is not checked by anything, and it is the single most visible artefact the project produces.</p>
+<p><strong>Do not batch the videos.</strong> Rendering eleven at the end is tempting because each takes several minutes, but it defers the discovery of a systematic narration or slide problem until every project has one.</p>
+<hr>
+<h2>Risks</h2>
+<table><thead><tr><th>Risk</th><th>Mitigation</th></tr></thead><tbody><tr><td>The eleven projects blur together — same story, different nouns</td><td>The scenarios in <code>spec.md</code> §3 are deliberately drawn from different parts of the store: shipping, order events, the cart, fulfilment, the order lifecycle, checkout screening, catalog search, the checkout page, saved carts, catalog reporting, promotions. No two projects share a primary subject.</td></tr><tr><td>Template Method reads as a re-run of Factory Method</td><td>The distinction is a required section in both projects, not an aside. <code>spec.md</code> §3.4.</td></tr><tr><td>State reads as a re-run of Strategy</td><td>Same. <code>spec.md</code> §3.5.</td></tr><tr><td>Visitor&#x27;s dependency on Composite drifts</td><td>Visitor reuses Composite&#x27;s domain shape verbatim. If Composite changes, Visitor is rebuilt.</td></tr><tr><td>Interpreter is weak and shows it</td><td>It is last, and leads with why you probably should not use it. <code>spec.md</code> §3.11.</td></tr><tr><td>A shared-tooling defect propagates to all eleven</td><td>Phase 1 builds one project completely and reviews it before the other ten start.</td></tr></tbody></table>
+<hr>
+<h2>Definition of done</h2>
+<p>The category is complete when:</p>
+<ul class="task"><li>Eleven projects exist, each passing the repository-wide conformance checklist and the four category items in <code>spec.md</code> §7.</li><li>Every project builds, tests pass, and its README quotes real run output.</li><li>Eleven videos are rendered, each having printed <code>audio timeline continuous</code>, each listened to at least once.</li><li>Eleven posters and thumbnails have been looked at.</li><li>All twenty-five projects&#x27; <code>spec.md</code> / <code>spec.html</code> regenerate clean.</li><li>The root <code>README.md</code> and the repository-wide spec both describe twenty-five projects across three categories.</li></ul>
+<p>As delivered: eleven projects, runtimes from 10:07 to 13:57, every MP4 measuring between -16.00 and -16.02 LUFS, and <code>./gradlew test</code> green in all eleven. The one file-set audit worth repeating before a release is the loop over <code>behavioural/*-pattern</code> that checks for the seventeen required files per project; it currently reports nothing missing.</p>
+</main>
+<footer>
+Generated from <code>implementation-plan.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

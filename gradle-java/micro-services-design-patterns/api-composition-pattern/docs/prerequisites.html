@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>What you need before starting this project, what you can pick up as you go, and what you explicitly do not need to know. The short version: if you can read a <code>record</code> and a lambda, you are ready.</p>
+<h2>Knowledge Prerequisites</h2>
+<h3>Required</h3>
+<ul><li><strong>Java basics</strong> — classes, <code>final</code> fields, constructors, <code>List</code> and <code>Map</code>.</li><li><strong>Records.</strong> <code>Order</code>, <code>OrderDetailsPage</code>, <code>DeliveryStatus</code> and <code>Money</code> are all records. You need to be able to read <code>page.delivery().carrier()</code>, not to write compact constructors.</li><li><strong>Lambdas, loosely.</strong> <code>fanout.add(&quot;catalog&quot;, () -&gt; catalog.namesFor(order.skus()))</code> passes a piece of work that has not been run yet. Being able to read that line is enough.</li><li><strong>Exceptions</strong> — <code>throw</code>, <code>catch</code>, and the idea that catching one somewhere other than where it was thrown is a deliberate design choice.</li><li><strong>Reading a JUnit test</strong> — <code>assertEquals</code>, <code>assertThrows</code>.</li></ul>
+<h3>Helpful, but explained as we go</h3>
+<ul><li><strong>Database per Service</strong> (<a href="../database-per-service-pattern"><code>../database-per-service-pattern</code></a>). That project is the reason this one exists: it takes the join away. You can do this project first without difficulty, but the previous one explains <em>why</em> nobody can just write a <code>SELECT</code> across three tables any more.</li><li><strong>Latency as a number you can add up.</strong> Nothing formal. &quot;This call takes sixty milliseconds&quot; is the whole model.</li><li><strong>Basic probability.</strong> Act five multiplies three numbers together. If <code>0.999 × 0.999 × 0.999</code> is familiar arithmetic, you have everything you need.</li></ul>
+<h3>Explicitly NOT required</h3>
+<ul><li><strong><code>CompletableFuture</code>, threads, executors or virtual threads.</strong> None of them appear. <code>Fanout</code> runs its branches in a loop and winds a fake clock back between them, which produces exactly the timeline parallel calls would produce without anything to reason about concurrently. The <em>pattern</em> is about parallelism; the code is not.</li><li><strong>HTTP, gRPC, or any client library.</strong> <code>RemoteCall</code> advances a clock. There is no network in this project.</li><li><strong>GraphQL, BFFs, or a service mesh.</strong> All of them are ways to arrange this pattern, and none of them are needed to understand it.</li><li><strong>Spring, Docker, Kubernetes.</strong> A JDK is the whole toolchain.</li></ul>
+<h2>A 60-Second &quot;API Composition&quot; Primer</h2>
+<p>One page needs data from three services, and no single service knows enough to build it. So the code behind the page calls all of them and assembles the answer itself.</p>
+<p>The mechanical half is one sentence: <strong>sequential calls cost the sum of their latencies, parallel calls cost the maximum.</strong> Thirty plus sixty plus a hundred and twenty is two hundred and ten milliseconds; the same three calls sent together cost a hundred and fifty.</p>
+<p>The harder half is that every dependency must be classified in advance as one the page cannot live without or one it can, so that an outage in any single service has a decided answer rather than an accidental one.</p>
+<h2>A 60-Second &quot;Required vs Optional&quot; Primer</h2>
+<p>In this project:</p>
+<ul><li><strong>Orders is required.</strong> A page with no order on it is not a partial page, it is a blank one. If Orders is down the shopper gets an honest error, and that is the right answer.</li><li><strong>Catalog is optional.</strong> Without it the page shows <code>SKU-KETTLE</code> instead of <em>Stainless Steel Kettle</em>. The quantities and the money are still correct, because they were never Catalog&#x27;s to know.</li><li><strong>Shipping is optional.</strong> Without it the delivery section says it cannot check.</li></ul>
+<p>In the code this is not configuration. It is which method the composer calls on a branch: <code>value()</code> rethrows the failure, <code>valueOr(fallback)</code> substitutes. One line per dependency, written by somebody who knows what the page is for.</p>
+<h2>A 60-Second &quot;Availabilities Multiply&quot; Primer</h2>
+<p>A page that needs three services is up only when all three are up <strong>at the same moment</strong>. Probabilities of independent things all happening are multiplied:</p>
+<pre><code>0.999 × 0.999 × 0.999 = 0.997</code></pre>
+<p>Each service, at 99.9%, is allowed about forty-three minutes of downtime a month. The page gets a hundred and twenty-nine, because the three outages mostly do not overlap.</p>
+<p>Three excellent services make a page worse than any one of them. The way out is not better services — it is needing fewer of them, which is what making Catalog and Shipping optional buys: the page is then up whenever Orders is up.</p>
+<h2>A 60-Second &quot;Simulated Network&quot; Primer</h2>
+<p>There is no network here and no waiting.</p>
+<p><code>SimulatedClock</code> is a <code>long</code> with methods to move it; it never advances on its own. <code>RemoteCall</code> &quot;takes sixty milliseconds&quot; by pushing the clock forward by sixty and returning immediately.</p>
+<p><code>Fanout</code> is the interesting one. To make two calls look parallel it notes the departure time, and before running each branch it winds the clock <strong>back</strong> to that moment. At the end it moves the clock forward to the slowest arrival. So the timeline it produces is the timeline two genuinely concurrent calls would have produced, and <code>bothBranchesLeaveTogether</code> checks it.</p>
+<p><code>CallLog</code> keeps that timeline — who called whom, when, and what came back. In acts one and two the timestamps <em>are</em> the argument.</p>
+<h2>Software Prerequisites</h2>
+<ul><li><strong>JDK 21 or newer.</strong> Nothing else.</li><li><strong>Gradle:</strong> not needed globally. The project ships a wrapper.</li></ul>
+<h3>Installing JDK 21</h3>
+<p>macOS, with Homebrew:</p>
+<pre><code>brew install openjdk@21
+sudo ln -sfn $(brew --prefix)/opt/openjdk@21/libexec/openjdk.jdk \
+    /Library/Java/JavaVirtualMachines/openjdk-21.jdk</code></pre>
+<p>Linux (Debian or Ubuntu):</p>
+<pre><code>sudo apt install openjdk-21-jdk</code></pre>
+<p>Windows: install the Microsoft Build of OpenJDK 21 or Temurin 21 from the installer, and let it set <code>JAVA_HOME</code>.</p>
+<h3>Verify Your Setup</h3>
+<pre><code>java -version          # expect 21 or newer
+cd micro-services-design-patterns/api-composition-pattern
+./gradlew test         # expect BUILD SUCCESSFUL, 22 tests
+./gradlew run          # expect five acts</code></pre>
+<p>If <code>./gradlew</code> will not execute on macOS or Linux, make it executable:</p>
+<pre><code>chmod +x gradlew</code></pre>
+<p>The first <code>./gradlew</code> command downloads Gradle itself and needs a network connection. Everything after that works offline, including the demo — because the demo has no network to use.</p>
+<h2>Troubleshooting</h2>
+<p><strong>&quot;Unsupported class file major version&quot;</strong> — Gradle is using an older JDK than the toolchain asks for. Check <code>java -version</code>, and set <code>JAVA_HOME</code> to a 21 install.</p>
+<p><strong>Every test in <code>SequentialOrderDetailsComposerTest</code> passes</strong> — that is correct, and it is the point of the file. The sequential composer is not buggy. It returns the right page and it costs 210ms, and its tests assert the 210ms.</p>
+<p><strong>Act four throws and that looks like a failure</strong> — it is the intended outcome. Orders is required, so a missing order means no page. The test asserting it is called <code>itRefusesToBuildAPageWithoutTheOrder</code>.</p>
+<p><strong>Catalog and Shipping show the same start time and that looks wrong</strong> — it is exactly right. They left together. That shared departure is what makes the page cost 150ms instead of 210ms, and <code>bothBranchesLeaveTogether</code> exists to keep it that way.</p>
+<p><strong>There are no threads, so how is this parallel?</strong> It is not, and it does not need to be. <code>Fanout</code> winds the clock back between branches so the recorded timeline matches what parallel calls would produce. The pattern is about which calls wait for which, and that can be reasoned about exactly without concurrency.</p>
+<p><strong>The numbers differ from the ones in the docs</strong> — they should not. Every millisecond comes from <code>SimulatedClock</code>. If your output differs from <code>README.md</code>, something has genuinely changed in the source.</p>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — one page, three services, and the three-line version that costs 210ms and loses work in an outage</li><li>Run <code>./gradlew run</code> and read all five acts in order. In acts one and two, read the <strong>left-hand column</strong> — the timestamps are the argument.</li><li><a href="api-composition-pattern-explained.html"><code>api-composition-pattern-explained.md</code></a> — the sandwich from three shops, and the half that is harder than the parallelism</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> and <a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the structure, then the five acts as sequences</li><li><a href="animation.html"><code>animation.html</code></a> — the calls leaving, the branch that fails, and the page with a named hole in it, one step at a time</li><li>The tests, which are the specification: <code>OrderDetailsComposerTest</code> first, then <code>AvailabilityTest</code> — which is where the argument stops being about milliseconds</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

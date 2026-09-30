@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Flyweight Pattern — Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Flyweight Pattern — Explained</h1>
+<h2>One-Line Definition</h2>
+<blockquote><p><strong>Flyweight</strong> uses sharing to support large numbers of fine-grained objects efficiently, by factoring out state that is shared across many objects (intrinsic) from state that is supplied by the caller (extrinsic). — <em>Gang of Four, Design Patterns</em></p></blockquote>
+<p>It is a <strong>structural</strong> pattern: it is about how objects are <em>composed to share state</em>, not about how they are created (Singleton, Prototype) or how they behave over time.</p>
+<h2>The Two Words That Matter: Intrinsic and Extrinsic</h2>
+<ul><li><strong>Intrinsic state</strong> lives <em>inside</em> the shared object. It does not depend on context — a <code>SALE</code> badge&#x27;s icon, colours and artwork are the same no matter which listing wears it. Safe to share, because it never changes per caller.</li><li><strong>Extrinsic state</strong> lives <em>outside</em> the shared object, supplied by the caller at the moment it is needed — the listing id, an optional custom label. Never store this on the shared object, or it stops being shareable.</li></ul>
+<p>The entire pattern is this one separation, applied consistently.</p>
+<h2>The Everyday Analogy</h2>
+<p>Think of a <strong>rubber stamp</strong>. The stamp itself — the carved rubber, the handle, the ink pattern it produces — is one physical object, reused for every impression. What changes each time is <em>where on the page</em> you press it, and how hard. The stamp never learns anything about the page; the page supplies its own context (position) each time it borrows the stamp.</p>
+<p><code>BadgeStyle</code> is the stamp. Each listing is a fresh spot on the page.</p>
+<h2>The Participants</h2>
+<table><thead><tr><th>Role</th><th>In this project</th><th>Job</th></tr></thead><tbody><tr><td><strong>Flyweight</strong></td><td><code>BadgeStyle</code></td><td>Holds intrinsic state (type, icon, colours, artwork); accepts extrinsic state as method parameters</td></tr><tr><td><strong>Flyweight factory</strong></td><td><code>BadgeStyleFactory</code></td><td>Caches one <code>BadgeStyle</code> per <code>BadgeType</code>; returns the shared instance instead of building a new one</td></tr><tr><td><strong>Context</strong></td><td><code>CatalogBadge</code></td><td>Pairs a shared <code>BadgeStyle</code> with one listing&#x27;s extrinsic state (listing id, custom label)</td></tr><tr><td><strong>The trap</strong></td><td><code>NaiveListingBadge</code></td><td>Rebuilds all of the intrinsic state itself, per listing — no sharing</td></tr><tr><td><strong>Client</strong></td><td><code>BadgeDemo</code></td><td>Renders badges for several listings and compares both approaches</td></tr></tbody></table>
+<h2>How This Project Implements It</h2>
+<h3>The flyweight holds only what can be shared</h3>
+<pre><code>public final class BadgeStyle {
+    private final BadgeType type;
+    private final String icon;
+    private final String backgroundColor;
+    private final String textColor;
+    private final boolean bold;
+    private final byte[] artwork;     // intrinsic — identical for every SALE badge
+
+    public String render(String listingId, String customLabel) {
+        // listingId and customLabel are extrinsic — passed in, never stored
+        ...
+    }
+}</code></pre>
+<p>Nothing about <em>which listing</em> is on <code>BadgeStyle</code>. That is what makes one instance safe to hand to 100,000 different callers.</p>
+<h3>The factory is what makes sharing actually happen</h3>
+<pre><code>public final class BadgeStyleFactory {
+    private static final Map&lt;BadgeType, BadgeStyle&gt; CACHE = new ConcurrentHashMap&lt;&gt;();
+
+    public static BadgeStyle styleFor(BadgeType type) {
+        return CACHE.computeIfAbsent(type, BadgeStyleFactory::build);
+    }
+}</code></pre>
+<p><code>computeIfAbsent</code> is doing the entire pattern&#x27;s work in one line: build once, on first request, and hand back the cached instance on every request after that — including from other threads, since <code>ConcurrentHashMap</code> makes that one line safe without any extra locking.</p>
+<h3>The context carries the part that cannot be shared</h3>
+<pre><code>public final class CatalogBadge {
+    private final BadgeStyle style;      // shared
+    private final String listingId;      // this listing&#x27;s own
+    private final String customLabel;    // this listing&#x27;s own
+
+    public CatalogBadge(BadgeType type, String listingId, String customLabel) {
+        this.style = BadgeStyleFactory.styleFor(type);
+        this.listingId = listingId;
+        this.customLabel = customLabel;
+    }
+
+    public String render() {
+        return style.render(listingId, customLabel);
+    }
+}</code></pre>
+<p>A <code>CatalogBadge</code> is cheap no matter how many exist, because the expensive part — the <code>BadgeStyle</code> — is a reference, shared with every other listing of the same type.</p>
+<h3>The trap, for contrast</h3>
+<p><code>NaiveListingBadge</code> builds its own <code>icon</code>, <code>backgroundColor</code>, <code>textColor</code>, <code>bold</code> and <code>artwork</code> fields inline, from the same <code>switch</code> on <code>BadgeType</code>, every single time it is constructed. It renders identical output to the flyweight version — <code>BadgeDemo</code> proves that directly — but two <code>NaiveListingBadge</code> instances of the same type are never <code>==</code>, and each one pays the full construction and memory cost again.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>Memory that scales with distinct designs, not with object count.</strong> Four <code>BadgeStyle</code> instances, however many listings exist.</li><li><strong>Construction cost paid once per type.</strong> <code>BadgeStyleFactory.build</code> runs exactly as many times as there are distinct <code>BadgeType</code> values.</li><li><strong>Thread-safe sharing for free.</strong> <code>ConcurrentHashMap.computeIfAbsent</code> gives every caller the same instance without a lock the client has to remember to take.</li><li><strong>The trap and the fix render identically.</strong> The pattern changes <em>how many objects exist</em>, not what the objects produce.</li></ul>
+<h2>What to Watch Out For</h2>
+<ul><li><strong>Getting intrinsic and extrinsic backwards is the whole risk.</strong> If <code>listingId</code> were accidentally stored on <code>BadgeStyle</code> instead of passed to <code>render()</code>, the &quot;shared&quot; object would actually belong to one listing, and every other listing sharing it would see the wrong id. The discipline is: if it varies per caller, it is a parameter, never a field.</li><li><strong>Only worth it at scale.</strong> For a page with five listings, <code>BadgeStyle</code> and <code>NaiveListingBadge</code> cost about the same. The pattern earns its keep specifically when the number of <em>distinct</em> variations is small and the number of <em>instances</em> is large.</li><li><strong>Mutable flyweights are a bug waiting to happen.</strong> Because one instance is shared everywhere, mutating it after construction would corrupt every caller at once. <code>BadgeStyle</code> has no setters and no mutable fields for exactly this reason.</li><li><strong>The factory&#x27;s cache lives for the life of the JVM here.</strong> That is fine for four fixed badge types. A flyweight keyed by unbounded input (say, one per distinct search query) would need an eviction policy, or the cache itself becomes the memory leak the pattern was meant to prevent.</li></ul>
+<h2>Flyweight vs. Similar Patterns</h2>
+<table><thead><tr><th>Pattern</th><th>Intent</th><th>Key difference</th></tr></thead><tbody><tr><td><strong>Flyweight</strong></td><td>Share intrinsic state across many fine-grained objects</td><td>Many contexts point at <em>few</em> shared instances; sharing is the point</td></tr><tr><td><strong>Singleton</strong></td><td>Guarantee exactly one instance, globally</td><td>One instance total, not one-per-category shared by many contexts</td></tr><tr><td><strong>Prototype</strong></td><td>Cheaply produce a near-duplicate of an existing object</td><td>Each caller gets its <em>own independent</em> copy — the opposite of sharing</td></tr><tr><td><strong>Facade</strong></td><td>Simplify a complex subsystem behind one entry point</td><td>About hiding many collaborators, not about instance count</td></tr></tbody></table>
+<p>The shortest way to remember it: <strong>Prototype hands out copies. Flyweight hands out the same instance, again and again.</strong></p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><code>Integer.valueOf(-128..127)</code> — the JVM caches and shares boxed integers in that range instead of allocating a new <code>Integer</code> every time</li><li>String interning (<code>String.intern()</code>) — identical string contents share one backing object</li><li>Font glyph caches in text-rendering engines — one glyph bitmap per character, reused across every occurrence of that character on the page</li><li>Game engines sharing one mesh/texture across thousands of on-screen tree or rock instances, each with its own position (the extrinsic state)</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li>Run <code>./gradlew run</code> and read the memory arithmetic at the end — it is computed from <code>BadgeStyle.artworkBytes()</code>, not a hardcoded number.</li><li>Add a fifth <code>BadgeType</code> and confirm <code>BadgeStyleFactory.instancesCreated()</code> only grows to five, no matter how many <code>CatalogBadge</code>s use it.</li><li>Comment out the <code>ConcurrentHashMap</code> in <code>BadgeStyleFactory</code> in favour of a plain <code>HashMap</code>, then run <code>concurrentLookupsForTheSameTypeAllReceiveTheSameInstance</code> a few times. <code>HashMap</code> is not safe for concurrent <code>computeIfAbsent</code> calls — this is the closest this project gets to a flaky test, which is exactly why the real implementation does not use one.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the problem this solves</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — static structure</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — runtime call flow</li><li><a href="animation.html"><code>animation.html</code></a> — animated walkthrough</li></ul>
+</main>
+<footer>
+Generated from <code>flyweight-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

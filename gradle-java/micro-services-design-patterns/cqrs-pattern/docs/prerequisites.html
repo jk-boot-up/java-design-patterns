@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>What you need before starting this project, what you can pick up as you go, and what you explicitly do not need to know.</p>
+<p>There is no message broker here and no database. The bar is Java, and a rough sense of what it means to cache something.</p>
+<h2>Knowledge Prerequisites</h2>
+<h3>Required</h3>
+<ul><li><strong>Java basics</strong> — classes, records, sealed interfaces, <code>List</code>, <code>Map</code>, lambdas.</li><li><strong>What a cache is.</strong> A copy kept for speed, with an expiry. You need to believe that it is a copy, because the difference between a cache and a read model is the point of the whole project.</li><li><strong>The idea of an event.</strong> A record of something that happened, published by whoever it happened to. No broker knowledge required.</li><li><strong>Reading a JUnit test</strong> — <code>assertEquals</code>, <code>assertThrows</code>, <code>assertTrue</code>.</li></ul>
+<h3>Helpful, but explained as we go</h3>
+<ul><li><strong>API Composition</strong> (<a href="../api-composition-pattern"><code>../api-composition-pattern</code></a>) — this project opens with exactly that pattern, done correctly, and then argues that doing it on every single view is the problem. Reading it first makes act one land harder.</li><li><strong>Database per Service</strong> (<a href="../database-per-service-pattern"><code>../database-per-service-pattern</code></a>) — why the page needs composing at all.</li><li><strong>Eventual consistency.</strong> The primer below is enough, and act three shows it rather than defining it.</li></ul>
+<h3>Explicitly NOT required</h3>
+<ul><li><strong>Event Sourcing.</strong> CQRS and Event Sourcing are constantly taught as one thing. They are not. This project uses events to update a projection; it does not store events as the system of record. You can use either without the other.</li><li><strong>Kafka, RabbitMQ, or any broker.</strong> <code>EventBus</code> is about forty lines and delivers to subscribers in memory.</li><li><strong>Any database.</strong> No JDBC, no ORM, no schema, no container.</li><li><strong>Axon, Spring Modulith, or any CQRS framework.</strong> The lesson is not in the plumbing, and a framework would hide the parts worth seeing.</li><li><strong>Distributed transactions or the Saga pattern.</strong> Later projects in the category.</li></ul>
+<h2>A 60-Second CQRS Primer</h2>
+<p>Commands change things. Queries read things. CQRS says: stop making them the same code path, and stop making the read side re-derive an answer the write side already knew.</p>
+<p>The write side does its work and announces what it did. Something listens and keeps a prepared answer. Reads hit the prepared answer.</p>
+<p>In this project: <code>OrderWriteService</code> places an order and publishes <code>OrderPlaced</code>; <code>OrderHistoryReadModel</code> hears it, does the composition <strong>once</strong>, and keeps the finished rows; <code>historyFor</code> then costs five milliseconds and calls nobody.</p>
+<h2>A 60-Second &quot;Read Model Versus Cache&quot; Primer</h2>
+<p>This is the distinction the project exists to make, and it is not about speed. Both are fast.</p>
+<p>A <strong>cache</strong> is a copy that cannot know it is wrong. It stored bytes, it does not understand them, and nothing can tell it that the world moved on. Its only correction is an expiry. <code>CachedOrderHistory</code> is a real, working cache, and <code>itIsCorrectedByATimerAndNothingElse</code> is the whole story.</p>
+<p>A <strong>read model</strong> is a copy that is told. The same event that makes it wrong corrects it, and it is corrected immediately rather than on a schedule.</p>
+<p>There is no expiry setting that turns the first into the second — which is what <code>thereIsNoFreeSetting</code> asserts. Short expiry, and you threw away the savings. Long expiry, and you are confidently wrong for longer.</p>
+<h2>A 60-Second &quot;Eventual Consistency&quot; Primer</h2>
+<p>A copy updated by a message is behind for as long as the message is in flight.</p>
+<p>Act three shows that at its most alarming: an order that is placed, paid for and final, and a customer looking at an order history page with nothing on it. Nothing is broken. The events have not arrived yet.</p>
+<p>Two properties make this liveable, and you need both. The window is short. And it closes <strong>by itself</strong> — no operator, no retry button, no cleanup job.</p>
+<p>What is not optional is deciding, page by page, whether that window is acceptable. An order history page, yes. The screen a warehouse worker packs boxes from, no.</p>
+<h2>The One Rule</h2>
+<blockquote><p><strong>Show a read model&#x27;s number. Never decide anything with it.</strong></p></blockquote>
+<p>Act five is this rule with a price tag. The read model says one kettle is available, the ledger says zero, a second shopper tries to buy it — and the shop is saved because the sale is decided on the write side, against the ledger, which refuses.</p>
+<p><code>theWriteSideIsWhereASaleIsDecided</code> is the test. It is the one to quote when somebody proposes checking a balance, a stock level or an entitlement against a projection in order to allow something.</p>
+<h2>Why There Is No Broker Or Database Here</h2>
+<p>A broker would add a container, a topic, serialisation, and several minutes to every run — and it would teach nothing this project is about.</p>
+<p>The subject is <strong>which copy is allowed to decide, and how each copy learns it is wrong.</strong> <code>EventBus</code> delivers in memory, and <code>holdEvents()</code> lets act three make delivery time visible instead of describing it.</p>
+<p><code>SimulatedClock</code> does the same for time: thirty milliseconds for an Orders call, sixty for Catalog, five for a read-model lookup. Nothing sleeps, so every timing is exact, repeatable, and free.</p>
+<h2>Software Prerequisites</h2>
+<ul><li><strong>JDK 21 or newer.</strong> Nothing else.</li><li><strong>Gradle:</strong> not needed globally. The project ships a wrapper.</li></ul>
+<h3>Installing JDK 21</h3>
+<p>macOS, with Homebrew:</p>
+<pre><code>brew install openjdk@21
+sudo ln -sfn $(brew --prefix)/opt/openjdk@21/libexec/openjdk.jdk \
+    /Library/Java/JavaVirtualMachines/openjdk-21.jdk</code></pre>
+<p>Linux (Debian or Ubuntu):</p>
+<pre><code>sudo apt install openjdk-21-jdk</code></pre>
+<p>Windows: install the Microsoft Build of OpenJDK 21 or Temurin 21 from the installer, and let it set <code>JAVA_HOME</code>.</p>
+<h3>Verify Your Setup</h3>
+<pre><code>java -version          # expect 21 or newer
+cd micro-services-design-patterns/cqrs-pattern
+./gradlew test         # expect BUILD SUCCESSFUL
+./gradlew run          # expect five acts</code></pre>
+<p>If <code>./gradlew</code> will not execute on macOS or Linux, make it executable:</p>
+<pre><code>chmod +x gradlew</code></pre>
+<p>The first <code>./gradlew</code> command downloads Gradle itself and needs a network connection. Everything after that works offline.</p>
+<h2>Troubleshooting</h2>
+<p><strong>&quot;Unsupported class file major version&quot;</strong> — Gradle is using an older JDK than the toolchain asks for. Check <code>java -version</code>, and set <code>JAVA_HOME</code> to a 21 install.</p>
+<p><strong>Act 3 shows zero rows and the build still succeeds</strong> — correct, and it is the most important frame in the demo. The order is real; the events have not been delivered yet.</p>
+<p><strong>Act 5 shows a stock number that is wrong and nothing crashes</strong> — deliberate. The read model is allowed to be wrong about stock, because nothing is decided by it. The ledger refuses the sale.</p>
+<p><strong>The cache in act 4 looks broken</strong> — it is working exactly as caches work. It was never told about the rename, and there is no mechanism by which it could have been.</p>
+<p><strong>The timings are always 30, 60 and 5ms</strong> — they are meant to be. <code>SimulatedClock</code> is not a real clock; those are stated assumptions, not measurements.</p>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — why composing on every view is correct and still wrong, and why a cache is not the answer</li><li><code>ComposingOrderHistory.java</code> — read it <strong>generously</strong>. It is done properly, the catalog call is batched, and it is the thing being replaced</li><li><code>CachedOrderHistoryTest.java</code> — five tests that are the argument of the project, especially <code>aRenameCannotInvalidateIt</code> and <code>thereIsNoFreeSetting</code></li><li>Run <code>./gradlew run</code> and read all five acts, comparing act one&#x27;s call count against act two&#x27;s</li><li><a href="cqrs-pattern-explained.html"><code>cqrs-pattern-explained.md</code></a> — the departures board, and what the split does and does not buy</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> and <a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the structure, including the arrow that is missing on purpose, then the five acts as sequences</li><li><a href="animation.html"><code>animation.html</code></a> — the two copies drifting apart, and only one of them finding out</li><li><code>CqrsTest.java</code>, which is the specification. Read <code>theStalenessWindowIsReal</code> first, then <code>theWriteSideIsWhereASaleIsDecided</code>, which is the rule, and <code>itRebuilds</code>, which is the consolation</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

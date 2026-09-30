@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dead Letter Channel with RabbitMQ Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Dead Letter Channel with RabbitMQ Pattern — Video Narration Script</h1>
+<h2>1. Dead Letter Channel with RabbitMQ</h2>
+<p>Hello, and welcome. This video explains the Dead Letter Channel pattern, in Java, using RabbitMQ. This video is presented by Jayasekhar Konduru. First, a simple definition. A dead letter channel is somewhere for a message to go when it can never be handled. So it stops blocking the messages behind it, and a person can look at it later. Think of a sorting office. A parcel with an address nobody can read does not sit at the front of the belt forever. It is taken off, put on a shelf with a note saying why, and the belt keeps moving. In our online store, the belt is a queue of orders. The parcel is an order whose address cannot be read. And the shelf is a second queue that a person checks in the morning. What is new here is who decides. A real broker takes the order off the queue, and writes down its own reason.</p>
+<h2>2. The Partner Video</h2>
+<p>Before we start, a quick note. This video has a partner: the hand-built Dead Letter Channel video. That one builds the whole idea in plain Java, with nothing installed. A worker tries a few times, then moves the message aside, with its reason. Here, we use the same online store, and the same orders. We will not teach the pattern again. Instead, we hear what a real broker does with it.</p>
+<h2>3. Three Words First</h2>
+<p>First, three words, in plain language. A queue is the line that orders wait in. An exchange is the sorting desk. You hand a message to the desk, and it decides which queues get a copy. The desk that dead orders are handed to is called a dead letter exchange. And refusing an order is the worker telling the broker it will not finish this one. The worker can refuse it and ask for it back, which puts it at the front of the line again. Or it can refuse it for good, which hands it to the dead letter desk.</p>
+<h2>4. An Order That Can Never Succeed</h2>
+<p>First demo: an order that can never succeed. Four orders go onto a queue with no rule. The second one has an address that cannot be read. The worker takes it, fails, refuses it, and asks for it back. And the broker puts it back at the front of the line. Over twelve turns, eleven go to that same bad order. One order is handled, and three are still waiting. The two good orders behind the bad one never get a turn.</p>
+<h2>5. A Rule Written On The Queue</h2>
+<p>Second demo: a rule written on the queue. When the shop creates the queue, it names a desk for dead orders. And a second queue is connected to that desk. The worker gives each order three tries. On the third failure, it refuses the unreadable order for good. From that moment, the worker does nothing more. The broker moves the order to the second queue. Three orders are handled. Nothing is waiting. One order is parked. One of the handled orders had failed once, on a payment timeout, and went through on its second try. A slow moment is not a dead order.</p>
+<h2>6. The Broker Writes Down Why</h2>
+<p>Third demo: the broker writes down why. The parked order comes back with a note attached. And the broker wrote that note, not the application. It says which queue the order died in, and that it has died once. And it gives one word for the reason: rejected. The order itself is exactly what the shop sent. So a person can read it, and put it back.</p>
+<h2>7. Deaths Nobody Chose</h2>
+<p>Fourth demo: deaths nobody chose. Two more orders die, and no worker touches either one. The first sat in a queue with a time limit of half a second. Nobody read it in time, so the broker parked it. Its reason word is: expired. The second was in a queue told to hold only two orders. A third arrived, so the broker pushed the oldest one out, to make room. Its reason word is: max length. This is what the hand-built version cannot show. In plain Java, only the worker can act.</p>
+<h2>8. Fix It, And Put It Back</h2>
+<p>Fifth demo: fix it, and put it back. Before the fix, three orders are handled, and one is parked. An operator finds the cause, and fixes the address reader. Then sends the parked order back onto the working queue. And it goes through. But notice where it ended up: handled last, behind the two orders that were behind it. A replay goes to the back of the line. And it goes back as a new message. So the broker&#x27;s note is lost, unless the operator copies it across first.</p>
+<h2>9. The Bill: Nobody Is Looking</h2>
+<p>Finally, the cost: nobody is looking. Forty orders, and half of them cannot be read. Twenty are shipped, and twenty are parked. And all forty customers were told their order went through. The working queue shows nothing waiting. So every dashboard shows a perfectly healthy shop. The loss is all in the parked queue. And nothing tells anyone to look at it. That queue needs an owner, an alert as it fills up, and a limit on how long an order may stay. Because every parked order is a copy of a customer&#x27;s address. And a broker is one more thing to run.</p>
+<h2>10. The Three Reasons</h2>
+<p>Here are the three reasons, together, because they are the whole difference from the hand-built video. Rejected means a worker refused the message, and did not ask for it back. Expired means it waited in the queue past its time limit. And max length means the queue was full, and this was the oldest message in it. The worker caused the first one. The broker did the other two on its own.</p>
+<h2>11. The Verdict</h2>
+<p>So, here is the verdict. Write the rule on every queue where a message could fail forever. Let the worker try a few times, for failures that pass on their own. Then refuse for good, for the ones that do not. Let the broker do the moving. It will still do it even if your program has crashed. Read the note the broker leaves. In the middle of the night, it may be the only record of what happened. Then add an alert as the parked queue fills, give it an owner, and decide how long an order may stay.</p>
+<h2>12. How To Recognise It</h2>
+<p>How can you spot this pattern in code someone else wrote? Look for a queue created with a dead letter exchange setting. Look for a queue whose name ends in D L Q, or parked. Look for a worker that refuses a message, with requeue set to false. And look for code reading a message header called x death. In Amazon&#x27;s queue service, the same idea is called a redrive policy.</p>
+<h2>13. What Was Used</h2>
+<p>For the record, here are the versions. RabbitMQ four point three point six, in a container. The RabbitMQ Java client, five point thirty-six. Testcontainers two point zero point five. And Docker, version twenty-four or later, running before you start.</p>
+<h2>14. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything here is real. A real broker in a container, real queues, and reasons the broker wrote itself. The demo starts the container, and removes it again. So nothing is installed, and nothing is left running. And every wait checks a real condition, with a time limit, instead of pausing for a fixed time. So the same numbers come out on every machine.</p>
+<h2>15. When This Is Too Much</h2>
+<p>So, when is this too much? For a queue where a message can never be permanently bad, or where losing one costs nothing, it is more to run than it is worth. But where a message can be poison, not having a dead letter channel is the outage.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s the Dead Letter Channel, with RabbitMQ. If you remember one sentence, make it this one. The application writes a rule on the queue, and from then on, the broker decides when a message is dead, and writes down why. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Give the parked queue a time limit of its own. And decide where an order should go if it dies a second time. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

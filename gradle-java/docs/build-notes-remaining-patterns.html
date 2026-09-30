@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build notes: the last 16 registered patterns</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Build notes: the last 16 registered patterns</h1>
+<p>This report covers four things worth knowing about how the final batch of patterns was built: the choice to simulate infrastructure, two demo corrections, one amended commit, and how commits are attributed.</p>
+<h2>1. Simulations, not real infrastructure</h2>
+<p><strong>What was done.</strong> The four platform patterns (Blue-Green and Canary, Feature Toggle, Service Mesh, Consumer-Driven Contract), Serverless and Event-Driven Architecture are written as small plain-Java simulations. There is no Docker, no Kubernetes, no message broker and no cloud account behind them.</p>
+<table><thead><tr><th>Project</th><th>What stands in for the real thing</th></tr></thead><tbody><tr><td>Blue-Green and Canary</td><td>A <code>Router</code> that sends request number <em>n</em> to blue or green by a fixed rule (<code>n mod 100</code> against the green share)</td></tr><tr><td>Feature Toggle</td><td>A map of switches read at run time; rollout by customer number modulo 100</td></tr><tr><td>Service Mesh</td><td>A <code>Mesh</code> class that applies one retry, identity and counting policy at each call</td></tr><tr><td>Consumer-Driven Contract</td><td>Contracts as data and a <code>Verifier</code> loop over a provider&#x27;s answer, which is a map</td></tr><tr><td>Serverless</td><td>A <code>Platform</code> on a counted clock that starts, keeps warm and drops instances</td></tr><tr><td>Event-Driven Architecture</td><td>An in-memory append-only log with readers that keep their own position</td></tr></tbody></table>
+<p><strong>Why.</strong> Every demo prints numbers that the tests assert exactly, for example &quot;5 of 200 requests failed&quot; or &quot;stock 8 without a duplicate check, 9 with one&quot;. That only works if a run cannot vary. Real infrastructure brings timing, start-up delay and network behaviour, so the same demo would print different numbers on different machines. A counted clock and fixed routing rules remove that. It also matches the repository&#x27;s standing approach of forcing each failure to reproduce on every run, with no <code>Thread.sleep</code>.</p>
+<p><strong>What it costs.</strong></p>
+<ul><li>A learner does not see the pattern against the real tool (Istio, LaunchDarkly, Pact, Lambda, Kafka). Each project&#x27;s README lists what it is not, under its non-goals, and names the real tools under &quot;Where you have seen it&quot;.</li><li>The simulations are teaching models. Their numbers, such as a cold start of 5 ticks or a price of 2 per tick for a server, are units chosen to show where a balance tips, not measurements.</li><li>The repository does allow real infrastructure where it is genuinely needed, chiefly in the platform category. None of these six projects needed it to teach their point, so none uses it. A later optional tier could add real versions, as the Sidecar and Consul projects do.</li></ul>
+<h2>2. Demo output corrected after review</h2>
+<p>Two demos printed text that did not match what the code did. Both were caught before the projects were committed as final, and both are fixed.</p>
+<ul><li><strong>Fluent Interface, act one.</strong> The line described a call with the two booleans as <code>true, false</code>, but the code ran <code>false, true</code>. The label now matches the call, so the swapped-argument example is honest.</li><li><strong>Callback, act six.</strong> The demo sorted its log by the numeric labels it had itself attached, so the &quot;order the lines run in&quot; was manufactured and hid the point. The sort was removed. The demo now prints the real run order and states the actual point: the line that asks stock is written below the block that ships, and it runs first. The narration and README were regenerated to match.</li></ul>
+<p>In the same pass, the Callback README&#x27;s introduction was reworded, because it described its relation to Guarded Suspension awkwardly.</p>
+<h2>3. An amended local commit</h2>
+<p>The Microkernel commit was created before its generated documents existed, because the content build step had failed part-way on a helper-function mistake in the content file. After fixing that and re-running the build, the missing docs were added by amending the commit, <code>Add microkernel</code>, rather than leaving a second &quot;fix docs&quot; commit. The commit had not been pushed at the time, so no published history was rewritten. The Serverless commit was amended the same way, to fix a grammar slip (&quot;a always-on server&quot;).</p>
+<h2>4. Commit attribution</h2>
+<p>None of the commits in this batch carries a <code>Co-Authored-By</code> trailer or any mention of Claude or Anthropic. This follows the repository owner&#x27;s standing instruction that the history shows them as sole author. The commit helper used for the batch prints a count of trailer matches after each commit, and that count was 0 every time. The same rule covers pull request descriptions.</p>
+<h2>State at the end</h2>
+<ul><li>16 patterns built in this stretch, plus Two-Phase Termination just before them: 146 projects in 11 categories.</li><li>Category READMEs and their HTML twins updated, and the root README&#x27;s category table and counts rewritten.</li><li>All commits pushed; <code>origin/main</code> is at <code>816bd48</code>.</li></ul>
+<h2>Addendum: the real-infrastructure versions</h2>
+<p>After the report above, the simulations for the six infrastructure patterns were paired with real versions, as separate projects, and the simulations were left as they were.</p>
+<table><thead><tr><th>Real version</th><th>Real tool</th><th>How it runs</th></tr></thead><tbody><tr><td>Blue-Green and Canary with Kubernetes</td><td>Kubernetes, through kind 0.33</td><td>A cluster made and deleted by the demo</td></tr><tr><td>Service Mesh with Envoy</td><td>Envoy 1.37</td><td>A container; the payment service is a Java HTTP server on the host</td></tr><tr><td>Feature Toggle with flagd</td><td>flagd, the OpenFeature daemon</td><td>A container watching a flags file</td></tr><tr><td>Consumer-Driven Contract with Pact</td><td>Pact JVM 4.7.5</td><td>A library; pact files replayed over HTTP</td></tr><tr><td>Event-Driven Architecture with Kafka</td><td>Apache Kafka 4.3.1</td><td>A KRaft broker in a container</td></tr><tr><td>Serverless with LocalStack</td><td>LocalStack 4.14.0 and Lambda</td><td>LocalStack in a container, and a container per function copy</td></tr></tbody></table>
+<p>What changed in the way the demos are written: counts that depend on the tool&#x27;s own scheduling, such as the spread of a Kubernetes canary, are asserted in a range and printed as a description, not as an exact number. Counts that cannot vary, such as what a Kafka group&#x27;s lag is after three events, stay exact. Every wait is a bounded poll on a real condition, and there is no fixed sleep.</p>
+<p>Two things the real tools taught:</p>
+<ul><li><strong>Keep-alive hides a switch.</strong> A reused HTTP connection stays on the pod it first reached, so a Service switch, and a canary&#x27;s spread, only show when every request uses a new connection.</li><li><strong>LocalStack now needs an account.</strong> From its 2026 releases the image refuses to start without an auth token. The Serverless project pins 4.14.0, the newest release that runs without one, and says so.</li></ul>
+</main>
+<footer>
+Generated from <code>build-notes-remaining-patterns.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

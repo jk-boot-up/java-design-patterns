@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>What you need before starting this project, what you can pick up as you go, and what you explicitly do not need to know.</p>
+<p>This is the one project in the category with <strong>real threads</strong>, so the bar is slightly higher than elsewhere — but only slightly, and the list below says exactly where.</p>
+<h2>Knowledge Prerequisites</h2>
+<h3>Required</h3>
+<ul><li><strong>Java basics</strong> — classes, <code>final</code> fields, constructors, <code>List</code>.</li><li><strong>What a thread pool is, roughly.</strong> A fixed number of workers; a job asks for one, runs, and gives it back. If you can say that sentence you have enough.</li><li><strong><code>Callable</code> and <code>Future</code>, at reading level.</strong> <code>bulkhead.submit(&quot;feed-1&quot;, job)</code> hands over some work and returns a <code>Future</code> you can ask for the answer later. You do not need to have written one.</li><li><strong>Lambdas.</strong> The jobs are lambdas. Reading them is enough.</li><li><strong>Exceptions</strong> — <code>throw</code>, <code>catch</code>, and the idea that failing fast can be deliberate.</li><li><strong>Reading a JUnit test</strong> — <code>assertEquals</code>, <code>assertThrows</code>, <code>assertTimeout</code>.</li></ul>
+<h3>Helpful, but explained as we go</h3>
+<ul><li><strong><code>ThreadPoolExecutor</code>&#x27;s constructor.</strong> Six arguments look intimidating and only three of them matter here: how many threads, how big the queue, and what to name the worker. The explained document quotes the line and walks it.</li><li><strong><code>CountDownLatch</code>.</strong> One integer and two methods. <code>Gate</code> is a latch with friendlier names, and the primer below covers it.</li><li><strong>Circuit Breaker</strong> (<a href="../circuit-breaker-pattern"><code>../circuit-breaker-pattern</code></a>). The two patterns solve the same outage from opposite ends and are usually deployed together. Either order works; neither depends on the other.</li></ul>
+<h3>Explicitly NOT required</h3>
+<ul><li><strong>Writing correct concurrent code.</strong> You are reading threads here, not designing a lock-free queue. There is no <code>synchronized</code> block in this project, no <code>volatile</code>, and no shared mutable state you have to reason about — the one thing several threads write to is a <code>CopyOnWriteArrayList</code>, which is thread-safe for you.</li><li><strong>The Java Memory Model, happens-before, visibility.</strong> Not needed, not used.</li><li><strong>Virtual threads.</strong> They change how expensive a thread is. They do not remove the need to decide what must never be starved, which is what this project is about.</li><li><strong>Resilience4j, Hystrix, or any library.</strong> They implement this in twenty lines of configuration. Understanding it first is the point.</li><li><strong>HTTP, Spring, Docker, Kubernetes.</strong> A JDK is the whole toolchain.</li></ul>
+<h2>A 60-Second &quot;Bulkhead&quot; Primer</h2>
+<p>A bulkhead is the real name for the walls that divide a ship&#x27;s hull into watertight compartments. Hole in an undivided hull: the water spreads and the ship goes down. Hole in a divided one: one compartment floods and the ship keeps going.</p>
+<p>In a service, the compartment is a thread pool. Instead of one pool that every kind of work draws from, you give the work that must never be starved a pool of its own.</p>
+<p>The whole mechanism is a second <code>ThreadPoolExecutor</code>. There is no algorithm in this pattern — the decision to stop sharing <em>is</em> the pattern, and the hard part is choosing where the wall goes.</p>
+<h2>A 60-Second &quot;Thread Starvation&quot; Primer</h2>
+<p>A job that is <em>waiting</em> still holds its thread. It is using no CPU and doing nothing at all, but the thread belongs to it until its call comes back.</p>
+<p>So four import batches waiting on a slow partner API hold four threads. In a pool of four, checkout then asks for a thread and there is none. Checkout never runs.</p>
+<p>Two things follow, and both are easy to miss:</p>
+<ul><li><strong>Starved and broken look identical from outside.</strong> Nothing appears in the log, because the job never started. Absence is the symptom.</li><li><strong>A bigger pool does not fix it.</strong> Forty threads get taken too, just later, and the pile-up costs more memory before anyone notices.</li></ul>
+<h2>A 60-Second &quot;Bounded Queue&quot; Primer</h2>
+<p>Each bulkhead here has two threads and a queue that holds two. Four jobs fit. The fifth is refused immediately, with a <code>BulkheadFullException</code>, in zero milliseconds.</p>
+<p>That refusal feels hostile and is the opposite. The caller finds out instantly and still has time to shed the batch, degrade, or write it down for tonight.</p>
+<p>An unbounded queue would have taken that job, and every job after it, and told nobody anything — turning a fast, visible failure into an out-of-memory crash later. <strong>A queue that never says no is not generous; it is a slow leak with good manners.</strong></p>
+<h2>A 60-Second &quot;Gate&quot; Primer</h2>
+<p>The tests need a partner API that is slow, and they need it to stop being slow at a moment of their choosing. <code>Gate</code> is a <code>CountDownLatch(1)</code> with two friendly methods: <code>awaitOpen()</code> blocks the calling thread, <code>open()</code> releases everybody at once.</p>
+<p>A job parked at a closed gate holds its thread in exactly the way a job waiting on a slow network holds one. The difference is that the test decides when it ends.</p>
+<p>This is why nothing in this project calls <code>Thread.sleep</code> to simulate slowness. A sleep is only long enough until the machine running it is busy — which is how thread tests become flaky. Where a test has to prove something is <em>not</em> happening, it uses a bounded wait instead: <code>oneSharedPoolStarvesCheckout</code> expects a <code>TimeoutException</code> after 250ms, which is a statement about the shopper&#x27;s patience, not a guess about the scheduler.</p>
+<h2>Why There Is No SimulatedClock Here</h2>
+<p>Every other project in this category has one, and this project deliberately does not.</p>
+<p>Elsewhere, time is something the test controls: <code>RemoteCall</code> &quot;takes sixty milliseconds&quot; by pushing a <code>long</code> forward. That works because those patterns are about <em>which call waits for which</em>, which can be reasoned about exactly without concurrency.</p>
+<p>Here the subject <em>is</em> threads genuinely waiting for one another. A fake clock cannot demonstrate that a real thread is unavailable. So the threads are real, the timestamps are real milliseconds, and the slowness is a latch the test holds shut.</p>
+<h2>Software Prerequisites</h2>
+<ul><li><strong>JDK 21 or newer.</strong> Nothing else.</li><li><strong>Gradle:</strong> not needed globally. The project ships a wrapper.</li></ul>
+<h3>Installing JDK 21</h3>
+<p>macOS, with Homebrew:</p>
+<pre><code>brew install openjdk@21
+sudo ln -sfn $(brew --prefix)/opt/openjdk@21/libexec/openjdk.jdk \
+    /Library/Java/JavaVirtualMachines/openjdk-21.jdk</code></pre>
+<p>Linux (Debian or Ubuntu):</p>
+<pre><code>sudo apt install openjdk-21-jdk</code></pre>
+<p>Windows: install the Microsoft Build of OpenJDK 21 or Temurin 21 from the installer, and let it set <code>JAVA_HOME</code>.</p>
+<h3>Verify Your Setup</h3>
+<pre><code>java -version          # expect 21 or newer
+cd micro-services-design-patterns/bulkhead-pattern
+./gradlew test         # expect BUILD SUCCESSFUL, 12 tests
+./gradlew run          # expect four acts</code></pre>
+<p>If <code>./gradlew</code> will not execute on macOS or Linux, make it executable:</p>
+<pre><code>chmod +x gradlew</code></pre>
+<p>The first <code>./gradlew</code> command downloads Gradle itself and needs a network connection. Everything after that works offline.</p>
+<h2>Troubleshooting</h2>
+<p><strong>&quot;Unsupported class file major version&quot;</strong> — Gradle is using an older JDK than the toolchain asks for. Check <code>java -version</code>, and set <code>JAVA_HOME</code> to a 21 install.</p>
+<p><strong>The timestamps in act one are not exactly 10ms</strong> — they will not be. These are real threads on a real machine, so a millisecond or two of drift is normal and nothing depends on the exact figure. What the tests assert is <em>order</em> and <em>thread name</em>, never a precise duration.</p>
+<p><strong>Act one prints nothing for checkout, and that looks like a bug</strong> — it is the finding, not a bug. Checkout never got a thread, so it never started, so it wrote no line. That absence is the whole of act one.</p>
+<p><strong>Act three prints a failure and the build still succeeds</strong> — correct. The refusal is the expected outcome: four accepted, one refused. <code>afullBulkheadRefuses</code> asserts it.</p>
+<p><strong>Act four shows idle threads and that looks wasteful</strong> — it is wasteful, deliberately. Two idle threads sit beside two jobs waiting for a thread, and they are not allowed to help. That is the price of the walls, and <code>thesharedPoolIsFasterOnAGoodDay</code> asserts the other side of the trade.</p>
+<p><strong>The demo hangs</strong> — it should not. Every wait in this project is bounded, and <code>Gate.awaitOpen()</code> gives up after ten seconds rather than blocking forever, precisely so that a mistake shows up as a failure rather than as a stuck terminal.</p>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — a background job nobody was waiting for stops the shop selling, and why a bigger pool is not the answer</li><li>Run <code>./gradlew run</code> and read all four acts in order. In acts one and two, read the <strong>thread names</strong> — <code>shared-worker</code> against <code>feed-worker</code> and <code>checkout-worker</code> is the entire argument</li><li><a href="bulkhead-pattern-explained.html"><code>bulkhead-pattern-explained.md</code></a> — the ship&#x27;s hull, and the part about where the walls take up space</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> and <a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the structure, including the arrow that is missing on purpose, then the four acts as sequences</li><li><a href="animation.html"><code>animation.html</code></a> — the threads being taken one at a time, and checkout arriving to find none left</li><li>The tests, which are the specification. Read <code>theStarvedCheckoutWasNeverBroken</code> first, then <code>theFeedIsGenuinelyStuck</code> — which is the test that makes act two proof rather than coincidence</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pipes and Filters, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Pipes and Filters, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>Pipes and filters breaks a job into small independent steps, filters, joined end to end by pipes, so each step does one thing and steps can be added, swapped or reused.</p>
+<h2>The six acts</h2>
+<h3>One Method Does It All</h3>
+<p>One loop does five jobs. Six lines go in and three come out, and the three dropped left no trace of why.</p>
+<pre><code>  6 lines in, 3 out: [ada: 2 x MUG-BLUE = £19.20, ben: 1 x ESP-001 = £360.00, fay: 3 x TEA-050 = £28.80].
+  5 separate jobs in one loop. the six lines came in, and the three that were dropped left no trace of why.</code></pre>
+<h3>Small Steps, Joined</h3>
+<p>The same job is five steps: parse, validate, price, tax, format. The price step on its own turns one parsed line into a priced one, with no need for the others.</p>
+<pre><code>  the pipeline: parse | validate | price | uk-tax | format.
+  the price step on its own, for one parsed line: Priced[customer=ada, sku=MUG-BLUE, quantity=2, netPence=1600].
+  each step can be run, and tested, without the others.</code></pre>
+<h3>Swap A Step, Add A Step</h3>
+<p>Swapping the UK tax step for an EU one changes the total from nineteen twenty to nineteen thirty six. A new step is added in the middle, and no other step changed.</p>
+<pre><code>  uk: [ada: 2 x MUG-BLUE = £19.20].
+  eu: [ada: 2 x MUG-BLUE = £19.36].
+  a new step added in the middle: parse | validate | not-ben | price | uk-tax | format. no other step changed.</code></pre>
+<h3>Bad Lines Are Rejected, And The Rest Go On</h3>
+<p>Three lines pass. Three are rejected, each with the step that dropped it and the reason, and the good lines carry on.</p>
+<pre><code>  3 orders out:
+    ada: 2 x MUG-BLUE = £19.20
+    ben: 1 x ESP-001 = £360.00
+    fay: 3 x TEA-050 = £28.80
+  3 rejected, each with the step and the reason:
+    parse: quantity &#x27;twelve&#x27; is not a number
+    validate: di asked for 50 of MUG-BLUE
+    parse: &#x27;ed, TEA-050&#x27; does not have three fields</code></pre>
+<h3>Streaming, Or One Stage At A Time</h3>
+<p>With ten thousand lines, streaming holds one item at once and running one stage at a time holds twenty thousand. The results are the same.</p>
+<pre><code>  10000 lines. items held at once: streaming 1, one stage at a time 20000.
+  the results are the same: true. only the memory differs.</code></pre>
+<h3>The Bill: The Steps Must Agree On The Shape</h3>
+<p>Steps that pass loose maps fail at run time when one calls a field qty and the next asks for quantity. Typed items catch that when compiling, but every step now depends on the type before it. And an error appears in the step that noticed, not the one that caused it.</p>
+<pre><code>  steps passing loose maps: one step calls the field qty and the next asks for quantity. it fails at run time, in the later step: NumberFormatException.
+  with typed items, that mistake does not compile. but every step now depends on the type before it, and changing one means changing its neighbours.
+  and when a line is wrong, the error appears in the step that noticed, which may be far from the step that caused it.</code></pre>
+<h2>The verdict</h2>
+<p>Use pipes and filters when a job is a sequence of independent transformations, when steps will change or be reused, and when items can be handled one at a time. Type the items between steps, report rejects with the step and the reason, and stream where the data is large. Keep a pipeline short enough to read. Do not use it where steps need the whole batch.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>A chain of <code>.map(...).filter(...)</code> on a stream.</li><li>A Unix pipeline with <code>|</code>.</li><li>Spring Batch&#x27;s reader, processor and writer, and Camel routes.</li><li>A list of processors, each with one <code>process</code> method.</li></ul>
+<h2>Where you have already met this</h2>
+<p><code>java.util.stream</code>, shell pipelines, servlet filters, ETL tools, and image and audio processing chains.</p>
+<h2>When this is too much</h2>
+<p>For a job with two simple steps, a pipeline is more structure than the job. Where every step needs the whole batch, a pipeline gains nothing.</p>
+</main>
+<footer>
+Generated from <code>pipes-and-filters-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

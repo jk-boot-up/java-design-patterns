@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Callback, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Callback, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>A callback is a piece of code you hand to someone else, to be called when something you asked for has happened.</p>
+<h2>The six acts</h2>
+<h3>Ask, And Keep Asking</h3>
+<p>The answer arrived on the fifth look. Five looks were made, and four of them found nothing. And the caller could do nothing else in that time.</p>
+<pre><code>  the answer arrived on the 5th look. looks made: 5, 4 of them found nothing.
+  and the caller could do nothing else in that time.</code></pre>
+<h3>Say What To Do, And Go On</h3>
+<p>The charge is requested, and the caller goes on. The caller does other work. Then the callback runs: order one, paid.</p>
+<pre><code>  [charge requested, and the caller goes on, caller does other work, callback: ORD-1 paid].</code></pre>
+<h3>What Happened Decides What To Do</h3>
+<p>One callback, told the result. Order one was paid: ship it. Order two was declined: ask for another card.</p>
+<pre><code>  one callback, told the result: [ORD-1: ship it, ORD-2: ask for another card].</code></pre>
+<h3>When The Callback Fails</h3>
+<p>The first callback threw an error. The gateway went on, and order two was paid. The error was recorded: order one, the mail server was down. The one who asked never sees that exception, because it happened in someone else&#x27;s call.</p>
+<pre><code>  the first callback threw. the gateway went on: [ORD-2 paid]. recorded: [ORD-1: the mail server was down].
+  the one who asked never sees that exception, because it happened in someone else&#x27;s call.</code></pre>
+<h3>Answers In Another Order</h3>
+<p>Remembering the order in a field: both callbacks say order two. Each callback holding its own order id: order two paid, order one paid. The answers came in the other order, and each is right.</p>
+<pre><code>  remembering the order in a field: [ORD-2 paid, ORD-2 paid]. both say ORD-2.
+  each callback holding its own order id: [ORD-2 paid, ORD-1 paid]. the answers came in the other order, and each is right.</code></pre>
+<h3>The Bill</h3>
+<p>Pay, then reserve, then ship: three callbacks, each inside the one before, three levels deep. The lines run in one order, but are written in another: in the code, the line that asks stock is written below the block that ships, and it runs first. Every level needs its own handling for a failure. And each answer arrives with no stack that shows who asked.</p>
+<pre><code>  pay, then reserve, then ship: three callbacks, each inside the one before, three levels deep.
+  the order the lines run in: [1. all asked for, first step only, 2. paid, 3. stock asked, 4. reserved, 5. next step asked, 6. shipped]. in the code, the line that asks stock is written below the block that ships, and it runs first. that is not the order they are written in.
+  and every level needs its own handling for a failure, and each answer arrives with no stack that shows who asked.</code></pre>
+<h2>The verdict</h2>
+<p>Use a callback when you ask for something that takes a while, and want to go on. Pass the result to it. Let each callback carry what it needs, not read shared fields. Decide who handles a failure in the callback. When steps chain, move to futures or an async style, so the code reads in order.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>A parameter named <code>onSuccess</code>, <code>onComplete</code> or <code>handler</code>.</li><li><code>CompletableFuture.thenAccept(...)</code>, and <code>whenComplete(...)</code>.</li><li>Event handlers in a browser or in Swing, and Node.js style callbacks.</li><li><code>Consumer&lt;Result&gt;</code> passed to an async method.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Every GUI toolkit&#x27;s button handlers, Node.js&#x27;s I/O API, payment and webhook integrations, and <code>CompletableFuture</code>.</p>
+<h2>When this is too much</h2>
+<p>For work that is quick, a plain return value is simpler. For chains of steps, futures or coroutines read better than nested callbacks.</p>
+</main>
+<footer>
+Generated from <code>callback-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

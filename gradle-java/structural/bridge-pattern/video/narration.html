@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bridge Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Bridge Pattern — Video Narration Script</h1>
+<p>The full spoken script, scene by scene. <code>[[slnc NNN]]</code> marks a pause of NNN milliseconds, an instruction to the <code>say</code> command, not a spoken word.</p>
+<h2>1. 01-poster</h2>
+<p>Hello, and welcome. This video explains the Bridge pattern in Java, and it is written and presented by Jayasekhar Konduru. Let&#x27;s start with the simple definition. The bridge pattern takes one tangled hierarchy and splits it into two that can vary independently — what something does, and how it gets done — then joins them with a reference rather than with inheritance. Each side can then grow without multiplying the other. That&#x27;s the idea in a sentence. The rest of the video does it properly, by building a real working Java project: a notification system for an online store that sends messages over email, S M S and push. By the end you&#x27;ll know why what a message says and how it gets delivered should never live in the same class hierarchy, and how to write the split yourself.</p>
+<h2>2. 02-scenario</h2>
+<p>So, imagine the notification system for an online store. [[slnc 250]] There are several kinds of notification: order confirmations, shipping updates, password resets. And there are several channels they can go out on: email, S M S, and push. [[slnc 300]] And here&#x27;s the requirement. Every kind of notification needs to be sendable over every channel.</p>
+<h2>3. 03-anatomy</h2>
+<p>Look closely and there are two completely different concerns here. [[slnc 250]] What a notification says — its subject and its body. And how it physically gets delivered — email sends it unchanged, S M S has to truncate long messages, push drops the body entirely and shows only the subject. [[slnc 300]] Naively, one class ends up doing both of those jobs, for every single combination of notification type and channel.</p>
+<h2>4. 04-problem</h2>
+<p>So here&#x27;s the naive approach. [[slnc 250]] NaiveOrderConfirmationSms composes its own subject and body, then truncates the combined text at 140 characters, because that&#x27;s the S M S limit. [[slnc 300]] And here&#x27;s the problem. NaiveOrderConfirmationEmail, NaiveShippingUpdateEmail, and NaiveShippingUpdateSms each repeat this exact shape independently — and that 140 character truncation rule gets copy-pasted into every single S M S class.</p>
+<h2>5. 05-why-hurts</h2>
+<p>And that does real damage as the system grows. [[slnc 250]] N notification types times M channels is N times M classes. Add Push as a third channel and you write two more classes. Add PasswordReset as a third notification type and you write three more. [[slnc 300]] The S M S truncation rule is copy-pasted into every single S M S class that exists. Fix a bug in it, and you have to find every copy. [[slnc 250]] Content and delivery are welded together in every class — neither can change without touching the other.</p>
+<h2>6. 06-pattern</h2>
+<p>The bridge pattern fixes exactly this. [[slnc 250]] In Gang of Four terms, bridge decouples an abstraction from its implementation, so that the two can vary independently. [[slnc 300]] In plain language? Two small hierarchies, connected by one field — not by inheritance, not by one giant class trying to do everything.</p>
+<h2>7. 07-remote</h2>
+<p>Here&#x27;s how to remember it forever. Think about a T V remote and a television. [[slnc 250]] The remote knows high-level actions: volume up, channel up, power. The television knows how to actually change its own volume on its own hardware. [[slnc 300]] Any remote works with any television that speaks the same signal, and a manufacturer can redesign the television completely without changing what a single button on the remote means. [[slnc 250]] Two hierarchies, one wire, and both vary independently.</p>
+<h2>8. 08-roles</h2>
+<p>Every bridge setup has four roles. [[slnc 200]] The abstraction, Notification, which knows what to say and holds a reference to the implementor. The implementor, MessageChannel, the shared interface every channel implements. Refined abstractions like OrderConfirmationNotification, which add content but never delivery logic. And concrete implementors like EmailChannel and SmsChannel, which add delivery logic but never know what content they&#x27;re carrying. [[slnc 350]] Here&#x27;s the single most important idea in this whole video. Notification holds a MessageChannel by composition, as a plain field — not by inheritance. That one field is the entire bridge.</p>
+<h2>9. 09-abstraction</h2>
+<p>This is the abstraction, Notification. [[slnc 250]] It holds a MessageChannel field, assigned once in the constructor. send is final — every subclass gets delivery for free, and none of them can override how it works. [[slnc 300]] send calls subject and body on itself, then hands both strings straight to channel.deliver. It never checks whether channel is email, S M S, or push. It doesn&#x27;t need to.</p>
+<h2>10. 10-implementor</h2>
+<p>And this is a concrete implementor, SmsChannel. [[slnc 250]] The 140 character truncation rule is written exactly once, right here. [[slnc 300]] Every notification type that goes out over S M S — today&#x27;s three, and any added later — gets that rule for free, because they all share this one SmsChannel instance. Fix the limit here, and every notification type inherits the fix, automatically.</p>
+<h2>11. 11-refined</h2>
+<p>This is a refined abstraction, OrderConfirmationNotification. [[slnc 250]] subject and body compose the message content. Nothing here mentions email, S M S, or push. [[slnc 300]] Adding a fourth notification type — say, a back-in-stock alert — costs exactly one new class like this one, and it automatically works with every channel that already exists.</p>
+<h2>12. 12-client</h2>
+<p>And here&#x27;s the client, NotificationDemo, that ties it all together. [[slnc 250]] The exact same OrderConfirmationNotification content goes out through three different channel objects, just by passing a different constructor argument. [[slnc 300]] And look at the last line. PasswordResetNotification is a brand-new notification type, and it already works with the exact same EmailChannel — zero new channel code required. That&#x27;s the whole payoff.</p>
+<h2>13. 13-output</h2>
+<p>When we run the project, the same notification going out over three channels is right there in the output. [[slnc 250]] Email and push get the full order confirmation instantly, and so does S M S, because that message happens to be short enough. [[slnc 300]] But look at the last two lines. A longer shipping update comes through email completely unchanged, and through S M S it gets cut off with an ellipsis, right at the 140 character mark. Same notification object&#x27;s content, two completely different outcomes, decided entirely by the channel.</p>
+<h2>14. 14-wrapup</h2>
+<p>So, to recap. Use bridge when two things vary independently, and you don&#x27;t want an explosion of N times M classes to cover every combination. [[slnc 300]] Keep the abstraction ignorant of implementor-specific details — if a Notification subclass ever needs to know a channel&#x27;s quirks to do its job, the bridge has sprung a leak. [[slnc 350]] And if you remember one sentence from today, make it this one. Adapter reconciles two interfaces that already exist and disagree. Bridge designs two hierarchies from the start so they never have to agree on more than one seam.</p>
+<h2>15. 15-outro</h2>
+<p>And that&#x27;s the bridge pattern. [[slnc 300]] If you got something out of this, do give it a thumbs up, and subscribe. It genuinely helps the channel, and it&#x27;s what makes more of these possible. [[slnc 250]] And if there&#x27;s a pattern you&#x27;d like me to cover next, drop it in the comments. I read every one. [[slnc 250]] All the source code, the written notes and an interactive animation are in the repository. Thanks for watching, and I&#x27;ll see you in the next one.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

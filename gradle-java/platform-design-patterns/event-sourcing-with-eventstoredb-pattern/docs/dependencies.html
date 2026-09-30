@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dependencies</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Dependencies</h1>
+<p>This project uses KurrentDB, its Java client and Testcontainers, which the plain-Java twin does not. This page says what they are, why they are here and what they cost. It comes before the first line of KurrentDB code on purpose.</p>
+<p><strong>Skipping this project loses none of the pattern.</strong> The plain-Java Event Sourcing project in this course teaches all of it, with nothing installed.</p>
+<h2>What KurrentDB is</h2>
+<p>KurrentDB, called EventStoreDB until its vendor renamed it, is a database built for one job: keeping events in order and never changing them.</p>
+<p>Think of a set of paper ledgers with numbered lines, one ledger per customer. You may only write on the next empty line, and you never rub anything out. Before you write, you may say &quot;I last read line 3&quot;, and the clerk refuses your entry if somebody has written line 4 since.</p>
+<p>In KurrentDB&#x27;s words:</p>
+<ul><li>Each ledger is a <strong>stream</strong>, here <code>loyalty-C-4417</code>.</li><li>Each line&#x27;s number is its <strong>revision</strong>, starting at 0.</li><li>Writing on the next line is an <strong>append</strong>.</li><li>&quot;I last read line 3&quot; is the <strong>expected revision</strong>, which the Java client calls a <code>StreamState</code>. The refusal is a <strong>WrongExpectedVersion</strong> error. <code>StreamState.any()</code> means &quot;don&#x27;t check&quot;.</li><li>Every event also carries an <strong>event id</strong>, a random identifier the writer picks, which the server uses to recognise a retry.</li><li>The server also keeps one log of every event in every stream, in the order it wrote them, called <strong><code>$all</code></strong>.</li><li>A reader that asks for everything from the start, then for each new event as it arrives, holds a <strong>catch-up subscription</strong>. A copy of the data it builds for one screen is a <strong>projection</strong>, or <strong>read model</strong>.</li><li>Deleting a stream normally is a <strong>soft delete</strong>: the stream is hidden and its name can be used again. A <strong>tombstone</strong> is a hard delete that forbids the name for ever. Neither removes the bytes until a clean-up called a <strong>scavenge</strong> runs.</li></ul>
+<h2>What the KurrentDB Java client is</h2>
+<p><code>io.kurrent:kurrentdb-client</code> is the official Java library. It talks to the server over gRPC on port 2113. Its main class is <code>KurrentDBClient</code>, with <code>appendToStream</code>, <code>readStream</code>, <code>readAll</code>, <code>subscribeToAll</code> and <code>deleteStream</code>. Every call returns a <code>CompletableFuture</code>, and this project waits on each one with <code>get()</code> to keep the code in order.</p>
+<p>It replaces <code>com.eventstore:db-client-java</code>, whose last release was 5.4.5. It is much larger than the libraries in most projects in this course: it brings gRPC, Netty, Protocol Buffers, Jackson, Bouncy Castle and OpenTelemetry with it.</p>
+<h2>What Testcontainers is</h2>
+<p>Testcontainers is a Java library that starts a container from inside your program and stops it again when you are done. It is here so the demo owns KurrentDB&#x27;s lifetime: <code>./gradlew run</code> brings the server up, uses it and takes it away at the end. It maps port 2113 to a free random port on your machine, and it waits until <code>/health/live</code> answers before the demo carries on. There is no KurrentDB module in Testcontainers, so the plain container type is used.</p>
+<h2>Why this project uses them</h2>
+<p>The things this project teaches cannot happen when the event store is a list inside one program:</p>
+<ul><li>two writers racing for the same points, and the check that stops the second one</li><li>a retry after a lost reply</li><li>a reader that starts late and catches up</li><li>a delete that hides rather than erases</li></ul>
+<p>The store has to be its own process, reached over a network, by more than one client. That is what KurrentDB is.</p>
+<h2>What to install</h2>
+<p>Only a JDK, version 21, and a container runtime. Gradle downloads the rest, and the versions are pinned:</p>
+<table><thead><tr><th>Tool</th><th>Version</th></tr></thead><tbody><tr><td>Docker, or a Docker-compatible runtime</td><td>running; 24 or later</td></tr><tr><td>KurrentDB server image</td><td><code>kurrentplatform/kurrentdb:26.1.2</code> (ARM: <code>26.1.2-experimental-arm64-10.0-noble</code>)</td></tr><tr><td><code>io.kurrent:kurrentdb-client</code></td><td>1.2.1</td></tr><tr><td><code>org.testcontainers:testcontainers</code></td><td>2.0.5</td></tr><tr><td><code>org.slf4j:slf4j-simple</code></td><td>2.0.17</td></tr></tbody></table>
+<p>Every one of these is the newest generally available release. None is held back.</p>
+<h2>What it costs</h2>
+<p>The first run pulls the KurrentDB image, about 590 MB unpacked. KurrentDB publishes no Alpine image. The server uses about 160 MB of memory while it runs. After the first run, a run takes about five seconds, most of it the container starting.</p>
+<p>Testcontainers also runs a small helper container that removes anything left behind if the demo is killed part way through. It exits on its own a few seconds after the demo does.</p>
+<p>The server runs insecure: no TLS and no passwords. That is fine on your own machine for one run, and never acceptable in production.</p>
+<h2>Where this pattern lives in a real system</h2>
+<ul><li>In the command handler that reads a stream, decides and appends with the revision it read.</li><li>In the retry loop around it, which must look again and decide again rather than resend blindly.</li><li>In the event id chosen once per decision.</li><li>In each projection&#x27;s subscription and its checkpoint.</li><li>In the scavenge schedule, and the erasure procedure that has to reach every projection as well as the stream.</li></ul>
+</main>
+<footer>
+Generated from <code>dependencies.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

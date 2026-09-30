@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claim Check with S3, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Claim Check with S3, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>When a payload is too big to send in a message, store it somewhere built for big things and send a small ticket instead; whoever receives the ticket uses it to fetch the payload.</p>
+<h2>The analogy, before any of the services&#x27; words</h2>
+<p>Think of the left-luggage office at a railway station. You leave your heavy suitcase at the counter and carry away a small paper ticket. Later, you, or anyone you give the ticket to, hands it back and gets the suitcase.</p>
+<p>Now four questions the office has to answer, and a simulation never has to. What if the suitcase is too big for the door? The door here is the queue, and its size is not yours to choose. What if two suitcases are given the same ticket number? Somebody collects the wrong one. What if nobody ever comes back? The office has to clear its shelves, and the ticket in your pocket does not know. And what does the office charge, now that you pay a porter and a shelf instead of just carrying the bag? Those four questions are the six acts of this project.</p>
+<h2>What S3 and SQS call these things</h2>
+<p><strong>S3</strong>, Amazon&#x27;s Simple Storage Service, is the office. A <strong>bucket</strong> is one of its storage rooms. An <strong>object</strong> is one stored file, here an invoice PDF. A <strong>key</strong> is the name the object is stored under, the number on the suitcase&#x27;s tag.</p>
+<p><strong>SQS</strong>, Amazon&#x27;s Simple Queue Service, is the queue between checkout and the email service. A <strong>message</strong> is one piece of text on it. SQS limits a message&#x27;s length, and keeps a message nobody has taken for a while, its <strong>retention period</strong>.</p>
+<p><strong>Versioning</strong> is S3 keeping every object stored under a key, rather than replacing the old one. Each version has its own <strong>version id</strong>. In a versioned bucket, deleting by key only adds a <strong>delete marker</strong>: a note that says the key is deleted, while every version stays stored.</p>
+<p>A <strong>lifecycle rule</strong> is S3 removing objects by itself, a number of whole days after they were stored.</p>
+<p><strong>LocalStack</strong> plays both services on your own machine, in one container the demo starts and stops.</p>
+<h2>The six acts</h2>
+<h3>An Invoice Too Big For The Queue</h3>
+<p>SQS reports its longest message as 1048576 bytes. The monthly invoice is 1500000 bytes, and because a message is text, the PDF is written out as base64 first: 2000000 characters. SQS refuses it, in its own words. The edge is the surprise: base64 spells every 3 bytes with 4 letters, so a PDF of 786432 bytes becomes exactly 1048576 characters and is accepted, and one of 786433 becomes 1048580 and is refused.</p>
+<pre><code>  the email service&#x27;s queue is on Amazon SQS, played by LocalStack. it reports its longest message as 1048576 bytes.
+  a business customer&#x27;s monthly invoice is a PDF of 1500000 bytes. a message is text, so it goes as base64: 2000000 characters.
+  SQS refuses it: Message must be shorter than 1048576 bytes.
+  a PDF of 786432 bytes becomes 1048576 characters and is accepted. one byte more, 786433, becomes 1048580 and is refused.
+  base64 spells 3 bytes with 4 letters, so the largest PDF that fits is three quarters of the limit.</code></pre>
+<p>The refusal says &quot;shorter than&quot;, but a message of exactly 1048576 characters is accepted. The limit includes its own number.</p>
+<h3>Send The Ticket, Not The Luggage</h3>
+<p>Checkout stores the PDF under a random key, then sends a ticket: the bucket, the key, the size and the start of a SHA-256 checksum, a fingerprint of every byte. The email service takes the ticket, fetches the object, checks size and checksum, then deletes the object and after that the message.</p>
+<pre><code>  checkout stores the PDF in an S3 bucket under a random key of 36 characters, then sends a ticket.
+  the ticket is 113 bytes of text: bucket, key, size 1500000, checksum bb8711d26a6daf29.
+  the email service takes the ticket and fetches 1500000 bytes, identical to what was sent: true.
+  it deletes the object, then the message. objects left in the bucket: 0. messages waiting: 0.</code></pre>
+<h3>Luggage Nobody Collected</h3>
+<p>Ten invoices by ticket, six collected. The other four are fine: their tickets are waiting. Then the eleventh is stored and its send fails, and that one is lost to everyone.</p>
+<pre><code>  checkout sends 10 invoices by ticket. the email service collects 6, then stops.
+  S3 still holds 4 invoices, and SQS still holds 4 tickets for them.
+  an 11th invoice is stored, and then its send fails: The specified queue does not exist.
+  S3 now holds 5 invoices and SQS holds 4 tickets. 1 invoice has no ticket, and nobody will ever ask for it.</code></pre>
+<h3>The Same Key, Twice</h3>
+<p>A bucket that names each file after its order. A corrected invoice is stored under the same key before the first ticket is collected, and S3 simply replaces the object. The first ticket&#x27;s checksum catches it. Versioning keeps both, and a ticket that carries the version id gets exactly the file it was written for. But the receiver&#x27;s ordinary delete by key now removes nothing.</p>
+<pre><code>  a bucket keyed by order: ORD-1042&#x27;s invoice is stored under invoices/ORD-1042.pdf and its ticket sent.
+  a corrected invoice is stored under the same key before the first ticket is collected. S3 keeps 1 object.
+  the email service redeems the first ticket: the payload is not the one that was sent: the checksum does not match.
+  with versioning on, each store keeps its own version and the ticket names one. first ticket, identical to the first invoice: true.
+  the email service deletes the key as before. keys listed: 0. versions still stored: 2. delete markers: 1.
+  in a versioned bucket, delete hides the luggage and keeps paying for it. deleting each version by its id: 0 stored.</code></pre>
+<h3>How Long Each One Waits</h3>
+<p>The bucket&#x27;s lifecycle rule counts in whole days, and S3 stamps each object with the midnight UTC at which it will go. The queue keeps a ticket for 345600 seconds by default. The demo cannot wait a day, so it deletes the invoice the way the rule would, and the waiting ticket finds nothing.</p>
+<pre><code>  the bucket gets a rule: remove every invoice 1 day after it was stored. a day is the smallest unit S3 takes.
+  the invoice comes back stamped to expire at a midnight UTC, between 24 and 48 hours away: true.
+  the queue keeps a ticket nobody has taken for 345600 seconds, which is 4 days.
+  the demo cannot wait a day, so it removes the invoice as the rule would. tickets still waiting: 1.
+  a slow email service redeems it: The specified key does not exist.
+  the ticket and the luggage each have their own clock, and nothing keeps the two in step.</code></pre>
+<p>The exact expiry date depends on the day you run it, so the demo prints whether it has the right shape, not the date.</p>
+<h3>The Bill</h3>
+<p>Every request both clients send is counted by the SDK itself, so these are requests the services really received.</p>
+<pre><code>  a 600000-byte invoice sent whole: 3 requests (SendMessage, ReceiveMessage, DeleteMessage). the queue carried 800000 bytes.
+  the same invoice by ticket: 6 requests (PutObject, SendMessage, ReceiveMessage, GetObject, DeleteObject, DeleteMessage). the queue carried 117 bytes.
+  twice the requests, two services to run and pay for, and a gap between storing and sending.
+  this demo needed 1 container for 1 queue service and 1 storage service.</code></pre>
+<p>The ticket here is 117 bytes rather than 113 because this act&#x27;s bucket has a longer name and the invoice&#x27;s size has one digit fewer.</p>
+<h2>The verdict</h2>
+<p>Use a claim check when a payload will not fit in a message, or should not travel through one. Then store under random keys and never reuse one; put a checksum on every ticket and check it; store first, send second, and have a lifecycle rule sweep what nobody claims; and make the queue forget a ticket before storage forgets its file.</p>
+</main>
+<footer>
+Generated from <code>claim-check-with-s3-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

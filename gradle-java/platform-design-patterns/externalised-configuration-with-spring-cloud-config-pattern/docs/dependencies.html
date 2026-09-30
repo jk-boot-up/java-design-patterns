@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dependencies</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Dependencies</h1>
+<p>This project uses Spring Boot, Spring Cloud Config and JGit, which the plain-Java twin does not. This page says what they are, why they are here, and what they cost. It comes before the first line of Spring code on purpose.</p>
+<p><strong>Skipping this project loses none of the pattern.</strong> The plain-Java Externalised Configuration project in this course teaches all of it, with nothing installed.</p>
+<h2>The analogy, before any of Spring&#x27;s words</h2>
+<p>Think of a chain of bakeries. The price list is kept at head office, in a filing cabinet, and every change to it is signed and dated in a ledger. Head office has a receptionist. When a branch opens in the morning, it phones the receptionist, who reads out the current price list, and the branch writes the prices on its own board for the day. If head office changes a price at eleven, the branches do not know until somebody tells them to phone again. And one branch may have printed a poster at opening time, which still shows the old price after the board has been rubbed out and rewritten.</p>
+<h2>What each piece is called</h2>
+<p><strong>Spring Boot</strong> is a framework for building Java programs that start up as small web servers. Both programs in this project are Spring Boot applications.</p>
+<p>The <strong>config server</strong> is the receptionist: a small web program, Spring Cloud Config Server, that reads a repository of settings files and answers the question &quot;what are the settings for this application?&quot; over HTTP. Its whole code in this project is one annotation, <code>@EnableConfigServer</code>.</p>
+<p>The <strong>git repository</strong> is the filing cabinet with its ledger. Each change is a <strong>commit</strong>, which records the new file, who made it, when, and a short message. A commit has an <strong>id</strong>, a string of letters and digits worked out from all of that; the first seven characters, such as <code>2a6198d</code>, are enough to name it. The config server tells the shop which commit its settings came from, and calls that the <strong>version</strong>.</p>
+<p><strong>Fetching at startup</strong> is the branch phoning in as it opens. The shop&#x27;s one line <code>spring.config.import: configserver:</code> means &quot;before you start, ask this server for your settings&quot;.</p>
+<p>A <strong>refresh</strong> is telling a branch to phone again. In Spring it is an HTTP request to the running shop, <code>POST /actuator/refresh</code>, which comes from <strong>Spring Boot Actuator</strong>, a library that gives a program a set of management pages. The refresh answers with the names of the settings that changed.</p>
+<p><strong><code>@RefreshScope</code></strong> marks an object as one to throw away and build again after a refresh: the board that is rubbed out and rewritten. An object that is not marked, and copied a setting when the shop started, is the poster: it keeps the old value.</p>
+<p><strong>Fail fast</strong> is a setting that says: if the config server cannot be reached at startup, refuse to start. <strong>Optional</strong> is the opposite: start anyway, on whatever settings are packed inside the program.</p>
+<p><strong>JGit</strong> is a git written in Java. The config server uses it to read the repository, and the demo uses it to create the repository and commit to it, so git does not need to be installed.</p>
+<h2>Why this project uses them</h2>
+<p>Because the things this project teaches — a change that is served but not yet in force, a refresh with no restart, an object the refresh does not reach, and a shop that must decide what to do when its settings cannot be fetched — only exist when the settings live in another process and the shop fetches them over a network. That is what a config server is.</p>
+<h2>What to install</h2>
+<p>Only a JDK, version 21. Gradle downloads the rest, and the versions are pinned:</p>
+<table><thead><tr><th>Tool</th><th>Version</th></tr></thead><tbody><tr><td>Spring Boot</td><td>4.1.1</td></tr><tr><td>Spring Cloud release train</td><td>2025.1.3</td></tr><tr><td>Spring Cloud Config, server and client</td><td>5.0.5</td></tr><tr><td>JGit</td><td>7.4.0, as Spring Cloud Config brings it</td></tr><tr><td>Spring dependency-management Gradle plugin</td><td>1.1.7</td></tr><tr><td>JUnit</td><td>5.10.2</td></tr></tbody></table>
+<p>Spring Boot 4.1.1 and Spring Cloud 2025.1.3 are the newest generally available releases; the next ones, 4.2.0 and 2026.0.0, are still milestones. JGit stays at the version Spring Cloud Config is built against rather than being forced up to the newest, 7.8.0.</p>
+<p>No container runtime is needed. No git needs to be installed.</p>
+<h2>What it costs</h2>
+<p>The first build downloads about forty-five megabytes of libraries, 78 jars. After that a run takes about six seconds, most of it two Spring Boot programs starting, and the shop starting three times. The config server process is given at most 256 megabytes of memory. The demo picks free ports for every program, so it can run beside anything else on the machine.</p>
+<h2>Where this pattern lives in a real system</h2>
+<p>In a git repository of settings files, one per application and one per profile; in a config server, usually several copies behind a load balancer; in each service&#x27;s <code>spring.config.import</code> line and its choice between fail fast and optional; in the pipeline or the Spring Cloud Bus message that sends the refresh after a merge; and in the review of which objects are <code>@RefreshScope</code> and which copied a value at startup.</p>
+</main>
+<footer>
+Generated from <code>dependencies.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

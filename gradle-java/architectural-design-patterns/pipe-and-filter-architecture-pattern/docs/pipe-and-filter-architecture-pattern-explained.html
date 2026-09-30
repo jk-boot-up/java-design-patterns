@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pipe and Filter Architecture, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Pipe and Filter Architecture, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>Pipe and filter architecture splits work into stages that run at the same time, joined by waiting lines, so that each stage can be sized and limited on its own.</p>
+<h2>The six acts</h2>
+<h3>One Big Step</h3>
+<p>One worker does all three jobs, five ticks for each order. An order arrives every tick. After thirty ticks, five orders are done.</p>
+<pre><code>  parse 1 tick, price 3, pack 1: 5 ticks for each order, one at a time. an order arrives every tick.
+  after 30 ticks, orders done: 5.</code></pre>
+<h3>Stages With Waiting Lines</h3>
+<p>The same work in three stages, each working while the others do. After thirty ticks, eight orders are done. Parse takes a new order while price is still on the last one.</p>
+<pre><code>  the same work in three stages, each working while the others do. after 30 ticks, orders done: 8.
+  the parse stage takes a new order while price is still on the last one.</code></pre>
+<h3>The Slowest Stage Sets The Pace</h3>
+<p>Waiting in front of each stage: parse one, price nineteen, pack none. Price takes three ticks, so one order leaves every three ticks, however fast parse and pack are. Orders pile up in front of it.</p>
+<pre><code>  waiting in front of each stage: parse 1, price 19, pack 0.
+  price takes 3 ticks, so one order leaves every 3 ticks however fast parse and pack are. orders pile up in front of it.</code></pre>
+<h3>Widen Only The Slow Stage</h3>
+<p>Three price workers. After thirty ticks, twenty two orders are done, and the lines are short. Parse and pack were not touched. Now they take one order a tick, and that is the new limit.</p>
+<pre><code>  three price workers. after 30 ticks, orders done: 22. waiting: parse 1, price 1, pack 1.
+  parse and pack were not touched. now they take one order a tick, and that is the new limit.</code></pre>
+<h3>A Limit On Each Line</h3>
+<p>With no limit, nineteen orders wait in one line. With a limit of three, no more than three wait, and fourteen orders are refused at the door. Orders done is eight, the same as without a limit. A full line makes the stage before it hold its order, and so on back to the door. That push-back is called backpressure.</p>
+<pre><code>  no limit: most orders waiting in one line 19, refused at the door 0.
+  limit of 3: most orders waiting in one line 3, refused at the door 14. orders done: 8, the same as without a limit.
+  a full line makes the stage before it hold its order, and so on back to the door. that push-back is called backpressure.</code></pre>
+<h3>The Bill</h3>
+<p>The price stage crashes. Twenty orders were in it, waiting or being worked on. They were accepted from customers, and are gone, unless the lines are kept somewhere that survives. And an order now passes through three stages and two waiting lines, so a single order takes longer than its five ticks of work, whenever it has to wait.</p>
+<pre><code>  the price stage crashes. orders it was holding, waiting or working on: 20. they were accepted from customers and are gone, unless the lines are kept somewhere that survives.
+  and an order now passes through 3 stages and 2 waiting lines, so a single order takes longer than the 5 ticks of work, whenever it has to wait.</code></pre>
+<h2>The verdict</h2>
+<p>Use stages when the work has parts of different speed and you want throughput. Find the slowest stage, and widen only that one. Put a limit on each waiting line so that trouble pushes back to the door. Keep the lines somewhere that survives a crash if the orders matter.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>Stages joined by queues, as in a log-processing or ETL system.</li><li>Worker pools with a bounded queue in front, such as <code>ThreadPoolExecutor</code>.</li><li><code>BlockingQueue</code> between producer and consumer threads.</li><li>Reactive streams and their request-n backpressure.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Unix pipelines, video and image processing chains, ETL systems, and build systems that run stages in parallel.</p>
+<h2>When this is too much</h2>
+<p>If the work is short, or the stages are about equally fast, a single step is simpler, and the queues only add delay. Stages pay off when parts differ in speed, or need separate scaling.</p>
+</main>
+<footer>
+Generated from <code>pipe-and-filter-architecture-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

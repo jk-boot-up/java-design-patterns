@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Service Locator with Consul Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Service Locator with Consul Pattern — Video Narration Script</h1>
+<h2>1. Service Locator with Consul</h2>
+<p>Hello, and welcome. This video explains the Service Locator pattern, in Java, using Consul. This video is presented by Jayasekhar Konduru. First, a simple definition. A service locator is a middleman. You ask it for what you need, by name. Think of a taxi dispatcher. You ask for a taxi, and the dispatcher knows which cars are free right now. This is the framework version of the Service Locator video. That one argued against the pattern. But it said the pattern is still right when what is available is only known while the program runs. Finding services across a network is exactly that. By the end, you will hear a real service registry answer. Services come and go, without the caller&#x27;s code changing. The old costs return, a new one appears, and then we hear the alternative: be given an address, and never ask.</p>
+<h2>2. The Partner Project</h2>
+<p>Before we start, a quick note. This video has a partner: the hand-built Service Locator video. That one argued against the pattern, with evidence. And it said where the pattern is still right. Here, we use the same checkout. But its helpers now live on the other side of a network. We will not teach the pattern again.</p>
+<h2>3. Before The First Line</h2>
+<p>Three things are new in this project. First, Consul, a service registry. Services register themselves, with a name, an address, and a health check. Callers ask Consul for the healthy ones. Second and third, nginx, a web server that can forward requests, running inside Docker. And one promise. If you skip this video, you lose none of the pattern. This one is about the tools.</p>
+<h2>4. The Locator Asks Consul</h2>
+<p>First demo: the locator asks Consul. Here is the setup. Two payment gateway services, and one notifier. Each is a real web server, registered with Consul, with a health check. Nothing is simulated. The locator asks Consul for the healthy payment gateways. There are two. Four orders are placed, and shared, two to each. The checkout never knew an address. It only asked for payment gateway, by name.</p>
+<h2>5. The Genuine Advance</h2>
+<p>Second demo: the real advance. Gateway one&#x27;s health check is marked as failing. Consul now reports one healthy gateway. Four more orders. Gateway one serves none. Gateway two serves all four. Then gateway one recovers, and it is used again. The checkout&#x27;s code never changed. A registry with fixed entries could never do this. And it is why this pattern earns its place here.</p>
+<h2>6. The Old Costs Return</h2>
+<p>Third demo: the old costs return. Service names are just text. A typo, payment gatway, compiles fine. And fails only while running: no healthy service by that name. Worse, the notifier&#x27;s registration is lost. And nothing in the checkout says it needs one. A real order arrives. The checkout asks for a gateway, and the payment goes through. Then it asks for the notifier, and there is none. The failure arrived in production, after the money moved. The same cost as the hand-built locator.</p>
+<h2>7. A New Cost: A Stale Cache</h2>
+<p>Fourth demo: a new cost, an out-of-date cache. Asking Consul on every call is slow. So it is tempting to remember the answer. A caching locator asks Consul just once. Then gateway one dies, and Consul is told. But the cache is not told. The locator keeps handing out the dead address. And the call fails, with a connection error. Faster, and wrong. The locator without a cache recovers at once. And after a refresh, the cache heals too. But deciding when to refresh is now your problem.</p>
+<h2>8. The Alternative: Be Given</h2>
+<p>Fifth demo: the alternative, be given. Nginx, in a Docker container, is given the list of healthy services, once, from Consul. The calling code is given just one address: nginx&#x27;s. It asks nothing. Four out of four requests succeed, shared across the two gateways. Now stop one gateway. Four more requests, and all four still succeed. Nginx simply retried the one that was still running. The calling code never knew, because it never looked anything up. That is dependency injection&#x27;s idea, applied to a network address.</p>
+<h2>9. The Verdict</h2>
+<p>So, here is the verdict. Finding services on a network is the strongest case for a locator. Because where the services are is only known while the program runs. Even so, prefer to be given an address. By the platform, a proxy, or D N S. Rather than making every class ask.</p>
+<h2>10. How To Recognise It</h2>
+<p>How can you spot this in code someone else wrote? Look for Spring Cloud&#x27;s Discovery Client, and its get instances method. Look for a Consul, Eureka, or ZooKeeper client, used inside business classes. Look for a service name, written as text, turned into a web address at call time. And a load-balanced client, where the lookup hides behind an annotation.</p>
+<h2>11. Where You Have Met This</h2>
+<p>Where have you met this before? In Spring Cloud&#x27;s discovery client. In Netflix Eureka. And in Consul itself. Kubernetes&#x27; built-in D N S is the given form. The platform hands your code an address, and your code never asks.</p>
+<h2>12. What Is Real Here</h2>
+<p>A quick, honest note about this demo. For once, nothing is simulated. A real Consul service, real web servers, and a real nginx, in a real container. The demo services only run for the length of the demo.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, when is this too much? For a fixed set of services, at fixed addresses, simple configuration is easier. And it needs no registry at all.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s the Service Locator, with Consul. If you remember one sentence, make it this one. Finding services is a fair use of a locator, but being given an address is better still. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Give the caching locator an expiry time. And notice the decision you just had to make. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

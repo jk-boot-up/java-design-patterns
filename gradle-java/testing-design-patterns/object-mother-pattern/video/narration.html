@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Object Mother / Test Data Builder Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Object Mother / Test Data Builder Pattern — Video Narration Script</h1>
+<h2>1. Object Mother / Test Data Builder</h2>
+<p>Hello, and welcome. This video explains two testing patterns, the Object Mother and the Test Data Builder, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. Both help tests create the objects they need. An Object Mother is a class of ready-made objects, each with a clear name. A Test Data Builder starts from sensible defaults, and each test changes only the details it cares about. Think of a restaurant kitchen. The chef keeps a shelf of ready-made sauces and stocks. That shelf is the Object Mother. And when a customer asks for the usual, but no onions, the cook starts from the usual and changes just that. That is the builder. In this video, the domain is an online shop&#x27;s shipping rules, and the tests that check them. By the end, you will hear why hand-built test data hurts. How a mother helps, and where it stops helping. How a builder handles every mix. And the trap of hidden defaults.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The shop&#x27;s shipping rules are checked by many small tests. Each test built its order by hand. Three constructors, and eight values. Nobody reading the test could tell which of those values mattered.</p>
+<h2>3. Act One — Built by hand</h2>
+<p>First demo: every test builds its order by hand. A customer, with a name, an email, and a VIP flag. A country. A product line, with a quantity and a price. And a gift-wrap flag. Eight values, just to check that shipping costs four ninety-nine. Which of those eight values matter to this test? The reader cannot tell. And when the customer gains a new field, every test like this must be edited.</p>
+<h2>4. Act Two — An Object Mother</h2>
+<p>Second demo: an Object Mother. It is one class of ready-made orders, each with a name that says what it is. A domestic order ships for four ninety-nine. A VIP order ships free. An international order pays fifteen. Each test needs one line to get its order. And a new customer field is added in one place.</p>
+<h2>5. Act Three — The mother multiplies</h2>
+<p>Third demo: the mother multiplies. Tests need mixes. VIP or not. Abroad or not. Gift wrapped or not. Three yes-or-no details make eight combinations. Each one needs its own method, with a longer and longer name. Add one more detail, and it is sixteen.</p>
+<h2>6. Act Four — A Test Data Builder</h2>
+<p>Fourth demo: a Test Data Builder. It starts with sensible defaults for everything. And it has one method for each detail. A test says: an order, VIP, shipped to France. It pays fifteen, because free VIP shipping is only for the United Kingdom. Another test says: an order, VIP, gift wrapped. It pays two, for the wrapping. Any mix, in one line. And the line names exactly what the test cares about.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. A test leaned on a hidden default. A free-shipping test just asked for an order. Back then, the default price was sixty. Over the free-shipping line. Someone lowered the default to thirty. Now the order pays four ninety-nine. And the test fails, with no visible reason. The fix: the test asks for an order totalling sixty. A test must state everything it relies on.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the patterns. An Object Mother hands out named, ready-made objects. Good for a few well-known cases. A Test Data Builder starts from defaults. Each test states only the details it cares about. Good for any mix.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. Test orders is the mother, with methods like domestic, VIP and international. The order builder starts with a UK order of one mug, and has a method for each detail. Shipping rules is the code being tested. And the order is the object that needs eight values to exist.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met these patterns already. Many projects have a fixtures class in their test folder. Lombok can generate builders. And libraries such as Instancio fill objects with data. Ruby&#x27;s factory bot, and Python&#x27;s factory boy, are the same idea.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use them? When objects need many values, and many tests need slightly different versions. Use a mother for a few named cases. A builder for many mixes. Keep the defaults dull. And let every test state what it relies on.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Object Mother and the Test Data Builder. If you remember one sentence, make it this one. A test should only show the details it depends on. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Make the mother&#x27;s methods return builders, so the two patterns work together. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

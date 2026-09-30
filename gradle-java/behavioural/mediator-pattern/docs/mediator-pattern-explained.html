@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Mediator Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Mediator Pattern, Explained</h1>
+<blockquote><p><strong>Define an object that encapsulates how a set of objects interact. Mediator promotes loose coupling by keeping objects from referring to each other explicitly, and it lets you vary their interaction independently.</strong> — <em>Design Patterns</em>, Gamma, Helm, Johnson and Vlissides, 1994</p></blockquote>
+<p>&quot;Keeping objects from referring to each other explicitly&quot; is the mechanism. &quot;Encapsulates how a set of objects interact&quot; is the payoff, and it is the bigger of the two: after this refactoring there is one file you can open and read to know what the page does.</p>
+<h2>Five References Instead of Nine</h2>
+<p>Before — every widget holds the widgets it affects:</p>
+<pre><code>country.wire(shipping, giftWrap, total, placeOrder);
+shipping.wire(giftWrap, total, placeOrder);
+giftWrap.wire(shipping, total);</code></pre>
+<p>After — every widget holds the form, and the form holds every widget:</p>
+<pre><code>private final CountrySelector country = new CountrySelector(this);
+private final ShippingSelector shipping = new ShippingSelector(this);
+private final GiftWrapCheckbox giftWrap = new GiftWrapCheckbox(this);
+private final TotalLabel total = new TotalLabel(this);
+private final PlaceOrderButton placeOrder = new PlaceOrderButton(this);</code></pre>
+<p>Both forms behave the same on a straight run through. The difference shows up when the shopper changes their mind, and it shows up again the day somebody adds a sixth control.</p>
+<h2>Everyday Analogy: The Control Tower</h2>
+<p>Aircraft near an airport do not negotiate with each other. There is no protocol by which the inbound 737 asks the departing A320 to wait. They all talk to the tower, the tower knows where everything is, and the tower tells each one what to do.</p>
+<p>That is not because pilots cannot be trusted. It is because <em>n</em> aircraft talking to each other is *n*² conversations, and one of them will be missed. One tower is <em>n</em> conversations, and the rules of the airspace are in one head.</p>
+<p><code>CheckoutForm</code> is the tower. A widget&#x27;s entire vocabulary is &quot;something about me changed&quot;; what that means for the rest of the form is not its business, and it has no reference with which to make it its business.</p>
+<h2>Participants</h2>
+<table><thead><tr><th>Role</th><th>In the GoF book</th><th>Here</th></tr></thead><tbody><tr><td>Mediator</td><td><code>Mediator</code></td><td><code>CheckoutMediator</code> — one method, <code>changed</code></td></tr><tr><td>ConcreteMediator</td><td><code>ConcreteMediator</code></td><td><code>CheckoutForm</code> — owns the widgets and all the rules</td></tr><tr><td>Colleague</td><td><code>Colleague</code></td><td><code>FormWidget</code> — holds a name and a mediator, and nothing else</td></tr><tr><td>ConcreteColleague</td><td><code>ConcreteColleague</code></td><td><code>CountrySelector</code>, <code>ShippingSelector</code>, <code>GiftWrapCheckbox</code>, <code>TotalLabel</code>, <code>PlaceOrderButton</code></td></tr><tr><td>The trap</td><td>—</td><td><code>NaiveCheckoutForm</code> — the same page, wired widget-to-widget</td></tr></tbody></table>
+<h2>Code Walkthrough</h2>
+<h3>The mediator interface</h3>
+<pre><code>public interface CheckoutMediator {
+    void changed(FormWidget source);
+}</code></pre>
+<p>One method. A mediator&#x27;s interface is small because colleagues are meant to <em>report</em>, not to <em>ask</em>. If you find yourself adding <code>getShippingPrice()</code> to this interface, the widgets have started asking questions again and the coupling is coming back in through the front door.</p>
+<h3>The colleague base</h3>
+<pre><code>public abstract class FormWidget {
+    private final String name;
+    private final CheckoutMediator mediator;
+
+    protected void announceChange() {
+        mediator.changed(this);
+    }
+}</code></pre>
+<p>Two fields, and the important one is the one that is not there. A widget has no field capable of holding another widget, so the tangle is not merely discouraged — it is unrepresentable without editing this class.</p>
+<h3>A colleague</h3>
+<pre><code>public void select(String country) {
+    this.country = country;
+    announceChange();
+}</code></pre>
+<p>That is the whole of <code>CountrySelector.select</code>. Compare it with <code>NaiveCountry.select</code>, which is four statements about four other widgets and is still missing two.</p>
+<h3>The mediator</h3>
+<pre><code>@Override
+public void changed(FormWidget source) {
+    if (source == country) {
+        shipping.showOptions(methodsFor(country.country()));
+        giftWrap.setAvailable(isDomestic(country.country()));
+    }
+    refreshTotal();
+    refreshButton();
+}</code></pre>
+<p>Read that and you have read the behaviour of the checkout page. Two things are worth pausing on.</p>
+<p><strong><code>refreshTotal()</code> and <code>refreshButton()</code> run on every change, unconditionally.</strong> Nothing works out whether they <em>need</em> to run. That is what makes the tangled version&#x27;s second bug impossible here: the mediator never has to notice that clearing the shipping method affects the button, because it re-asks the question every single time. Recomputing everything is cheap, and &quot;cheap and always right&quot; beats &quot;clever and sometimes stale&quot;.</p>
+<p><strong>The <code>if</code> is the only branch.</strong> Only a country change reshapes the form; the other two only move the price. One conditional, in one method, is the entire control flow of the page.</p>
+<h3>Withdrawing and clearing cannot be separated</h3>
+<pre><code>void setAvailable(boolean available) {
+    this.available = available;
+    if (!available) {
+        this.ticked = false;
+    }
+}</code></pre>
+<p>There is no way to withdraw gift wrapping and leave the tick behind, because there is no method that does only the first half. This is the fix for the tangled version&#x27;s first bug, and note that it is not &quot;we remembered to also untick it&quot; — it is that the two are one operation.</p>
+<h3>Push, don&#x27;t pull</h3>
+<p><code>showOptions</code>, <code>setAvailable</code>, <code>show</code> and <code>setEnabled</code> are package-private. The mediator pushes state into the widgets; nothing outside the package can, so no caller can put the form into a state the mediator did not sanction. The public methods — <code>select</code>, <code>tick</code> — are the shopper&#x27;s, and every one of them ends in <code>announceChange()</code>.</p>
+<h2>Why the Tests Are the Proof</h2>
+<p><strong>The isolation is asserted, not claimed.</strong> <code>WidgetIsolationTest</code> walks every field of every widget by reflection and fails if any of them has a <code>FormWidget</code> type. A comment saying &quot;widgets must not reference each other&quot; survives exactly as long as the first person in a hurry; this does not.</p>
+<p><strong>The naive bugs are pinned in place.</strong> <code>NaiveCheckoutFormTest</code> asserts the <em>wrong</em> answers — £42 including phantom gift wrap, an enabled button with no courier — with messages saying so. Fixing <code>NaiveCheckoutForm</code> breaks its own tests, which is the intended behaviour: the cost of that design is meant to be stated out loud by the build.</p>
+<p><strong>The same scenario is run through both forms.</strong> The last test in that file puts the mediated form through the identical clicks and asserts it gets both right, so the comparison is not rhetoric in a README.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>The rules are in one place.</strong> One method to read, one place to change, one place to review.</li><li><strong>Linear wiring.</strong> A sixth control adds one reference, not five.</li><li><strong>Widgets become testable and reusable.</strong> <code>CountrySelector</code> needs a mediator, not four siblings.</li><li><strong>No circular dependencies.</strong> All the arrows point the same way.</li><li><strong>Whole-form invariants become expressible.</strong> &quot;The button is enabled only when the form is complete&quot; is a sentence you can write in one method, because one object can see the whole form.</li></ul>
+<h2>What to Watch Out For</h2>
+<p><strong>The mediator becomes a god object.</strong> This is the real cost and it is not hypothetical. Every rule you take out of the widgets goes into the mediator, and a large form can produce a very large one. Split it — one mediator per logical section of the page — before it becomes the class nobody wants to open.</p>
+<p><strong>Don&#x27;t let colleagues start asking.</strong> The moment a widget calls a getter on the mediator to find out about another widget, you have the old coupling with an extra hop. Colleagues report; the mediator decides.</p>
+<p><strong>Beware of change storms.</strong> If a mediator&#x27;s reaction to a change sets a widget in a way that announces another change, you can loop. This project avoids it by having the mediator&#x27;s push methods be package-private and silent — <code>showOptions</code> deliberately does not call <code>announceChange()</code>.</p>
+<p><strong>Don&#x27;t reach for it on a form with two controls.</strong> Two widgets that affect each other, and will never be joined by a third, are clearer wired directly. The pattern earns its keep somewhere around four or five interacting parts, which is exactly where it stops being possible to hold the wiring in your head.</p>
+<h2>Mediator vs. Observer vs. Facade</h2>
+<table><thead><tr><th></th><th>What it does</th><th>Who knows whom</th></tr></thead><tbody><tr><td><strong>Mediator</strong></td><td>Centralises the <em>interaction</em> between peers</td><td>Colleagues know the mediator; the mediator knows all of them</td></tr><tr><td><strong>Observer</strong></td><td>Broadcasts an event to whoever is listening</td><td>Publisher knows nothing about subscribers</td></tr><tr><td><strong>Facade</strong></td><td>Simplifies a subsystem for outside callers</td><td>Facade knows the subsystem; the subsystem knows nothing</td></tr></tbody></table>
+<p>Mediator and Observer are often confused because both remove direct references. The distinction is direction and knowledge: an <a href="../observer-pattern">Observer</a> publisher deliberately knows <em>nothing</em> about its subscribers, whereas a mediator knows all its colleagues on purpose — that knowledge is what lets it enforce rules that span several of them. A publisher could not disable a button because a drop-down was cleared; a mediator can, and that is the job.</p>
+<p>A <a href="../../structural/facade-pattern">Facade</a> also sits in front of several objects, but it faces outwards: it exists to simplify life for a <em>caller</em> outside the subsystem. A mediator faces inwards, and its colleagues are the ones it serves.</p>
+<h2>Where You Have Already Seen It</h2>
+<p>Every GUI framework. Swing&#x27;s <code>ActionListener</code> on a dialog is usually a mediator wearing a different hat — the dialog listens to its own controls and updates the others. Android&#x27;s <code>ViewModel</code> and Redux&#x27;s store are the same idea at a larger scale. <code>java.util.Timer</code> mediates between tasks and threads. Chat servers are the textbook case: participants do not hold each other, the room holds all of them.</p>
+<h2>Try It Yourself</h2>
+<ol><li>Add a voucher-code field that takes £5 off, and make gift wrap free when a voucher is applied. Count how many files you touch here, then count how many you would touch in <code>NaiveCheckoutForm</code>.</li><li>Give <code>CountrySelector</code> a field of type <code>TotalLabel</code> and run the tests. <code>WidgetIsolationTest</code> should name the offending field.</li><li>Make <code>showOptions</code> call <code>announceChange()</code> and watch what happens. That is the change storm, and it is worth seeing once.</li><li>Split <code>CheckoutForm</code> into a delivery mediator and a payment mediator, and decide how the two should talk to each other.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the problem in full</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — static structure</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the call sequence for one click</li><li><a href="../observer-pattern">Observer</a> — the pattern this is most often confused with</li><li><a href="../../structural/facade-pattern">Facade</a> — the other &quot;one object in front of many&quot;, facing the other way</li></ul>
+</main>
+<footer>
+Generated from <code>mediator-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

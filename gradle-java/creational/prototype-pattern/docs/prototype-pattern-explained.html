@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Prototype Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Prototype Pattern, Explained</h1>
+<h2>First, an Honest Note</h2>
+<p>This one is squarely in the Gang of Four book, in the creational chapter, alongside Builder and Abstract Factory. Unlike Builder, there is no matching <em>Effective Java</em> item pushing the same idea from a different angle — instead, <em>Effective Java</em> Item 13 spends its energy warning against Java&#x27;s own built-in attempt at this pattern, <code>Cloneable</code>. This project implements Prototype&#x27;s actual intent while deliberately avoiding <code>Cloneable</code>, which is the honest way to teach both at once.</p>
+<h2>The Definition</h2>
+<blockquote><p>Specify the kinds of objects to create using a prototypical instance, and create new objects by copying this prototype. — <em>Design Patterns</em> (Gamma, Helm, Johnson, Vlissides)</p></blockquote>
+<p>In plainer words:</p>
+<blockquote><p><strong>Instead of describing how to build an object from scratch every time, keep one fully-assembled example around, and produce new ones by copying it and changing only what&#x27;s different.</strong></p></blockquote>
+<h2>The Participants</h2>
+<table><thead><tr><th>Role</th><th>In this project</th><th>What it does</th></tr></thead><tbody><tr><td>Prototype</td><td><code>Prototype&lt;T&gt;</code></td><td>An interface with one method, <code>copy()</code></td></tr><tr><td>Concrete Prototype</td><td><code>ProductListing</code></td><td>Implements <code>copy()</code>, knows how to duplicate its own state</td></tr><tr><td>Client</td><td><code>ProductListingDemo</code></td><td>Builds one listing, then clones and tweaks it</td></tr><tr><td>Prototype Manager <em>(GoF&#x27;s own name for it)</em></td><td><code>ListingRegistry</code></td><td>A named shelf of templates, cloned by key</td></tr></tbody></table>
+<h2>The Code, Walked Through</h2>
+<h3><code>Prototype&lt;T&gt;</code> — not <code>Cloneable</code></h3>
+<pre><code>public interface Prototype&lt;T&gt; {
+    T copy();
+}</code></pre>
+<p>One method, unchecked, public by construction — nothing to override from a protected superclass method, nothing to catch. Any type that wants to be copyable implements this and writes <code>copy()</code> however makes sense for its own fields. The interface does not — cannot — provide a default implementation, because only the type itself knows which of its fields need a deep copy and which can be shared.</p>
+<h3><code>ProductListing</code> — deciding what to copy deeply, and what to share</h3>
+<pre><code>public ProductListing(String sku, String title, String description, String category,
+        String brand, Money price, List&lt;String&gt; images, Map&lt;String, String&gt; attributes,
+        ShippingProfile shippingProfile, int returnWindowDays, int warrantyMonths) {
+    ...
+    this.images = new ArrayList&lt;&gt;(Objects.requireNonNull(images, &quot;images&quot;));
+    this.attributes = new LinkedHashMap&lt;&gt;(Objects.requireNonNull(attributes, &quot;attributes&quot;));
+    this.shippingProfile = Objects.requireNonNull(shippingProfile, &quot;shippingProfile&quot;);
+    ...
+}
+
+@Override
+public ProductListing copy() {
+    return new ProductListing(sku, title, description, category, brand, price,
+            images, attributes, shippingProfile, returnWindowDays, warrantyMonths);
+}</code></pre>
+<p>Two things to notice, and they are the whole pattern:</p>
+<p><strong><code>copy()</code> has no copying logic of its own.</strong> It just calls the constructor again, passing this instance&#x27;s own fields as arguments. That works because the constructor already defensively deep-copies <code>images</code> and <code>attributes</code> into a fresh <code>ArrayList</code> and <code>LinkedHashMap</code> — a rule that exists to protect <em>any</em> caller of the constructor, not specifically to support <code>copy()</code>. One piece of defensive-copying code ends up doing double duty. There is no second deep-copy routine to keep in sync with the first.</p>
+<p><strong>Not everything gets deep-copied.</strong> <code>shippingProfile</code> is passed straight through, unchanged, and both the original and the copy end up holding the exact same <code>ShippingProfile</code> instance:</p>
+<pre><code>public record ShippingProfile(String carrier, int weightGrams, boolean freeShipping) { }</code></pre>
+<p>That is safe only because <code>ShippingProfile</code> is immutable — a <code>record</code> with no setters. Nothing can mutate it out from under either listing, so there is nothing to protect by copying it. Contrast with <code>images</code>, a mutable <code>List&lt;String&gt;</code>: sharing the same list between the original and a copy would mean editing one edits the other, which defeats the entire point of making a copy.</p>
+<p>This is Prototype&#x27;s real design work — not the mechanical &quot;call the constructor again&quot; part, but the field-by-field judgment call: <strong>deep-copy what&#x27;s mutable, share what&#x27;s immutable.</strong></p>
+<h3>Using it</h3>
+<pre><code>ProductListing master = new ProductListing(&quot;EARBUD-BLK&quot;, &quot;Wireless Earbuds&quot;, ...);
+
+ProductListing white = master.copy();
+white.setSku(&quot;EARBUD-WHT&quot;);
+white.setTitle(&quot;Wireless Earbuds (White)&quot;);
+white.attributes().put(&quot;color&quot;, &quot;White&quot;);
+white.images().clear();
+white.images().add(&quot;earbuds-white-1.jpg&quot;);</code></pre>
+<p>Five lines instead of an eleven-argument constructor call repeating eight values that never changed. <code>master</code> is untouched — <code>white.attributes()</code> and <code>white.images()</code> are its own independent map and list, not <code>master</code>&#x27;s.</p>
+<h3><code>ListingRegistry</code> — the Prototype Manager, for when keys beat types</h3>
+<pre><code>public ProductListing create(String key) {
+    ProductListing template = templates.get(key);
+    if (template == null) {
+        throw new NoSuchElementException(&quot;no listing template registered under: &quot; + key);
+    }
+    return template.copy();
+}</code></pre>
+<p>The GoF book describes exactly this as a variant of Prototype — sometimes called a <strong>Prototype Manager</strong> — for when the set of &quot;kinds of thing to copy&quot; is decided at runtime (loaded from a database, configured by a catalog admin) rather than known and spelled out in the caller&#x27;s source code. A caller here never writes <code>new ProductListing(...)</code> and never even imports it by name in spirit — it asks the registry for <code>&quot;earbuds-template&quot;</code> and gets back an independent copy, the same way <code>PurchaseOrderPresets</code> in the builder-pattern project lets a caller ask for <code>&quot;expressOrder&quot;</code> without knowing <code>PurchaseOrder</code>&#x27;s constructor.</p>
+<h2>What You Gain</h2>
+<p><strong>No re-typing the shared fields.</strong> Every variant pays only for what makes it different — a sku, a title, one attribute, a photo list.</p>
+<p><strong>A single, honest place for the deep-copy decision.</strong> <code>copy()</code> in this project reuses the constructor&#x27;s own defensive copy, so there is exactly one piece of code responsible for &quot;which fields need their own list or map&quot; — not two copies of that logic that could quietly drift apart.</p>
+<p><strong>None of <code>Cloneable</code>&#x27;s baggage.</strong> No protected method to re-expose, no checked exception that can never fire, no shallow-copy-by-default trap. <code>copy()</code> is just a method, typed and documented like any other.</p>
+<p><strong>A runtime-keyed shelf of templates, when that&#x27;s what the domain needs.</strong> <code>ListingRegistry</code> turns &quot;which kind of listing&quot; from a compile-time decision (which concrete class to <code>new</code>) into a runtime one (which string key to pass).</p>
+<h2>What to Watch Out For</h2>
+<p><strong>Deep-copy judgment doesn&#x27;t come for free.</strong> Every mutable field a concrete prototype adds is one more thing its author must remember to deep-copy in the constructor. Miss one, and <code>copy()</code> silently produces two listings sharing a list — exactly the bug this pattern exists to prevent.</p>
+<p><strong>Not a substitute for validation.</strong> <code>copy()</code> reproduces whatever state the original had, valid or not. If <code>master</code> was somehow built with contradictory data, every clone inherits that.</p>
+<p><strong>Registries add a lookup failure mode.</strong> <code>ListingRegistry.create(&quot;typo&quot;)</code> throws at runtime instead of failing to compile, the price every string-keyed lookup pays. Reach for a registry when the set of keys is genuinely decided outside the caller&#x27;s code — not as a way to avoid naming a constructor.</p>
+<h2>How This Relates to the Other Creational Patterns</h2>
+<table><thead><tr><th></th><th>Prototype</th><th>Builder</th><th>Static Factory Method</th><th>Abstract Factory</th></tr></thead><tbody><tr><td>In the GoF book?</td><td>Yes</td><td>Yes</td><td>No</td><td>Yes</td></tr><tr><td>The problem it solves</td><td>Cheaply producing near-duplicates of an expensive-to-assemble object</td><td>Many optional pieces, one object</td><td>Naming and hiding a constructor</td><td>Which whole matching set?</td></tr><tr><td>What the caller writes</td><td><code>template.copy()</code>, then a few setters</td><td>A chain of calls, one per piece</td><td>One named call</td><td>One call, gets a family back</td></tr><tr><td>Extra classes needed</td><td>One interface (<code>Prototype&lt;T&gt;</code>)</td><td>One builder</td><td>None</td><td>One per family</td></tr></tbody></table>
+<p>The honest summary: Prototype answers a question none of the others do — <em>&quot;I already have one of these; how do I get another that&#x27;s almost the same?&quot;</em> Builder answers &quot;how do I assemble one piece by piece the first time?&quot; A real system often uses both: a <code>ListingRegistry</code> template might itself have been assembled with a builder before being registered.</p>
+<h2>Try It Yourself</h2>
+<ol><li><strong>Add a mutable field.</strong> Give <code>ProductListing</code> a <code>List&lt;String&gt; tags</code>. Wire it through the constructor with the same <code>new ArrayList&lt;&gt;(...)</code> defensive copy the other collections use. Confirm <code>copy()</code> needs no changes at all — it already forwards every field to the constructor.</li><li><strong>Break the deep copy on purpose.</strong> Change <code>this.images = new ArrayList&lt;&gt;(images)</code> to <code>this.images = images</code>. Write a test that mutates a copy&#x27;s <code>images()</code> and asserts the original is unaffected. Watch it fail, and see exactly which line stopped protecting you.</li><li><strong>Register a second template.</strong> Add a <code>&quot;phone-case-template&quot;</code> to <code>ListingRegistry</code> in <code>ProductListingDemo</code> and create two independent instances from it.</li><li><strong>Feel the alternative.</strong> Implement <code>Cloneable</code> on a copy of <code>ProductListing</code> instead, using <code>super.clone()</code>. Try to make <code>images</code> independent between the original and the clone without writing your own <code>copy()</code>-shaped logic inside <code>clone()</code> anyway.</li></ol>
+</main>
+<footer>
+Generated from <code>prototype-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enterprise Application Patterns — Implementation Plan</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Enterprise Application Patterns — Implementation Plan</h1>
+<p>How the eleven projects in this category get built. <a href="spec.html"><code>spec.md</code></a> fixes what they are; this fixes the order, the rules that keep the build from redoing itself, and what &quot;finished&quot; means.</p>
+<p><strong>All eleven projects are built.</strong> The one gap against this plan is the three optional <code>real/</code> demos (Data Mapper, Service Layer, DTO), which are not built.</p>
+<hr>
+<h2>Current state</h2>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Projects specified</td><td>11 (seven patterns by hand; four of them again in the framework)</td></tr><tr><td>Projects built</td><td>11 (seven by hand, four with a framework)</td></tr><tr><td>Category registered with the shared generators</td><td>yes</td></tr><tr><td>Existing projects in the repository</td><td>37 built; 14 more specified across the platform and concurrency categories</td></tr></tbody></table>
+<hr>
+<h2>Order of work</h2>
+<h3>Phase 0 — Wire the category in, and settle the shared toy database</h3>
+<p>Two jobs, and the second is the one that saves the most rework.</p>
+<p><strong>Tooling.</strong> Add <code>enterprise-design-patterns</code> to <code>CATEGORIES</code> in <code>gradle-java/docs/make_narration.py</code>, and add all eleven slugs to the per-project tables in <code>make_specs.py</code>, <code>make_thumbnails.py</code> and <code>make_youtube_docs.py</code> — those three carry their own tables and <strong>silently skip anything missing</strong>. Then register the category in <code>gradle-java/README.md</code>, the root <code>README.md</code> and <code>docs/video-and-publishing-spec.md</code>.</p>
+<p><strong>The toy database.</strong> All seven hand-built projects need the same thing: an in-memory store that behaves enough like a database to make the patterns real. Settle it once, then copy it into each project — the repository has no shared library and should not grow one.</p>
+<p>It needs exactly five properties, and no more:</p>
+<ol><li><strong>Rows, not objects.</strong> A table is a map from id to a map of column values. If it stores objects, Data Mapper has nothing to do and the category collapses.</li><li><strong>A visible operation counter.</strong> Every insert, update and select is counted and printable. This is how N+1 is shown and how every quoted number is produced.</li><li><strong>An explicit <code>flush()</code>.</strong> Nothing is written until asked, which is what makes Unit of Work demonstrable.</li><li><strong>Failure on demand.</strong> A table that can be told to reject the next write, so &quot;the third stock update fails&quot; is deterministic.</li><li><strong>No threading.</strong> Concurrency belongs to the concurrency category. This one is single-threaded throughout.</li></ol>
+<p>Also settle the four domain classes — <code>Customer</code>, <code>Product</code>, <code>Order</code>, <code>OrderLine</code> — and the seeded data, once, so all seven projects tell one story with the same customer ids.</p>
+<p><strong>Exit:</strong> the tooling lists the category with zero projects; the toy database and the four domain classes exist, are tested, and live in the reference project ready to be copied.</p>
+<h3>Phase 1 — Build Data Mapper end to end, as the category&#x27;s reference</h3>
+<p>It goes first because the whole category assumes it — every later pattern presumes objects and rows are separate things. Build it complete and treat the result as the template.</p>
+<p>Three things this phase settles for everyone after it:</p>
+<ul><li><strong>How Active Record is treated.</strong> It is the naive version in §52 and it must be shown working well before its cost appears. The tone set here governs every other project&#x27;s naive version, and <code>spec.md</code> §9 makes fairness a conformance item.</li><li><strong>How the toy database&#x27;s operations are printed.</strong> One format for query counts, used by all eleven.</li><li><strong>The &quot;Where you have already met this&quot; section.</strong> Length, tone, and where it sits.</li></ul>
+<p><strong>Exit:</strong> one project passing every item in <code>spec.md</code> §9, and a one-scene <code>real/</code> demo that shows the generated SQL beside the hand-written mapper.</p>
+<p>Because Data Mapper&#x27;s <code>real/</code> demo is the first JPA one, it also settles the framework conventions everything after it copies: how H2 and Hibernate are pinned, how a framework demo is filmed, and what a <code>docs/dependencies.md</code> looks like. Projects 59 to 62 inherit all of it.</p>
+<h3>Phase 2 — Build the remaining six hand-built projects, one at a time, in learning order</h3>
+<p><strong>One project at a time, finished completely before the next begins.</strong></p>
+<table><thead><tr><th>Order</th><th>Project</th><th>The moment to get right</th><th>Framework material</th><th>Risk</th></tr></thead><tbody><tr><td>1</td><td><code>identity-map-pattern</code></td><td>The lost address change, then <code>==</code> being true</td><td>A whole project, §59</td><td>Low</td></tr><tr><td>2</td><td><code>unit-of-work-pattern</code></td><td>The half-written order, and nothing to undo it with</td><td>A whole project, §60</td><td>Low</td></tr><tr><td>3</td><td><code>lazy-load-pattern</code></td><td>N+1 printed as 21 queries for 20 orders</td><td>A whole project, §61</td><td>Medium</td></tr><tr><td>4</td><td><code>repository-pattern</code></td><td>Swapping the store with no change to the caller</td><td>A whole project, §62</td><td>Medium</td></tr><tr><td>5</td><td><code>service-layer-pattern</code></td><td>The second entry point, and the logic that drifted</td><td>One scene, <code>@Service</code></td><td><strong>High — vagueness</strong></td></tr><tr><td>6</td><td><code>dto-pattern</code></td><td>The password hash in the JSON</td><td>One scene, Jackson at a REST boundary</td><td>Low</td></tr></tbody></table>
+<p>Three cautions, recorded now because each is discovered late otherwise.</p>
+<p><strong>Lazy Load is the category&#x27;s best video and should be given the most care.</strong> <code>LazyInitializationException</code> is among the most-searched Java errors there is, and this project explains it from its mechanism instead of offering the usual workaround. Budget accordingly.</p>
+<p><strong>Service Layer is the one that can go vague.</strong> &quot;Put business logic in a service&quot; is advice, not a pattern, and a project that says only that is not worth making. Its concrete anchor is the second entry point: build the CLI, copy the logic, show the drift, then extract. And it must name the Anemic Domain Model and give an honest dividing line rather than pretending the boundary is obvious.</p>
+<p><strong>Repository must not become CQRS.</strong> The read/write split belongs to §34 and is linked, not re-taught.</p>
+<p><strong>Exit:</strong> seven hand-built projects complete, each verified before the next begins.</p>
+<h3>Phase 2a — Build the four framework projects, one at a time</h3>
+<p>These are §59 to §62, and they come <strong>after all seven hand-built projects are finished and published</strong>, in the order their partners were built.</p>
+<table><thead><tr><th>Order</th><th>Project</th><th>Pairs with</th><th>The moment to get right</th><th>Risk</th></tr></thead><tbody><tr><td>1</td><td><code>identity-map-with-jpa-pattern</code></td><td>§53</td><td><code>first == second</code>, then two contexts making it false</td><td>Low</td></tr><tr><td>2</td><td><code>unit-of-work-with-spring-pattern</code></td><td>§54</td><td>The checked exception that commits, and the flush nobody wrote</td><td>Medium</td></tr><tr><td>3</td><td><code>lazy-load-with-hibernate-pattern</code></td><td>§55</td><td>A real <code>LazyInitializationException</code>, then the three fixes and their costs</td><td><strong>Medium–High</strong> — the best video in the category</td></tr><tr><td>4</td><td><code>repository-with-spring-data-pattern</code></td><td>§56</td><td>Deleting the implementation and the application still running</td><td>Medium</td></tr></tbody></table>
+<p>Five rules govern all four, and they are what keep a framework project from turning into a framework tutorial:</p>
+<ol><li><strong>Copy the partner&#x27;s domain unchanged.</strong> Same classes, same seeded customers, same scenario, same numbers. Only the mechanism differs, and the comparison is worthless if anything else moved.</li><li><strong>Do not re-teach the pattern.</strong> The partner owns it. Open by naming the partner in the first sentence, then spend the whole project on the one thing this version adds.</li><li><strong>Write <code>docs/dependencies.md</code> before the first annotation</strong>, so Hibernate and Spring are explained rather than assumed, and so the explanation is the plan rather than an afterthought.</li><li><strong>Lead with the failure, not the feature.</strong> Each of these projects has one concrete thing that goes wrong — a detached entity, a swallowed rollback, a closed session, a leaked managed entity — and that is the reason the project exists. A draft that only demonstrates convenience has missed its subject.</li><li><strong>Keep the framework out of the partner.</strong> Nothing in §52 to §58&#x27;s build files changes when these are built.</li></ol>
+<p>If the schedule runs short, defer from the bottom of the table upward. §61 is the one to protect: it explains the most-searched exception in Java from its mechanism, and nothing else in the course is positioned to do that.</p>
+<p><strong>Exit:</strong> eleven projects complete, each verified before the next begins.</p>
+<h3>Phase 3 — Verify the category</h3>
+<ol><li>The artefact sweep from <a href="../../micro-services-design-patterns/docs/ai-session.html"><code>../../micro-services-design-patterns/docs/ai-session.md</code></a> §2, pointed here.</li><li><code>./gradlew test</code> in every project, <strong>with no database installed and no network</strong>, all green.</li><li>Every query count quoted in a README, a slide or a narration line re-checked against real run output.</li><li>Every spec regenerated <strong>after</strong> its video exists.</li><li>Every video printed <code>audio timeline continuous</code>, and every one listened to.</li><li>Every poster and thumbnail looked at.</li><li><code>git status</code> shows no mp4, m4a, srt, wav, log, <code>docs/audio/</code> or <code>video/build/</code>.</li><li>The nine extra conformance items in <code>spec.md</code> §9 checked per project.</li><li><strong>The four pairings diffed.</strong> Each framework project&#x27;s domain classes and seeded data must match its partner&#x27;s exactly. If they have drifted, the comparison the pairing rests on is not valid.</li><li><strong><code>grep</code> the build files of projects 52 to 58</strong> and confirm no framework appears in any of them.</li></ol>
+<hr>
+<h2>Sequencing rules</h2>
+<p><strong>Finish one project before starting the next.</strong></p>
+<p><strong>Build the hand-built project first and completely, including the video</strong>, then its framework partner as a separate project. A Hibernate problem must never block a project that does not need Hibernate to teach its pattern, and keeping the two in separate projects is what guarantees that.</p>
+<p><strong>Run the demo before quoting it.</strong> Every number — especially every query count — comes from real <code>./gradlew run</code> output.</p>
+<p><strong>Regenerate the spec last, after the video exists.</strong></p>
+<p><strong>Any fix to the shared pipeline is rolled out to all projects.</strong></p>
+<p><strong>Nothing is committed or pushed unless asked.</strong> Build artefacts go to <code>.gitignore</code>; source, documents, <code>animation.html</code>, posters, thumbnails and rendered diagrams stay in. Commit messages carry no co-author trailer.</p>
+<hr>
+<h2>Framework register</h2>
+<p>Any open-source framework may be used, and every use is accounted for here before it reaches a build file. This category has the strongest case in the course, because recognising the pattern inside the framework is half of what it teaches.</p>
+<p>The register is a map, not a gate. The one structural constraint is where a framework may live: <strong>the seven hand-built projects stay framework-free, and the framework version is built as a project of its own.</strong> Both halves matter. A library inside the hand-built project would hide the mechanism that is the lesson — but leaving the framework out altogether would be worse, because recognising the pattern inside Hibernate and Spring is half of what this category teaches. So both versions get built, separately, and each uses the real framework a reader will meet at work rather than a simplified stand-in. This replaces an earlier rule that kept the framework out of Tier 1 without building it anywhere as a project of its own.</p>
+<p>Versions are indicative and get fixed at Phase 0 in one shared catalogue; the reasons are not negotiable.</p>
+<table><thead><tr><th>Project</th><th>Where</th><th>Dependency</th><th>Why it, rather than plain Java</th></tr></thead><tbody><tr><td>all eleven</td><td>main</td><td>JUnit 5 (<code>5.10.x</code>)</td><td>The repository standard.</td></tr><tr><td>§52 to §58</td><td>main</td><td><strong>nothing else</strong></td><td>The hand-built mechanism is the lesson. A library here would hide it, and a reader who wants the mechanism alone gets it.</td></tr><tr><td>§59 <code>identity-map-with-jpa</code></td><td>main</td><td>Hibernate (<code>6.5.x</code>), H2 (<code>2.2.x</code>)</td><td>The persistence context <em>is</em> the pattern; nothing else demonstrates it, and the detached-entity failure needs a real one.</td></tr><tr><td>§60 <code>unit-of-work-with-spring</code></td><td>main</td><td>Spring Boot (<code>3.3.x</code>), H2</td><td><code>@Transactional</code> is the pattern as most readers meet it, and its surprises — the checked exception that commits, the unexpected flush — are Spring&#x27;s own.</td></tr><tr><td>§61 <code>lazy-load-with-hibernate</code></td><td>main</td><td>Hibernate, H2</td><td>A genuine <code>LazyInitializationException</code> cannot be faked convincingly, and faking it would defeat the project.</td></tr><tr><td>§62 <code>repository-with-spring-data</code></td><td>main</td><td>Spring Data JPA (<code>3.3.x</code>), H2</td><td>An interface with no implementation, after building one by hand.</td></tr><tr><td>§52 <code>data-mapper</code></td><td><code>real/</code> demo</td><td>Hibernate, H2</td><td>Real generated SQL beside a hand-written mapper, for one scene.</td></tr><tr><td>§57 <code>service-layer</code></td><td><code>real/</code> demo</td><td>Spring Boot</td><td><code>@Service</code> and where the transaction boundary is drawn, for one scene.</td></tr><tr><td>§58 <code>dto</code></td><td><code>real/</code> demo</td><td>Spring Boot, Jackson (via the Boot BOM)</td><td>The entity-versus-DTO problem is a serialisation problem, for one scene.</td></tr></tbody></table>
+<p>The <code>real/</code> demos sit in a subdirectory excluded from the root <code>settings.gradle</code>, so <code>./gradlew test</code> never reaches them. The four framework projects are ordinary projects and their tests do run — they are the project.</p>
+<p>H2 runs in memory and needs no installation, which is why it is the database everywhere here rather than Postgres in a container. A reader with a JDK and a warm Gradle cache can run every project in this category, including the four framework ones — which is what makes it reasonable to ship them as projects rather than as optional extras.</p>
+<h3>Considered, and not currently planned</h3>
+<p><strong>Any open-source framework is available.</strong> This table records the current judgement on candidates that came up, so a later session does not re-derive the same reasoning. None of it is a prohibition — if a draft shows one of these earning its place, take it and update the row.</p>
+<table><thead><tr><th>Candidate</th><th>Current judgement</th></tr></thead><tbody><tr><td>MapStruct, in the DTO project</td><td>It generates the mapping code, which is exactly the cost §58 exists to make visible. The sequence that works: show the tedium by hand, then show MapStruct removing it. Taking it <em>after</em> the cost has landed is a good outcome, not a compromise.</td></tr><tr><td>Lombok</td><td>Saves typing, costs a reader who then has to know what was generated. Java records cover most of it already.</td></tr><tr><td>A real Postgres in a container</td><td>H2 in memory teaches the same patterns with none of the setup, and keeps every Tier 2 runnable from a JDK and a warm cache. The container permission exists; this is a case where not using it serves the reader better. Worth revisiting only if a pattern turns on database-specific behaviour.</td></tr><tr><td>jOOQ, MyBatis</td><td>Alternative answers to §52 rather than the pattern itself. Worth naming in a scene; a project each would be a different course.</td></tr><tr><td>A mocking framework</td><td>Hand-written fakes over the toy database are readable by a beginner. No objection where a Tier 2 test genuinely needs one.</td></tr></tbody></table>
+<hr>
+<h2>Risks</h2>
+<table><thead><tr><th>Risk</th><th>Mitigation</th></tr></thead><tbody><tr><td><strong>Service Layer becomes vague advice</strong></td><td>The highest-risk project in the category, flagged in Phase 2. Its anchor is the concrete second entry point and the drift it causes, plus a named position on the Anemic Domain Model.</td></tr><tr><td><strong>The toy database grows into a real one</strong></td><td>Five properties, listed in Phase 0, and no more. If it needs a query planner, the project has gone wrong.</td></tr><tr><td>The naive versions become straw men</td><td>A conformance item. Active Record is good for small applications; SQL in a service is fine in a script. Say so.</td></tr><tr><td>Tier 2 rots — Hibernate or Spring Boot majors land</td><td>Pinned in one shared catalogue; never on the path of <code>./gradlew test</code>.</td></tr><tr><td>Repository restates CQRS (§34)</td><td>Linked, not re-taught.</td></tr><tr><td>DTO restates Backends for Frontends (§40)</td><td>Same decision at a different layer; the projects link and each says which layer it is at.</td></tr><tr><td>The category reads as a Spring tutorial</td><td>Seven of the eleven projects have no framework at all, and each of the four that do is pinned to one contrast and one failure. Rule 2 of Phase 2a — do not re-teach the pattern, do not teach the framework — is the check.</td></tr><tr><td><strong>A framework project repeats its partner</strong></td><td>Each opens by naming its partner and leads with a failure the partner cannot show. If a draft&#x27;s most interesting moment is one the partner already had, it should not ship.</td></tr><tr><td><strong>A pairing drifts apart</strong></td><td>The framework project copies its partner&#x27;s domain and seeded data unchanged, and Phase 3 diffs the four pairs.</td></tr><tr><td><strong>A framework leaks into a hand-built project</strong></td><td>Phase 3 greps the build files of §52 to §58. It is the reason §59 to §62 are separate projects.</td></tr><tr><td>Eleven full projects is a large amount of work</td><td>Roughly a week each including the render, though §59 to §62 are cheaper because they inherit their partner&#x27;s domain, scenario and numbers. The one-at-a-time rule means the category is useful at any point, and the four framework projects are ordered so that deferring from the bottom of the Phase 2a table costs least.</td></tr></tbody></table>
+<hr>
+<h2>Definition of done</h2>
+<p>The category is complete when:</p>
+<ul class="task"><li>Eleven projects exist, each passing the repository-wide conformance checklist and the nine extra items in <code>spec.md</code> §9.</li><li><strong>Every one of §52 to §58 passes with no database installed and no network</strong>, and no framework appears in any of their build files.</li><li><strong>Each of §59 to §62 is a project in its own right</strong> — its own README, documents, poster, thumbnail and video — naming its partner in its first paragraph, using that partner&#x27;s domain unchanged, and carrying a <code>docs/dependencies.md</code> written for someone who has never used Hibernate or Spring.</li><li>Every <code>real/</code> demo and every framework project runs from a single command on a machine that has never built it.</li><li>Every project builds, tests pass in under two seconds, and its README quotes real run output including the query counts.</li><li>Every dependency and every version appears in the framework register and matches what the build files declare.</li><li>Every video is rendered, printed <code>audio timeline continuous</code>, runs between eleven and thirteen minutes, and has been listened to.</li><li>Every poster and thumbnail has been looked at.</li><li>Every explainer has its &quot;Where you have already met this&quot; section, and every video says it aloud.</li><li>All specs across the repository regenerate clean.</li><li>The root <code>README.md</code>, <code>gradle-java/README.md</code> and the repository-wide spec all describe the category.</li></ul>
+</main>
+<footer>
+Generated from <code>implementation-plan.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

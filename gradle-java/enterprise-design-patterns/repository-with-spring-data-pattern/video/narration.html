@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Repository with Spring Data Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Repository with Spring Data Pattern — Video Narration Script</h1>
+<h2>1. Repository with Spring Data</h2>
+<p>Hello, and welcome. This video explains the Repository pattern, in Java, using Spring Data. This video is presented by Jayasekhar Konduru. First, a simple definition. A repository is an interface that looks like a collection of your objects. So the code using it asks for objects, not for database tables. Think of ordering from a catalogue by item name. You say what you want, and the warehouse works out how to find it. This is the framework version of the Repository video. That one built two implementations by hand. This one has none at all. By the end, you will hear an interface with no class behind it that still works. A query built from a method&#x27;s name. And a surprising leak: objects that can change the database without anyone calling save.</p>
+<h2>2. The Partner Project</h2>
+<p>Before we start, a quick note. This video has a partner: the hand-built Repository video. That one builds one interface, and two implementations by hand. One over a simple list, and one over a database. Here, we use the same six customers, and the same question. London customers who ordered in the last month. We will not teach the pattern again. Instead, we ask what Spring Data does with it.</p>
+<h2>3. Before The First Annotation</h2>
+<p>Three things are new in this project. Spring Boot, which creates and connects your objects. Spring Data, which writes your repository for you, from just an interface. And H2, a database that runs in memory, so nothing needs installing. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.</p>
+<h2>4. An Interface With No Implementation</h2>
+<p>First demo: an interface with no implementation. The customer repository is an interface. And this project has no class that implements it. Not one. The object Spring provides is a generated stand-in, called a proxy. Save works. Find by I D works. Find all works. Delete works. And nobody wrote any of them.</p>
+<h2>5. A Query From A Name</h2>
+<p>Second demo: a query built from a name. In the last video, the London query was written by hand, twice. Here, it is just a method name. Find distinct by city, and orders day greater than. Spring Data reads the name, and builds the query. The answer is Ada and Grace, in one database query. And the marketing service from the partner video, unchanged, gives the same answer. The two implementation classes it needed before simply do not exist here.</p>
+<h2>6. Cost: A Name Can Be Wrong</h2>
+<p>Third demo: the costs, starting with names. Every question still needs its own method. And the names grow long. Find distinct, by city, and orders day greater than, and orders status in. The name is now the query. So a typo, like city spelled with two i&#x27;s, is not caught by the compiler. It is only caught when Spring reads it, and complains that no such property exists. The compiler cannot check a name.</p>
+<h2>7. Cost: The Leak On Speed</h2>
+<p>Fourth demo: the speed leak. Count every customer&#x27;s orders. Six customers, and their orders are loaded lazily. That costs seven queries, the same seven as the hand-built version. Add an entity graph annotation to the repository method. And now it is one query. So the interface can now say, fetch these together. But only by carrying a database hint, on a type that was meant to hide the database.</p>
+<h2>8. The Managed Entity That Leaks</h2>
+<p>Fifth demo: this project&#x27;s own failure. An object that a Spring Data repository hands out is not a plain object. It is managed, which means it is being watched. Inside a transaction, some code gets all the customers, and moves Ada to Manchester. It never calls save. Yet when the transaction ends, Ada&#x27;s city in the database is Manchester. Written, with no save anywhere. Now the same change, with no transaction around it. Ada&#x27;s city in the database stays London. The change is lost, and there is no error. The interface looks like a plain collection. But the objects inside it are not plain.</p>
+<h2>9. And The Swap?</h2>
+<p>One more point from the hand-built video, which is still true. A repository is often sold as a way to swap your database. That is claimed far more often than it happens. The real benefit is that your code speaks the language of the business.</p>
+<h2>10. Where You Have Met This</h2>
+<p>Where have you met this before? Every J P A Repository in Spring is exactly this pattern. The framework supplies the implementation you wrote by hand before. And it builds queries from the method names. Now you know what it does for you, and where it leaks.</p>
+<h2>11. What Was Used</h2>
+<p>For the record, here are the versions. Spring Boot four point one point one. With whichever versions of Spring Data, Hibernate, and H2 that release includes. There is no web server, and no web library, in this project.</p>
+<h2>12. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything here is real. The proxy is Spring&#x27;s. The query is built by Spring Data, from the name. And the counts come from Hibernate&#x27;s own statistics. The only stand-in is the database, H2, in memory.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, when is this too much? Even for a few queries in one place, Spring Data still saves you two classes. The cost is the leak, and it needs to be understood.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s Repository with Spring Data. If you remember one sentence, make it this one. The interface hides the database, but the objects it returns are still being watched by it. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a finder that searches by the start of a customer&#x27;s name. And call it, without writing any other code. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

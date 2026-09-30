@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Simple Factory Pattern — Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Simple Factory Pattern — Explained</h1>
+<h2>One-Line Definition</h2>
+<blockquote><p><strong>Simple Factory</strong> puts the decision of <em>which</em> class to instantiate into one method, so callers can ask for an object by name instead of building it themselves.</p></blockquote>
+<p>A note on naming, because it confuses everybody at first: Simple Factory is <strong>not</strong> one of the twenty-three Gang of Four patterns. It is an idiom — the one everyone actually writes — and it is the natural first step towards the two real creational patterns, Factory Method and Abstract Factory. Learn it first; the others make far more sense afterwards.</p>
+<h2>The Everyday Analogy</h2>
+<p>Think of a <strong>coffee shop counter</strong>.</p>
+<p>You do not walk behind the counter, find the espresso machine, grind the beans and steam the milk. You say <em>&quot;a cappuccino, please&quot;</em> and a cappuccino arrives. You named what you wanted; somebody else knew how to make it.</p>
+<p>Tomorrow the shop buys a better machine, or starts making the cappuccino a different way. Your order does not change. You never knew how it was made, so there is nothing for you to relearn.</p>
+<p><strong>The counter is the factory.</strong> In this project, <code>PaymentMethodFactory.create(...)</code> is the counter, <code>PaymentType.UPI</code> is what you say, and <code>UpiPayment</code> is the drink.</p>
+<h2>The Participants</h2>
+<table><thead><tr><th>Role</th><th>In this project</th><th>Job</th></tr></thead><tbody><tr><td><strong>Product</strong></td><td><code>PaymentMethod</code></td><td>The interface every result shares — what the client programs against</td></tr><tr><td><strong>Concrete products</strong></td><td><code>CreditCardPayment</code>, <code>UpiPayment</code>, <code>PayPalPayment</code>, <code>NetBankingPayment</code></td><td>Do the real specialised work</td></tr><tr><td><strong>Factory</strong></td><td><code>PaymentMethodFactory</code></td><td>Holds the one <code>switch</code>; the only class that calls <code>new</code> on a product</td></tr><tr><td><strong>Client</strong></td><td><code>CheckoutService</code></td><td>Names a type, uses the result through the interface</td></tr></tbody></table>
+<p>A crucial detail: <strong>the client never mentions a concrete product type.</strong> It mentions <code>PaymentType</code> (data) and <code>PaymentMethod</code> (an interface). Grep the client for <code>CreditCardPayment</code> and you find nothing. That is the whole test of whether you have applied the pattern correctly.</p>
+<h2>How This Project Implements It</h2>
+<h3>The product interface</h3>
+<pre><code>public sealed interface PaymentMethod
+        permits CreditCardPayment, UpiPayment, PayPalPayment, NetBankingPayment {
+
+    String displayName();
+
+    PaymentReceipt pay(PaymentRequest request);
+}</code></pre>
+<p><code>sealed</code> is a Java 17+ feature that names the complete set of implementations. It buys something concrete here, explained in a moment.</p>
+<h3>The concrete products stay simple and independent</h3>
+<pre><code>public final class UpiPayment implements PaymentMethod {
+
+    @Override
+    public String displayName() {
+        return &quot;UPI&quot;;
+    }
+
+    @Override
+    public PaymentReceipt pay(PaymentRequest request) {
+        System.out.println(&quot;UPI: sending a collect request to &quot; + request.customerId());
+        System.out.println(&quot;UPI: customer approved &quot; + request.amount() + &quot; in the payments app&quot;);
+        return new PaymentReceipt(newTransactionId(), displayName(), request.amount());
+    }
+}</code></pre>
+<p>The other three follow the same shape. None of them knows a factory exists. You could use any of them on its own tomorrow.</p>
+<h3>The factory makes the choice — in one place</h3>
+<pre><code>public class PaymentMethodFactory {
+
+    public static PaymentMethod create(PaymentType type) {
+        if (type == null) {
+            throw new IllegalArgumentException(&quot;Payment type must not be null&quot;);
+        }
+        return switch (type) {
+            case CREDIT_CARD -&gt; new CreditCardPayment();
+            case UPI -&gt; new UpiPayment();
+            case PAYPAL -&gt; new PayPalPayment();
+            case NET_BANKING -&gt; new NetBankingPayment();
+        };
+    }
+}</code></pre>
+<p>That <code>switch</code> has no <code>default</code> branch, and that is deliberate. Because the switch covers every constant of an enum, the compiler knows it is exhaustive. Add a fifth <code>PaymentType</code> and this file <strong>stops compiling</strong> until you handle it. A missing case becomes a build error rather than a runtime surprise — which is exactly what you want, given that the factory&#x27;s whole job is knowing the full list.</p>
+<p>There is also a <code>String</code> overload, because real input usually arrives as text from a form or a JSON body:</p>
+<pre><code>public static PaymentMethod create(String type) {
+    if (type == null || type.isBlank()) {
+        throw new IllegalArgumentException(&quot;Payment type must not be blank&quot;);
+    }
+    try {
+        return create(PaymentType.valueOf(type.trim().toUpperCase().replace(&#x27;-&#x27;, &#x27;_&#x27;)));
+    } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException(&quot;Unsupported payment type: &quot; + type, e);
+    }
+}</code></pre>
+<p>Sloppy input handling now lives in one place too. Every caller gets the same tolerance for case and dashes, and the same clear error message.</p>
+<h3>The client stays blissfully ignorant</h3>
+<pre><code>public PaymentReceipt checkout(PaymentRequest request, PaymentType type) {
+    PaymentMethod method = PaymentMethodFactory.create(type);
+
+    System.out.println(&quot;Checkout: paying for &quot; + request.orderId() + &quot; with &quot; + method.displayName());
+    PaymentReceipt receipt = method.pay(request);
+    System.out.println(&quot;Checkout: done, transaction &quot; + receipt.transactionId());
+
+    return receipt;
+}</code></pre>
+<p>One line to obtain the object, then ordinary polymorphism. Change the type and every line after the first is unchanged.</p>
+<h3>Java 21 records as the data carriers</h3>
+<p><code>PaymentRequest</code> and <code>PaymentReceipt</code> are <code>record</code> types — immutable data holders with automatic constructors, accessors, <code>equals</code>, <code>hashCode</code> and <code>toString</code>:</p>
+<pre><code>public record PaymentReceipt(String transactionId, String method, double amount) { }</code></pre>
+<p>They keep the product interface clean: one object in, one object out.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>One place to change.</strong> New payment method? One file to edit, and the compiler tells you where.</li><li><strong>Loose coupling.</strong> Clients depend on an interface and an enum, never on a concrete class.</li><li><strong>Hidden construction.</strong> The day a product needs configuration in its constructor, only the factory learns about it.</li><li><strong>Testability.</strong> The selection logic is a static method you can test directly — see <code>PaymentMethodFactoryTest</code>.</li><li><strong>Consistent validation.</strong> Bad input fails the same way everywhere.</li></ul>
+<h2>What to Watch Out For</h2>
+<ul><li><strong>It violates the Open/Closed Principle, and that is the point.</strong> Adding a product means <em>modifying</em> the factory. Say this out loud when you teach it. Simple Factory does not remove that cost — it centralises it. When centralising is no longer good enough, you reach for Factory Method.</li><li><strong>Do not let the factory grow logic.</strong> Its job is to choose and construct. The moment it starts validating amounts or calling a payment gateway, it has become something else.</li><li><strong>A giant switch is a smell, eventually.</strong> Four cases is fine. Forty cases that change weekly means you want a registry (<code>Map&lt;PaymentType, Supplier&lt;PaymentMethod&gt;&gt;</code>) or <code>ServiceLoader</code> instead.</li><li><strong>Static methods are hard to substitute.</strong> <code>PaymentMethodFactory.create</code> is static, which is convenient and untestable-in-isolation at the same time. If clients need to swap the factory in tests, make it an instance and inject it.</li><li><strong>Do not hide something that is not complex.</strong> If there is only one implementation, <code>new</code> is clearer than a factory.</li></ul>
+<h2>Simple Factory vs. the Real Factory Patterns</h2>
+<table><thead><tr><th>Pattern</th><th>Who decides the class</th><th>Mechanism</th><th>Adding a product</th></tr></thead><tbody><tr><td><strong>Simple Factory</strong></td><td>One static method</td><td><code>switch</code> on data</td><td>Edit the factory</td></tr><tr><td><strong>Factory Method</strong></td><td>A subclass</td><td>Subclasses override a creation method</td><td>Add a subclass</td></tr><tr><td><strong>Abstract Factory</strong></td><td>An injected factory object</td><td>One factory creates a <em>family</em> of related products</td><td>Add a factory implementation</td></tr><tr><td><strong>Static Factory Method</strong></td><td>The class itself</td><td>Named constructor, e.g. <code>List.of</code>, <code>Optional.of</code></td><td>Not about polymorphism at all</td></tr></tbody></table>
+<p>The shortest way to remember it: <strong>Simple Factory chooses with a <code>switch</code>. Factory Method chooses with inheritance. Abstract Factory chooses a whole family at once.</strong></p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><code>java.util.Calendar.getInstance()</code> — returns a locale-appropriate subclass</li><li><code>java.nio.charset.Charset.forName(&quot;UTF-8&quot;)</code> — a name in, an object out</li><li><code>DriverManager.getConnection(url)</code> — the URL decides the driver</li><li><code>NumberFormat.getCurrencyInstance(locale)</code></li><li>Nearly every <code>XxxFactory.create(...)</code> in a Spring codebase</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li>Run <code>./gradlew run</code> and read the output — the checkout lines are identical for all four methods; only the payment lines differ.</li><li>Add <code>WALLET</code> to <code>PaymentType</code> and try to compile. Read the error. That error is the pattern protecting you.</li><li>Then write <code>WalletPayment</code>, add it to the <code>permits</code> clause and to the <code>switch</code>. Notice <code>CheckoutService</code> and <code>SimpleFactoryDemo</code> need <strong>zero</strong> changes.</li><li>Replace the <code>switch</code> with a <code>Map&lt;PaymentType, Supplier&lt;PaymentMethod&gt;&gt;</code> and decide for yourself which you prefer.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the problem this solves</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — static structure</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — runtime call flow</li><li><a href="animation.html"><code>animation.html</code></a> — animated walkthrough</li></ul>
+</main>
+<footer>
+Generated from <code>simple-factory-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

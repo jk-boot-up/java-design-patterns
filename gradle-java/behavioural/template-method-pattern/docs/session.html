@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Template Method Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Template Method Pattern</h1>
+<p>A 60-minute guided session for teaching or self-studying the Template Method pattern using this project.</p>
+<ul><li><strong>Audience:</strong> beginners comfortable with core Java</li><li><strong>Duration:</strong> ~60 minutes</li><li><strong>Format:</strong> live coding + discussion</li><li><strong>Prerequisites:</strong> see <a href="prerequisites.html"><code>prerequisites.md</code></a></li></ul>
+<blockquote><p><strong>Optional pre-work.</strong> Ask participants to watch the video (<code>video/template-method-pattern-explained.mp4</code>) beforehand. If they do, you can compress the problem and pattern segments and spend the extra time on the exercises. If you are teaching a group that has <em>not</em> watched it, run the session exactly as written below.</p></blockquote>
+<h2>Learning Objectives</h2>
+<p>By the end of this session a participant should be able to:</p>
+<ol><li>Say why three hand-written copies of a sequence drift, and why extracting helper methods does not fix it.</li><li>Explain what <code>final</code> on the template method actually buys, and point at a line of code that depends on it.</li><li>Choose between an abstract step, a step with a default, and a hook — and justify the choice.</li><li>State honestly what the pattern costs, starting with the fact that it spends the subclass&#x27;s one inheritance slot.</li><li>Distinguish Template Method from Factory Method, and from Strategy.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Segment</th><th>Mode</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td><td>Hands-on</td></tr><tr><td>0:05–0:16</td><td>The problem</td><td>Discussion</td></tr><tr><td>0:16–0:26</td><td>The pattern</td><td>Explanation</td></tr><tr><td>0:26–0:41</td><td>Code walkthrough</td><td>Live coding</td></tr><tr><td>0:41–0:51</td><td>Exercises</td><td>Hands-on</td></tr><tr><td>0:51–0:58</td><td>Costs &amp; comparisons</td><td>Discussion</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td><td>—</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<p>Everyone runs:</p>
+<pre><code>java -version
+./gradlew run</code></pre>
+<p>Anyone whose build fails pairs up with a neighbour. Do not debug installs during the session — that is what the prerequisites doc is for.</p>
+<h2>0:05–0:16 — The Problem</h2>
+<p><strong>Do not show <code>FulfilmentProcess</code> yet.</strong> Start with the pain.</p>
+<p>Open <code>NaiveFulfilment</code> and put all three methods on the screen at once — scroll so the shape of them is visible even if the text is not. Then ask:</p>
+<blockquote><p><em>&quot;Three copies of six steps. What&#x27;s wrong with this?&quot;</em></p></blockquote>
+<p>Every group says &quot;duplication&quot;. That is true and it is the <em>weaker</em> argument; a competent developer can live with three short duplicated methods for years. Steer to the strong one:</p>
+<blockquote><p><em>&quot;Forget the bodies. What is duplicated that the compiler cannot see?&quot;</em></p></blockquote>
+<p>Land it: <strong>the order</strong>. It exists as a shape repeated by hand, and nothing knows it is a shape.</p>
+<p>Then run section 1 of the demo live. The email that says <code>Key: (not dispatched)</code> does more work than ten minutes of argument. Follow with the marketplace case — charged, then refused — which is the same mistake in a different copy.</p>
+<p>This is the moment the session turns: it converts &quot;the code is repetitive&quot; into &quot;the customer was charged and got nothing&quot;.</p>
+<h2>0:16–0:26 — The Pattern</h2>
+<p>Use the recipe analogy from <a href="template-method-pattern-explained.html"><code>template-method-pattern-explained.md</code></a>. Ask: <em>&quot;Which parts of a cake recipe are negotiable?&quot;</em> Land on: the ingredients are, the icing is optional, and the order is not — ice it before you bake it and you have neither.</p>
+<p>Then show <code>fulfil</code> and say nothing for a moment. It is seven lines and it is the entire pattern. When someone asks about the <code>final</code>, you are ready:</p>
+<blockquote><p><em>&quot;That word is the whole thing. Everything else here is a decision about what kind of hole each step should be.&quot;</em></p></blockquote>
+<p>Show the class diagram (<a href="images/class-diagram.png"><code>images/class-diagram.png</code></a>) and count overrides out loud: warehouse four, marketplace six, digital seven. The short one is the ordinary one — that is the sign the defaults were chosen well.</p>
+<p>Then the sequence diagram (<a href="images/uml-diagram.png"><code>images/uml-diagram.png</code></a>), and go straight to steps 17–20, where <code>notifyCustomer</code> reads what <code>dispatch</code> wrote. Put the naive version&#x27;s identical two lines beside it.</p>
+<p>Optionally open <a href="animation.html"><code>animation.html</code></a> and play it through once. It has a <strong>Narration</strong> button: leave it off if you want to talk over it, or switch it on to let it explain each step in its own voice.</p>
+<p><strong>The one point that must land:</strong></p>
+<blockquote><p>The subclass decides <em>how</em> each step behaves. It never decides <em>when</em> they run. That is not a convention, it is a <code>final</code> keyword.</p></blockquote>
+<h2>0:26–0:41 — Code Walkthrough</h2>
+<p>Open the files in this order. Resist jumping ahead.</p>
+<p><strong>1. The template — <code>FulfilmentProcess.fulfil</code></strong> Seven lines. Ask: <em>&quot;What would break if a subclass could override this?&quot;</em> Collect answers before showing them the answer in <code>NaiveFulfilment</code>.</p>
+<p><strong>2. The private step — <code>validate</code></strong> Ask why it is <code>private</code> rather than <code>protected</code>. Wait. Someone will say &quot;so you can&#x27;t override it&quot;, and then ask the follow-up: <em>&quot;who would want to, and what would they write?&quot;</em> The answer — <code>@Override protected void validate() { }</code> — is why the modifier matters.</p>
+<p><strong>3. The three kinds of hole</strong> Scroll the rest of the class slowly. Four abstract, two with defaults, two hooks. For each one ask: <em>&quot;why is this one that kind?&quot;</em> This is the segment worth spending time on; the sequence is easy, this is the design.</p>
+<p><strong>4. The short route — <code>WarehouseFulfilment</code></strong> Four methods. Ask what it says about packing. Nothing. Ask why that is a good sign.</p>
+<p><strong>5. The route that needs everything — <code>DigitalFulfilment</code></strong> Put <code>dispatch</code> and <code>notifyCustomer</code> on screen together. Ask: <em>&quot;what makes it safe for the second one to read what the first one wrote?&quot;</em></p>
+<p>Then point at <code>pack</code> — &quot;nothing to pack&quot; — and ask why it records a step at all rather than being empty. (Because &quot;this step had nothing to do&quot; is a fact, and because the reports stay comparable.)</p>
+<p><strong>6. The hook that is not a question — <code>MarketplaceFulfilment.afterFulfilment</code></strong> An empty method in the base class, called for everybody, used by one. Ask what the alternative would have been.</p>
+<p><strong>7. The trap, revisited — <code>NaiveFulfilment</code></strong> Back to it with fresh eyes now the alternative exists. Read the two <code>// Drifted</code> comments out loud.</p>
+<p><strong>8. The proof — <code>FulfilmentProcessTest.RecordingRoute</code></strong> A route that does nothing but write down that it was called. Ask: <em>&quot;could this test be written against <code>NaiveFulfilment</code>?&quot;</em></p>
+<p><strong>9. Run it — <code>FulfilmentDemo</code></strong> Section 2 prints three step lists side by side and they are identical. Then section 4 adds a fourth route in the demo file itself.</p>
+<h2>0:41–0:51 — Exercises</h2>
+<p>Let participants work; circulate and help.</p>
+<h3>Exercise 1 — Add a fifth route (everyone)</h3>
+<p>Write <code>SubscriptionRenewalFulfilment</code>: nothing to reserve, charge a stored card, nothing to pack, extend the licence period on dispatch. Run it in the demo.</p>
+<blockquote><p><strong>The payoff:</strong> ask how many methods they wrote, and whether they opened <code>FulfilmentProcess</code>. Say the answer out loud when someone finishes.</p></blockquote>
+<h3>Exercise 2 — Add a seventh step to both versions (everyone)</h3>
+<p>Add a fraud check between validate and reserve. Do it in <code>FulfilmentProcess</code> first — one line, plus one abstract or default method. Then do the same to <code>NaiveFulfilment</code> and count the edits and the chances of missing one.</p>
+<p><strong>Never cut this exercise.</strong> The shape of the diff is the argument.</p>
+<h3>Exercise 3 — Try to break the order (discussion)</h3>
+<p>Add <code>@Override public FulfilmentReport fulfil(Order order)</code> to any route. Read the compiler error out loud. Discuss why an error at compile time is a different category of thing from a test that would have caught it later.</p>
+<h3>Exercise 4 — Stretch (for fast finishers)</h3>
+<p>Make <code>validate</code> <code>protected</code> and override it in one route to skip the address check. Get it working. Then ask the group what now stops the next person overriding it to skip the <em>email</em> check — and put the <code>private</code> back.</p>
+<h2>0:51–0:58 — Costs &amp; Comparisons</h2>
+<p>Be honest here; it is what makes the session credible.</p>
+<ul><li><strong>It spends the inheritance slot.</strong> Every route extends <code>FulfilmentProcess</code> and can extend nothing else, forever. This is the real price, and it is why composition is the better modern default for most problems.</li><li><strong>The base class is fragile.</strong> A seventh step in <code>fulfil</code> changes every route at once, including ones you cannot see. The sequence is public API.</li><li><strong>Hooks are permissions.</strong> Each one is granted for the lifetime of the class. A base class with a hook around every step has stopped protecting anything.</li><li><strong>Steps must not call each other.</strong> That re-creates the drift, because two places now know about ordering.</li></ul>
+<p>Then the comparisons. Two lines worth memorising:</p>
+<blockquote><p><strong>Factory Method is Template Method narrowed to object creation.</strong> One hole, and it returns a product.</p></blockquote>
+<blockquote><p><strong>Template Method guarantees an order and costs you inheritance. Strategy guarantees nothing about order and costs you nothing.</strong> Choose by asking which invariant you actually need.</p></blockquote>
+<p>Finish by naming where they have already used it: <code>AbstractList</code>, <code>InputStream.read(byte[], int, int)</code>, <code>HttpServlet.service</code>, JUnit&#x27;s <code>@BeforeEach</code>, and every Spring class with <code>Template</code> in its name.</p>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>Ask three people for a one-sentence definition. Then assign follow-up:</p>
+<blockquote><p>Find one sequence in your own codebase that is written out more than once. Ask whether anything at all would catch it if somebody swapped two of the steps in one copy. If the answer is &quot;a code review, maybe&quot;, you have found a template method.</p></blockquote>
+<h2>Facilitator Notes</h2>
+<p><strong>Common misconceptions to correct:</strong></p>
+<table><thead><tr><th>They say</th><th>Correct with</th></tr></thead><tbody><tr><td>&quot;Isn&#x27;t this just inheritance?&quot;</td><td>It is inheritance used for one specific thing: fixing an order. Ordinary inheritance shares code; this constrains subclasses. The <code>final</code> is the difference</td></tr><tr><td>&quot;Why not just extract helper methods?&quot;</td><td>Helpers remove duplicated bodies. What is drifting is the call order, and a helper cannot own an order it is not the caller of</td></tr><tr><td>&quot;Couldn&#x27;t a test catch the reordering?&quot;</td><td>Yes, and this project has one. A test tells you it broke; <code>final</code> means it cannot</td></tr><tr><td>&quot;Should every step be abstract, to be safe?&quot;</td><td>Then the common route has to write out behaviour it did not want to think about, and each new route re-decides something already settled. Defaults are how you stop that</td></tr><tr><td>&quot;Why is <code>validate</code> private? I&#x27;d want to extend it&quot;</td><td>Ask what you would write. Every override you can imagine is a way to weaken a check for everybody who comes after. The hook grants the one permission that was actually needed</td></tr><tr><td>&quot;This is just Strategy with extra steps&quot;</td><td>Strategy has no method that owns the sequence, so it cannot guarantee one. That is the trade, in both directions</td></tr><tr><td>&quot;Isn&#x27;t the empty hook dead code?&quot;</td><td>It is called on every run. It is a place to stand, and the route that needs it must not have to negotiate for a call site</td></tr></tbody></table>
+<p><strong>If you are running short on time:</strong> cut Exercise 4 and shorten the costs discussion. Never cut Exercise 2.</p>
+<p><strong>If you have extra time:</strong> have participants write the <code>@Nested</code> test class for their fifth route, mirroring <code>FulfilmentRouteTest</code>, including the assertion that its step names match the other four.</p>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>Everyone has JDK 21 and a green <code>./gradlew run</code></li><li>Diagrams open in a tab (<code>images/</code>)</li><li><code>animation.html</code> open in a browser</li><li>Video on hand (<code>../video/template-method-pattern-explained.mp4</code>) — useful as a recap for anyone who joins late, or to send round afterwards</li><li><code>NaiveFulfilment</code> open in a second window, so you can put it beside <code>DigitalFulfilment</code> at the 0:26 mark</li><li>The demo&#x27;s section 1 and section 2 output ready to show side by side</li><li>IDE font size raised for screen sharing</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

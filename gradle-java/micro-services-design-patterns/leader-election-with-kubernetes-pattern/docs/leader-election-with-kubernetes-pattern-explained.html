@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leader Election with Kubernetes, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Leader Election with Kubernetes, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>Leader election lets several copies of a service agree that exactly one of them does a job, by letting one copy hold a lease that it must keep renewing, and letting another take the lease when the renewals stop.</p>
+<h2>The analogy, before any of Kubernetes&#x27; words</h2>
+<p>Think of a staff room with a notice board. On it is one note: &quot;Tonight&#x27;s cash-up is done by Anna, until ten past nine.&quot; Anna rewrites the time every few minutes while she is working. If the note goes stale — the time has passed and nobody has rewritten it — anyone else may cross Anna out and write their own name.</p>
+<p>Three things about that board matter, and the plain-Java project never had to face them. First, the board does not check the time. It is just a board. Each person who reads the note compares the time on it with their own watch. Second, the board has one rule: every note has a number in the corner that goes up with each rewrite, and if you rewrite it saying &quot;I read number seven&quot; when it is already number eight, the rewrite is refused. Third, Anna could fall asleep at her desk after reading the note and deciding she is in charge. Someone else takes over. Anna wakes up and carries on with the cash-up, sure it is still hers, because the last time she looked, it was.</p>
+<h2>What Kubernetes calls these things</h2>
+<p>A <strong>cluster</strong> is a group of machines Kubernetes runs programs on; each machine is a <strong>node</strong>. This project&#x27;s cluster has one node, made by kind inside the container runtime.</p>
+<p>The <strong>API server</strong> is the notice board: a program that stores records and lets others read and write them.</p>
+<p>A <strong>Lease</strong> is the note. Its <strong>holder identity</strong> is the name on it. Its <strong>lease duration</strong> is how long the hold lasts without renewal: 5 seconds here. Its <strong>renew time</strong> is when the holder last rewrote it. Its <strong>lease transitions</strong> is how many times the holder has changed. This project says &quot;holder changes&quot;.</p>
+<p>The <strong>resource version</strong> is the number in the corner. A write that names an old one is refused with <strong>409 Conflict</strong>.</p>
+<p>The <strong>elector</strong> is the part of each copy that does the reading and rewriting. Here it is Fabric8&#x27;s <code>LeaderElector</code>. The holder renews every 1 second. If it cannot renew for 4 seconds — the <strong>renew deadline</strong> — it gives up leading. The others ask every 1 to 2 seconds whether the lease has run out.</p>
+<p>A <strong>fencing token</strong> is a number that goes with a lease and only ever goes up. The leader attaches it to everything it writes, and the thing being written to refuses anything carrying a lower number than one it has already seen. Here the token is the lease&#x27;s own count of holder changes.</p>
+<h2>The six acts</h2>
+<h3>Three Copies, Nobody In Charge</h3>
+<p>Three copies of the reporting service start as three separate Java processes. None of them asks anyone anything. Each is told to send the nightly sales report, and each does.</p>
+<pre><code>  three copies of the reporting service run as 3 separate processes. none of them asks who is in charge.
+  the nightly sales report is sent by every copy: [A, B, C].
+  the manager receives it 3 times.</code></pre>
+<h3>One Holds The Lease</h3>
+<p>A starts first, finds no lease, and creates one with its own name in it. B and C start next, read the lease, see it is fresh, and are each told by their elector that the leader is A. All three are asked to send the report; only A does.</p>
+<p>Then two writes are made to the lease, both based on the same version of it. The first is accepted. The second is refused with 409 Conflict, because the version it was based on is gone. That is the only rule the API server enforces about a lease. It never takes a lease away by itself.</p>
+<pre><code>  A asks the API server first and is written into the lease. it says: holder A, lasts 5 seconds, holder changes 0.
+  A renews it every 1 second. B and C ask as often, and each is told the leader is A.
+  all three are asked to send the report. the report was sent by: [A].
+  two writes to the lease, both based on the same version of it: the first is accepted, the second refused with 409 Conflict.
+  that refusal is the only rule the API server enforces. it never takes a lease away by itself.</code></pre>
+<h3>The Leader Stops</h3>
+<p>A is shut down cleanly. Its elector is set to hand the lease back on the way out, so it clears the holder&#x27;s name. One of B and C sees an empty lease at its next check and takes it, within a couple of seconds.</p>
+<p>Then the new leader is killed outright, with no chance to run any code at all. The lease goes on naming the dead copy. The last copy waits until the last renewal time plus 5 seconds has passed on its own clock, and only then takes over: about one whole lease. For that time nobody leads. The others cannot tell a dead leader from a slow one.</p>
+<p>Which of B and C wins, and exactly how long each handover takes, depend on timing the elector and the cluster choose. So the demo names neither, and prints a description chosen from the measured time.</p>
+<pre><code>  A is shut down cleanly. on its way out, its elector hands the lease back by clearing the holder.
+  one of B and C took over within a couple of seconds, well inside one 5-second lease.
+  now the new leader is killed outright. it gets no chance to hand anything back.
+  the lease went on naming the dead copy until it ran out. the last copy took over after about one whole 5-second lease.
+  for that time nobody was leading. the others cannot tell a dead leader from a slow one, so they wait.</code></pre>
+<h3>Two Who Think They Lead</h3>
+<p>This is the headline act. A leads, and B waits. A is told to send the report. It checks that it leads — yes — and starts building the report. At that moment the demo freezes A&#x27;s whole process, using the operating system&#x27;s stop signal. Every thread in A stops, including the one that renews the lease; this is what a long garbage-collection pause does to a real program.</p>
+<p>No renewals arrive. After 5 seconds by B&#x27;s clock, B takes the lease: holder B, holder changes 1. B sends the report. Then A is woken. It finishes the report it had started, and sends it, because when it checked, it was the leader. The report was sent twice: B, then A.</p>
+<p>The lease&#x27;s own record proves A was wrong. When A sent, the lease named B, and its renewal time was later than A&#x27;s last renewal. A&#x27;s elector did notice — on waking, by its own stopwatch, it saw it had missed its renewal deadline and said it had stopped leading — but the check had already been made, and the report was already on its way.</p>
+<pre><code>  A checks that it leads, and starts building the report. then A freezes, as in a long garbage-collection pause.
+  every thread in A stops, the one that renews the lease too. the lease runs out, and B takes it.
+  the lease says: holder B, holder changes 1.
+  B sends the report. A wakes up, still believing it leads, and sends too. the report was sent by: [B, A].
+  when A sent, the lease named B, renewed after A&#x27;s last renewal: yes.
+  A&#x27;s elector did tell it the lease was lost, but only once A woke up. A had checked before it froze.</code></pre>
+<h3>Fencing</h3>
+<p>The same again, with one change. When a copy starts leading, it reads the lease&#x27;s count of holder changes and keeps it as its token: A&#x27;s is 0, B&#x27;s is 1. Every report carries its token, and the manager&#x27;s inbox remembers the highest token it has seen. B sends first, with 1. A wakes and sends with 0, and the inbox refuses it. Only B&#x27;s report arrives.</p>
+<p>The lease cannot stop A. The inbox, the thing being written to, can.</p>
+<pre><code>  the same again, but each report now carries a token: the lease&#x27;s count of holder changes when that copy took it.
+  A&#x27;s token is 0, B&#x27;s is 1. B sends first. A wakes up and tries to send: refused, token 0 is older than 1.
+  the report was sent by: [B]. the count only goes up, and the inbox, the thing being written to, checks it.</code></pre>
+<h3>The Bill</h3>
+<p>B is killed. A is still running, but Fabric8&#x27;s elector cannot be restarted: when A lost the lease, its elector said so and stopped for good. Two whole leases later the lease still names the dead B, and nobody leads. A leads again only when it starts a brand-new elector, with token 2. The usual answer in Kubernetes is simpler: a copy that loses the lease exits, and Kubernetes starts it again.</p>
+<p>Then three costs that do not go away. The lease length is a trade: 5 seconds means a dead leader goes unnoticed for up to 5 seconds, and a shorter lease means one slow moment costs a healthy leader its lease. The lease runs out by each copy&#x27;s own clock, compared with a time the holder wrote with its clock, so machines whose clocks disagree can take over too early. And all of it needs a Kubernetes API server: one cluster, with one node, for one nightly report.</p>
+<pre><code>  B is killed. A is still running, but its elector gave up when it lost the lease, and it never asks again.
+  two whole leases later the lease still names B, and nobody leads. the loser does not rejoin by itself.
+  A starts a new elector, and leads again with token 2. the usual answer is simpler: a copy that loses the lease exits, and Kubernetes restarts it.
+  a lease of 5 seconds, renewed every 1: a dead leader goes unnoticed for up to 5 seconds. make it shorter, and one slow moment costs a healthy leader its lease.
+  the lease runs out by each copy&#x27;s own clock, measured from a time the holder wrote. clocks that disagree break it.
+  and all of it needs a Kubernetes API server: this demo ran 1 cluster, with 1 node, for 1 nightly report.</code></pre>
+<h2>The verdict</h2>
+<p>Use a Lease to pick one copy, and let the elector do the renewing. Then say three things out loud, because Kubernetes will not. A leader&#x27;s belief that it leads can be stale at any moment, so anything it writes must carry a fencing token that the receiver checks. A copy that loses the lease should exit and be restarted, rather than sit alive and leaderless. And the lease length is a choice between noticing a dead leader quickly and not losing a healthy one to a slow moment.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li><code>leaderElector()</code> with a <code>LeaseLock</code>, and a <code>withLeaseDuration</code>, <code>withRenewDeadline</code> and <code>withRetryPeriod</code>. The lease must be longer than the deadline, and the deadline more than twice the retry.</li><li>An <code>onStopLeading</code> callback that only logs. The copy is now alive and will never lead again; it usually should call <code>System.exit</code>.</li><li><code>withReleaseOnCancel(true)</code>, which hands the lease back on a clean shutdown, so a rolling upgrade does not leave a whole lease with no leader.</li><li>A leader that checks <code>isLeader</code> once and then does slow work. That check can be stale by the time the work is written.</li><li>A write from a leader with no token on it, into a store that cannot refuse it.</li><li>In Kubernetes itself, <code>kubectl get lease -n kube-system</code>, which shows the scheduler&#x27;s and the controller manager&#x27;s own leases.</li></ul>
+<h2>Where you have already met this</h2>
+<p>The Kubernetes scheduler and controller manager, both of which run several copies with one holding a Lease. Every operator built with the Java Operator SDK, which uses this same Fabric8 elector. Outside Kubernetes, locks in ZooKeeper, etcd and Consul, with the same stale-leader problem and the same fencing answer.</p>
+<h2>When this is too much</h2>
+<p>If the job is safe to run twice, run it everywhere and make the result idempotent. If one copy is enough, run one and let Kubernetes restart it. A Lease earns its keep only when several copies must be running and exactly one may act — and even then the receiver has to check a token, because the lease alone cannot stop a leader that froze.</p>
+</main>
+<footer>
+Generated from <code>leader-election-with-kubernetes-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

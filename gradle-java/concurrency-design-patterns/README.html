@@ -5,10 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Concurrency Patterns</title>
 <style>
-:root {
+:root, [data-theme=dark] {
+  color-scheme: dark;
   --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
   --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
-  --ok: #34d399;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
 }
 * { box-sizing: border-box; }
 body {
@@ -24,7 +40,7 @@ h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
 h3 { font-size: 19px; margin: 32px 0 4px; }
 p { margin: 14px 0; }
 a { color: var(--link); }
-a:hover { color: #7dd3fc; }
+a:hover { color: var(--link-hover); }
 hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
 code {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
@@ -39,14 +55,14 @@ pre {
 pre code { background: none; border: 0; padding: 0; font-size: 14px; }
 blockquote {
   margin: 20px 0; padding: 4px 20px;
-  background: rgba(167, 139, 250, 0.08);
+  background: var(--quote);
   border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
 }
 table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
 th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
          vertical-align: top; }
 th { background: var(--panel-hi); font-weight: 600; }
-tr:nth-child(even) td { background: rgba(30, 41, 59, 0.55); }
+tr:nth-child(even) td { background: var(--stripe); }
 img {
   display: block; max-width: 100%; height: auto; margin: 24px auto;
   background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
@@ -61,14 +77,33 @@ footer {
   max-width: 860px; margin: 60px auto 0; padding-top: 20px;
   border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
 }
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
 </style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
 </head>
 <body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <main>
 <h1>Concurrency Patterns</h1>
 <p>The sixth category. Six patterns that exist because more than one thing is happening at once.</p>
 <p><strong>Status: all six built.</strong> Each project has code, deterministic tests, a README, diagrams, an animation, a narrated video pipeline and a YouTube document. The two documents below fixed what the projects are before any of them was written.</p>
-<ul><li><a href="docs/spec.md"><code>docs/spec.md</code></a> — the scenario each pattern is taught through, the failure it must reproduce, the cost it must admit to, and what its harness pins that the real scheduler does not.</li><li><a href="docs/implementation-plan.md"><code>docs/implementation-plan.md</code></a> — the order the six get built in, the shared test harness they all depend on, and the rules that keep the build from having to redo itself.</li></ul>
+<ul><li><a href="docs/spec.html"><code>docs/spec.md</code></a> — the scenario each pattern is taught through, the failure it must reproduce, the cost it must admit to, and what its harness pins that the real scheduler does not.</li><li><a href="docs/implementation-plan.html"><code>docs/implementation-plan.md</code></a> — the order the six get built in, the shared test harness they all depend on, and the rules that keep the build from having to redo itself.</li></ul>
 <h2>The six</h2>
 <table><thead><tr><th>#</th><th>Pattern</th><th>Scenario</th></tr></thead><tbody><tr><td>46</td><td>Producer–Consumer</td><td>Orders arrive faster than they can be packed</td></tr><tr><td>47</td><td>Thread Pool</td><td>A thread per order, until the server stops</td></tr><tr><td>48</td><td>Future/Promise</td><td>A result you are promised but do not have yet</td></tr><tr><td>49</td><td>Read–Write Lock</td><td>A thousand readers and one price change</td></tr><tr><td>50</td><td>Monitor Object</td><td>The object that guards its own state</td></tr><tr><td>51</td><td>Active Object</td><td>A method call that returns before the work does</td></tr></tbody></table>
 <p>The order is a dependency order. Active Object is last because it is the other five assembled: a queue, a thread, a future and an object that owns its state.</p>
@@ -78,7 +113,7 @@ footer {
 <blockquote><p><strong>A race that appears &quot;sometimes&quot; has not been taught.</strong> Every naive failure in this category fails on every run.</p></blockquote>
 <p>That determinism is bought by pinning an interleaving the real scheduler chooses freely, so every project says so plainly — in its explainer and out loud in its video. A reader who leaves believing a passing test proves thread safety has been taught something false, and this is the category where that belief forms.</p>
 <h2>Where this sits</h2>
-<p>Projects 46 to 51, after the twenty-five object-oriented patterns, the twelve microservices ones and the eight platform ones. See <a href="../README.md"><code>../README.md</code></a> for the full course.</p>
+<p>Projects 46 to 51, after the twenty-five object-oriented patterns, the twelve microservices ones and the eight platform ones. See <a href="../README.html"><code>../README.md</code></a> for the full course.</p>
 <h2>More concurrency patterns</h2>
 <ul><li><a href="double-checked-locking-pattern">Double-Checked Locking</a></li><li><a href="balking-pattern">Balking</a></li><li><a href="guarded-suspension-pattern">Guarded Suspension</a></li><li><a href="thread-local-storage-pattern">Thread-Local Storage</a></li><li><a href="fork-join-pattern">Fork/Join</a></li><li><a href="actor-pattern">Actor</a></li><li><a href="two-phase-termination-pattern">Two-Phase Termination</a></li></ul>
 </main>

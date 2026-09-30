@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Composite Pattern — Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Composite Pattern — Explained</h1>
+<h2>One-Line Definition</h2>
+<blockquote><p><strong>Composite</strong> composes objects into tree structures to represent part-whole hierarchies. Composite lets clients treat individual objects and compositions of objects uniformly. — <em>Gang of Four, Design Patterns</em></p></blockquote>
+<p>It is a <strong>structural</strong> pattern: it is about how objects are <em>composed into a tree</em>, not about how they are created (Singleton, Prototype, Builder) or how they behave over time.</p>
+<h2>The One Idea That Matters: Same Type, Different Shape</h2>
+<p>A <code>Product</code> is a single item. A <code>Category</code> is a whole subtree of products and other categories. They could not look more different on the inside — one has a price, the other has a list of children. The pattern&#x27;s entire trick is giving them <strong>the same public type</strong>, <code>CatalogComponent</code>, so that from the outside, a caller cannot tell — and does not need to tell — whether it is holding one leaf or an entire branch.</p>
+<blockquote><p>If a caller ever needs to ask &quot;is this a leaf or a composite?&quot; before it can act, the pattern has not been applied yet.</p></blockquote>
+<h2>The Everyday Analogy</h2>
+<p>Think of a company <strong>org chart</strong>. Ask any employee, from an intern to the CEO, &quot;how many people do you manage, including everyone under everyone under you?&quot; An individual contributor answers &quot;one — myself.&quot; A manager adds up the same answer from everyone reporting to them, recursively. The question is identical at every level of the chart; only the answer&#x27;s arithmetic changes depending on whether you landed on a leaf or a branch.</p>
+<p><code>Product.productCount()</code> always answers <code>1</code>. <code>Category.productCount()</code> answers &quot;the sum of my children&#x27;s answers.&quot; Neither needs to know how deep the org chart goes below it.</p>
+<h2>The Participants</h2>
+<table><thead><tr><th>Role</th><th>In this project</th><th>Job</th></tr></thead><tbody><tr><td><strong>Component</strong></td><td><code>CatalogComponent</code></td><td>Declares the operations every node answers, leaf or branch alike</td></tr><tr><td><strong>Leaf</strong></td><td><code>Product</code></td><td>A component with no children; <code>productCount()</code> is always <code>1</code></td></tr><tr><td><strong>Composite</strong></td><td><code>Category</code></td><td>A component that holds children and delegates every operation to them, then combines the results</td></tr><tr><td><strong>The trap</strong></td><td><code>NaiveProduct</code> / <code>NaiveCategory</code> / <code>NaiveCatalogPrinter</code></td><td>No shared type, so every operation re-derives the same <code>instanceof</code> chain</td></tr><tr><td><strong>Client</strong></td><td><code>CatalogDemo</code></td><td>Builds a tree and calls the same three methods on it, never checking what kind of node it has</td></tr></tbody></table>
+<h2>How This Project Implements It</h2>
+<h3>The component declares a shared vocabulary</h3>
+<pre><code>public interface CatalogComponent {
+    String name();
+    BigDecimal totalPrice();
+    int productCount();
+    void print(String indent);
+}</code></pre>
+<p>Every operation the catalog needs is declared exactly once, here — not once per concrete type.</p>
+<h3>The leaf answers for itself, and nothing else</h3>
+<pre><code>public final class Product implements CatalogComponent {
+    private final String name;
+    private final BigDecimal price;
+
+    @Override public BigDecimal totalPrice()  { return price; }
+    @Override public int productCount()       { return 1; }
+}</code></pre>
+<p>A <code>Product</code> has no children, so its answers are trivial: its own price, a count of one. There is no recursion here because there is nothing left to recurse into.</p>
+<h3>The composite delegates and combines</h3>
+<pre><code>public final class Category implements CatalogComponent {
+    private final List&lt;CatalogComponent&gt; children = new ArrayList&lt;&gt;();
+
+    @Override
+    public BigDecimal totalPrice() {
+        BigDecimal sum = BigDecimal.ZERO;
+        for (CatalogComponent child : children) {
+            sum = sum.add(child.totalPrice());   // works whether child is a Product or another Category
+        }
+        return sum;
+    }
+}</code></pre>
+<p>That loop never asks what kind of <code>CatalogComponent</code> each child is. A <code>Product</code> child returns its own price; a <code>Category</code> child returns the sum of <em>its</em> children, already computed by this same method one level down. The recursion is implicit in the fact that <code>Category</code> is itself a <code>CatalogComponent</code>.</p>
+<h3>The trap, for contrast</h3>
+<p><code>NaiveCategory</code> holds <code>List&lt;Object&gt;</code> because <code>NaiveProduct</code> and <code>NaiveCategory</code> share no common supertype. <code>NaiveCatalogPrinter</code> then has to write the same <code>instanceof NaiveProduct</code> / <code>instanceof NaiveCategory</code> chain three times — once each for <code>totalPrice</code>, <code>productCount</code>, and <code>print</code> — computing identical results to the composite version, but with the type-checking logic duplicated across every operation instead of declared once.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>One recursive definition per operation</strong>, not one per concrete type times one per operation. <code>Category.totalPrice()</code> is the <em>only</em> place &quot;sum my children&quot; is written.</li><li><strong>New tree depth is free.</strong> Nesting a <code>Category</code> ten levels deep needs no new code anywhere — the same <code>totalPrice()</code> method already handles it, because a <code>Category</code>&#x27;s children are <code>CatalogComponent</code>s, which might themselves be <code>Category</code>s.</li><li><strong>Uniform client code.</strong> <code>CatalogDemo</code> iterates over <code>electronics.children()</code> and calls <code>totalPrice()</code> / <code>productCount()</code> on each without ever checking what it got back.</li><li><strong>The trap and the fix compute identical answers.</strong> <code>NaiveCatalogPrinter</code> and the composite tree agree on every number — the pattern changes <em>how the logic is organized</em>, not what it produces.</li></ul>
+<h2>What to Watch Out For</h2>
+<ul><li><strong>Adding a child-management method to the Component interface is a trap of its own.</strong> If <code>add(CatalogComponent)</code> lived on <code>CatalogComponent</code> instead of just on <code>Category</code>, every <code>Product</code> would need a meaningless implementation (throw, or silently do nothing) purely to satisfy the interface. This project keeps <code>add</code> on <code>Category</code> only, deliberately, at the cost of client code needing a <code>Category</code> reference (not just a <code>CatalogComponent</code>) when it wants to build the tree.</li><li><strong>Composites need real recursion, not just delegation to one child.</strong> A <code>Category.totalPrice()</code> that only asked its first child would silently drop every product past the first one. Test the recursive case, not just a category with one leaf.</li><li><strong>Mutable children lists shared by reference are a hazard.</strong> <code>Category</code> copies nothing on <code>add</code>, but does return an unmodifiable view from <code>children()</code>, so a caller cannot corrupt the tree structure by mutating what they were only supposed to read.</li><li><strong>Cycles will recurse forever.</strong> Nothing stops a <code>Category</code> from (accidentally) containing an ancestor of itself; <code>totalPrice()</code> would recurse until the stack overflows. The pattern assumes a tree, not an arbitrary graph.</li></ul>
+<h2>Composite vs. Similar Patterns</h2>
+<table><thead><tr><th>Pattern</th><th>Intent</th><th>Key difference</th></tr></thead><tbody><tr><td><strong>Composite</strong></td><td>Treat a single object and a tree of objects through one interface</td><td>About <em>structure</em> — part/whole hierarchies of arbitrary depth</td></tr><tr><td><strong>Decorator</strong></td><td>Attach responsibilities to one object dynamically</td><td>Wraps a single component in a single wrapper; no branching children</td></tr><tr><td><strong>Flyweight</strong></td><td>Share intrinsic state across many fine-grained objects</td><td>About <em>identity</em> — many contexts pointing at few shared instances</td></tr><tr><td><strong>Facade</strong></td><td>Simplify a complex subsystem behind one entry point</td><td>One-way simplification of unrelated subsystems, not a recursive tree</td></tr></tbody></table>
+<p>The shortest way to remember it: **Decorator wraps one thing in one more layer. Composite lets one thing <em>be</em> many things, arranged in a tree.**</p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li>The DOM in a browser — every node, from a single <code>&lt;span&gt;</code> to an entire <code>&lt;div&gt;</code> full of children, implements the same <code>Node</code> interface</li><li>Filesystems — a file and a directory both answer &quot;what is your size?&quot;, and a directory&#x27;s answer sums its contents, recursively</li><li>Swing/AWT and most GUI toolkits — a <code>Component</code> and a <code>Container</code> (which holds <code>Component</code>s, including other <code>Container</code>s) share one base type</li><li>Organization charts and menu systems — a single dish and a whole combo meal both have a price; the combo&#x27;s price sums its parts</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li>Run <code>./gradlew run</code> and read the printed tree — notice <code>print(indent)</code> never checks whether it is printing a <code>Product</code> or a <code>Category</code>.</li><li>Add a third level of nesting (a category inside <code>Cables</code>) and confirm <code>totalPrice()</code> and <code>productCount()</code> need no code changes to handle it.</li><li>Try adding an <code>add(CatalogComponent)</code> method to the <code>CatalogComponent</code> interface itself, then implement it on <code>Product</code>. Notice there is no sensible behavior for a leaf to have — that dead end is why <code>add</code> stays on <code>Category</code> only in this implementation.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the problem this solves</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — static structure</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — runtime call flow</li><li><a href="animation.html"><code>animation.html</code></a> — animated walkthrough</li></ul>
+</main>
+<footer>
+Generated from <code>composite-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

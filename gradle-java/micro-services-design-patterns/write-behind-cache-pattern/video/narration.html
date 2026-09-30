@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Write-Behind Cache Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Write-Behind Cache Pattern — Video Narration Script</h1>
+<h2>1. Write-Behind Cache</h2>
+<p>Hello, and welcome. This video explains the Write-Behind Cache pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A write-behind cache keeps each change in fast memory, and answers straight away. A few seconds later, it saves the changes to the database, in one batch. A record that changed ten times is saved only once. Think of typing a long document on a computer. Every letter appears at once. But the file is saved only every few minutes. And everyone has lost a paragraph to a power cut, just before the save. In this video, the domain is an online shop. Customers change their shopping carts all the time. Add a mug, make it two, remove the tea, add it back. By the end, you will hear what it costs to save every change at once. How write-behind turns thirty writes into three. What happens when the database is down. And exactly what is lost in a crash.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Customers change their carts again and again. Every change was saved to the database before the page answered. A database is the safe, permanent store, but writing to it is slow. Here, twenty milliseconds, on every click. And most of those saves were replaced a second later, by the next change.</p>
+<h2>3. Act One — Write every change</h2>
+<p>First demo: write every change straight to the database. Three customers each change their cart ten times. Add a mug. Make it two. Remove the tea. Every change is saved to the database before the page answers. That is thirty database writes. Each one takes twenty milliseconds. Six hundred milliseconds of waiting, in total. And most of those writes are replaced a moment later, by the next change to the same cart.</p>
+<h2>4. Act Two — Write behind</h2>
+<p>Second demo: write to memory now, and to the database later. The same thirty changes go into memory. Each changed cart is marked as dirty, which just means: not saved yet. The customers wait zero milliseconds. After five seconds, a flush runs. Flush means: save everything that is dirty. Each cart is saved once, with its latest contents. Three writes, instead of thirty. Priya&#x27;s cart reaches the database as ten mugs and nine teas. Her final choice.</p>
+<h2>5. Act Three — The database goes down</h2>
+<p>Third demo: the database goes down. Two customers change their carts. They wait zero milliseconds, and keep shopping. The flush tries to save, and fails. The two carts stay dirty, waiting. The database comes back. The next flush saves both carts. The customers never noticed.</p>
+<h2>6. Act Four — A crash before the flush</h2>
+<p>Fourth demo: the server crashes before a flush. Priya adds a teapot, and raises her mugs to twelve. Ana changes her tea. The next flush is five seconds away. Then the server crashes. Memory is wiped. All three changes are lost. The teapot is not in the database. The database still holds the carts from the last flush. That is the price of this pattern.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. Priya changes her kettles from one to three. Checkout reads memory, and sees three. A stock report reads the database, and still sees one. The database is always a little behind. So never write behind an order, a payment, or stock. Use it only for data you can afford to lose.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the pattern. Make the change in memory, and answer at once. Mark the record as dirty. Every few seconds, flush. Save each dirty record once, with its latest contents. If the database is down, keep it dirty, and try again next time. And accept one thing. A change made after the last flush is lost if the server crashes.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. Cart store is the interface: set a quantity, and get a cart. The write-behind store keeps carts in memory, and a set of dirty carts. Its flush method saves each dirty cart once. The database is slow and safe. And the write-through store is the old way, kept for comparison.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met this pattern already. Your operating system keeps file writes in memory, and saves them to disk a moment later. Caches such as Hazelcast offer write-behind as a setting. Autosave in an editor is the same idea. And so are page view counters, collected in memory, and saved in batches.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use it? Use write-behind for data that changes often, and can be lost without real harm. Carts, counters, drafts. Flush often. Flush when the server shuts down cleanly. And retry when the database is down. Never use it for orders, payments, or stock. Those must be safe the moment the customer is told they worked.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Write-Behind Cache pattern. If you remember one sentence, make it this one. Answer now, save in a moment, and only for what you can afford to lose. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Add a shutdown method that flushes before the server stops. Then ask which crashes it cannot help with. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

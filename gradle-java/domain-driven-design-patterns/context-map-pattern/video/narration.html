@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Context Map and Shared Kernel Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Context Map and Shared Kernel Pattern — Video Narration Script</h1>
+<h2>1. Context Map and Shared Kernel</h2>
+<p>Hello, and welcome. This video explains the Context Map and Shared Kernel patterns, from domain-driven design, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A big system is split into parts, each with its own model and team. A context map writes down how those parts relate. A shared kernel is a tiny piece of model that two parts share, and change only together. Think of two neighbouring houses with a shared garden wall. Each family runs its own house. But neither can move the wall without asking the other. And a street map shows who shares what with whom. In this video, the domain is an online shop. Sales takes orders. Shipping prints labels. And the catalogue supplies prices. By the end, you will hear how two copies of an address lost a flat number. How a shared kernel fixes it. How to keep a map that is checked. And what sharing costs.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The shop has three parts, called contexts. Sales takes orders. Shipping prints labels. The catalogue supplies prices. Sales and shipping both need addresses. Each kept its own address class. And a converter copied one into the other.</p>
+<h2>3. Act One — Two copies of an address</h2>
+<p>First demo: sales and shipping each keep their own address. Sales added a flat number to its address. Shipping&#x27;s address never had one. A converter copies one into the other. Priya types: flat two, four Mill Lane, Leeds. The shipping label says: four Mill Lane, Leeds. The flat number was lost between the two parts of the shop. The parcel waits at the main door.</p>
+<h2>4. Act Two — A shared kernel</h2>
+<p>Second demo: a shared kernel. A small shared package holds two classes: address, and money. Both teams own it together. Sales places order one, for thirty-eight pounds. Shipping prints the label from the very same address. Flat two, four Mill Lane, Leeds. Insured for thirty-eight pounds. There is no converter to lose anything.</p>
+<h2>5. Act Three — The context map</h2>
+<p>Third demo: the context map. It writes down who depends on whom, and how. The catalogue supplies sales: sales asks it for prices. Sales and shipping share the kernel: address and money. And shipping does not know that sales exists. It only knows the kernel.</p>
+<h2>6. Act Four — The map, checked</h2>
+<p>Fourth demo: the map is checked against the code. A small check reads every source file, and looks at what it imports. Imports the map does not allow: zero. Then someone takes a shortcut. In shipping, they import the sales order. The check reports it: shipping imports sales, which the map does not allow.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. A shared kernel changes slowly. Adding a postcode to the address needs both teams to agree, test, and release together. So keep the kernel tiny. Here, two classes. Everything else stays inside its own context.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the patterns. A context map lists the parts of the system, and how each pair relates. Who supplies whom. Who shares what. A shared kernel is one of those relationships. A tiny model that two parts own together, and change only by agreement. And the map is kept as code, and checked against the imports on every build.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. The kernel package holds address and money, shared by sales and shipping. Sales, shipping, and catalogue are the contexts, each a package with its own code. The context map class lists the relationships, and checks that the imports agree. And the before package is the old way, kept for comparison.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met these patterns already. A small shared common library, used by two services, is a shared kernel. Architecture documents often draw context maps, with arrows marked upstream and downstream. And architecture tests that say which packages may import which keep the map honest.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use them? As soon as a system has more than one team, or more than one model, draw a context map. Keep it as code, and check it. Share a kernel only for the few concepts that must match exactly. Keep it tiny, and change it together.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Context Map and Shared Kernel patterns. If you remember one sentence, make it this one. Draw the borders, check them, and share only a little. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Add a postcode to the kernel&#x27;s address, and count which contexts must change. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

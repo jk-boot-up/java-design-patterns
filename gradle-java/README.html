@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Patterns in Java — A Worked Course</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Design Patterns in Java — A Worked Course</h1>
+<p>Design patterns in Java — the twenty-five object-oriented ones first, then twelve microservices patterns, then eight platform patterns, then six concurrency patterns, then five architectural patterns — each a self-contained Gradle Java 21 project with runnable code, JUnit 5 tests, written notes, diagrams, an animated walkthrough, and a narrated video.</p>
+<p>The first four categories — creational, structural, behavioural and microservices — are complete, and so is architectural, the fifth. Platform and concurrency are the two categories still being built; see their sections below.</p>
+<p><strong>Every pattern is taught through the same worked domain: an online store.</strong> Not a photo gallery, not shapes on a canvas — checkout, catalog, orders, shipping, payments. The projects are meant to be worked through in sequence, so a learner who has already met orders, carts and couriers in the previous project spends none of their attention re-learning the setting and all of it on the structure being introduced.</p>
+<p>Start with <a href="creational/simple-factory-pattern"><code>creational/simple-factory-pattern</code></a> and follow the order below.</p>
+<hr>
+<h2>Creational — making objects</h2>
+<table><thead><tr><th>#</th><th>Pattern</th><th>What it buys you</th></tr></thead><tbody><tr><td>1</td><td><a href="creational/simple-factory-pattern">Simple Factory</a></td><td>Let data choose the class — payment methods</td></tr><tr><td>2</td><td><a href="creational/static-factory-pattern">Static Factory</a></td><td>Give the constructor a name — discounts</td></tr><tr><td>3</td><td><a href="creational/factory-method-pattern">Factory Method</a></td><td>One step, left to the subclass — delivery tiers</td></tr><tr><td>4</td><td><a href="creational/abstract-factory-pattern">Abstract Factory</a></td><td>Choose the whole family at once — regional checkout</td></tr><tr><td>5</td><td><a href="creational/builder-pattern">Builder</a></td><td>Decide it a piece at a time — purchase orders</td></tr><tr><td>6</td><td><a href="creational/prototype-pattern">Prototype</a></td><td>Copy the one you already have — product listings</td></tr><tr><td>7</td><td><a href="creational/singleton-pattern">Singleton</a></td><td>Exactly one, actually enforced — order numbers</td></tr></tbody></table>
+<p>Simple Factory and Static Factory are not in the Gang of Four book. They are here because they are the idioms everyone actually meets first, and because Factory Method and Abstract Factory both grow out of them.</p>
+<h2>Structural — arranging objects</h2>
+<table><thead><tr><th>#</th><th>Pattern</th><th>What it buys you</th></tr></thead><tbody><tr><td>8</td><td><a href="structural/adapter-pattern">Adapter</a></td><td>One class translates, not every caller — a shipping SDK</td></tr><tr><td>9</td><td><a href="structural/bridge-pattern">Bridge</a></td><td>Two hierarchies varying independently — notifications × channels</td></tr><tr><td>10</td><td><a href="structural/composite-pattern">Composite</a></td><td>One tree, one interface, zero <code>instanceof</code> — the catalog</td></tr><tr><td>11</td><td><a href="structural/decorator-pattern">Decorator</a></td><td>Wrap it, don&#x27;t subclass it — gift wrap and insurance</td></tr><tr><td>12</td><td><a href="structural/facade-pattern">Facade</a></td><td>One door in front of many — placing an order</td></tr><tr><td>13</td><td><a href="structural/flyweight-pattern">Flyweight</a></td><td>Stop paying for the same data twice — catalog badges</td></tr><tr><td>14</td><td><a href="structural/proxy-pattern">Proxy</a></td><td>Same interface, it controls the door — product images</td></tr></tbody></table>
+<h2>Behavioural — how objects decide and talk</h2>
+<p>All eleven are complete. See <a href="behavioural/docs/spec.html"><code>behavioural/docs/spec.md</code></a> for the scenario each pattern is taught through and why, and <a href="behavioural/docs/implementation-plan.html"><code>behavioural/docs/implementation-plan.md</code></a> for the order they were built in.</p>
+<table><thead><tr><th>#</th><th>Pattern</th><th>Scenario</th></tr></thead><tbody><tr><td>15</td><td><a href="behavioural/strategy-pattern">Strategy</a></td><td>Swap the rule, not the code — shipping cost rules</td></tr><tr><td>16</td><td><a href="behavioural/observer-pattern">Observer</a></td><td>Tell everyone, know no one — order status events</td></tr><tr><td>17</td><td><a href="behavioural/command-pattern">Command</a></td><td>Make the action an object — undoable cart edits</td></tr><tr><td>18</td><td><a href="behavioural/template-method-pattern">Template Method</a></td><td>Fix the steps, vary the how — the fulfilment workflow</td></tr><tr><td>19</td><td><a href="behavioural/state-pattern">State</a></td><td>Behaviour follows the state — the order lifecycle</td></tr><tr><td>20</td><td><a href="behavioural/chain-of-responsibility-pattern">Chain of Responsibility</a></td><td>Each link answers or passes it on — checkout screening</td></tr><tr><td>21</td><td><a href="behavioural/iterator-pattern">Iterator</a></td><td>Hide how the walk really works — paging the catalog</td></tr><tr><td>22</td><td><a href="behavioural/mediator-pattern">Mediator</a></td><td>Components talk through one hub — the checkout page</td></tr><tr><td>23</td><td><a href="behavioural/memento-pattern">Memento</a></td><td>Snapshot it, restore it, safely — restoring a saved cart</td></tr><tr><td>24</td><td><a href="behavioural/visitor-pattern">Visitor</a></td><td>New reports, untouched model — catalog reports</td></tr><tr><td>25</td><td><a href="behavioural/interpreter-pattern">Interpreter</a></td><td>Turn a rule into a tree — promotion rules</td></tr></tbody></table>
+<h2>Microservices — one shop, many services</h2>
+<p>The same online store, split across services that talk over a network. These are not Gang of Four patterns, and they are here because the twenty-five above stop short of the questions a service raises: what happens when the thing you called does not answer, has moved, is slow, or answers twice.</p>
+<p>The category&#x27;s own <a href="micro-services-design-patterns/docs/spec.html"><code>docs/spec.md</code></a> says which scenario each pattern is taught through and why. Every project runs in one JVM with nothing installed but a JDK — no Spring, no Docker, no broker and no sockets — because a simulated clock and a simulated network make the timings exact and the failures repeatable.</p>
+<table><thead><tr><th>#</th><th>Pattern</th><th>Scenario</th></tr></thead><tbody><tr><td>26</td><td><a href="micro-services-design-patterns/api-gateway-pattern">API Gateway</a></td><td>One call from the phone, not seven — the product page</td></tr><tr><td>27</td><td><a href="micro-services-design-patterns/service-discovery-pattern">Service Registry and Discovery</a></td><td>Ask where it is, don&#x27;t hard-code it — finding Catalog</td></tr><tr><td>28</td><td><a href="micro-services-design-patterns/load-balancing-pattern">Client-Side Load Balancing</a></td><td>Spread the calls, skip the sick one — three Catalog instances</td></tr><tr><td>29</td><td><a href="micro-services-design-patterns/retry-pattern">Retry with Backoff</a></td><td>Try again, but not immediately — a blip in Pricing</td></tr><tr><td>30</td><td><a href="micro-services-design-patterns/circuit-breaker-pattern">Circuit Breaker</a></td><td>Stop calling what is down — Recommendations</td></tr><tr><td>31</td><td><a href="micro-services-design-patterns/bulkhead-pattern">Bulkhead</a></td><td>One slow service must not sink the page — thread pools</td></tr><tr><td>32</td><td><a href="micro-services-design-patterns/database-per-service-pattern">Database per Service</a></td><td>The join you can no longer write — orders and names</td></tr><tr><td>33</td><td><a href="micro-services-design-patterns/api-composition-pattern">API Composition</a></td><td>Gather in parallel, decide what to do with a gap — order details</td></tr><tr><td>34</td><td><a href="micro-services-design-patterns/cqrs-pattern">CQRS</a></td><td>Keep the page ready — the order history</td></tr><tr><td>35</td><td><a href="micro-services-design-patterns/saga-pattern">Saga</a></td><td>No transaction spans five services — placing an order</td></tr><tr><td>36</td><td><a href="micro-services-design-patterns/transactional-outbox-pattern">Transactional Outbox</a></td><td>Save it and announce it, or neither — the order event</td></tr><tr><td>37</td><td><a href="micro-services-design-patterns/idempotent-consumer-pattern">Idempotent Consumer</a></td><td>The same message, twice — one confirmation email</td></tr></tbody></table>
+<h2>Platform — what the system stores, and how it is run</h2>
+<p>The same online store again, but the questions are now about the platform it runs on rather than the calls between services: where configuration comes from, how a request is followed across machines, what is actually kept in storage, and how a system too big to rewrite gets replaced anyway.</p>
+<p>This category is <strong>under construction</strong>. Its <a href="platform-design-patterns/docs/implementation-plan.html">implementation plan</a> is the authority on what each project will contain; the table below links the ones that exist.</p>
+<p>It is also the first category to allow real infrastructure, under a rule worth knowing before you start. <strong>Tier 1</strong> of every project runs offline with only a JDK, and the teaching video is built entirely from Tier 1 — so a learner who installs nothing still gets the whole lesson. <strong>Tier 2</strong> is optional and additive: it lives in a <code>real/</code> subdirectory, is excluded from <code>./gradlew test</code>, and is where Spring Boot, Docker or Kubernetes may appear for anyone who wants to see the pattern against the real thing.</p>
+<table><thead><tr><th>#</th><th>Pattern</th><th>Scenario</th></tr></thead><tbody><tr><td>38</td><td><a href="platform-design-patterns/externalised-configuration-pattern">Externalised Configuration</a></td><td>The threshold you must not redeploy to change — free delivery</td></tr><tr><td>39</td><td><a href="platform-design-patterns/distributed-tracing-pattern">Distributed Tracing</a></td><td>Four healthy services, one slow page — which of them spent the time?</td></tr><tr><td>40</td><td><a href="platform-design-patterns/backends-for-frontends-pattern">Backends for Frontends</a></td><td>Six fields on a phone, fifteen on a desktop — one endpoint fits neither</td></tr><tr><td>41</td><td><a href="platform-design-patterns/sidecar-pattern">Sidecar</a></td><td>The concern that travels beside the service, not inside it</td></tr><tr><td>42</td><td><a href="platform-design-patterns/sidecar-java-proxy-pattern">Sidecar (Java proxy)</a></td><td>The same sidecar, written as a Java proxy</td></tr><tr><td>43</td><td>Sidecar (on Kubernetes)</td><td>The same sidecar again, as a real second container</td></tr><tr><td>44</td><td><a href="platform-design-patterns/event-sourcing-pattern">Event Sourcing</a></td><td>Store the facts, not the total — why is this balance 140?</td></tr><tr><td>45</td><td>Strangler Fig</td><td>Replacing a system you are not allowed to switch off</td></tr></tbody></table>
+<p>Event Sourcing is the category&#x27;s reference project and is finished. It was built first because it is the most demanding of the eight and the one that most needs its costs shown honestly: three of its nine acts are spent on what the pattern costs rather than what it buys. Externalised Configuration is finished too, and is deliberately the gentlest of the eight — it depends on none of the others, so the listed order is a dependency order for the material rather than a difficulty order. Distributed Tracing is finished as well, and follows the same shape: the pattern is one string field naming a span&#x27;s parent, and three of its seven acts are spent on the three ways the resulting picture can be wrong without anything throwing. Backends for Frontends is finished in both tiers. It spends its first five scenes on the problem for a reason: the obvious fix — asking a shared endpoint for only the fields you want — is shown <em>working</em>, and reaching the same byte count the pattern does, before the one request it cannot serve arrives. Sidecar is finished in Tier 1. Its incident is an absence rather than a mistake — a retry policy that four services each hold a copy of, changed in three of them and missed in the fourth because there was no fourth place to look — and its last four scenes are the bill: twice as many processes, a second thing that can be down, one millisecond on every call, and the admission that inside one JVM this structure is Decorator.</p>
+<h2>Concurrency — more than one thing happening at once</h2>
+<p>The same online store, but the question this time is what happens when two threads reach for the same shared state together: the stock count for one product, decremented by every checkout. This is where a beginner&#x27;s mental model of Java breaks first, and it breaks quietly — the code looks right, the tests pass, and it is wrong only on a busier machine. The category&#x27;s whole discipline is answering that: <strong>every naive failure is forced to reproduce on every single run</strong>, with a latch, a barrier or a planned interleaving — never a <code>Thread.sleep</code>, and never a bug that only shows up &quot;sometimes&quot;.</p>
+<p>This category is <strong>under construction</strong> — three of six projects built. Its <a href="concurrency-design-patterns/docs/implementation-plan.html">implementation plan</a> is the authority on what each remaining project will contain.</p>
+<table><thead><tr><th>#</th><th>Pattern</th><th>Scenario</th></tr></thead><tbody><tr><td>46</td><td><a href="concurrency-design-patterns/producer-consumer-pattern">Producer–Consumer</a></td><td>Orders arrive faster than they are packed</td></tr><tr><td>47</td><td><a href="concurrency-design-patterns/thread-pool-pattern">Thread Pool</a></td><td>A thread per order, until the server stops</td></tr><tr><td>48</td><td><a href="concurrency-design-patterns/future-promise-pattern">Future/Promise</a></td><td>A result you are promised but do not have yet</td></tr><tr><td>49</td><td>Read–Write Lock</td><td>A thousand readers and one price change</td></tr><tr><td>50</td><td>Monitor Object</td><td>The object that guards its own state</td></tr><tr><td>51</td><td>Active Object</td><td>A method call that returns before the work does</td></tr></tbody></table>
+<p>The order is a dependency order: Producer–Consumer introduces the bounded queue; Thread Pool is what actually consumes it; Future/Promise is how a caller gets an answer back from either; Read–Write Lock and Monitor Object are the two ways the shared stock count gets protected; and Active Object is the capstone, assembling a queue, a thread, a future and an object that owns its own state into one idea, re-teaching none of them.</p>
+<h2>Architectural — where a dependency is allowed to point</h2>
+<p>The same online store one more time, but the question is now the shape of the codebase itself: which layer is allowed to know about which, and what happens when someone takes a shortcut across that rule. All five projects implement <strong>the same feature</strong> — a customer places an order for three products, stock is checked, payment is taken, a confirmation is sent — so the only thing that differs between them is the arrangement, and a reader can compare projects directly instead of taking anyone&#x27;s word for which one is cleaner.</p>
+<p>This category is <strong>complete</strong> — all five projects built. Its <a href="architectural-design-patterns/docs/implementation-plan.html">implementation plan</a> is the authority on how it was built and in what order.</p>
+<table><thead><tr><th>#</th><th>Pattern</th><th>Scenario</th></tr></thead><tbody><tr><td>63</td><td><a href="architectural-design-patterns/layered-architecture-pattern">Layered Architecture</a></td><td>Folders are not a rule until a test enforces it</td></tr><tr><td>64</td><td><a href="architectural-design-patterns/mvc-pattern">MVC</a></td><td>Two views, one calculation</td></tr><tr><td>65</td><td><a href="architectural-design-patterns/hexagonal-architecture-pattern">Hexagonal Architecture</a></td><td>The core never learns it has a database</td></tr><tr><td>66</td><td><a href="architectural-design-patterns/clean-architecture-pattern">Clean Architecture</a></td><td>The call goes out, the arrow points in</td></tr><tr><td>67</td><td><a href="architectural-design-patterns/clean-architecture-with-spring-pattern">Clean Architecture with Spring</a></td><td>The same graph, wired by a container instead of by hand</td></tr></tbody></table>
+<p>Layered Architecture is the category&#x27;s reference: it is the architecture most readers already have, and its failure mode — layers that exist as folders and are violated by one convenient call — is the one everyone has lived with. MVC is one step on from it: the same shared feature, with the presentation side split into a model and views so that a screen and a confirmation email cannot show a customer two different totals. Hexagonal Architecture inverts the one honest cost Layered Architecture&#x27;s own documents admitted: the use case now declares its own ports, and an adapter reaches up to implement or call them — proved by swapping the storage adapter and the calling adapter at the same time, with zero changes to the core either way. Clean Architecture generalises that inversion into three named rings, with the dependency-inversion moment shown in running code and proved under the category&#x27;s largest forced change — a new delivery mechanism and a new data source, added simultaneously, with zero changes to entities or use cases. Clean Architecture with Spring closes the category: the identical graph Clean Architecture built by hand, assembled instead by a Spring container, so the one contrast a container adds — hand-wiring fails at compile time, container wiring fails at startup — can be shown directly, with the missing-bean failure proved rather than narrated.</p>
+<p>The numbering above skips 52 to 62 and 68 to 72. Those are reserved for two more categories specified in the same planning pass — enterprise (52–62) and foundational (68–72) — each with its own README, <code>spec.md</code> and <code>implementation-plan.md</code> already committed under <code>gradle-java/</code>. Neither has a single project built yet, and neither is wired into the shared generators; they are out of scope for the architectural category&#x27;s build and are recorded here only so the gap in the numbers has an explanation. Concurrency (46–51), the other category specified in that same pass, is covered in its own section above.</p>
+<hr>
+<h2>What each project contains</h2>
+<table><thead><tr><th>Path</th><th>Content</th></tr></thead><tbody><tr><td><code>src/</code></td><td>The pattern applied, plus the naive alternative it replaces</td></tr><tr><td><code>docs/problem-statement.md</code></td><td>The problem, and why the naive approach hurts</td></tr><tr><td><code>docs/{pattern}-pattern-explained.md</code></td><td>The pattern, the code, pitfalls, comparisons</td></tr><tr><td><code>docs/class-diagram.md</code>, <code>docs/uml-diagram.md</code></td><td>Structure and runtime call flow</td></tr><tr><td><code>docs/animation.html</code></td><td>Step-by-step walkthrough — open in a browser</td></tr><tr><td><code>docs/session.md</code></td><td>A 60-minute guided teaching session</td></tr><tr><td><code>docs/spec.md</code></td><td>That project&#x27;s specification and quality bar</td></tr><tr><td><code>video/</code></td><td>A narrated 1080p video, plus the script and build pipeline</td></tr></tbody></table>
+<p>Each project also carries the naive version of its problem — the code a competent developer would write without the pattern. The comparison is the point; a pattern shown without the thing it replaces is just structure.</p>
+<h2>Running one</h2>
+<pre><code>cd creational/simple-factory-pattern
+./gradlew run
+./gradlew test</code></pre>
+<p>Java 21 and no third-party runtime dependencies. JUnit 5 for tests only.</p>
+<h2>The standards these are built to</h2>
+<table><thead><tr><th>Document</th><th>Covers</th></tr></thead><tbody><tr><td><a href="docs/video-and-publishing-spec.html"><code>docs/video-and-publishing-spec.md</code></a></td><td>The domain rule, narration, audio and video pipeline, poster and thumbnail, publishing</td></tr><tr><td><a href="docs/implementation-plan.html"><code>docs/implementation-plan.md</code></a></td><td>How the first fourteen were brought up to that standard</td></tr><tr><td><a href="behavioural/docs/spec.html"><code>behavioural/docs/spec.md</code></a></td><td>The behavioural category&#x27;s scenarios and extra conformance items</td></tr><tr><td><a href="micro-services-design-patterns/docs/spec.html"><code>micro-services-design-patterns/docs/spec.md</code></a></td><td>The microservices category&#x27;s scenarios, its one-JVM rule and its extra conformance items</td></tr><tr><td><a href="platform-design-patterns/docs/implementation-plan.html"><code>platform-design-patterns/docs/implementation-plan.md</code></a></td><td>The platform category&#x27;s eight projects, its two-tier rule, and the infrastructure each one is allowed to use</td></tr><tr><td><a href="architectural-design-patterns/docs/implementation-plan.html"><code>architectural-design-patterns/docs/implementation-plan.md</code></a></td><td>The architectural category&#x27;s five projects, the shared feature all five implement, and the ArchUnit dependency-rule test each one carries</td></tr><tr><td><a href="concurrency-design-patterns/docs/implementation-plan.html"><code>concurrency-design-patterns/docs/implementation-plan.md</code></a></td><td>The concurrency category&#x27;s six projects, the determinism harness they share, and the rule that every naive failure reproduces on every run</td></tr></tbody></table>
+<p>The generators in <code>docs/</code> — <code>make_specs.py</code>, <code>make_youtube_docs.py</code>, <code>make_thumbnails.py</code> — produce the per-project specification, publishing document and thumbnail from each project&#x27;s own files, so those cannot drift from the code they describe.</p>
+<hr>
+<p>Built by Jayasekhar Konduru.</p>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

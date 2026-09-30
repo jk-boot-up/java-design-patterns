@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interpreter with SpEL Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Interpreter with SpEL Pattern — Video Narration Script</h1>
+<h2>1. Interpreter with SpEL</h2>
+<p>Hello, and welcome. This video explains the Interpreter pattern, in Java, using the Spring Expression Language. This video is presented by Jayasekhar Konduru. First, a simple definition. The Interpreter pattern turns sentences in a small language into a tree of objects, and then runs that tree. The Spring Expression Language, called SpEL, is a ready-made interpreter. You give it a rule written as text. It turns the text into a tree, and checks the tree against an object. Think of a calculator. You type a sum as text, and it works out the answer. You never have to build the calculator yourself. This is the framework version of the Interpreter video, with the same promotion rules for an online shop. This time, a library runs the rules, instead of a hand-built reader. Then we look at the costs: a bigger language than you wanted, errors that show up late, and a safety choice you must make.</p>
+<h2>2. The Partner Project</h2>
+<p>Before we start, a quick note. This video has a partner: the hand-built Interpreter video. That one turns a promotion written as text into a tree of small rule objects. And it writes its own reader for the text. If you are new to the pattern, watch that one first. Here, we keep the same example, and ask what SpEL does with it.</p>
+<h2>3. Before The First Line</h2>
+<p>One thing is new in this project: Spring&#x27;s expression language library. It reads a line of text, turns it into a tree, and evaluates that tree against any object. It replaces both the hand-written reader and all the rule classes. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.</p>
+<h2>4. The Rules Are Text</h2>
+<p>First demo: the rules are plain text. Welcome ten: the customer&#x27;s first order. UK big: the country is UK, and the basket is over fifty pounds. Bulk: five items or more, or a basket over two hundred pounds. Not UK: everyone outside the UK. Asha gets UK big. Ben gets welcome ten, and not UK. Carol gets UK big, and bulk. There is no reader in this project, and no rule classes. The library does it all.</p>
+<h2>5. The Language Came Free</h2>
+<p>Second demo: the language comes free. A rule can use an if-then-else, a pattern match on a voucher code, and a remainder calculation. All of them just work, and we wrote none of them. In the hand-built version, each one would have been a new class. That is the gain. Now for the costs.</p>
+<h2>6. Two Kinds Of Typo</h2>
+<p>Third demo: two kinds of typo. First, a grammar mistake, like two ands in a row. That is refused as soon as the rule book is built. Good. Second, a misspelled property name. That is accepted, because nothing checks names until an order arrives. So it fails later, when the first real order comes in. The defence is a test that loads every rule, and checks it against a sample order.</p>
+<h2>7. The Language Can Reach The Program</h2>
+<p>Fourth demo: the danger. With the full evaluation context, a rule can call any static method in the whole program. Here, it only reads a system setting. But it could call anything. The read-only context refuses that. It refuses method calls too. A rule can only read properties. Rules written by the marketing team are input. And input must never be trusted. So use the read-only context.</p>
+<h2>8. Missing Values</h2>
+<p>Fifth demo: missing values. Asha has no voucher. So a rule that reads a property of her voucher fails with an error. Add a question mark before the dot, and a missing voucher simply means no match. Now Asha gets nothing, without an error. And Ben, who does have a voucher, gets his promotion.</p>
+<h2>9. Parsed Once</h2>
+<p>Last demo: the cost of reading rules. The four rules are read and turned into trees once, when the rule book is built. Then a thousand orders go through those same four trees. Fifteen hundred promotions apply. The trees were built four times, not four thousand. Reading the text is the expensive part, so do it at startup, not for every order.</p>
+<h2>10. The Verdict</h2>
+<p>So, here is the verdict. Use it when rules must change without a release. Read the rules once, at startup. Use the read-only context for any rule written by people. And test every rule against real orders.</p>
+<h2>11. How To Recognise It</h2>
+<p>How can you spot this in code someone else wrote? Look for the SpEL Expression Parser class. Look for an at Value annotation with a hash sign and curly braces. Or an at Pre Authorize annotation with a text rule inside it.</p>
+<h2>12. Where You Have Met This</h2>
+<p>Where have you met this before? In every at Value annotation that uses a hash sign. And in every at Pre Authorize annotation. Each of those holds a SpEL expression.</p>
+<h2>13. What Was Used</h2>
+<p>For the record, here are the versions. Just the expression library, from Spring Framework seven. No container, and no Spring Boot.</p>
+<h2>14. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything in it is real. The real expression reader, and the real evaluation contexts. And nothing depends on timing.</p>
+<h2>15. When This Is Too Much</h2>
+<p>So, when is this too much? For a small, fixed set of rules, plain Java is simpler. And the compiler checks it for you.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s Interpreter with SpEL. If you remember one sentence, make it this one. SpEL is a ready-made interpreter, and choosing the evaluation context is your safety decision. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. In the read-only context, try a rule that calls a static method. Then read the message it gives you. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

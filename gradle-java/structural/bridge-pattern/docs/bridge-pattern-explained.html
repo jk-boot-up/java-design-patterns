@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Bridge Pattern — Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Bridge Pattern — Explained</h1>
+<h2>One-Line Definition</h2>
+<blockquote><p><strong>Bridge</strong> decouples an abstraction from its implementation so that the two can vary independently. — <em>Gang of Four, Design Patterns</em></p></blockquote>
+<p>It is a <strong>structural</strong> pattern: it is about how two hierarchies are wired <em>together</em>, not about how objects are created (Singleton, Prototype, Builder) or how a tree of objects is composed (Composite).</p>
+<h2>The One Idea That Matters: Two Small Hierarchies, One Seam</h2>
+<p>Without Bridge, &quot;what a notification says&quot; and &quot;how it gets delivered&quot; are forced into one class per combination: <code>OrderConfirmationEmail</code>, <code>OrderConfirmationSms</code>, <code>ShippingUpdateEmail</code>, <code>ShippingUpdateSms</code>, and so on. Bridge splits that single tangled hierarchy into two small, independent ones — <code>Notification</code> (the <em>abstraction</em>) and <code>MessageChannel</code> (the <em>implementor</em>) — connected by nothing more than a field. A <code>Notification</code> holds a <code>MessageChannel</code> reference and calls it; it never subclasses per channel.</p>
+<blockquote><p>If adding a new channel means writing a new class for every existing notification type (or vice versa), the pattern has not been applied yet.</p></blockquote>
+<h2>The Everyday Analogy</h2>
+<p>Think of a <strong>TV remote and a television</strong>. The remote (the abstraction) knows about &quot;volume up,&quot; &quot;channel up,&quot; &quot;power&quot; — high-level actions. The television (the implementation) knows how to actually change the volume on its own specific hardware. Any remote works with any television that speaks the same signal, and a manufacturer can redesign the television&#x27;s internals completely without changing what a single button on the remote means. The remote and the television vary independently because neither one is a subclass of the other — they are two separate hierarchies, joined by one wire.</p>
+<p><code>Notification</code> is the remote. <code>MessageChannel</code> is the television.</p>
+<h2>The Participants</h2>
+<table><thead><tr><th>Role</th><th>In this project</th><th>Job</th></tr></thead><tbody><tr><td><strong>Abstraction</strong></td><td><code>Notification</code></td><td>Knows what a message says; holds a <code>MessageChannel</code> and delegates delivery to it</td></tr><tr><td><strong>Refined Abstraction</strong></td><td><code>OrderConfirmationNotification</code>, <code>ShippingUpdateNotification</code>, <code>PasswordResetNotification</code></td><td>Each composes its own subject/body; none know how delivery works</td></tr><tr><td><strong>Implementor</strong></td><td><code>MessageChannel</code></td><td>Declares how to deliver a subject/body pair somewhere</td></tr><tr><td><strong>Concrete Implementor</strong></td><td><code>EmailChannel</code>, <code>SmsChannel</code>, <code>PushChannel</code></td><td>Each knows one delivery mechanism&#x27;s quirks (SMS truncates, Push drops the body)</td></tr><tr><td><strong>The trap</strong></td><td><code>NaiveOrderConfirmationEmail</code> / <code>...Sms</code>, <code>NaiveShippingUpdateEmail</code> / <code>...Sms</code></td><td>One class per (notification, channel) pair; channel logic duplicated across every notification type</td></tr><tr><td><strong>Client</strong></td><td><code>NotificationDemo</code></td><td>Mixes any notification with any channel at construction time</td></tr></tbody></table>
+<h2>How This Project Implements It</h2>
+<h3>The abstraction holds the implementor, and only delegates</h3>
+<pre><code>public abstract class Notification {
+    private final MessageChannel channel;
+
+    protected Notification(MessageChannel channel) {
+        this.channel = channel;
+    }
+
+    public final void send(String recipient) {
+        channel.deliver(recipient, subject(), body());
+    }
+
+    protected abstract String subject();
+    protected abstract String body();
+}</code></pre>
+<p><code>send</code> never knows whether <code>channel</code> is email, SMS, or something invented next year. It only knows <code>MessageChannel</code> can <code>deliver</code> a subject and a body.</p>
+<h3>Refined abstractions add content, never delivery</h3>
+<pre><code>public final class OrderConfirmationNotification extends Notification {
+    @Override protected String subject() { return &quot;Order &quot; + orderId + &quot; confirmed&quot;; }
+    @Override protected String body()    { return &quot;Your order &quot; + orderId + &quot; totalling $&quot; + total + &quot; has been confirmed.&quot;; }
+}</code></pre>
+<p>Nothing here mentions email, SMS, or push. Adding a fourth notification type — say, <code>BackInStockNotification</code> — costs exactly one new class, and it automatically works with every channel that already exists.</p>
+<h3>Concrete implementors own delivery quirks, once each</h3>
+<pre><code>public final class SmsChannel implements MessageChannel {
+    @Override
+    public void deliver(String recipient, String subject, String body) {
+        String text = subject + &quot;: &quot; + body;
+        if (text.length() &gt; MAX_LENGTH) {
+            text = text.substring(0, MAX_LENGTH - 1) + &quot;…&quot;;
+        }
+        System.out.println(&quot;[SMS to &quot; + recipient + &quot;] &quot; + text);
+    }
+}</code></pre>
+<p>The 140-character truncation rule is written exactly once, here. Every notification type that goes out over SMS — today&#x27;s three, and any added later — gets that rule for free, because they all share this one <code>SmsChannel</code> instance.</p>
+<h3>The trap, for contrast</h3>
+<p><code>NaiveOrderConfirmationSms</code> and <code>NaiveShippingUpdateSms</code> both hardcode the same truncation logic, independently. Fixing a bug in how SMS truncates means finding and fixing it in every naive class that happened to copy it.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>Independent growth on both axes.</strong> A new channel costs one class. A new notification type costs one class. Neither multiplies against the other.</li><li><strong>Delivery logic lives in exactly one place per channel.</strong> The SMS length limit is defined once, in <code>SmsChannel</code>, and every notification type that uses SMS inherits the fix automatically.</li><li><strong>Runtime flexibility.</strong> Because the connection between a <code>Notification</code> and its <code>MessageChannel</code> is an ordinary object reference, not an inheritance relationship, the same <code>OrderConfirmationNotification</code> class can be pointed at <code>EmailChannel</code>, <code>SmsChannel</code>, or <code>PushChannel</code> just by passing a different constructor argument.</li><li><strong>The trap and the fix compute identical output.</strong> <code>NaiveNotificationsTest</code> proves the naive classes and the bridge equivalents produce byte-for-byte the same delivered message — Bridge changes <em>how the code is organized</em>, not what it produces.</li></ul>
+<h2>What to Watch Out For</h2>
+<ul><li><strong>Bridge only pays off with two genuinely independent axes of variation.</strong> If you will only ever have one channel, or one notification type, the extra interface is pure ceremony — introduce it when the second axis actually shows up, not preemptively.</li><li><strong>The abstraction must not leak implementor details.</strong> If <code>OrderConfirmationNotification</code> had to know that <code>SmsChannel</code> truncates at 140 characters in order to compose a shorter body, the two hierarchies would no longer be independent — the whole point is that <code>Notification</code> subclasses stay ignorant of channel mechanics. Confirm this by keeping <code>subject()</code>/<code>body()</code> free of any per-channel logic.</li><li><strong>A <code>final</code> implementor field means the channel is fixed at construction.</strong> That is a deliberate, simple choice for this project; some Bridge implementations expose a setter so an abstraction&#x27;s implementor can be swapped after construction. Either is valid Bridge — the pattern only requires the <em>connection</em> to be composition, not which connection is mutable.</li></ul>
+<h2>Bridge vs. Similar Patterns</h2>
+<table><thead><tr><th>Pattern</th><th>Intent</th><th>Key difference</th></tr></thead><tbody><tr><td><strong>Bridge</strong></td><td>Decouple an abstraction from its implementation so both vary independently</td><td>Two parallel hierarchies, connected by composition, designed in <em>up front</em></td></tr><tr><td><strong>Adapter</strong></td><td>Make an existing incompatible interface usable by a client</td><td>Applied <em>after the fact</em>, to reconcile something you didn&#x27;t design</td></tr><tr><td><strong>Composite</strong></td><td>Treat a single object and a tree of objects uniformly</td><td>One interface, recursive part-whole structure — no second hierarchy</td></tr><tr><td><strong>Strategy</strong></td><td>Swap an algorithm at runtime</td><td>Same shape as Bridge (composition over inheritance), but usually one interchangeable behavior, not a whole second hierarchy of refined types</td></tr></tbody></table>
+<p>The shortest way to remember it: <strong>Adapter reconciles two interfaces that already exist and disagree. Bridge designs two hierarchies from the start so they never have to agree on more than one seam.</strong></p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li>JDBC — <code>java.sql.Driver</code> is the implementor; your code talks to the <code>Connection</code>/<code>Statement</code> abstraction and never touches vendor-specific driver internals directly</li><li>SLF4J and other logging facades — the logging API (abstraction) is separate from the logging backend (Logback, Log4j2 — the implementors)</li><li>Cross-platform UI toolkets — a <code>Button</code> abstraction paired with a platform-specific <code>ButtonRenderer</code> implementor, so the same <code>Button</code> code runs on Windows, macOS, or the web</li><li>Device drivers — the operating system&#x27;s abstraction for &quot;a printer&quot; stays stable while manufacturers implement wildly different hardware underneath</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li>Run <code>./gradlew run</code> and read the output — notice the same <code>OrderConfirmationNotification</code> content renders differently through <code>EmailChannel</code>, <code>SmsChannel</code>, and <code>PushChannel</code>, with zero <code>if</code> statements anywhere checking which channel it is.</li><li>Add a <code>BackInStockNotification</code> refined abstraction. Confirm it works with <code>EmailChannel</code>, <code>SmsChannel</code>, and <code>PushChannel</code> immediately, with no changes to any of the three channel classes.</li><li>Add a fourth channel, <code>WebhookChannel</code>, that delivers as JSON. Confirm every existing notification type works with it immediately, with no changes to any notification class.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the problem this solves</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — static structure</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — runtime call flow</li><li><a href="animation.html"><code>animation.html</code></a> — animated walkthrough</li></ul>
+</main>
+<footer>
+Generated from <code>bridge-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

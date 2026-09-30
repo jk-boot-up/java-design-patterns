@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Video Narration Script</h1>
+<p>Narration for the Composite pattern teaching video. Each scene below maps to one slide. The narration is spoken by macOS <code>Samantha</code>, a female US English voice, at 145 words per minute.</p>
+<p>Total scenes: 15. Approximate runtime: about 7 minutes.</p>
+<p>The first and last scenes carry the channel branding: scene 1 credits the author out loud over the poster, and the final scene asks for the thumbs up and the subscribe.</p>
+<p>The script is written to be spoken rather than read, and carries <code>[[slnc NNN]]</code> pause markers in <a href="scenes.py"><code>scenes.py</code></a> that insert NNN milliseconds of silence. Those are instructions to the synthesiser, not words: they are stripped from the text below and from the subtitles.</p>
+<hr>
+<h2>Scene 1 — The Composite Pattern</h2>
+<p>Hello, and welcome. This video explains the Composite pattern in Java, and it is written and presented by Jayasekhar Konduru. Let&#x27;s start with the simple definition. The composite pattern lets you treat a single object and a whole group of objects in exactly the same way. Both implement one interface, so a caller can put a question to any node in a tree without knowing, or asking, whether it is a leaf or a branch. That&#x27;s the idea in a sentence, and it applies to anything shaped like a tree. The rest of the video does it properly, by building a real working Java project: an e-commerce catalog made of categories and products. By the end you&#x27;ll know why a leaf and a branch of the same tree need to answer to the exact same interface, and how to write one yourself.</p>
+<h2>Scene 2 — The Scenario</h2>
+<p>So, imagine an online store&#x27;s catalog, organised as a tree. Electronics contains a Phone, and a nested category called Accessories. Accessories contains a Case and a Charger, plus another nested category, Cables. And Cables contains one more product, a USB-C cable. Now we need two numbers. The total price of everything in the tree, and how many products it contains. And critically, the tree can be as deep as it wants.</p>
+<h2>Scene 3 — Two Very Different Kinds of Node</h2>
+<p>Look at the two kinds of node in this tree. A Product is a leaf. It has no children, just a name and a price. A Category is a branch. It holds a list of children, and each of those children might be a Product, or it might be another Category, nested one level deeper. And here&#x27;s the goal. Whatever is asking for the total price of a node shouldn&#x27;t have to care which of the two kinds it actually has.</p>
+<h2>Scene 4 — The Naive Approach — instanceof, Repeated Per Operation</h2>
+<p>So here&#x27;s the naive approach. totalPrice takes a plain Object, because NaiveProduct and NaiveCategory share no common type. So it has to ask, with instanceof, which one it actually got, before it can do anything. And here&#x27;s the problem. productCount and print need the exact same question answered, so they each repeat this exact same instanceof chain, completely independently, one method at a time.</p>
+<h2>Scene 5 — Why That Hurts</h2>
+<p>And that does real damage as the code grows. Every new operation — export to J-son, say — means writing that same instanceof chain a fourth time. Add a new catalog item type, a Bundle, say, and now you have to go back and touch every single method that ever asked this question. And notice NaiveCategory can&#x27;t even declare a properly typed list of its children — with no shared supertype, it has to fall back to a raw List of Object.</p>
+<h2>Scene 6 — The Composite Pattern</h2>
+<p>The composite pattern fixes exactly this. In Gang of Four terms, composite composes objects into tree structures to represent part-whole hierarchies, and it lets clients treat individual objects and compositions of objects uniformly. In plain language? A leaf and a branch answer to the same questions, so whoever is asking never has to check which one they&#x27;ve got.</p>
+<h2>Scene 7 — Remember It With an Org Chart</h2>
+<p>Here&#x27;s how to remember it forever. Think about an org chart. Ask any employee, how many people do you manage, including everyone below you? An intern answers directly. Zero. A manager asks each of their direct reports the exact same question, and adds up the answers. Same question, same interface, both times. Only the computation behind the answer is different.</p>
+<h2>Scene 8 — The Three Roles</h2>
+<p>Every composite setup has three roles. The component, CatalogComponent, the shared interface both other roles implement. The leaf, Product, which has no children and answers about itself alone. And the composite, Category, which holds children and answers by asking each of them, then combining the results. Here&#x27;s the single most important idea in this whole video. Category&#x27;s children are typed as CatalogComponent, not as Product or Category specifically — so a Category can hold more categories, nested as deep as you like, without a single line of code caring.</p>
+<h2>Scene 9 — The Component — One Interface, Both Roles Implement It</h2>
+<p>This is the component, CatalogComponent. It declares every question the tree can answer: its name, its total price, how many products it contains, and how to print itself. Product implements this directly, as a leaf. Category implements the exact same interface, but it also holds a list of these — CatalogComponent children, not Product children, not Category children. Just CatalogComponent.</p>
+<h2>Scene 10 — The Leaf — Product Answers About Itself Alone</h2>
+<p>And this is the leaf, Product. totalPrice just returns its own price. No loop, no children to ask. This is the base case of the recursion. productCount always returns exactly one, no matter how deep in the tree this particular Product happens to sit. It doesn&#x27;t know, and it doesn&#x27;t need to.</p>
+<h2>Scene 11 — The Composite — Category Delegates and Combines</h2>
+<p>This is the heart of the pattern, Category dot totalPrice. It loops over its children and calls totalPrice on each one. It never checks whether a child is a Product or another Category. It doesn&#x27;t need to — both answer to exactly the same method. If that child happens to be another Category, calling totalPrice on it triggers this exact same loop, one level further down. The recursion is happening. It&#x27;s just hidden inside one polymorphic call.</p>
+<h2>Scene 12 — The Client — No instanceof Anywhere</h2>
+<p>And here&#x27;s the client, CatalogDemo, that ties it together. It builds the tree with a few chained add calls, then makes exactly one call each for the total price and the product count, at the root. Look at the last loop. It walks electronics&#x27; direct children and asks each one for its total price. Some of those children are products, some are nested categories — and this loop never asks which. That&#x27;s the whole payoff.</p>
+<h2>Scene 13 — Running It</h2>
+<p>When we run the project, the printed tree and the totals are right there in the output. Six hundred fifty nine dollars and ninety six cents, across four products, computed by one call at the root that quietly recursed through three levels of nesting. And look at the last two lines. Accessories, a Category, answers totalPrice and productCount in exactly the same shape as Phone, a Product, does one line above. Same call, same client code, completely different computation underneath.</p>
+<h2>Scene 14 — Wrap Up</h2>
+<p>So, to recap. Use composite when your data is naturally tree-shaped, and you want client code to treat leaves and branches the same way. Keep child-management methods like add off the shared interface — a leaf has no good way to implement them, and that&#x27;s a deliberate trade-off, not an oversight. And watch for cycles: a tree that loops turns recursion into a stack overflow. And if you remember one sentence from today, make it this one. Decorator wraps one thing in one more layer. Composite lets one thing be many things, arranged in a tree.</p>
+<h2>Scene 15 — Thanks for Watching</h2>
+<p>And that&#x27;s the composite pattern. If you got something out of this, do give it a thumbs up, and subscribe. It genuinely helps the channel, and it&#x27;s what makes more of these possible. And if there&#x27;s a pattern you&#x27;d like me to cover next, drop it in the comments. I read every one. All the source code, the written notes and an interactive animation are in the repository. Thanks for watching, and I&#x27;ll see you in the next one.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

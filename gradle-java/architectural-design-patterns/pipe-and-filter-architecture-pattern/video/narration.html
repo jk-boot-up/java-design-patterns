@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pipe and Filter Architecture Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Pipe and Filter Architecture Pattern — Video Narration Script</h1>
+<h2>1. Pipe and Filter Architecture</h2>
+<p>Hello, and welcome. This video explains the Pipe and Filter Architecture pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. Pipe and Filter splits work into stages that run at the same time. The stages are joined by waiting lines, called pipes. Each stage can then be sized and limited on its own. Think of a car wash. One station soaps, one scrubs, and one dries. While one car is being dried, the next is being scrubbed, and the next is being soaped. In our online store, orders arrive faster than we can process them. So how should we organise the work? In this video, we split the work into stages, and find the slowest one. We widen only that stage, limit the waiting lines, and then look at the cost.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Every order goes through three jobs. It is parsed, then priced, then packed. We measure time in ticks. Parsing takes one tick. Pricing takes three ticks. Packing takes one tick. And a new order arrives every tick. So how should we organise the work?</p>
+<h2>3. One Big Step</h2>
+<p>First, the simple way: one big step. One worker does all three jobs for an order, which takes five ticks. Then it starts the next order. But a new order arrives every tick. After thirty ticks, only five orders are finished.</p>
+<h2>4. The Pattern</h2>
+<p>Now, the pattern. Split the work into stages. Put a waiting line in front of each stage. The stages all work at the same time. And each stage can be sized, and limited, on its own.</p>
+<h2>5. Stages With Waiting Lines</h2>
+<p>Second demo: three stages, with waiting lines. The same work is split into parse, price, and pack. Each stage works while the others work. After thirty ticks, eight orders are finished, instead of five. Parse can take a new order while price is still busy with the last one.</p>
+<h2>6. The Slowest Stage Sets The Pace</h2>
+<p>Third demo: the slowest stage sets the pace. Let&#x27;s count who is waiting in front of each stage. Parse: one. Price: nineteen. Pack: none. Pricing takes three ticks. So only one order leaves pricing every three ticks, however fast the other stages are. And orders pile up in front of it.</p>
+<h2>7. Widen Only The Slow Stage</h2>
+<p>Fourth demo: widen only the slow stage. We give pricing three workers instead of one. After thirty ticks, twenty-two orders are finished. And every waiting line is down to one. Parse and pack were not changed at all. Now they handle one order per tick. And that is the new limit.</p>
+<h2>8. A Limit On Each Line</h2>
+<p>Fifth demo: a limit on each waiting line. With no limit, nineteen orders pile up in one line. With a limit of three, no more than three ever wait. And fourteen orders are turned away at the door. The number finished is still eight, the same as before. Here is what happens. When a line is full, the stage before it must hold on to its order. That pressure passes back, stage by stage, all the way to the door. This push-back is called backpressure.</p>
+<h2>9. The Bill</h2>
+<p>Finally, the cost. Imagine the pricing stage crashes. Twenty orders were inside it, either waiting or being worked on. Those orders were accepted from customers. And now they are gone. Unless the waiting lines are stored somewhere that survives a crash. There is a second cost. Each order now passes through three stages and two waiting lines. So whenever it has to wait, one order takes longer than its five ticks of actual work.</p>
+<h2>10. How To Recognise It</h2>
+<p>How can you spot this pattern in code someone else wrote? Look for stages joined by queues, as in log processing, or systems that extract, transform and load data. Look for pools of workers with a limited queue in front, such as Java&#x27;s Thread Pool Executor. Look for a Blocking Queue between threads that produce work and threads that consume it. And look for reactive streams, where each stage asks for only as many items as it can handle.</p>
+<h2>11. The Verdict</h2>
+<p>So, here is the verdict. Use stages when parts of the work run at different speeds, and you want more orders finished per minute. Then follow three rules. One. Find the slowest stage, and widen only that one. Two. Put a limit on every waiting line, so trouble pushes back to the door. Three. If the orders matter, keep the lines somewhere that survives a crash.</p>
+<h2>12. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything is plain Java. Every number you heard comes from the program&#x27;s own output. And time is counted in ticks, not by the clock, so every run gives the same result.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, when is this too much? If the work is short, or the stages all take about the same time, a single step is simpler. The waiting lines would only add delay. Stages pay off when the parts run at different speeds, or need to grow separately.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s Pipe and Filter Architecture. If you remember one sentence, make it this one. Pipe and Filter lets stages run together and be sized on their own, and the price is the lines between them, and the orders lost if a stage crashes. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Make parsing take two ticks instead of one. Then work out which stage is now the slowest. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

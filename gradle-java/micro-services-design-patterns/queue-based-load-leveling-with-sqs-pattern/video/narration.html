@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Queue-Based Load Leveling with SQS Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Queue-Based Load Leveling with SQS Pattern — Video Narration Script</h1>
+<h2>1. Queue-Based Load Leveling with SQS</h2>
+<p>Hello, and welcome. This video explains the Queue-Based Load Leveling pattern in Java, using a real Amazon queue, running on your own machine. It is written and presented by Jayasekhar Konduru. Here is the plain definition, in general words. When work arrives in bursts, faster than a service can handle it, you put a queue in between. The burst waits in line, and the service keeps its own steady pace. It works like a post office the day before a holiday. A crowd arrives at once, a machine at the door hands out numbered tickets, and the clerk serves one person after another, never rushed. Now the same thing in our online store. A sale sends a hundred orders in the same moment. Checkout puts every order on a queue and tells the customer at once that the order is received. The packing service takes orders off the queue at its own pace, ten at a time. By the end you will have seen the depth a real burst builds, an order that is taken but not removed, a slow packer that packs one order twice, a packer that stops and loses nothing, and the bill for all of it.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The shop runs a sale, and in its first second a hundred orders arrive at once. The packing service picks the items and packs the parcels, and it can do ten orders a round, however many are waiting. So checkout does not call the packing service directly. It puts each order on a queue, a waiting line for work, and tells the customer straight away that the order is received. The hand-built partner project in this course kept its queue in memory, with a clock it made up for itself. This time the queue is Amazon&#x27;s queue service, and the rules it plays by are Amazon&#x27;s rules.</p>
+<h2>3. A Burst Lands On The Queue</h2>
+<p>First, the burst. The queue service is called S Q S, short for Simple Queue Service. A hundred orders arrive at once, and checkout sends them to S Q S. It tries eleven orders in one request, and S Q S refuses, in its own words: the maximum number of entries per request is ten. That is not a rule this program made up. It is the service saying no. So the burst goes as ten requests of ten. S Q S now reports a hundred orders waiting, and none in flight. Nobody was refused. And S Q S will keep an order that nobody takes for three hundred and forty five thousand, six hundred seconds. That is four days.</p>
+<h2>4. The Service&#x27;s Words</h2>
+<p>The real service brings a few words with it, and each one is simpler than it sounds. An order that nobody has taken yet is waiting. The number of waiting orders is the depth of the queue. When a packer takes an order, S Q S does not remove it. It hides it from everyone else, until the packer says it is finished by deleting it. An order that is taken but not yet deleted is what S Q S calls in flight. And how long S Q S hides a taken order, before it gives up waiting and hands it out again, is what S Q S calls the visibility timeout. None of this is on Amazon here. A program called LocalStack answers exactly as S Q S would, in one small sealed box on this machine, called a container. The demo switches it on at the start and off at the end.</p>
+<h2>5. The Packer Keeps Its Own Pace</h2>
+<p>Second, the packer. It asks S Q S for eleven orders at once, and S Q S refuses again: it hands out between one and ten. So it takes ten. And for a moment S Q S reports ninety waiting, and ten in flight. Those ten are neither on the line nor gone. They are taken, and hidden, and not yet finished. The packer packs the ten parcels, and only then deletes them. Round after round, the depth falls by ten: ninety, eighty, seventy, and so on, down to zero. A hundred orders packed in ten rounds, and the packer never did more than ten at once. That is the pattern working.</p>
+<h2>6. Where The Orders Live</h2>
+<p>Here is the whole picture in words. There are four parts, in order. Checkout comes first: it sends the burst to the queue, ten orders to a request. The S Q S queue is second: it counts the orders waiting and the orders in flight, and it lives in neither checkout nor the packers. The packer is third: it takes up to ten, packs them, and then deletes them. A second packer is last: it is handed any order whose timeout ran out. The one rule that holds it together is the order of the last two steps. Pack first, and delete only after the parcel is packed.</p>
+<h2>7. Taken Is Not Removed</h2>
+<p>Third, the heart of it. S Q S hides a taken order for thirty seconds, unless you choose a different time. This queue hides it for two seconds. A packer takes order two thousand and one, and stops before it finishes. It never deletes it. S Q S reports no orders waiting, and one in flight. A second packer asks at once, and is given nothing. The second packer keeps asking. Once the two seconds have passed, order two thousand and one comes back, and S Q S says it has now handed it out two times. S Q S never knew the first packer had stopped. It only knew the time had run out.</p>
+<h2>8. Why Hide, And Not Remove?</h2>
+<p>Why does S Q S hide an order, instead of removing it? Think of a coat check. An attendant lifts a coat to fetch it, and drapes a cloth over its hook. If the attendant comes back and says done, the coat is gone for good. If the attendant never comes back, the cloth comes off by itself, and the next attendant can take the coat. If S Q S removed an order the moment it was taken, a packer that crashed would lose that order for ever. So S Q S waits for the delete that says finished, and if it does not come in time, the order goes back on the line. The price is simple to say. An order can be handed out more than once.</p>
+<h2>9. A Slow Packer</h2>
+<p>Fourth, that price, paid. Packer A takes order three thousand and one. It has not stopped. It is just slow, and it needs longer than two seconds. The two seconds run out. S Q S does not know packer A is still working, so it hands order three thousand and one to packer B as well. Both packers pack it, and both delete it. Order three thousand and one was packed two times. The customer gets two parcels for one order, and the shop pays for both.</p>
+<h2>10. Still Working</h2>
+<p>There is a cure. Packer A takes order three thousand and two, and before its two seconds run out, it tells S Q S: I am still working, hide it for ten seconds more. S Q S calls this changing the message&#x27;s visibility. Packer B asks for orders, and this time it asks S Q S to hold the question open for three seconds, well past the old timeout, rather than answer straight away. S Q S calls that long polling. Packer B is given nothing. Packer A finishes, and deletes. Order three thousand and two was packed one time.</p>
+<h2>11. The Packer Stops Half Way</h2>
+<p>Fifth, the moment the hand-built project could not survive. Its last act stopped the program holding its queue, and seventy orders were lost. Here, a hundred orders wait on a queue with a two second timeout. The packer takes ten, finishes three, and its process stops. S Q S reports ninety waiting, and seven in flight. Nothing is lost. The seven are only hidden. When the timeout runs out they come back, and ninety seven are waiting. A new packer drains the queue. Packed, a hundred. Lost, none. Seven orders were handed out a second time, and that was safe, because the packer that stopped had not packed them. The queue outlived the program that was reading it.</p>
+<h2>12. The Bill</h2>
+<p>Last, the bill. The hand-built project could give its queue a limit of fifty orders. The demo asks S Q S for the same, and S Q S does not know the setting. There is no limit to set. Then orders arrive at fifteen a round, and the packer does ten, for twenty rounds. S Q S refused none. A hundred are waiting, and the number keeps growing. Nothing warns you. The depth is a number you have to ask S Q S for, and act on. The demo also counts every request S Q S receives. A hundred orders, sent, taken and deleted ten to a request, cost thirty requests. One at a time, they cost three hundred. Here that was one container, for one queue service.</p>
+<h2>13. What The Simulation Left Out</h2>
+<p>The hand-built partner project got the shape right. A burst waits on a queue, the worker keeps its own pace, and the price is waiting. A queue fed faster than it is drained grows for ever. All of that holds on real S Q S, with the same numbers. It left out four things. In the simulation an order was waiting or done, and nothing in between. The real queue has a third state, in flight, with a clock on it. That clock means a slow worker can pack an order twice. It also means a worker that dies loses nothing, because the queue lives outside it. And the real queue has no limit to set, and takes and gives ten at a time.</p>
+<h2>14. The Verdict</h2>
+<p>Here is my verdict, plainly. Use a queue to level load when bursts come, and the caller does not need the answer straight away. Then say four things out loud, because the service will not assume them. One. Set the visibility timeout longer than your slowest piece of work, and when work runs long, tell the queue you are still working. Two. Delete an order only after the work is done. Three. Make handling an order twice do no harm, because one day it will happen. Four. Watch the depth yourself, because the queue will never refuse the backlog.</p>
+<h2>15. What Is Real, And When Not</h2>
+<p>What is real here? The queue is played by LocalStack, version four point fourteen, in a container the demo starts and stops itself. That version is held back on purpose: the newer ones refuse to start without a LocalStack account. The code is plain Amazon code, using the newest Amazon library for Java, and would run unchanged against Amazon itself. The one thing you need is a container runtime, such as Docker Desktop, switched on before you start. Every number in this video is the program&#x27;s own output, and two runs print the same thing. So when is this too much? If load is steady and the service copes, a queue is one more thing to run and pay for. And if the caller needs the answer now, such as a price or a stock check, a queue is the wrong shape.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s Queue-Based Load Leveling with S Q S. If you take one sentence away, take this one: a taken order is only hidden, so delete it after the work, and make doing it twice harmless. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, give the slow packer&#x27;s queue a ten second timeout instead of two, predict what packer B is given, and run it to see if you were right. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

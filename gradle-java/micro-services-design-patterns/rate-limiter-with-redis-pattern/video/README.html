@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rate Limiter with Redis Pattern — Teaching Video</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Rate Limiter with Redis Pattern — Teaching Video</h1>
+<p>A narrated, slide-based video that teaches Rate Limiter on a real Redis server with Bucket4j. It shows why a bucket in each server leaks, how one bucket in Redis holds across three and six servers and ninety searches at the same instant, why a plain number read and written in two steps spends the last token twice, and how one server with a fast clock refills the bucket for everyone. It also argues for when not to use it. The examples come from this project&#x27;s online store.</p>
+<h2>Output Files</h2>
+<table><thead><tr><th>File</th><th>What it is</th></tr></thead><tbody><tr><td><code>rate-limiter-with-redis-pattern-explained.mp4</code></td><td>The video — 1920×1080, H.264, 30 fps, stereo AAC.</td></tr><tr><td><code>rate-limiter-with-redis-pattern-explained.m4a</code></td><td>Audio-only version.</td></tr><tr><td><code>rate-limiter-with-redis-pattern-explained.srt</code></td><td>Subtitles.</td></tr><tr><td><code>poster.png</code></td><td>The video&#x27;s opening frame. Not the thumbnail.</td></tr></tbody></table>
+<p>None of these is committed except <code>poster.png</code>. The rest are rebuilt from the source in this directory.</p>
+<p><strong>Narration:</strong> female voice (macOS <code>Samantha</code>, US English), 145 words per minute.</p>
+<h2>Rebuilding</h2>
+<pre><code>./build_video.sh</code></pre>
+<p>A build takes eight to ten minutes. It runs in five steps:</p>
+<ol><li><strong>Slides.</strong> <code>make_slides.py</code> renders one 1920×1080 PNG per scene into <code>build/</code>, from the text in <code>scenes.py</code>.</li><li><strong>Narration text.</strong> Each scene&#x27;s narration is written to its own text file. The <code>[[slnc 250]]</code> marks in it are pauses, in milliseconds, that <code>say</code> obeys.</li><li><strong>Voice and scene clips.</strong> macOS <code>say</code> reads each scene aloud. The voice is lightly cleaned on its way to 48 kHz: a careful resample, a high-pass filter at 75 Hz to drop rumble, and a small lift around 3 kHz where consonants live. There is deliberately no denoiser. Synthesised speech has almost no noise floor, so a denoiser ends up removing parts of the voice and leaves it sounding underwater. Each slide is then held for exactly as long as its narration, to the frame.</li><li><strong>Joining.</strong> The scenes are joined into one timeline. The audio is joined as uncompressed sound first and compressed once, because clips compressed separately each carry a few samples of padding, which would click at every join.</li><li><strong>Levelling.</strong> The whole narration is brought to −16 LUFS, the loudness YouTube plays at, with ffmpeg&#x27;s <code>loudnorm</code> filter. This is done once over the whole timeline, not per scene, because levelling each scene on its own would push quiet scenes up and loud ones down, and the level would jump at every cut. It runs in two passes: the first measures the whole narration, the second applies the measured figures as one constant gain, so the result lands on the target and nothing rides up and down within it. The narration is compressed to AAC exactly once, here.</li></ol>
+<p>At the end the script checks the audio track packet by packet and prints <code>audio timeline continuous: NNNNN packets, no gaps</code>. If that line is missing, or reports a gap, the build has failed even if an mp4 was written: a gap is a click or a silence in the video. Subtitles are written by <code>make_subtitles.py</code>, which splits each scene&#x27;s narration into caption-sized cues and spreads them across that scene&#x27;s measured length in the finished timeline.</p>
+<h3>Requirements</h3>
+<ul><li><strong>macOS</strong> (for <code>say</code>), <strong>ffmpeg</strong>, <strong>Python 3</strong> with <code>pillow</code> and <code>matplotlib</code></li></ul>
+<p>The video itself needs no container runtime; only the demo does.</p>
+<h2>Scene List</h2>
+<table><thead><tr><th>#</th><th>Scene</th><th>Covers</th></tr></thead><tbody><tr><td>1</td><td>Rate Limiter with Redis</td><td>Title card and the definition</td></tr><tr><td>2</td><td>The Scenario</td><td>Product search, a robot client, three servers behind a load balancer</td></tr><tr><td>3</td><td>A Bucket In Each Server</td><td>Act one: 30 allowed, not 10; 60 on six servers</td></tr><tr><td>4</td><td>The Tools&#x27; Words</td><td>Redis, key, time to live, Bucket4j, proxy manager, compare-and-swap, client clock, through a shared whiteboard</td></tr><tr><td>5</td><td>One Bucket In Redis</td><td>Act two: 10 allowed on three servers and on six; a restart does not refill</td></tr><tr><td>6</td><td>Where The Bucket Lives</td><td>Redis keeps the bucket, the servers do the sums</td></tr><tr><td>7</td><td>All At The Same Moment</td><td>Act three: 90 searches on 90 threads, exactly 10 allowed</td></tr><tr><td>8</td><td>Why Not Just A Number?</td><td>Act four: the lost update, and the conditional write</td></tr><tr><td>9</td><td>The Whole Pattern, In One Builder</td><td>The Bucket4j builder chain on each server</td></tr><tr><td>10</td><td>Whose Clock?</td><td>Act five: a server one hour fast refills the bucket for everyone</td></tr><tr><td>11</td><td>The Clocks Must Agree</td><td>Why the twin could never show it</td></tr><tr><td>12</td><td>The Bill</td><td>Act six: a key per client, Redis stopped, a network trip per search</td></tr><tr><td>13</td><td>What The Simulation Left Out</td><td>The contrast with the hand-built twin</td></tr><tr><td>14</td><td>The Verdict</td><td></td></tr><tr><td>15</td><td>What Is Real, And When Not</td><td>Redis 8.10.2 in a container the demo owns, and when a shared store is too much</td></tr><tr><td>16</td><td>Thanks for Watching</td><td>The exercise</td></tr></tbody></table>
+<p>Scene 16 deliberately does not name whichever pattern comes next.</p>
+<h2>Editing the Script</h2>
+<p>Narration lives in <code>scenes.py</code>. Edit it, re-run <code>python3 docs/make_narration.py --force rate-limiter-with-redis</code> from the <code>gradle-java</code> directory, then re-run <code>./build_video.sh</code>.</p>
+<p>Every narration line speaks its counts and outcomes in words, explains each term Redis and Bucket4j introduce before using the tool&#x27;s name for it, and never points at a picture the listener cannot see. Every number matches the output of <code>./gradlew run</code>.</p>
+<h2>Publishing Notes</h2>
+<p>Upload <code>rate-limiter-with-redis-pattern-explained.mp4</code>, with <code>../docs/thumbnail.png</code> as the thumbnail and the <code>.srt</code> as the captions. Title, description, chapters and tags live in <a href="../docs/youtube.html"><code>../docs/youtube.md</code></a>.</p>
+<p>Suggested description:</p>
+<blockquote><p>Rate Limiter pattern in Java, explained with a real Redis server and the Bucket4j library. Each caller gets a bucket of tokens, every request spends one, and an empty bucket means a refusal until it refills. In our online store a price-comparison robot hammers the product search, and ten searches an hour must mean ten however many copies of the search are running. We watch the limit leak when each server keeps its own bucket, hold when the bucket moves into Redis, survive ninety searches at the same instant, and break when one server&#x27;s clock disagrees.</p></blockquote>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

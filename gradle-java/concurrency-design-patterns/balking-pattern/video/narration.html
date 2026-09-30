@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Balking Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Balking Pattern — Video Narration Script</h1>
+<h2>1. Balking</h2>
+<p>Hello, and welcome. This video explains the Balking pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. Balking means an action only happens if the object is in the right state. If it is not, the call returns at once. It does not wait, and it does not fail. Think of a lift button. If the lift is already on its way, pressing the button again does nothing new. In our online store, a customer&#x27;s basket draft saves itself automatically. In this video, one edit will cause five saves. Then the draft will balk when nothing changed, and when a save is already running. We will hear an edit lost by a careless version, and kept by a careful one. And then the cost.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. A customer&#x27;s basket draft is saved in two ways. By a timer, every few seconds. And by a Save button. Sometimes nothing has changed since the last save. Sometimes a save is already running. So here is the question. What should save do then?</p>
+<h2>3. Save Every Time</h2>
+<p>First, the simple way: save every time you are asked. The customer makes one edit. The autosave timer fires five times. That is five writes. And four of them wrote exactly what was already there.</p>
+<h2>4. The Pattern</h2>
+<p>Now, the pattern. Check the state at the door. If the action is not needed, or not possible right now, return at once. Do not wait, and do not fail. And tell the caller which of those it was.</p>
+<h2>5. Balk When There Is Nothing To Save</h2>
+<p>Second demo: balk when there is nothing to save. The same five calls. The first saves. The other four are told: nothing to save. Just one write. The four that balked returned at once, and did no work.</p>
+<h2>6. Balk When A Save Is Already Running</h2>
+<p>Third demo: balk when a save is already running. A save is in progress, and held in the middle of writing. A second call arrives. It is told: already saving, straight away, without waiting. When the first save finishes, there has been only one write. The second caller did not queue behind it.</p>
+<h2>7. An Edit During A Save</h2>
+<p>Fourth demo: an edit during a save. While a save is running, the customer changes a quantity from two to three. The careless version marks the draft as clean when the save finishes. So the change is lost. The draft no longer thinks it has changes. And the next save says: nothing to save. The careful version uses a version counter. It knows a newer change arrived during the save, so it stays dirty. And the next save writes the three. Balking is easy to get almost right.</p>
+<h2>8. The Caller Is Told</h2>
+<p>Fifth demo: the caller is told what happened. When nothing was edited, the answer is: nothing to save. When something was edited, the answer is: saved. A balk is an answer, not an error. The caller can retry, ignore it, or tell the user. And the result says exactly which case happened.</p>
+<h2>9. The Bill</h2>
+<p>Finally, the cost. The customer clicks Save while the autosave is running. They are told: already saving. So their click did nothing. Their latest change is still unsaved, and must wait for the next save. Balking suits work that can safely be skipped, and done later. It is wrong wherever every request must be carried out. Because a request that balks is simply not done.</p>
+<h2>10. How To Recognise It</h2>
+<p>How can you spot this in code someone else wrote? Look for an early return at the top of a method, checking a state flag. Look for fields named is saving, is running, or already started. Look for an Atomic Boolean&#x27;s compare-and-set, guarding a task. And look for scheduled tasks that skip a run if the last one is still going.</p>
+<h2>11. The Verdict</h2>
+<p>So, here is the verdict. Use balking for work that can be repeated safely, where skipping one call is harmless because a later call will catch up. Autosave, a screen refresh, or a regular sync. Return a result that says what happened. Track what was saved with a version number, not a simple flag. And do not use it where every request must be carried out. There, wait, or queue the request instead.</p>
+<h2>12. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything is plain Java. Every number you heard comes from the program&#x27;s own output. And nothing depends on the clock, so every run gives the same result.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, when is this wrong? Where the caller needs the action done, balking silently drops it. And where the state is checked and changed in separate steps, without a lock, balking is a race condition in disguise.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s the Balking pattern. If you remember one sentence, make it this one. Balking returns at once when the state is wrong, and the price is that the request it turns away is not done. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Make the Save button wait for a running save, instead of balking. Then listen to what changes. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

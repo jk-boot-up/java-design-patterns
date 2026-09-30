@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>This is the second project in the microservices category. It needs nothing that the API Gateway project did not, and it can be read first if you prefer — nothing here depends on having seen a gateway.</p>
+<h2>Knowledge Prerequisites</h2>
+<h3>Required</h3>
+<ul><li><strong>Java basics.</strong> Classes, <code>try</code>/<code>catch</code>, <code>for</code> over a <code>List</code>, generics used (not written).</li><li><strong>Records.</strong> <code>ServiceInstance</code> and <code>Money</code> are records, and <code>Lease</code> is a private record inside the registry. A record is a class whose fields are final and whose constructor, accessors, <code>equals</code> and <code>hashCode</code> are written for you.</li><li><strong><code>Map</code> and <code>List</code>.</strong> The registry is a <code>LinkedHashMap</code> with a rule attached. Understanding that the map keeps insertion order is enough.</li><li><strong>The idea that a program can run as several copies.</strong> Not how to start them. Just the idea that Pricing might be the same program running three times, and that any of the three can answer.</li></ul>
+<h3>Helpful, but explained as we go</h3>
+<ul><li><strong>What a timestamp comparison is for.</strong> The single line <code>clock.millis() - lease.lastHeartbeatAt() &gt; LEASE_MILLIS</code> is the heart of this project. If that shape is familiar you will spot it immediately; if not, it is walked through line by line.</li><li><strong>Exception handling as control flow.</strong> The discovering client catches a failure and <em>carries on</em> rather than reporting it. That is unusual enough to be worth noticing, and it is the reason the pattern works at all.</li><li><strong>Having once been on call when a deployment took something down.</strong> Not required. It does make the first act of the demo land harder.</li></ul>
+<h3>Explicitly NOT required</h3>
+<ul><li><strong>Any infrastructure at all.</strong> No Docker, no Kubernetes, no Consul, no Eureka, no Spring Cloud, no service mesh, no cloud account. This project starts nothing and opens no port. It runs offline on a laptop with a JDK.</li><li><strong>DNS knowledge.</strong> DNS is mentioned once, as a comparison. You do not need to know how it resolves anything.</li><li><strong>Threads.</strong> There is no background thread expiring leases. Expiry happens when somebody asks, which is both simpler to read and — as it turns out — how several real registries behave.</li><li><strong>Experience operating a distributed system.</strong> This project teaches the shape of the pattern. It does not teach operations, and it says so plainly rather than letting you believe otherwise.</li></ul>
+<h2>A 60-Second &quot;Service Discovery&quot; Primer</h2>
+<p>A service that matters usually runs as more than one copy, and the set of copies changes — every deployment, every autoscaling event, every crash. A caller needs an address, and the addresses keep moving.</p>
+<p>Service discovery replaces the written-down address with a question. There is a shared list of who is running; instances put themselves on it when they start and take themselves off when they stop; and callers ask the list instead of holding a constant.</p>
+<p>The part people skip is that the list is sometimes wrong. A process that crashes cannot send a message saying it has crashed, so for a few seconds the list will happily hand out a dead address. That is why registrations expire — and why a discovering client must be prepared to try the next name rather than trusting the first.</p>
+<h2>A 60-Second &quot;Lease&quot; Primer</h2>
+<p>A lease is permission with an expiry date. In this project a registration is good for <code>LEASE_MILLIS</code>, which is three seconds, counted from the last heartbeat.</p>
+<p>An instance renews its lease by sending a heartbeat. Renewing is cheap — one message — and forgetting is fatal, in the sense that the instance disappears from the list. That asymmetry is the whole design: the registry does not have to detect death, it only has to notice silence, and silence is what a dead process is extremely good at producing.</p>
+<p>Read <code>ServiceRegistry.instances(...)</code> with that in mind. It walks the leases, drops the ones whose last heartbeat is older than the lease, logs each drop as <code>EXPIRED</code>, and returns the rest. Expiry is lazy: it happens at lookup time rather than on a timer, so nothing in this project needs a clock that ticks by itself.</p>
+<h2>A 60-Second &quot;Simulated Network&quot; Primer</h2>
+<p>There is no network in this project. Four small classes stand in for one.</p>
+<p><code>SimulatedClock</code> is the clock. It only moves when something moves it, so &quot;four seconds later&quot; is a number added to a counter rather than four seconds of your life. That is why the whole test suite finishes in well under a second, and why no test calls <code>Thread.sleep</code> — including the tests about a three-second lease.</p>
+<p><code>RemoteCall</code> is one endpoint. It knows how slow its link is, advances the clock by that much, writes a line into the log, and returns an answer — or throws, if the instance behind it is no longer running.</p>
+<p><code>CallLog</code> is the timeline. It is the output of the demo, because the price comes back as <code>£449.99</code> either way and the only way to see what discovery did for you is to read what happened on the way.</p>
+<p><code>Money</code> holds pence as a <code>long</code>, so no price in this repository is ever a <code>double</code>.</p>
+<h2>Software Prerequisites</h2>
+<ul><li><strong>JDK 21 or newer.</strong> Nothing else.</li><li><strong>Gradle:</strong> not needed globally. The project ships a wrapper.</li></ul>
+<h3>Installing JDK 21</h3>
+<p>macOS, with Homebrew:</p>
+<pre><code>brew install openjdk@21
+sudo ln -sfn $(brew --prefix)/opt/openjdk@21/libexec/openjdk.jdk \
+    /Library/Java/JavaVirtualMachines/openjdk-21.jdk</code></pre>
+<p>Linux (Debian or Ubuntu):</p>
+<pre><code>sudo apt install openjdk-21-jdk</code></pre>
+<p>Windows: install the Microsoft Build of OpenJDK 21 or Temurin 21 from the installer, and let it set <code>JAVA_HOME</code>.</p>
+<h3>Verify Your Setup</h3>
+<pre><code>java -version          # expect 21 or newer
+cd micro-services-design-patterns/service-discovery-pattern
+./gradlew test         # expect BUILD SUCCESSFUL, 19 tests
+./gradlew run          # expect four acts</code></pre>
+<p>If <code>./gradlew</code> will not execute on macOS or Linux, make it executable:</p>
+<pre><code>chmod +x gradlew</code></pre>
+<p>The first <code>./gradlew</code> command downloads Gradle itself and needs a network connection. Everything after that works offline, including the demo — because the demo has no network to use.</p>
+<h2>Troubleshooting</h2>
+<p><strong>&quot;Unsupported class file major version&quot;</strong> — Gradle is using an older JDK than the toolchain asks for. Check <code>java -version</code>, and set <code>JAVA_HOME</code> to a 21 install.</p>
+<p><strong>The pound sign prints as a question mark or a box</strong> — your terminal is not using UTF-8. On Linux, <code>export LANG=en_GB.UTF-8</code>. The prices in the output are in pounds and the demo is a London shop.</p>
+<p><strong>Act one prints &quot;pricing-1 did not answer&quot;</strong> — that is correct and it is the point of act one. The hardcoded client has just been taken down by an ordinary deployment, while two healthy instances sit idle.</p>
+<p><strong>Act three logs <code>STALE</code> and then succeeds</strong> — also correct. The registry handed out a dead address, the client noticed, and it tried the next one. If that line ever stops appearing, the demo has stopped teaching the harder half of the pattern.</p>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — why a constant address is a time bomb, with the deployment that sets it off</li><li>Run <code>./gradlew run</code> and read the four acts, in order</li><li><a href="service-discovery-pattern-explained.html"><code>service-discovery-pattern-explained.md</code></a> — the pattern, starting from a taxi rank</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> and <a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the structure, then the four sequences</li><li><a href="animation.html"><code>animation.html</code></a> — the registry changing its mind, one step at a time</li><li>The tests, which are the specification: <code>ServiceRegistryTest</code> first, then <code>HardcodedPricingClientTest</code> to see the failure pinned down</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memento Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Memento Pattern — Video Narration Script</h1>
+<h2>1. Memento</h2>
+<p>Hello, and welcome. This video explains the Memento pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A memento is a sealed copy of an object&#x27;s state. The object takes the copy itself, and hands it to someone else to keep. Later, when you want to go back, the copy is handed back, and the object restores itself. Think of a save point in a video game. The game saves everything about your progress. If things go wrong, you load the save, and you are back where you were. In this video, we add an undo button to the shopping basket of an online shop. By the end, you will know why one equals sign can make undo empty the whole basket. How to let something keep your state without ever seeing inside it. And the one honest cost of this pattern.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. A shopper&#x27;s basket holds three products, and a voucher code worth five pounds off. The total is sixty-five pounds. The basket&#x27;s state is exactly two things. The lines in it, and the voucher. Remember that, because it matters soon. The request is simple: add an undo button. Shoppers keep removing the wrong item, and then have to find the product again. It sounds like an afternoon&#x27;s work. But the obvious afternoon&#x27;s work is quietly wrong.</p>
+<h2>3. Look Closely at One Line</h2>
+<p>Before any code, let&#x27;s look closely at one line. Saved lines equals lines. That line does not copy anything. It records where the list is, not what is in it. So the saved list and the live list are the same list, under two names. Then undo clears the live list. Which also clears the saved list, because they are the same list. Then it copies the empty saved list back. So the shopper presses undo, and their whole basket disappears. Nothing crashes, and nothing is logged. Nobody wrote a bug on purpose. Somebody wrote an equals sign.</p>
+<h2>4. The Naive Approach — Undo Without a Snapshot</h2>
+<p>Here is the naive version in full. One method to save, and one to undo. They look like opposites, but they are not. The first bug we just heard. The second is even quieter. Think about what the save method never mentions. The voucher. It is part of the basket&#x27;s state, but it is not saved at all. Nobody decided to leave it out. It just was not on anyone&#x27;s mind the day undo was written. And there is no line of code to review, because the bug is a missing line.</p>
+<h2>5. Why That Hurts</h2>
+<p>So what exactly is wrong? Four separate things. One. The bugs are silent, and they are missing lines. An empty basket, and a voucher that never comes back. Two. Every new field is another chance to forget. Add a delivery date next month, and undo becomes half-right again. Three. The obvious fix is worse. Make the basket&#x27;s fields public, so the undo code can copy them. That works, but now anything at all can change a basket. And four. Undoing by doing the opposite sounds tidy, until you try it. Removing a line undoes an add. But what undoes a remove? You would need to know which line it was, where it sat, and what the voucher was. In other words, you would need to have saved it.</p>
+<h2>6. The Memento Pattern</h2>
+<p>Here is the pattern&#x27;s definition, from the famous Gang of Four book. Without breaking encapsulation, capture an object&#x27;s internal state and store it outside, so the object can be restored to that state later. Anyone can copy some fields. The hard part is doing it without breaking encapsulation. That means whoever holds the copy still cannot see inside it. In this project, the object is the basket. The copy is a basket snapshot. And the undo history keeps the snapshots, without ever knowing what a basket contains.</p>
+<h2>7. An Analogy</h2>
+<p>Here is the analogy to hold on to. You are about to rearrange a room. First, you take a photograph of it. You seal the photo in an envelope, and hand it to a friend. Your friend can keep several envelopes, in order. And hand back whichever one you ask for. But they cannot open them. They do not need to, because putting the room back is your job, not theirs. They only need to know which envelope is which. So you write a label on the outside, such as, before I moved the sofa. In our project, the basket is you. The snapshot is the sealed envelope. The undo history is your friend. And the label is the only thing your friend may read.</p>
+<h2>8. The Roles</h2>
+<p>So here are the pieces, and there are only three. The Basket is called the originator. It is the only class that knows what its state is. So it is the only class that creates a snapshot, and the only one that reads one back. The Basket Snapshot is the memento. It holds a complete copy of the basket&#x27;s state. And the Basket History is called the caretaker. It stacks up snapshots, and hands them back. It is defined by what it cannot do: it cannot look inside a snapshot. Only the basket ever opens the envelope.</p>
+<h2>9. The Memento — Two Interfaces, No Framework</h2>
+<p>Now the snapshot itself, and two details matter. First, when it is created, it makes a real copy of the basket&#x27;s lines. Not a reference to the live list, but a copy that nothing can change afterwards. A photograph of the basket, not a window onto it. That single step is the heart of the pattern. Second, the access rules. The label can be read by anyone, so an undo menu can show, undo: removed the laptop stand. But the lines and the voucher can only be read by classes in the same package. And the only class there that wants them is the basket. Even creating a snapshot is restricted. The only way to get one is to ask a basket for it.</p>
+<h2>10. The Originator and the Caretaker</h2>
+<p>Now the other half, the basket and the history. The basket has two short methods. Save creates a snapshot of its lines and voucher. Restore empties its lines, copies the snapshot&#x27;s lines back, and restores the voucher. These are the only lines in the project that know what a basket&#x27;s state is. Add a gift message next month, update these two methods, and undo keeps working. Nothing outside the basket needs to know. Restore does not use up the snapshot, so it could be restored twice. That makes adding redo later a small change. And the history. To undo, it takes the latest snapshot, hands it to the basket, and reads the label. It never opens the snapshot, because it simply cannot. Undo works, and the history does not even know a basket has lines.</p>
+<h2>11. The Tests — Asserting the Structure, Not Just the Behaviour</h2>
+<p>The project has sixteen tests. Two of them prove the pattern. The first checks the structure. It looks at every public method on the snapshot. And it fails if any method outside a small allowed list could reveal the basket&#x27;s contents. A comment saying, the history must not read a snapshot, lasts until someone is in a hurry. This test does not. The second test checks a wrong answer, on purpose. It confirms that the naive basket still empties itself on undo. Being broken is that version&#x27;s job, and the build says so out loud.</p>
+<h2>12. Running It</h2>
+<p>Let&#x27;s run the demo. The same basket, the same mistake, and the same press of undo. First, the version without a snapshot. The shopper removes one item by mistake, and presses undo. The basket is now empty, and the total is zero. No error. Nothing in the log. The basket is just gone. Now the memento version. The item is back, the voucher is back, and the total is back to sixty-five pounds. Notice that nobody wrote code saying, when you undo, remember the voucher too. The voucher came back because a snapshot is complete by definition. It is the basket&#x27;s whole state, taken by the only object that knows what that means.</p>
+<h2>13. What to Remember</h2>
+<p>So, what should you remember? Undo is not, do the opposite. Undo is, put back the copy you took. And only the object that took the copy ever needs to see inside it. People often confuse Memento with Command, because both can build undo. Memento saves the state before a change, and puts it back. Command saves the operation, and runs its reverse. Memento is simpler to write, but uses more memory. Command is the other way round, and every operation needs a true reverse. And Prototype also copies objects, but for a different reason. It copies an object to make another one, not to go back in time. Now the honest cost. Every snapshot is a full copy. Twenty snapshots of a big basket means twenty baskets in memory. That is why the history limits how many it keeps. One more warning. The copy here is shallow, and that is only safe because each basket line can never change. Give a line a setter, and the copy quietly stops being safe.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s the Memento pattern. If you remember one sentence, make it this one. Undo means putting back a sealed copy, taken by the only object that is allowed to open it. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Make the snapshot&#x27;s lines method public. Run the tests, and listen as the encapsulation test names that method. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

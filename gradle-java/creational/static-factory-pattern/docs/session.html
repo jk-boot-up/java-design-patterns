@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Plan — The Static Factory Method</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Plan — The Static Factory Method</h1>
+<p>A guided session for teaching this project to people who are new to design patterns.</p>
+<ul><li><strong>Audience:</strong> anyone comfortable writing a Java class. No pattern knowledge assumed.</li><li><strong>Duration:</strong> ~60 minutes</li><li><strong>Format:</strong> live coding and discussion. Slides optional; the code is the material.</li><li><strong>Group size:</strong> works from 1 to about 20. Beyond that, the exercises need pairs.</li></ul>
+<blockquote><p><strong>Optional pre-work.</strong> Ask participants to watch the ~10 minute video (<a href="../video/"><code>../video/</code></a>) beforehand. If they do, you can compress the first two blocks and spend the time on the exercises instead.</p></blockquote>
+<h2>Before You Start</h2>
+<p>Check that every machine can run:</p>
+<pre><code>./gradlew build</code></pre>
+<p>Someone will have JDK 17. Sort that out before the session, not during it — see <a href="prerequisites.html"><code>prerequisites.md</code></a>.</p>
+<p>Have open in tabs: <code>Discount.java</code>, <code>Money.java</code>, <code>CheckoutService.java</code>, <code>animation.html</code>.</p>
+<h2>The One Thing They Should Leave With</h2>
+<p>If they remember nothing else:</p>
+<blockquote><p><strong>A constructor cannot be named, and cannot refuse to allocate. A static factory method can do both. That is why <code>List.of(...)</code> exists and <code>new ArrayList&lt;&gt;(...)</code> is not what you reach for first.</strong></p></blockquote>
+<p>Everything in the session is in service of that sentence.</p>
+<h2>Timings</h2>
+<table><thead><tr><th>Time</th><th>Block</th><th>Goal</th></tr></thead><tbody><tr><td>0:00–0:08</td><td>The problem that will not compile</td><td>Make them feel the wall</td></tr><tr><td>0:08–0:18</td><td>The fix, live</td><td>Show the technique</td></tr><tr><td>0:18–0:28</td><td>The three freedoms</td><td>Why it is more than a rename</td></tr><tr><td>0:28–0:35</td><td>Where they already use it</td><td>Connect to the JDK</td></tr><tr><td>0:35–0:50</td><td>Exercises</td><td>Hands on keyboard</td></tr><tr><td>0:50–0:58</td><td>When <em>not</em> to use it</td><td>Honesty and boundaries</td></tr><tr><td>0:58–1:00</td><td>Wrap up</td><td>The one sentence</td></tr></tbody></table>
+<h2>0:00–0:08 — The Problem That Will Not Compile</h2>
+<p>Open a scratch file. Type this in front of them, live:</p>
+<pre><code>public class Discount {
+    public Discount(double percent) { }
+    public Discount(double amountOff) { }
+}</code></pre>
+<p>Let the compiler error land on screen before you say anything.</p>
+<pre><code>error: constructor Discount(double) is already defined</code></pre>
+<p>Ask: <em>&quot;Why not? They mean completely different things.&quot;</em></p>
+<p>Let them work it out. The answer they should reach: a constructor&#x27;s name is the class name, so overloads can only differ by parameter type, and both of these are <code>double</code>. The meaning lives in your head, not in the code.</p>
+<p>Now show the workaround everyone writes:</p>
+<pre><code>Discount tenPercent = new Discount(0.10, 0, false);
+Discount fiverOff   = new Discount(0, 5.00, false);</code></pre>
+<p>Ask: <em>&quot;Which of these gives £5 off?&quot;</em> Wait. Someone will get it wrong, or nobody will answer. Either way the point has made itself.</p>
+<p><strong>Do not rush this block.</strong> The rest of the session is only interesting to people who felt this problem.</p>
+<h2>0:08–0:18 — The Fix, Live</h2>
+<p>Rewrite it in front of them:</p>
+<pre><code>public interface Discount {
+    static Discount percentage(int percent) { ... }
+    static Discount amountOff(Money amount) { ... }
+}</code></pre>
+<p>Then the call sites:</p>
+<pre><code>Discount.percentage(10);
+Discount.amountOff(Money.pounds(5));</code></pre>
+<p>Ask: <em>&quot;What changed?&quot;</em></p>
+<p>The answer to steer towards is <strong>just the name</strong> — and that the name is the whole fix for this particular problem. Do not introduce the other benefits yet; let this one land alone.</p>
+<p>Then open <code>Money.java</code> and show <code>pounds</code> and <code>pence</code> side by side. Ask someone to say out loud what <code>Money.pounds(5)</code> and <code>Money.pence(5)</code> are. They will get it right instantly, which is exactly the demonstration.</p>
+<h2>0:18–0:28 — The Three Freedoms</h2>
+<p>Now the part that makes it more than a naming trick. Work through <code>Discount.java</code> on screen.</p>
+<p><strong>Freedom 1 — not to allocate.</strong></p>
+<pre><code>static Discount none() {
+    return NoDiscount.INSTANCE;
+}</code></pre>
+<p>Run this in the demo, or just point at the output:</p>
+<pre><code>none() is shared: true</code></pre>
+<p>Ask: <em>&quot;Could a constructor do that?&quot;</em> No — <code>new</code> is defined as producing a new object. Mention <code>Integer.valueOf(5)</code> versus <code>new Integer(5)</code>, and that the latter is deprecated for precisely this reason.</p>
+<p><strong>Freedom 2 — to choose the class.</strong></p>
+<pre><code>return percent == 0 ? none() : new PercentageDiscount(percent);</code></pre>
+<pre><code>percentage(0) -&gt; No discount</code></pre>
+<p>Ask: <em>&quot;Who noticed?&quot;</em> Nobody, because nobody can. The caller asked for what it wanted, not for a specific class.</p>
+<p><strong>Freedom 3 — to hide the classes entirely.</strong></p>
+<p>Open <code>PercentageDiscount.java</code> and put a cursor on the first line:</p>
+<pre><code>final class PercentageDiscount implements Discount {</code></pre>
+<p>Ask: <em>&quot;What is missing?&quot;</em> The <code>public</code>. Then show <code>docs/images/boundary.png</code> and let it do the rest of the explaining.</p>
+<p>The consequence to state explicitly: <strong>all five of these classes can be renamed or deleted tomorrow and no caller breaks</strong>, because no caller ever knew their names.</p>
+<h2>0:28–0:35 — Where They Already Use It</h2>
+<p>This block converts the technique from &quot;a thing in a tutorial&quot; to &quot;a thing I have done a thousand times&quot;.</p>
+<p>Put these on screen and ask what each has in common:</p>
+<pre><code>List.of(&quot;a&quot;, &quot;b&quot;)
+Integer.valueOf(5)
+Optional.empty()
+LocalDate.now()
+String.valueOf(42)</code></pre>
+<p>Then the killer detail: <code>List.of()</code> returns a <em>different class</em> depending on how many arguments you pass — there are specialised implementations for zero, one and two elements. Ask if anyone has ever noticed. Nobody has. Ask if it has ever caused them a problem. It has not.</p>
+<p>Finish with the naming table from <a href="static-factory-pattern-explained.html"><code>static-factory-pattern-explained.md</code></a> — <code>of</code>, <code>from</code>, <code>valueOf</code>, <code>getInstance</code>, <code>parse</code>, <code>copyOf</code>. Tell them to use these names, because the whole ecosystem already has.</p>
+<h2>0:35–0:50 — Exercises</h2>
+<p>Two exercises, and they are the two halves of the lesson. The first shows how cheap extension is; the second shows the wall being real. <strong>The session does not work with only one of them.</strong></p>
+<h3>Exercise 1 — Add a discount (about 8 minutes)</h3>
+<blockquote><p>Add a <code>Discount.tiered()</code>: 5% off orders under £50, 15% off the rest.</p></blockquote>
+<p>Steps:</p>
+<ol><li>Write <code>final class TieredDiscount implements Discount</code> — package-private.</li><li>Add <code>static Discount tiered()</code> to the <code>Discount</code> interface.</li><li>Add a coupon code <code>&quot;TIERED&quot;</code> to <code>forCoupon</code>.</li><li>Run the tests.</li></ol>
+<p>The thing to draw out at the end: <strong><code>CheckoutService</code> did not change, and could not have.</strong> It cannot name <code>TieredDiscount</code>. Ask how many files they edited, and how many <em>callers</em> they edited. The answers are three and zero.</p>
+<h3>Exercise 2 — Try to break in (about 5 minutes)</h3>
+<blockquote><p>From a test in a package of your own — say <code>com.example.hack</code> — write <code>new PercentageDiscount(10)</code>.</p></blockquote>
+<p>It does not compile. Ask them to make it compile <em>without</em> editing <code>PercentageDiscount.java</code>. They cannot.</p>
+<p>Then ask the real question: <em>&quot;Is that a good thing?&quot;</em></p>
+<p>Sit with the disagreement — this is the most valuable two minutes of the session. The honest answer is: it is good when you want to keep the freedom to change those classes, and it is annoying when someone genuinely needed to extend one and now has to ask you. Both are true. That is a design trade, not a rule.</p>
+<h2>0:50–0:58 — When <em>Not</em> to Use It</h2>
+<p>End on the boundaries, or they will over-apply it next week.</p>
+<p><strong>Do not bother when there is nothing to decide.</strong> <code>Order</code> and <code>Receipt</code> in this project are plain records with public constructors. They carry data, there is one sensible way to build them, and a factory method would be ceremony. Point at them.</p>
+<p><strong>It cannot move the decision elsewhere.</strong> A static method is resolved at compile time. It cannot be overridden, so a subclass cannot change what gets built, and a configuration file cannot either. When you need <em>that</em>, you have outgrown this technique — and that is exactly where Factory Method and Abstract Factory come in.</p>
+<p>If the group has already done the other projects in this repository, put the comparison table on screen and walk the four columns. If they have not, just plant the flag: <em>&quot;There are three more of these, and they exist because this one has a ceiling.&quot;</em></p>
+<p><strong>And the real cost:</strong> no public constructor means no subclassing from outside. Say it plainly — usually a feature for value types, occasionally a genuine problem.</p>
+<h2>0:58–1:00 — Wrap Up</h2>
+<p>Back to the one sentence:</p>
+<blockquote><p>A constructor cannot be named, and cannot refuse to allocate. A static factory method can do both.</p></blockquote>
+<p>Then send them somewhere:</p>
+<ul><li><a href="../README.html"><code>../README.md</code></a> to run it themselves</li><li><a href="animation.html"><code>animation.html</code></a> to step through it again slowly</li><li><a href="../video/"><code>../video/</code></a> if they want it narrated</li><li>The next pattern: <a href="../../simple-factory-pattern"><code>../../simple-factory-pattern</code></a>, where the decision moves out of the type and into a class of its own</li></ul>
+<h2>Facilitator Notes</h2>
+<ul><li><strong>The compile error in block one is the hook.</strong> If you paraphrase it instead of showing it, you lose half the room. Type it live.</li><li><strong>Expect &quot;why not just use a builder?&quot;</strong> Good question, and the answer is that builders solve a different problem — many optional parameters, not many <em>kinds</em> of thing. A builder still cannot return a shared instance or a different class. They compose fine: <code>Thing.builder()</code> is itself a static factory method.</li><li><strong>Expect &quot;isn&#x27;t a static method untestable?&quot;</strong> Worth taking seriously. The answer is that these particular static methods only construct objects, and the objects they return are ordinary and fully testable. You are not hiding I/O or state behind a static call; you are hiding a <code>new</code>.</li><li><strong>Expect someone to conflate this with Factory Method.</strong> They share a word and nothing else. Have the comparison table ready, and say plainly that the naming collision is unfortunate and not their fault.</li><li><strong>If you are running short</strong>, cut block 0:28–0:35. It is the most enjoyable block and the least essential.</li><li><strong>If you have longer than an hour</strong>, add: have them write <code>bestOf</code> from scratch without looking. It forces them to notice that the composite class is invisible to callers, which is the deepest idea in the project.</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

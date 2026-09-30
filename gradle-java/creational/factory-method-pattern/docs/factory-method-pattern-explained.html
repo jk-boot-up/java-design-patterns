@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Factory Method Pattern — Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Factory Method Pattern — Explained</h1>
+<h2>One-Line Definition</h2>
+<blockquote><p><strong>Factory Method</strong> defines an interface for creating an object, but lets subclasses decide which class to instantiate.</p></blockquote>
+<p>Put less formally: a class writes down <em>when</em> an object gets created and what happens around it, then leaves a blank where the object&#x27;s type should be. Subclasses fill in the blank.</p>
+<p>The &quot;factory method&quot; is not a class. It is a single method — here, <code>createCourier()</code> — and it is the whole pattern.</p>
+<p>It is a <strong>creational</strong> pattern from the original Gang of Four catalogue, and one of the two factory patterns in that book (the other is Abstract Factory).</p>
+<h2>The Everyday Analogy</h2>
+<p>Think of a coffee shop chain. Head office writes the recipe card for &quot;serve a hot drink&quot;:</p>
+<ol><li>Greet the customer.</li><li><strong>Make the drink.</strong></li><li>Put a lid on it, call out the name, hand it over.</li></ol>
+<p>Steps 1 and 3 are identical in every branch worldwide — head office owns them. Step 2 is deliberately left open: the Tokyo branch makes matcha, the Rome branch makes espresso. Head office never learns what matcha is. It just knows there is a step called &quot;make the drink&quot; and that whatever comes back can have a lid put on it.</p>
+<p>The recipe card is <code>DeliveryService.ship(...)</code>. &quot;Make the drink&quot; is <code>createCourier()</code>. The branches are the subclasses.</p>
+<h2>The Participants</h2>
+<table><thead><tr><th>Role</th><th>In this project</th><th>Job</th></tr></thead><tbody><tr><td>Product</td><td><code>Courier</code></td><td>The interface the creator is allowed to see</td></tr><tr><td>Concrete Product</td><td><code>PostalCourier</code>, <code>AirCourier</code>, <code>BikeCourier</code>, <code>GlobalCourier</code></td><td>The real carriers</td></tr><tr><td>Creator</td><td><code>DeliveryService</code></td><td>Owns the workflow, declares the factory method</td></tr><tr><td>Concrete Creator</td><td><code>StandardDelivery</code>, <code>ExpressDelivery</code>, <code>SameDayDelivery</code>, <code>InternationalDelivery</code></td><td>Answers one question: which courier</td></tr><tr><td>Client</td><td><code>FactoryMethodDemo</code></td><td>Holds creators, never couriers</td></tr></tbody></table>
+<h2>How This Project Implements It</h2>
+<h3>The product interface</h3>
+<pre><code>public interface Courier {
+    String name();
+    Shipment dispatch(Order order);
+}</code></pre>
+<p>Two methods, no state, no hint of how any courier works. Note what is missing: this interface is <strong>not</strong> <code>sealed</code>. In the sibling Simple Factory project the product interface <em>is</em> sealed on purpose, so the compiler can check the factory&#x27;s <code>switch</code>. Here sealing would defeat the point — Factory Method exists so new products can arrive from code you have never seen.</p>
+<h3>The concrete products stay simple and independent</h3>
+<pre><code>public class AirCourier implements Courier {
+
+    @Override
+    public String name() {
+        return &quot;SkyLink Air&quot;;
+    }
+
+    @Override
+    public Shipment dispatch(Order order) {
+        System.out.println(&quot;SkyLink Air: booking &quot; + order.orderId() + &quot; onto tonight&#x27;s flight&quot;);
+        return new Shipment(TrackingIds.withPrefix(&quot;SL&quot;), name(), 2, 12.50 + order.weightKg() * 1.20);
+    }
+}</code></pre>
+<p>Each courier knows its own name, its own tracking-number prefix, its own speed and its own pricing. None of them knows another exists, and none of them knows about delivery tiers.</p>
+<h3>The creator writes the workflow with a hole in it</h3>
+<p>This is the heart of the pattern:</p>
+<pre><code>public abstract class DeliveryService {
+
+    /** The factory method. Every subclass answers this one question. */
+    protected abstract Courier createCourier();
+
+    /** A human-readable name for the service tier. */
+    public abstract String tier();
+
+    public final Shipment ship(Order order) {
+        if (order.weightKg() &lt;= 0) {
+            throw new IllegalArgumentException(&quot;Order &quot; + order.orderId() + &quot; has no weight&quot;);
+        }
+
+        Courier courier = createCourier();
+
+        System.out.println(tier() + &quot;: preparing &quot; + order.orderId()
+                + &quot; for &quot; + order.destination() + &quot; via &quot; + courier.name());
+
+        Shipment shipment = courier.dispatch(order);
+
+        System.out.println(tier() + &quot;: booked &quot; + shipment.trackingId()
+                + &quot;, arriving in &quot; + shipment.etaDays() + &quot; day(s)&quot;);
+
+        return shipment;
+    }
+}</code></pre>
+<p>Three things are worth staring at:</p>
+<ol><li><strong><code>createCourier()</code> is abstract.</strong> <code>DeliveryService</code> calls a method it does not implement. At runtime the call lands in the subclass. Control flows <em>down</em> the hierarchy and the result comes back <em>up</em> — that inversion is why this feels magical the first time.</li><li><strong>The return type is <code>Courier</code>, never a concrete class.</strong> The creator can only call <code>name()</code> and <code>dispatch(...)</code>. Even though the object really is an <code>AirCourier</code>, this code cannot tell and does not care.</li><li><strong><code>ship(...)</code> is <code>final</code>.</strong> Subclasses vary <em>which courier</em>, never the steps around it. That guard on weight applies to every tier that will ever exist, including ones written next year by someone else.</li></ol>
+<h3>The concrete creators are tiny</h3>
+<pre><code>public class ExpressDelivery extends DeliveryService {
+
+    @Override
+    protected Courier createCourier() {
+        return new AirCourier();
+    }
+
+    @Override
+    public String tier() {
+        return &quot;Express&quot;;
+    }
+}</code></pre>
+<p>That is an entire delivery tier. Six lines. All four look like this.</p>
+<p>Now count the <code>switch</code> statements in this project: zero. Count the <code>if</code> statements that test a tier name: zero. The decision that used to be a branch is now a class, and choosing a class is something Java&#x27;s own dispatch does for free.</p>
+<h3>The client holds creators, not couriers</h3>
+<pre><code>List&lt;DeliveryService&gt; services = List.of(
+        new StandardDelivery(),
+        new ExpressDelivery(),
+        new SameDayDelivery(),
+        new InternationalDelivery());
+
+for (DeliveryService service : services) {
+    Shipment shipment = service.ship(order);
+    System.out.println(&quot;Shipment: &quot; + shipment);
+}</code></pre>
+<p>One loop, one method call, four completely different carriers, four different prices and delivery dates. The loop body has no idea any of that is happening.</p>
+<h3>Java 21 records as the data carriers</h3>
+<pre><code>public record Order(String orderId, String customerId, String destination, double weightKg) { }
+public record Shipment(String trackingId, String carrier, int etaDays, double cost) { }</code></pre>
+<p>Immutable, with <code>equals</code>, <code>hashCode</code> and a readable <code>toString</code> supplied by the compiler. That <code>toString</code> is what prints the tidy <code>Shipment[...]</code> line in the demo output.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>Open/Closed, genuinely.</strong> New tier, new file. No existing class changes. Compare with Simple Factory, where a new product means editing the factory&#x27;s <code>switch</code>.</li><li><strong>Shared behaviour has one home.</strong> The weight guard and the log lines are written once. Fix a bug there and all tiers are fixed.</li><li><strong>Extension from outside.</strong> A separate module or jar can subclass <code>DeliveryService</code> and ship a tier your code has never heard of.</li><li><strong>Testable in pieces.</strong> You can test the workflow with a stub courier, and test each courier without any workflow at all. The test suite in this project does exactly that.</li><li><strong>The compiler enforces the contract.</strong> Forget to override <code>createCourier()</code> and your subclass will not compile.</li></ul>
+<h2>What to Watch Out For</h2>
+<ul><li><strong>A class per variant.</strong> Four tiers means four subclasses. If the only difference between them really is one <code>new</code> call and nothing else, a Simple Factory or a <code>Supplier&lt;Courier&gt;</code> may be the honest choice — do not build a hierarchy to avoid a two-line <code>switch</code>.</li><li><strong>You still have to pick a creator.</strong> The pattern removes the branch from inside the workflow; it does not decide which <code>DeliveryService</code> to construct. In a real app that decision arrives from configuration or dependency injection, and if you write a <code>switch</code> to make it, you have quietly rebuilt a Simple Factory on top of Factory Method. That is fine — just know you did it.</li><li><strong>Never call the factory method from a constructor.</strong> The subclass&#x27;s fields are not initialised yet, so the override can see <code>null</code>s. Call it from an ordinary method, as <code>ship(...)</code> does.</li><li><strong>Keep the factory method&#x27;s return type abstract.</strong> The moment the creator declares <code>AirCourier createCourier()</code>, the coupling you removed is back.</li><li><strong>Inheritance is a strong commitment.</strong> A subclass is tied to its parent forever. If the workflow itself needs to vary too, look at Strategy (composition) before deepening the hierarchy.</li></ul>
+<h2>Factory Method vs. the Other Factory Patterns</h2>
+<table><thead><tr><th></th><th>Simple Factory</th><th>Factory Method</th><th>Abstract Factory</th></tr></thead><tbody><tr><td>Is it in the GoF book?</td><td>No, an idiom</td><td>Yes</td><td>Yes</td></tr><tr><td>Mechanism</td><td>One static method with a <code>switch</code></td><td>An abstract method, overridden</td><td>An interface with several creation methods</td></tr><tr><td>Adding a product means</td><td>Editing the factory</td><td>Adding a subclass</td><td>Editing every factory implementation</td></tr><tr><td>Creates</td><td>One product</td><td>One product</td><td>A family of related products</td></tr><tr><td>Needs inheritance?</td><td>No</td><td>Yes</td><td>Yes, of the factory</td></tr></tbody></table>
+<p>A useful way to remember it: Simple Factory asks <em>a helper</em> which object to build. Factory Method asks <em>itself</em>, and inheritance answers. Abstract Factory asks a helper for a whole matching set.</p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><code>Collection.iterator()</code> — every collection creates its own <code>Iterator</code> implementation; your <code>for</code> loop only ever sees the interface.</li><li><code>Calendar.getInstance()</code> and <code>NumberFormat.getInstance()</code> in the JDK.</li><li><code>javax.xml.parsers.DocumentBuilderFactory.newDocumentBuilder()</code>.</li><li>Android&#x27;s <code>Activity.onCreateView(...)</code>, JUnit&#x27;s own extension points, and most framework classes named <code>...Template</code> or <code>Abstract...Support</code>.</li></ul>
+<p>Anywhere a framework says &quot;extend this class and override <em>one</em> method&quot;, you are probably looking at Factory Method.</p>
+<h2>Try It Yourself</h2>
+<ol><li><strong>Add drone delivery.</strong> Write <code>DroneCourier</code> and <code>DroneDelivery</code>, add one line to the demo&#x27;s list. Confirm you never opened <code>DeliveryService</code>.</li><li><strong>Try to break the guard.</strong> Ship an order with <code>weightKg</code> of <code>0</code> on any tier. Note that you did not have to write that check four times.</li><li><strong>Feel the difference.</strong> Open the sibling project&#x27;s <code>PaymentMethodFactory</code> and add a fifth payment method there. Compare how many existing files each change touched.</li><li><strong>Break it on purpose.</strong> Delete the <code>createCourier()</code> override from <code>SameDayDelivery</code> and read the compiler error.</li><li><strong>Question the pattern.</strong> If every subclass were literally just one <code>new</code> call and nothing else, would you still use it? Write down your answer before reading &quot;What to Watch Out For&quot; again.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the pain this removes</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — the static structure</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the runtime sequence</li><li><a href="animation.html"><code>animation.html</code></a> — the flow, step by step</li><li><a href="prerequisites.html"><code>prerequisites.md</code></a> — what to know before you start</li><li><a href="../../simple-factory-pattern"><code>../../simple-factory-pattern</code></a> — the simpler idiom this pattern grows out of</li></ul>
+</main>
+<footer>
+Generated from <code>factory-method-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

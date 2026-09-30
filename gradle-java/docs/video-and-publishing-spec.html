@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video and Publishing Specification</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Video and Publishing Specification</h1>
+<p>The standard every pattern project under <code>gradle-java/</code> is built to. It covers the worked domain, the narration, the audio and video pipeline, the poster and thumbnail, and the YouTube publishing document.</p>
+<p>This document is the <em>what</em>. The companion <a href="implementation-plan.html"><code>implementation-plan.md</code></a> is the <em>how</em> — the ordered plan for bringing the fourteen existing projects up to this standard.</p>
+<p>A project is compliant when every item in <a href="#conformance">Conformance</a> holds.</p>
+<hr>
+<h2>1. Scope</h2>
+<p>Fifty-six projects across seven categories, each a self-contained Gradle Java 21 project with sources, JUnit 5 tests, <code>docs/</code>, <code>video/</code>, and a top-level <code>README.md</code>:</p>
+<table><thead><tr><th>Category</th><th>Projects</th></tr></thead><tbody><tr><td>Creational</td><td>abstract-factory, builder, factory-method, prototype, simple-factory, singleton, static-factory</td></tr><tr><td>Structural</td><td>adapter, bridge, composite, decorator, facade, flyweight, proxy</td></tr><tr><td>Behavioural</td><td>strategy, observer, command, template-method, state, chain-of-responsibility, iterator, mediator, memento, visitor, interpreter</td></tr><tr><td>Microservices</td><td>api-gateway, service-discovery, load-balancing, retry, circuit-breaker, bulkhead, database-per-service, api-composition, cqrs, saga, transactional-outbox, idempotent-consumer</td></tr><tr><td>Platform</td><td>externalised-configuration, distributed-tracing, backends-for-frontends, sidecar, sidecar-java-proxy, sidecar-on-kubernetes, event-sourcing, strangler-fig</td></tr><tr><td>Architectural</td><td>layered-architecture, mvc, hexagonal-architecture, clean-architecture, clean-architecture-with-spring</td></tr><tr><td>Concurrency</td><td>producer-consumer, thread-pool, future-promise, read-write-lock, monitor-object, active-object</td></tr></tbody></table>
+<p>Five categories have their own subsidiary specification, each fixing the e-commerce scenario its patterns are taught through and adding category-specific conformance items. All inherit this document unchanged; where any of them appears to disagree with it, this one wins.</p>
+<table><thead><tr><th>Specification</th><th>Covers</th></tr></thead><tbody><tr><td><a href="../behavioural/docs/spec.html"><code>../behavioural/docs/spec.md</code></a></td><td>The eleven behavioural patterns, plus four extra conformance items</td></tr><tr><td><a href="../micro-services-design-patterns/docs/spec.html"><code>../micro-services-design-patterns/docs/spec.md</code></a></td><td>The twelve microservices patterns, their one-JVM rule, and six extra conformance items</td></tr><tr><td><a href="../platform-design-patterns/docs/implementation-plan.html"><code>../platform-design-patterns/docs/implementation-plan.md</code></a></td><td>The eight platform patterns, and the two-tier rule that lets them use real infrastructure</td></tr><tr><td><a href="../architectural-design-patterns/docs/implementation-plan.html"><code>../architectural-design-patterns/docs/implementation-plan.md</code></a></td><td>The five architectural patterns, the shared order-placing feature all five implement, and the ArchUnit dependency-rule test each one carries</td></tr><tr><td><a href="../concurrency-design-patterns/docs/implementation-plan.html"><code>../concurrency-design-patterns/docs/implementation-plan.md</code></a></td><td>The six concurrency patterns, the determinism harness they share, and the rule that every naive failure reproduces on every run</td></tr></tbody></table>
+<p>The platform category is the first to relax the &quot;one JVM, nothing installed&quot; rule, and it does so in a strictly bounded way. <strong>Tier 1</strong> of every platform project runs offline with only a JDK, and the video is built entirely from Tier 1. <strong>Tier 2</strong> is optional and additive: it lives in a <code>real/</code> subdirectory, is excluded from <code>./gradlew test</code>, and is where Spring Boot, Docker, Kubernetes or a real HTTP server may appear. Every such dependency is accounted for in the category&#x27;s implementation plan. A viewer who installs nothing still gets the whole lesson.</p>
+<hr>
+<h2>2. The worked domain: e-commerce, everywhere</h2>
+<p><strong>Every project teaches its pattern through an online store.</strong> Not a photo gallery, not a document editor, not shapes on a canvas — a store.</p>
+<p>The reason is that these projects are meant to be worked through in sequence. A learner who has already met orders, line items, carts, catalogs and shipping in the previous project spends none of their attention re-learning the setting and all of it on the structure being introduced. Switching domains per pattern would make each project cheaper to write and the series harder to follow.</p>
+<p>Acceptable subject matter is anything a real store contains: checkout, pricing and discounts, the product catalog and its imagery, orders and order numbers, payments, shipping and couriers, inventory, notifications, invoices, taxes, and regional differences between markets.</p>
+<p>When a pattern&#x27;s classic textbook example is not e-commerce, the pattern is re-framed rather than the domain relaxed. Proxy, for instance, is classically taught with a lazily loaded image; here it is a <em>product</em> image on a listing page — the same structure, inside the store.</p>
+<p>Each project must pick a scenario where the pattern is genuinely the right answer. A contrived e-commerce wrapper around a non-e-commerce idea is worse than a clean example, because the honest &quot;when not to use this&quot; section that every project carries then has nothing to stand on.</p>
+<hr>
+<h2>3. Narration</h2>
+<table><thead><tr><th>Setting</th><th>Value</th><th>Why</th></tr></thead><tbody><tr><td>Voice</td><td>macOS <code>Samantha</code>, US English</td><td>The only non-novelty voice installed on the build machine. Consistent across every project so the series sounds like one series.</td></tr><tr><td>Rate</td><td><strong>145 wpm</strong> (<code>RATE</code> in <code>build_video.sh</code>)</td><td>See below.</td></tr><tr><td>Inter-scene pause</td><td><strong>0.9 s</strong> (<code>apad=pad_dur=0.9</code>)</td><td>A clear beat between topics, so slides do not snap past and the viewer has a moment to read the new slide before the voice starts on it.</td></tr></tbody></table>
+<h3>Why 145 words per minute</h3>
+<p>Conversational English runs at roughly 150 wpm, and audiobooks are narrated at 150–160. Instructional video sits deliberately below that: the viewer is reading code on screen at the same time as listening, which is two demands on the same attention, and unlike a live talk they cannot ask you to repeat yourself.</p>
+<p>The band that educational YouTube converges on is <strong>140–160 wpm</strong>, and technical content with code on screen belongs at the lower end of it. 145 is that lower end: unhurried enough to follow a class name being spelled out, quick enough that a viewer does not reach for the 1.25x button — which is the real failure mode of slow narration, because once they speed the video up they have taken back the pacing you were trying to give them.</p>
+<p>Slower than about 120 wpm is counterproductive for this material. It reads as laboured rather than careful, and it inflates a ten-minute explanation into half an hour, which measurably costs watch-through.</p>
+<p>Rate is an environment variable, so any project can be re-narrated at another speed without editing anything:</p>
+<pre><code>RATE=130 ./build_video.sh</code></pre>
+<h3>Script conventions</h3>
+<p>Narration lives in the <code>narration</code> field of each scene in <code>video/scenes.py</code>, beside the slide it belongs to, so the two cannot drift apart. <code>narration.md</code> is the human-readable copy for review.</p>
+<ul><li><code>[[slnc NNN]]</code> inserts an NNN-millisecond pause. These are instructions to <code>say</code>, not words; <code>make_subtitles.py</code> strips them.</li><li>Words the synthesiser mishandles are spelled phonetically — &quot;V A T&quot; rather than &quot;VAT&quot;.</li><li>Scene 1 credits the author aloud; the final scene asks for the like and the subscribe.</li></ul>
+<h3>The opening, in four steps</h3>
+<p>The first scene (<code>01-poster</code>) is the only one whose narration has a required structure, and it is required because it is the scene that decides whether anybody watches the second one. It must proceed in this order:</p>
+<ol><li><strong>Say what the video is.</strong> &quot;This video explains the <em>X</em> design pattern in Java.&quot; Plainly, before anything else, so a viewer who arrived from a search result knows within four seconds that they are in the right place.</li><li><strong>Credit the author.</strong> &quot;…and it is written and presented by Jayasekhar Konduru.&quot;</li><li><strong>Give the pattern&#x27;s definition, in general terms.</strong> Two or three sentences of plain language saying what the pattern is and what it does, with no reference yet to the store, the catalog or the checkout. A viewer who stops the video here should still have learnt what the pattern is.</li><li><strong>Then the same thing in full, in the e-commerce domain.</strong> The worked scenario, and what the viewer will be able to do by the end.</li></ol>
+<p>The reason for the order is that steps 3 and 4 used to be one step. The video opened with the shop&#x27;s scenario, and the general definition of the pattern was left for the viewer to infer from a worked example — which works for somebody already halfway to knowing it and fails for everybody else. The abstract statement now comes first and the e-commerce scenario elaborates it, rather than being the viewer&#x27;s first encounter with the idea.</p>
+<p>This costs fifteen to thirty seconds of runtime per video. That is the correct trade: it is spent at the only point in the video where a viewer is still deciding whether to leave.</p>
+<hr>
+<h2>4. Audio pipeline</h2>
+<p>The narration must be clean, evenly levelled, and <strong>continuous</strong> — no dropouts, no seams at scene changes.</p>
+<h3>4.1 Filter chain</h3>
+<p><code>say</code> emits 22.05 kHz mono; the AAC track needs 48 kHz stereo. The <code>CLEANUP</code> chain in <code>build_video.sh</code> does that conversion and nothing more:</p>
+<pre><code>aresample=48000:filter_size=512:cutoff=0.98:linear_interp=1
+highpass=f=75
+equalizer=f=3000:t=q:w=1.5:g=1.5</code></pre>
+<ul><li><strong><code>aresample</code></strong> with a long filter, so the upsampling itself adds no grit.</li><li><strong><code>highpass</code></strong> removes rumble below the voice.</li><li><strong><code>equalizer</code></strong> lifts 3 kHz slightly, where consonants live, for intelligibility.</li></ul>
+<p><strong>No spectral denoiser.</strong> An earlier revision ran <code>afftdn</code> here and it looked like an improvement by the numbers — about 15 dB off the noise floor — but it made the voice audibly worse. A spectral denoiser works by subtracting an estimated stationary noise floor; synthesised speech has almost none, so <code>afftdn</code> subtracts speech instead and leaves it warbling. The faint residual hiss is much the lesser problem. <strong>Do not add a denoiser back without an A/B listen.</strong></p>
+<p><strong>No <code>lowpass</code>.</strong> Band-limiting the top end removed air from an already dull 22 kHz source for no measurable gain.</p>
+<h3>4.2 Encode structure</h3>
+<p>The single most important rule:</p>
+<blockquote><p><strong>Audio stays lossless until the final mux, and is encoded to AAC exactly once.</strong></p></blockquote>
+<p>AAC is a lapped format. Every separately encoded segment carries priming samples at its head and padding at its tail, and <code>ffmpeg -f concat -c copy</code> can strip neither. Concatenating per-scene AAC therefore punches a hole in the timeline at <em>every</em> scene change — this measured as 30 gaps totalling 31 seconds of missing narration in a single 9-minute video.</p>
+<p>So:</p>
+<ol><li>Each scene&#x27;s narration is written as <code>pcm_s16le</code> WAV at 48 kHz stereo.</li><li>Video-only scene clips are encoded separately (<code>-an</code>).</li><li>Video clips are concatenated with <code>-c copy</code>; WAVs are concatenated as PCM.</li><li>The whole narration is encoded to AAC <strong>once</strong>, at the mux.</li></ol>
+<h3>4.3 Loudness</h3>
+<p><code>loudnorm=I=-16:TP=-1.5:LRA=11</code> — YouTube&#x27;s target — applied <strong>once over the whole narration, in two passes</strong>.</p>
+<p>Per-scene levelling is wrong: it re-measures on every clip, so a quiet scene is pushed up to match a loud one and the level audibly steps at each join.</p>
+<p>Two passes rather than one because single-pass <code>loudnorm</code> runs in dynamic mode, riding the level as it goes, and on some narrations it emits a timestamp discontinuity partway through — an audible hole mid-sentence with nothing wrong upstream of it. Measuring first and feeding the numbers back with <code>linear=true</code> reduces it to one constant gain, which cannot do that, and which also stops it pumping between quiet and loud lines.</p>
+<h3>4.4 A/V sync</h3>
+<p>Per scene, <code>frames = ceil(audio_duration * 30)</code> and the audio is padded to exactly <code>frames / 30</code> seconds. Picture and narration are then the same length in every scene, so slide changes cannot drift however long the video grows.</p>
+<h3>4.5 The self-check</h3>
+<p>After the mux, <code>build_video.sh</code> reads every audio packet timestamp and <strong>fails the build</strong> if any two are more than 1.5 AAC frames apart. Both failure modes above — concat seams and the <code>loudnorm</code> discontinuity — are easy to miss in a spot check and ruin the whole video, so they are worth failing over.</p>
+<p>A passing build prints:</p>
+<pre><code>audio timeline continuous: 25666 packets, no gaps</code></pre>
+<p>This check verifies <em>continuity</em>, not <em>fidelity</em>. It would not have caught the <code>afftdn</code> problem. Quality changes still need a listen.</p>
+<hr>
+<h2>5. Video</h2>
+<table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody><tr><td>Resolution</td><td>1920×1080</td></tr><tr><td>Codec</td><td>H.264, <code>-preset slow -crf 18</code>, <code>yuv420p</code></td></tr><tr><td>Frame rate</td><td>30 fps</td></tr><tr><td>B-frames</td><td>disabled (<code>-bf 0</code>)</td></tr><tr><td>Audio</td><td>AAC 192 kbps, 48 kHz, stereo</td></tr><tr><td>Container</td><td>MP4 with <code>+faststart</code></td></tr></tbody></table>
+<p><code>-bf 0</code> because B-frames save nothing on a static slide and push the video track&#x27;s first timestamp past the audio&#x27;s, leaving players showing black at 0:00. For the same reason the mux drops the AAC priming edit list (<code>-ignore_editlist 1</code>) so both streams start at 0.000.</p>
+<p>Outputs per project, none committed:</p>
+<table><thead><tr><th>File</th><th>Purpose</th></tr></thead><tbody><tr><td><code>{pattern}-pattern-explained.mp4</code></td><td>The video</td></tr><tr><td><code>{pattern}-pattern-explained.m4a</code></td><td>Audio-only, for revision</td></tr><tr><td><code>{pattern}-pattern-explained.srt</code></td><td>Subtitles, timed from the encoded clips</td></tr><tr><td><code>poster.png</code></td><td>Title card and YouTube thumbnail</td></tr></tbody></table>
+<hr>
+<h2>6. Poster and thumbnail</h2>
+<p><code>poster.png</code> is the video&#x27;s first frame <em>and</em> its YouTube thumbnail. It is the only thing most people will ever see of the video, so it is held to the strictest rules in this document.</p>
+<h3>6.1 Never strike out the message</h3>
+<p><strong>No strikethrough anywhere on the poster.</strong> Earlier posters drew a rule through the &quot;before&quot; code sample to mark it as the rejected approach. This is banned:</p>
+<ul><li>struck-through monospace is hard to read at full size and unreadable at the ~360×202 px YouTube serves in search results, which is the size that actually matters;</li><li>it makes the card read as negative — as being about what is wrong — when the poster&#x27;s job is to make the pattern look worth learning.</li></ul>
+<p>The before/after contrast stays, because it is what makes the card informative. It is carried by <strong>colour and a label</strong>: the left pill is rose, tagged <code>BEFORE</code>; the right is green, tagged <code>AFTER</code>. Both code samples remain fully legible.</p>
+<h3>6.2 Layout</h3>
+<p>Fixed across every project so the series is recognisable as a set:</p>
+<table><thead><tr><th>Element</th><th>Position</th></tr></thead><tbody><tr><td>Accent bar</td><td>full width, top edge</td></tr><tr><td>Eyebrow — <code>DESIGN PATTERNS - JAVA</code></td><td>top left</td></tr><tr><td>Pattern name, two lines</td><td>left, 120–128 pt, second line in the accent colour</td></tr><tr><td>Short rule</td><td>under the title</td></tr><tr><td>Comparison panel</td><td>one rounded box holding both pills, the arrow, and the tagline</td></tr><tr><td>Tagline</td><td>centred in the panel, one line, ≤ 48 characters</td></tr><tr><td>Author pill</td><td>bottom left</td></tr></tbody></table>
+<p>Bottom right and the last ~40 px of height are left clear: YouTube&#x27;s duration badge and watched-progress bar sit there.</p>
+<h3>6.3 Legibility rules</h3>
+<ul><li>Nothing smaller than 34 pt.</li><li>Code samples auto-shrink to fit their pill; if a sample needs below 30 pt it is too long — shorten the sample, not the font.</li><li>Every text colour is at least 4.5:1 against its background.</li><li>The pattern name must be readable when the image is scaled to 20 % — check it, do not assume it.</li></ul>
+<hr>
+<h2>7. Project documentation</h2>
+<p>Each project carries, under <code>docs/</code>:</p>
+<table><thead><tr><th>File</th><th>Content</th></tr></thead><tbody><tr><td><code>prerequisites.md</code></td><td>What to know and install first</td></tr><tr><td><code>problem-statement.md</code></td><td>The problem, and why the naive approach hurts</td></tr><tr><td><code>{pattern}-pattern-explained.md</code></td><td>The pattern, the code, pitfalls, comparisons</td></tr><tr><td><code>class-diagram.md</code> + PNG</td><td>Static structure</td></tr><tr><td><code>uml-diagram.md</code> + PNG</td><td>Runtime call flow</td></tr><tr><td><code>animation.html</code></td><td>Step-by-step walkthrough, with optional narration</td></tr><tr><td><code>make_animation_audio.sh</code></td><td>Generates <code>docs/audio/step-N.m4a</code></td></tr><tr><td><code>session.md</code></td><td>A 60-minute guided teaching session</td></tr><tr><td><strong><code>youtube.md</code></strong></td><td><strong>Publishing document — see below</strong></td></tr><tr><td><strong><code>thumbnail.png</code></strong></td><td><strong>1280×720 YouTube thumbnail, generated by <code>docs/make_thumbnails.py</code></strong></td></tr></tbody></table>
+<p>Plus <code>video/</code> (scenes, slides, subtitles, build script, <code>narration.md</code>, <code>README.md</code>) and a top-level <code>README.md</code>.</p>
+<hr>
+<h2>8. <code>docs/youtube.md</code></h2>
+<p>One file per project holding everything needed to publish, so uploading is copy-and-paste rather than reconstruction. Required sections:</p>
+<ol><li><strong>Title</strong> — the exact string to paste. ≤ 60 characters so it is not truncated in search results. Leads with the pattern name.</li><li><strong>Description</strong> — the full text. The first two lines are what shows above the fold, so they carry the hook, not boilerplate. Then what the video covers, the chapter list, the repository link, and the prerequisites.</li><li><strong>Chapters</strong> — <code>mm:ss Title</code>, one per scene, first entry <code>00:00</code>. YouTube requires at least three and the first at zero to render them as chapters. Timings come from the generated <code>.srt</code>, so they are regenerated when the narration changes.</li><li><strong>Tags</strong> — a comma-separated list, under 500 characters total.</li><li><strong>Thumbnail</strong> — the path to <code>docs/thumbnail.png</code>, with a note that it is generated by <code>docs/make_thumbnails.py</code> and must be uploaded manually. This is a separate image from <code>video/poster.png</code>: the poster is the video&#x27;s 1920×1080 opening frame and carries the before/after comparison, which is unreadable once YouTube scales it to search-result size. The thumbnail is 1280×720 and carries only the pattern name, one line of promise, and one short piece of code.</li><li><strong>Upload checklist</strong> — subtitles, language, thumbnail, HD processing, the playlist the video belongs to.</li><li><strong>Cards and end screen</strong> — which video to link to next, following the learning order.</li></ol>
+<p>Chapter timings are the one part of this file that can silently go stale; they must be regenerated whenever the narration is re-recorded.</p>
+<hr>
+<h2>9. Conformance</h2>
+<p>A project is compliant when all of the following hold:</p>
+<ul class="task"><li>The worked example is e-commerce.</li><li><code>./gradlew build</code> passes; the README quotes the real <code>./gradlew run</code> output under the run command, and it still matches. Three projects (simple factory, factory method, facade) mint an identifier per run, so their transaction, order and tracking codes are expected to differ; every other line must match, and the README says so.</li><li>Scene 1&#x27;s narration follows the four-step opening of §3 — what the video is, the author credit, the pattern&#x27;s definition in general terms, and only then the e-commerce scenario.</li><li><code>RATE</code> is 145 and <code>VOICE</code> is Samantha.</li><li><code>CLEANUP</code> matches §4.1 exactly — in particular, contains no <code>afftdn</code> and no <code>lowpass</code>.</li><li>Per-scene audio is PCM; exactly one AAC encode, at the mux.</li><li><code>loudnorm</code> is two-pass with <code>linear=true</code>.</li><li>The build prints <code>audio timeline continuous: N packets, no gaps</code>.</li><li><code>poster.png</code> shows the correct pattern name and contains no strikethrough.</li><li><code>docs/youtube.md</code> exists with all seven sections, and its chapter timings match the current <code>.srt</code>.</li><li><code>video/README.md</code> describes the pipeline as it actually is.</li></ul>
+</main>
+<footer>
+Generated from <code>video-and-publishing-spec.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

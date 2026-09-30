@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Static Factory Method, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Static Factory Method, Explained</h1>
+<h2>First, an Honest Note</h2>
+<p>This one is not in the Gang of Four book. There is no &quot;Static Factory Pattern&quot; chapter to look up, and if you say the name in an interview you may get a raised eyebrow.</p>
+<p>Its actual home is Joshua Bloch&#x27;s <em>Effective Java</em>, <strong>Item 1: Consider static factory methods instead of constructors</strong>. It is a technique rather than a pattern — but it is the single most widely used creational technique in Java, it appears on nearly every page of the standard library, and it is the right first thing to reach for. That is why it belongs in this collection.</p>
+<p>Note also that &quot;static factory method&quot; has nothing to do with the Gang of Four&#x27;s <strong>Factory Method</strong> pattern, despite the names. They solve different problems and the resemblance is purely verbal. There is a table below that lays the two side by side, because the confusion is genuinely common.</p>
+<h2>The Definition</h2>
+<blockquote><p>A static factory method is a static method that returns an instance of the class it lives in. — <em>Effective Java</em>, Item 1</p></blockquote>
+<p>In plainer words:</p>
+<blockquote><p><strong>Instead of <code>new Thing(...)</code>, callers write <code>Thing.somethingDescriptive(...)</code>, and the class decides what to actually hand back.</strong></p></blockquote>
+<p>That is the entire mechanism. The power is not in the method being static — it is in the fact that a method, unlike a constructor, has a <strong>name</strong> and is under <strong>no obligation to return a new object</strong>.</p>
+<h2>The Vending Machine</h2>
+<p>Think about a constructor as a workbench. You want a coffee, so you are handed beans, water, a filter and a cup, and you assemble it yourself. You need to know how coffee is made. If the recipe changes, you have to relearn it.</p>
+<p>A static factory method is the vending machine. You press the button marked <strong>Latte</strong>. Behind the panel it might pour a fresh one, it might hand you one it already made, it might quietly give you the decaf because the machine is out of ordinary beans. You do not know and you do not care. You asked for what you <em>wanted</em>, not for instructions on how to build it.</p>
+<p>Two things follow from that, and they are the two things the pattern is for:</p>
+<ul><li>The buttons have <strong>labels</strong>. That is why you can tell Latte from Espresso.</li><li>The machine keeps its <strong>internals private</strong>. That is why the recipe can change without anyone relearning anything.</li></ul>
+<h2>The Participants</h2>
+<table><thead><tr><th>Role</th><th>In this project</th><th>What it does</th></tr></thead><tbody><tr><td>The type</td><td><code>Discount</code>, <code>Money</code></td><td>The public face. Holds the factory methods.</td></tr><tr><td>Static factory methods</td><td><code>Discount.percentage(int)</code>, <code>Money.pounds(double)</code></td><td>Named entry points. The only way in.</td></tr><tr><td>Hidden implementations</td><td><code>PercentageDiscount</code>, <code>NoDiscount</code>, …</td><td>Package-private. Callers cannot name them.</td></tr><tr><td>The client</td><td><code>CheckoutService</code></td><td>Uses the type. Never mentions an implementation.</td></tr></tbody></table>
+<p>There is no separate factory class in that table. That is not an omission — it is the point.</p>
+<h2>The Code, Walked Through</h2>
+<h3><code>Discount</code> — the type is its own factory</h3>
+<pre><code>public interface Discount {
+
+    Money appliedTo(Order order);
+    String describe();
+
+    static Discount none() {
+        return NoDiscount.INSTANCE;
+    }
+
+    static Discount percentage(int percent) {
+        if (percent &lt; 0 || percent &gt; 100) {
+            throw new IllegalArgumentException(&quot;percentage must be 0-100, was &quot; + percent);
+        }
+        return percent == 0 ? none() : new PercentageDiscount(percent);
+    }
+
+    static Discount amountOff(Money amount) {
+        return amount.isZero() ? none() : new AmountOffDiscount(amount);
+    }
+
+    static Discount freeShipping() {
+        return FreeShippingDiscount.INSTANCE;
+    }
+}</code></pre>
+<p>Read <code>percentage</code> slowly, because there are three separate ideas packed into five lines.</p>
+<p>The <strong>name</strong> is doing work no constructor could. <code>percentage(10)</code> and <code>amountOff(Money.pounds(10))</code> sit next to each other, both take one value, and nobody has to guess. As constructors they could not have coexisted at all.</p>
+<p>The <strong>validation</strong> happens before any object exists. A <code>Discount</code> of 150% is not a thing that gets created and then rejected — it never gets created.</p>
+<p>The <strong>return</strong> is a decision. Ask for 0% and you do not get a <code>PercentageDiscount</code> that multiplies by zero; you get the shared do-nothing instance. The caller said what it wanted, so we were free to serve it however we liked.</p>
+<blockquote><p>Since Java 8, interfaces can hold <code>static</code> methods. Before that this technique needed an abstract class or a companion <code>Discounts</code> class. If you read older code and find a <code>Collections</code>-style helper class beside an interface, that is why.</p></blockquote>
+<h3><code>NoDiscount</code> — the object that only needs to exist once</h3>
+<pre><code>final class NoDiscount implements Discount {
+
+    static final NoDiscount INSTANCE = new NoDiscount();
+
+    private NoDiscount() {
+    }
+
+    @Override
+    public Money appliedTo(Order order) {
+        return Money.zero();
+    }
+}</code></pre>
+<p>No <code>public</code>. Outside this package the class does not exist as far as the compiler is concerned — you cannot import it, name it, or extend it.</p>
+<p>It has no fields, so every instance would be identical, so there is no reason to have more than one. <code>new</code> could never have expressed that. <code>Discount.none()</code> expresses it exactly, and callers get the saving without knowing about it.</p>
+<h3><code>Money</code> — the same trick on a value type</h3>
+<pre><code>public final class Money {
+
+    private static final Money ZERO = new Money(0);
+
+    private final long pence;
+
+    private Money(long pence) {
+        this.pence = pence;
+    }
+
+    public static Money zero() {
+        return ZERO;
+    }
+
+    public static Money pence(long pence) {
+        return pence == 0 ? ZERO : new Money(pence);
+    }
+
+    public static Money pounds(double pounds) {
+        return pence(Math.round(pounds * 100));
+    }
+}</code></pre>
+<p><code>Money.pounds(5)</code> is £5.00. <code>Money.pence(5)</code> is £0.05. Same argument type, eighty-fold difference, and the names make it impossible to get wrong. This is the single most valuable thing static factories do in real codebases, and it costs nothing.</p>
+<p>Note that <code>pounds</code> delegates to <code>pence</code>, which routes zero to the shared constant. Every path in, however it arrived, benefits from the caching. With a public constructor there is no such thing as &quot;every path in&quot;.</p>
+<h3><code>CheckoutService</code> — the client that never chooses</h3>
+<pre><code>public Receipt checkout(Order order, Discount discount) {
+    Money off = discount.appliedTo(order);
+    Money total = order.subtotal().plus(order.shipping()).minus(off);
+    ...
+}</code></pre>
+<p>Search this class for <code>PercentageDiscount</code>, or for <code>new</code>, or for an <code>if</code> on the kind of discount. There is nothing. Whether the customer gets 10% off, £5 off, free shipping, the better of two offers, or nothing at all, these lines run unchanged — because all the choosing already happened, inside a factory method, before this code was ever reached.</p>
+<h3><code>Discount.forCoupon</code> — where it all pays off</h3>
+<pre><code>static Discount forCoupon(String code) {
+    return switch (code.trim().toUpperCase()) {
+        case &quot;SAVE10&quot;   -&gt; percentage(10);
+        case &quot;SAVE25&quot;   -&gt; percentage(25);
+        case &quot;FIVEROFF&quot; -&gt; amountOff(Money.pounds(5));
+        case &quot;FREESHIP&quot; -&gt; freeShipping();
+        case &quot;BESTDEAL&quot; -&gt; bestOf(percentage(10), amountOff(Money.pounds(5)));
+        case &quot;&quot;         -&gt; none();
+        default -&gt; throw new IllegalArgumentException(&quot;unknown coupon code: &quot; + code);
+    };
+}</code></pre>
+<p>Five coupon codes, five different classes coming back, one return type. The storefront calls <code>Discount.forCoupon(code)</code> and gets a <code>Discount</code>. It cannot tell them apart and has no reason to want to.</p>
+<p><code>bestOf</code> is the sharpest example. It returns a <code>BestOfDiscount</code> that holds two other discounts and picks the better one <em>per order</em> — so the same object can behave differently for different customers. A caller could not have written that without knowing all three classes. Through the factory method it knows none of them.</p>
+<h2>What You Gain</h2>
+<p><strong>Names.</strong> The biggest win and the least glamorous. <code>Money.pounds(5)</code> versus <code>new Money(5)</code>. Multiply that across a codebase and it is the difference between code you can read and code you have to decode.</p>
+<p><strong>Freedom not to allocate.</strong> <code>Discount.none()</code> and <code>Money.zero()</code> return the same instance every time. <code>Boolean.valueOf(true)</code> in the JDK does exactly this, and so does <code>Integer.valueOf</code> for small numbers. Constructors are forbidden from this optimisation by definition.</p>
+<p><strong>Freedom to choose the class.</strong> <code>percentage(0)</code> returns <code>NoDiscount</code>. Nobody notices, nobody can notice, and if you later add a <code>SmallPercentageDiscount</code> optimised for the common case, still nobody notices.</p>
+<p><strong>Freedom to hide the classes entirely.</strong> Five implementations, none public. They can be renamed, merged, split or deleted without touching a caller, because no caller ever knew their names. This is the deepest benefit and the easiest to overlook.</p>
+<p><strong>A place to validate.</strong> <code>percentage(150)</code> throws before an object exists. There is never a half-valid <code>Discount</code> in memory.</p>
+<p><strong>Freedom to return something that does not exist yet.</strong> <code>forCoupon</code> could one day return a class loaded from a plugin jar. The method signature would not change. This is how <code>ServiceLoader</code> and most of the JDBC API work.</p>
+<h2>What to Watch Out For</h2>
+<p>Three real costs. They are smaller than the benefits, which is why this technique is everywhere, but they are not zero.</p>
+<p><strong>Classes with no public constructor cannot be subclassed.</strong> If <code>Money</code>&#x27;s constructor is private, nobody outside can extend <code>Money</code>. Usually this is a feature — value types should be final anyway — but if you were relying on inheritance, it is gone. The standard advice is that this pushes you towards composition, which is generally the better design regardless.</p>
+<p><strong>They are harder to find.</strong> Constructors have a dedicated section in Javadoc and your IDE offers them when you type <code>new</code>. A static factory method is just another method in the list. This is exactly why the naming conventions below matter so much — <code>of</code>, <code>from</code> and <code>valueOf</code> are how the ecosystem compensates.</p>
+<p><strong>They are not a pattern, so they do not scale to structure.</strong> A static factory method is a better front door. It is not a way to swap whole implementations at runtime, and it does not let a subclass or a configuration decide what gets built. When you need <em>that</em>, you have outgrown this technique and want Factory Method or Abstract Factory.</p>
+<h2>The Naming Conventions</h2>
+<p>Java has settled on a shared vocabulary. Follow it and your API will feel familiar to people who have never seen it.</p>
+<table><thead><tr><th>Name</th><th>Means</th><th>JDK example</th></tr></thead><tbody><tr><td><code>of</code></td><td>An instance holding these values</td><td><code>List.of(a, b)</code>, <code>Set.of(x)</code></td></tr><tr><td><code>from</code></td><td>A type conversion, one argument in</td><td><code>Instant.from(temporal)</code></td></tr><tr><td><code>valueOf</code></td><td>A more verbose <code>from</code>; often cached</td><td><code>Integer.valueOf(&quot;42&quot;)</code></td></tr><tr><td><code>getInstance</code></td><td>The instance, possibly a shared one</td><td><code>Calendar.getInstance()</code></td></tr><tr><td><code>newInstance</code></td><td>Guaranteed a fresh one each call</td><td><code>Array.newInstance(type, len)</code></td></tr><tr><td><code>parse</code></td><td>Built from a string representation</td><td><code>LocalDate.parse(&quot;2026-08-19&quot;)</code></td></tr><tr><td><code>copyOf</code></td><td>An independent copy of the argument</td><td><code>List.copyOf(other)</code></td></tr></tbody></table>
+<p>This project uses <code>pounds</code>, <code>pence</code>, <code>percentage</code>, <code>amountOff</code>, <code>zero</code>, <code>none</code>, <code>freeShipping</code>, <code>bestOf</code> and <code>forCoupon</code> — domain words rather than the generic ones, which is right when the domain has a better word available. <code>Money.parse</code> uses the conventional name because it does the conventional thing.</p>
+<h2>Where You Have Already Used This</h2>
+<p>You have been calling static factory methods since your first Java lesson, probably without a name for it:</p>
+<table><thead><tr><th>Call</th><th>What is really happening</th></tr></thead><tbody><tr><td><code>List.of(&quot;a&quot;, &quot;b&quot;)</code></td><td>Returns one of several hidden classes, chosen by size</td></tr><tr><td><code>Integer.valueOf(5)</code></td><td>Returns a cached instance; <code>valueOf(1000)</code> does not</td></tr><tr><td><code>Optional.of(x)</code> / <code>Optional.empty()</code></td><td><code>empty()</code> returns a shared singleton</td></tr><tr><td><code>LocalDate.now()</code></td><td>No sensible constructor arguments exist at all</td></tr><tr><td><code>String.valueOf(anything)</code></td><td>Overloads that a constructor could not express</td></tr><tr><td><code>Stream.of(...)</code> / <code>Collectors.toList()</code></td><td>Implementation classes you have never seen</td></tr></tbody></table>
+<p><code>List.of(...)</code> is worth dwelling on. Depending on how many arguments you pass it, you get back a different class — there are specialised ones for zero, one and two elements. You have never noticed, never needed to, and the JDK team can change the whole arrangement in the next release without breaking your code. That is the pattern, working exactly as intended.</p>
+<h2>How This Relates to the Other Factories</h2>
+<table><thead><tr><th></th><th>Static Factory Method</th><th>Simple Factory</th><th>Factory Method</th><th>Abstract Factory</th></tr></thead><tbody><tr><td>In the GoF book?</td><td>No</td><td>No</td><td>Yes</td><td>Yes</td></tr><tr><td>Where creation lives</td><td>On the product&#x27;s own type</td><td>A separate factory class</td><td>A method subclasses override</td><td>An interface with several creators</td></tr><tr><td>Who decides</td><td>The method, from its arguments</td><td>The factory, from a parameter</td><td>The subclass, at compile time</td><td>The chosen factory family</td></tr><tr><td>Extra classes needed</td><td>None</td><td>One</td><td>One per variant</td><td>One per family</td></tr><tr><td>The question it answers</td><td>&quot;Give me one that…&quot;</td><td>&quot;Which one?&quot;</td><td>&quot;Which one — decided by my subclass?&quot;</td><td>&quot;Which matching set?&quot;</td></tr><tr><td>Reach for it when</td><td>Almost always, as a first step</td><td>A parameter picks the type</td><td>A workflow has a hole in it</td><td>Products must match each other</td></tr></tbody></table>
+<p>The honest summary: <strong>start here</strong>. Most creation problems are solved by giving the type a well-named static factory method and stopping. The GoF patterns are what you graduate to when the decision has to move somewhere else — into a subclass, or into a family — and not before.</p>
+<h2>Try It Yourself</h2>
+<ol><li><strong>Add a coupon.</strong> Add <code>&quot;HALFPRICE&quot;</code> to <code>forCoupon</code>, returning <code>percentage(50)</code>. Note that you wrote one line and no new class.</li><li><strong>Add a new kind of discount.</strong> Write a package-private <code>TieredDiscount</code> — 5% under £50, 15% over — and expose it as <code>Discount.tiered()</code>. Now check <code>CheckoutService</code>: it did not change, and it cannot name your new class.</li><li><strong>Try to break in.</strong> From a test in a <em>different</em> package, write <code>new PercentageDiscount(10)</code>. Watch it fail to compile. That is the boundary being enforced for you.</li><li><strong>Prove the caching.</strong> Add an assertion that <code>Money.pounds(0) == Money.pence(0)</code> — reference equality, not <code>equals</code>. Then try to write the equivalent with a public constructor.</li><li><strong>Feel the alternative.</strong> Make <code>PercentageDiscount</code> public with a public constructor and use it directly in <code>CheckoutService</code>. Then try to change its constructor&#x27;s signature, and count the places you have to edit.</li></ol>
+</main>
+<footer>
+Generated from <code>static-factory-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>What you need before starting this project, what you can pick up as you go, and what you explicitly do not need to know.</p>
+<p>There is no real message broker here and no real database. The bar is Java, and having once written a method that handles a message.</p>
+<h2>Knowledge Prerequisites</h2>
+<h3>Required</h3>
+<ul><li><strong>Java basics</strong> — classes, interfaces, records, <code>Map</code>, <code>Set</code>, lambdas, exceptions.</li><li><strong>What a database transaction does.</strong> All of it commits or none of it does. That single guarantee is the entire pattern.</li><li><strong>Roughly what a message broker is.</strong> Something publishes a message and something else receives it later. That is enough.</li><li><strong>Reading a JUnit test</strong> — <code>assertEquals</code>, <code>assertTrue</code>, <code>assertFalse</code>.</li></ul>
+<h3>Helpful, but explained as we go</h3>
+<ul><li><strong>Transactional Outbox</strong> (<a href="../transactional-outbox-pattern"><code>../transactional-outbox-pattern</code></a>) — where the duplicate comes from, and why the sending side cannot remove it.</li><li><strong>Saga</strong> (<a href="../saga-pattern"><code>../saga-pattern</code></a>) — why services send each other messages at all.</li><li><strong>Database per Service</strong> (<a href="../database-per-service-pattern"><code>../database-per-service-pattern</code></a>) — why the dedupe store belongs to the consumer and nobody else reads it.</li></ul>
+<h3>Explicitly NOT required</h3>
+<ul><li><strong>Kafka, RabbitMQ, or any broker.</strong> <code>MessageBroker</code> is a class with a <code>deliverTwice</code> method, which is the only behaviour this project needs from a broker.</li><li><strong>Any database.</strong> <code>NotificationsDatabase</code> is a couple of collections with a small transaction class in front of them.</li><li><strong>Spring, <code>@Transactional</code>, or JPA.</strong> Not used and not needed.</li><li><strong>Any exactly-once framework.</strong> The point of the project is that you do not need one.</li></ul>
+<h2>A 60-Second Idempotency Primer</h2>
+<p>An operation is <strong>idempotent</strong> if doing it twice has the same effect as doing it once.</p>
+<p>Setting a shipment&#x27;s status to <code>SHIPPED</code> is idempotent — do it again and the status is still <code>SHIPPED</code>. Adding seventy loyalty points is not — do it again and the customer has a hundred and forty.</p>
+<p>A consumer is idempotent when handling the same message twice leaves the system in the state it would have been in if the message had arrived once. Sometimes that is free, because the work itself is idempotent. When it is not free, you buy it by remembering which message ids you have already handled.</p>
+<h2>A 60-Second &quot;Why Duplicates Happen&quot; Primer</h2>
+<p>A broker delivers a message and waits for an acknowledgement. If that acknowledgement does not come back — a network blip, a timeout, a restart — the broker cannot tell whether the message was handled or lost. It has two options: send it again, or drop it.</p>
+<p>Real brokers send it again, because sending twice is recoverable and losing a message is not. That is <strong>at-least-once delivery</strong>, and it is what almost everything in production offers.</p>
+<p>So duplicates are not a bug somebody will eventually fix. They are the contract. The receiving side is the only place that can do anything about them.</p>
+<h2>A 60-Second &quot;Why A HashSet Is Not Enough&quot; Primer</h2>
+<p>The obvious fix is a set of message ids you have already seen, held in a field.</p>
+<p>It fails in two ways. A deploy restarts the process and the set is empty, and a restart is frequently <em>why</em> the acknowledgement went missing in the first place — so the redelivery and the empty memory arrive together. And even with no restart, doing the work and then adding the id are two separate moments, and a crash can land between them.</p>
+<p>Both failures have the same shape: the memory of having handled the message is not in the same place, or the same instant, as the work.</p>
+<h2>Why There Is No Broker Or Database Here</h2>
+<p>The subject is <strong>one transaction on the receiving side</strong>, and that is identical whether the broker is Kafka or a method call.</p>
+<p>A real broker would add a container, a topic and several minutes to every run, and it would make the interesting failures — a process dying at an exact instant — far harder to produce on demand. Here, <code>dieAfterQueueing()</code> and <code>dieBeforeCommitting()</code> put a crash exactly where it is needed, every single run.</p>
+<p><code>SimulatedClock</code> advances by fixed amounts: ten milliseconds for a delivery, five for a database commit. Nothing sleeps, so the timelines in the demo are exact and repeatable.</p>
+<h2>Software Prerequisites</h2>
+<ul><li><strong>JDK 21 or newer.</strong> Nothing else.</li><li><strong>Gradle:</strong> not needed globally. The project ships a wrapper.</li></ul>
+<h3>Installing JDK 21</h3>
+<p>macOS, with Homebrew:</p>
+<pre><code>brew install openjdk@21
+sudo ln -sfn $(brew --prefix)/opt/openjdk@21/libexec/openjdk.jdk \
+    /Library/Java/JavaVirtualMachines/openjdk-21.jdk</code></pre>
+<p>Linux (Debian or Ubuntu):</p>
+<pre><code>sudo apt install openjdk-21-jdk</code></pre>
+<p>Windows: install the Microsoft Build of OpenJDK 21 or Temurin 21 from the installer, and let it set <code>JAVA_HOME</code>.</p>
+<h3>Verify Your Setup</h3>
+<pre><code>java -version          # expect 21 or newer
+cd micro-services-design-patterns/idempotent-consumer-pattern
+./gradlew test         # expect BUILD SUCCESSFUL
+./gradlew run          # expect five acts</code></pre>
+<p>If <code>./gradlew</code> will not execute on macOS or Linux, make it executable:</p>
+<pre><code>chmod +x gradlew</code></pre>
+<p>The first <code>./gradlew</code> command downloads Gradle itself and needs a network connection. Everything after that works offline.</p>
+<h2>Troubleshooting</h2>
+<p><strong>&quot;Unsupported class file major version&quot;</strong> — Gradle is using an older JDK than the toolchain asks for. Check <code>java -version</code>, and set <code>JAVA_HOME</code> to a 21 install.</p>
+<p><strong>Acts 2 and 3 send two confirmation emails and the build still succeeds</strong> — correct. Those acts exist to show the duplicate, and <code>theMemoryLivesInTheProcess</code> and <code>theGapIsTheProblem</code> are passing tests asserting it.</p>
+<p><strong>Act 5 shows a duplicate getting through after the expiry window and nothing fails</strong> — also correct, and it is the most important cost in the project. <code>theWindowIsAGuess</code> asserts it on purpose.</p>
+<p><strong>The timings are always 10ms and 5ms</strong> — they are meant to be. <code>SimulatedClock</code> is not a real clock; those are stated assumptions, not measurements.</p>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the same email, twice, and the test that said it could not happen</li><li><code>NaiveNotificationConsumer.java</code> — a <code>HashSet</code> of ids, which is what everybody writes</li><li><code>NaiveNotificationConsumerTest.java</code> — four passing tests, two of which describe a failure</li><li><code>IdempotentNotificationConsumer.java</code> — the same job, with the record in the commit</li><li><code>NotificationsDatabase.Transaction</code> — the only guarantee the pattern relies on</li><li>Run <code>./gradlew run</code> and read all five acts, especially the last one</li><li><a href="idempotent-consumer-pattern-explained.html"><code>idempotent-consumer-pattern-explained.md</code></a> — the ticket stub, and what the store costs</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> and <a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the four consumers, then the five acts as sequences</li><li><a href="animation.html"><code>animation.html</code></a> — the duplicate arriving, in a browser</li><li><code>IdempotentConsumerTest.java</code>, which is the specification. Read <code>bothOrNeither</code>, then <code>exactlyOnceOutOfAtLeastOnce</code>, then <code>theWindowIsAGuess</code>, then the two loyalty-points tests together</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

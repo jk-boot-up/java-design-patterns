@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Sidecar Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Sidecar Pattern</h1>
+<p><strong>Take the work that every service has to do but no service is about — retrying, giving up, presenting a certificate, counting what happened — out of the services entirely, and run it in a second process standing beside each one. Then accept that you now have twice as many processes, that every call goes through one extra hop, and that you have added a new thing which can be down to every call you were trying to make more reliable.</strong></p>
+<hr>
+<h2>The idea, before any code</h2>
+<p>Think about a busy restaurant kitchen where every chef also has to answer the phone.</p>
+<p>A chef is halfway through a sauce when the phone rings. It is a delivery driver who cannot find the back entrance. The chef wipes their hands, takes the call, gives directions, comes back to the sauce. Every chef in that kitchen has learned to give directions to the back entrance, and every one of them gives slightly different directions, because they each worked it out themselves on a busy night.</p>
+<p>Then the council changes the one-way system, and the directions everybody has been giving are wrong. The head chef tells the pastry chef, the grill chef and the sous chef. Nobody tells the chef who works the overnight prep shift, because they were asleep. For the next three weeks, most drivers get there and some do not, and the ones who do not are always on the overnight shift, and nobody connects the two facts.</p>
+<p>The sidecar answer is not to write down the directions and pin them up — that is a shared library, and it helps, but everybody still has to read the new copy. The sidecar answer is to <strong>hire somebody to sit by the phone</strong>. The chefs stop answering it. There is one person who knows the directions, and when the one-way system changes you tell that one person.</p>
+<p>The chefs got worse at something. They can no longer give directions at all — if the phone person is off sick, the phone simply rings out, because the skill left the kitchen on purpose. That is not an accident of the arrangement. That is the arrangement.</p>
+<p>Now, the shop.</p>
+<hr>
+<h2>The four services and the sixteen copies</h2>
+<p>The online store charges cards in four places: <strong>checkout</strong>, while a customer watches a spinner; <strong>refunds</strong>, when the coffee maker comes back; <strong>subscription billing</strong>, at two in the morning against thousands of saved cards; and <strong>marketplace payouts</strong>, paying the independent sellers every Friday.</p>
+<p>Four teams, four repositories, four release days. One payment provider behind all four.</p>
+<p>And each of the four had to answer the same four questions, because the provider is across the internet and the internet is not reliable:</p>
+<table><thead><tr><th>Question</th><th>Why every service has to answer it</th></tr></thead><tbody><tr><td>How many times do we retry?</td><td>The provider wobbles: it declines everything for a fraction of a second, then is fine</td></tr><tr><td>When do we give up?</td><td>A customer will not wait forever; something has to abandon the attempt</td></tr><tr><td>Which TLS profile do we present?</td><td>The provider accepts one particular version and set of ciphers</td></tr><tr><td>What do we count, and what are the counters called?</td><td>Somebody will ask how often payments fail</td></tr></tbody></table>
+<p>Four questions, four services, <strong>sixteen answers</strong> — and not one of the sixteen is about checkout, refunds, subscriptions or payouts. They are facts about a network and a supplier&#x27;s contract. They would be identical if the shop sold bicycles.</p>
+<p>That is the test that tells you a concern is cross-cutting: <strong>describe the decision out loud, and if your description never mentions what the service does, the decision does not belong in the service.</strong></p>
+<hr>
+<h2>What went wrong</h2>
+<p>In March the provider writes to every merchant: retrying ten milliseconds after a failure does not help, it only spends capacity the provider then has to ration. From now on, at most three attempts per payment, with a proper wait between them.</p>
+<p>An engineer opens checkout and changes two lines. Then refunds. Then payouts. Three pull requests, three reviews, three releases, one afternoon.</p>
+<pre><code>    checkout                     3    200ms    2000ms  TLS1.3
+    refunds                      3    200ms    2000ms  TLS1.3
+    marketplace-payouts          3    200ms    2000ms  TLS1.3
+    subscription-billing         6     10ms    2000ms  TLS1.3</code></pre>
+<p>The fourth row is the project. Look at how the code says it:</p>
+<pre><code>public final class CheckoutService implements TakesPayments {
+    private int maxAttempts = 6;
+    private long firstBackoffMillis = 10;
+
+    public void applyPolicyReview() {
+        maxAttempts = 3;
+        firstBackoffMillis = 200;
+    }</code></pre>
+<p>and, next door:</p>
+<pre><code>public final class SubscriptionBillingService implements TakesPayments {
+    private final int maxAttempts = 6;
+    private final long firstBackoffMillis = 10;
+
+    // there is no applyPolicyReview() here</code></pre>
+<p>The test that pins this down does not assert that the billing service is wrong. It asserts that <strong>there is no method on it that could make it right</strong>:</p>
+<pre><code>assertTrue(!methods.contains(&quot;applyPolicyReview&quot;),
+        &quot;the point of this project is that nobody wrote this method here&quot;);</code></pre>
+<p>That is a much stronger statement, and it is the real shape of the problem. Three services were updated because somebody opened three files. The fourth stayed as it was because nothing in the shop&#x27;s code, build or test suite knows that a fourth file exists.</p>
+<p>Nothing throws. Nothing is logged. <strong>All four services&#x27; tests still pass</strong>, including billing&#x27;s, because billing tests its own copy and its own copy is internally consistent. No test written inside any of the four repositories could have caught this. A test can only check the code it can see.</p>
+<hr>
+<h2>The night, in numbers</h2>
+<p>Three weeks later, at two in the morning, the provider wobbles for three hundred milliseconds.</p>
+<p>The contract allows the shop twelve attempts across the whole merchant account during an event like that: three per payment, four services taking payments. The thirteenth is not declined — it is <strong>refused</strong>, and so is every one after it, for the entire account.</p>
+<p>Subscription billing is already running, because it is always running at two in the morning.</p>
+<pre><code>    subscription-billing  £12.99   6x, 310ms    pay_SUB-90118
+    checkout              £47.99   3x, 600ms    pay_ORD-4417
+    refunds               £22.50   3x, 600ms    pay_REF-3820
+    marketplace-payouts   £186.40  —            NOT PAID
+      429 refused — the account&#x27;s 12-attempt allowance is spent
+
+    subscription-billing  6 attempts
+    checkout              3 attempts
+    refunds               3 attempts
+    marketplace-payouts   1 attempt
+    total                 13 of 12 allowed, 1 refused</code></pre>
+<p>Subscription billing spent half the shop&#x27;s allowance before checkout had finished its first payment — <strong>and subscription billing succeeded.</strong> It got its money. Its dashboard is green. As far as the billing team will ever know, that night went perfectly.</p>
+<p>Marketplace payouts made one attempt, was refused, and the sellers were not paid. Every line of the payouts service is correct. It was updated in March. It did exactly what the provider asked. It arrived fourth.</p>
+<p><strong>The code that misbehaved and the code that suffered are in different repositories, owned by different people, in different rooms.</strong> That sentence is why this pattern exists.</p>
+<hr>
+<h2>The pattern</h2>
+<p>Stop asking the service to know how to talk to the provider. Run a second process beside it — its own container, on the same machine, sharing the same network address — and point the service at <code>localhost</code>. The second process is the one that goes out to the internet.</p>
+<p>Retrying, giving up, presenting the certificate and counting what happened all happen out there, where the service cannot see them and does not have to.</p>
+<p>The service that carried twenty lines of retry code now carries one:</p>
+<pre><code>public final class ServiceBehindASidecar implements TakesPayments {
+
+    private final String name;
+    private final Sidecar sidecar;
+
+    @Override
+    public Receipt pay(Payment payment) {
+        return sidecar.send(payment);
+    }
+}</code></pre>
+<p>One class replaced four. That is not a trick of the demo; it is the measurement. The four services differed from one another <strong>only</strong> in the cross-cutting code each of them carried. Take that out and what is left is a name and a request. The business logic that made checkout different from refunds never lived in the part we removed — which is the proof that the part we removed was never theirs.</p>
+<p>And the policy is now one object rather than four literals:</p>
+<pre><code>public record SidecarConfig(int maxAttempts,
+                            long firstBackoffMillis,
+                            long deadlineMillis,
+                            String tlsProfile) {
+
+    public static SidecarConfig agreedWithTheProvider() {
+        return new SidecarConfig(3, 200, 2_000, &quot;TLS1.3&quot;);
+    }
+}</code></pre>
+<p>In this project that is a Java record, because everything here runs in one JVM. In the deployed version it is a small configuration file that the proxy beside each service reads at start-up. Either way the property that matters is a counting property: <strong>there is one of it.</strong></p>
+<p>The same night, run again:</p>
+<pre><code>    subscription-billing  £12.99   3x, 603ms    pay_SUB-90118
+    checkout              £47.99   3x, 603ms    pay_ORD-4417
+    refunds               £22.50   3x, 603ms    pay_REF-3820
+    marketplace-payouts   £186.40  3x, 603ms    pay_PAY-7741
+
+    total                 12 of 12 allowed, 0 refused</code></pre>
+<p>Four payments, twelve attempts, nobody refused, the sellers paid. The policy was not applied four times and missed once. It was stated once.</p>
+<hr>
+<h2>What actually changed — all three rows</h2>
+<pre><code>                                            before     after
+  copies of a cross-cutting decision            16         4
+  places to edit for one policy change           4         1
+  processes to run and patch                     4         8</code></pre>
+<p>Read all three rows or none of them.</p>
+<p>The first two are why you would do this. The third is why it is not free. Four proxies are four more things that want memory, a version number, a restart when they are patched, a place in somebody&#x27;s on-call rota and a line in a runbook. <strong>Anybody who tells you this pattern simplifies your deployment has not counted.</strong></p>
+<p>The first row is the one that scales, and it scales in a particular way worth naming. Add a fifth service that takes payments and the copies go from sixteen to twenty the old way. Beside the services it is still four:</p>
+<pre><code>public static int copiesInsideTheServices(int services) {
+    return services * CROSS_CUTTING_CONCERNS;
+}
+
+public static int copiesBesideTheServices() {
+    return CROSS_CUTTING_CONCERNS;
+}</code></pre>
+<p><strong>The second method takes no argument, and the missing argument is the whole answer.</strong> The number of places a decision is written down has stopped depending on the number of services, because the services are no longer where the decision is written down.</p>
+<hr>
+<h2>The line: what may move out, and what must not</h2>
+<p>Retry counts, deadlines, certificates and counters are facts about the network. They move.</p>
+<p>Whether a refund is allowed after ninety days is a fact about the shop. It must not.</p>
+<p>The test is the same one from the top of this document: <strong>say the decision out loud. If your sentence has to name what the service does, the decision stays in the service.</strong> &quot;Try three times, two hundred milliseconds apart&quot; names nothing. &quot;Refuse refunds after ninety days&quot; names refunds.</p>
+<p>This matters more than it sounds, because proxy configuration is a wonderful hiding place. It is written in a format most of the team cannot read, it lives in a repository most of the team does not check out, and it is applied by restarting something rather than by deploying something. A business rule that ends up there is a business rule that no developer will ever think to look for — and the next person who goes looking for &quot;where do we decide about refunds?&quot; will search the refunds service, find nothing, and conclude the rule does not exist.</p>
+<p>The sidecar&#x27;s own configuration object is asserted to be innocent of the shop:</p>
+<pre><code>String written = SidecarConfig.agreedWithTheProvider().line();
+assertFalse(written.contains(&quot;checkout&quot;));
+assertFalse(written.contains(&quot;refund&quot;));
+assertFalse(written.contains(&quot;payout&quot;));</code></pre>
+<hr>
+<h2>The bill, part one: a second thing that can be down</h2>
+<p>A healthy gateway, a healthy service, a £47.99 coffee maker. Then the proxy beside checkout fails to start after a patch. The gateway is fine. The service is fine. The network is fine.</p>
+<pre><code>    connection refused to localhost — no sidecar beside checkout
+
+  attempts that reached the gateway: 0</code></pre>
+<p>Zero. The request never left the machine — and the service has no retry code left to fall back on, because we deleted it on purpose when we moved the concern out.</p>
+<p><strong>You added a dependency to every single call, in order to make those calls more reliable.</strong></p>
+<p>That trade is usually worth taking. A proxy on the same machine, with no business logic in it, that does one narrow job, fails far less often than the internet does. It has no database, no deploys tied to feature work, and no code path that only runs on a Tuesday. But it is a trade, and it has a shape you should recognise before you take it: on the night it goes wrong, it goes wrong for <strong>every</strong> call the service makes, rather than for one of them. The failure is not smaller, it is rarer and wider.</p>
+<p>That shape is why real sidecars are boring on purpose. Everything you are tempted to add to one — a cache, a little bit of routing logic, a header that is <em>almost</em> a business rule — is a new way for the whole service to stop working at once.</p>
+<hr>
+<h2>The bill, part two: the hop</h2>
+<pre><code>    retry code inside the service      3 attempts, 600ms
+    retry code in a proxy next door    3 attempts, 603ms</code></pre>
+<p>Three milliseconds. One per attempt, for crossing to a neighbouring process and coming back. It is small, it is real, and it is paid on every call for as long as the service exists.</p>
+<p>Three milliseconds on a payment that already takes six hundred is nothing. Three milliseconds on an internal call that takes two is a fifty per cent increase, and if every service in a large system talks through a proxy then every hop between them is paid twice — once on the way out of one and once on the way into the next. That is the arithmetic that decides whether a service mesh is a good idea in your system or a very expensive one, and it is arithmetic, not taste.</p>
+<hr>
+<h2>The admission: in one program, this is Decorator</h2>
+<p>Everything above happened inside one Java program. In one program, a proxy that a service talks through is an object wrapping another object — and an object wrapping another object is the <strong>Decorator</strong> pattern from §11 of this course.</p>
+<p>The <code>Sidecar</code> class would not surprise anybody who has read that project. It holds a reference to the thing it wraps, it does some work before and after, and it presents the same operation to its caller. There is no new code here.</p>
+<p><strong>What makes Sidecar a different pattern is not the code. It is where the code runs.</strong></p>
+<table><thead><tr><th></th><th>Decorator</th><th>Sidecar</th></tr></thead><tbody><tr><td>Ships as</td><td>part of your jar</td><td>its own process or container</td></tr><tr><td>Written in</td><td>your service&#x27;s language</td><td>any language</td></tr><tr><td>Changes when</td><td>your service is rebuilt and redeployed</td><td>somebody restarts the proxy</td></tr><tr><td>Failure adds</td><td>nothing new</td><td>a second process that can be down</td></tr><tr><td>Costs per call</td><td>a method call</td><td>a network hop</td></tr></tbody></table>
+<p>Read the &quot;changes when&quot; row against Act 4 and the &quot;failure adds&quot; row against Act 6. The same property is doing both: the thing is genuinely outside your service. That is what buys you the one-line policy change, and it is what charges you the extra process and the extra failure. <strong>You cannot have one without the other</strong>, and a project that shows you the first without the second is selling something.</p>
+<p>So the question is never &quot;wrapper or no wrapper&quot;. It is:</p>
+<blockquote><p><strong>Does this concern need to change without rebuilding the service? Or does it need to apply to a service written in a language your library does not support?</strong></p></blockquote>
+<p>Yes to either, and it goes next door. No to both, and a shared library inside your own process is cheaper, simpler, faster, and has one fewer thing that can be down. A team that reaches for a sidecar when a library would do has bought the entire bill and none of the benefit.</p>
+<hr>
+<h2>Where you have already met this</h2>
+<p>You have run sidecars without calling them that.</p>
+<p>A <strong>log shipper</strong> running beside your application, reading the files it writes and sending them somewhere. Your application knows nothing about the log system&#x27;s protocol, and the log system can be replaced without your application being rebuilt.</p>
+<p>A <strong>metrics agent</strong> that scrapes and forwards, for the same reason.</p>
+<p><strong>A service mesh</strong> — Istio, Linkerd — which is this pattern applied to <em>every</em> call between <em>every</em> service in a system, with a control plane pushing configuration out to all the proxies at once. That is Act 4 at the scale of a company, and Act 5&#x27;s third row at the scale of a company too: a mesh doubles your process count, and that is the honest reason some teams try one and turn it off again.</p>
+<p>An <strong>nginx</strong> or <strong>Envoy</strong> container in the same Kubernetes pod, terminating TLS so that the application behind it only ever speaks plain HTTP on localhost. That is the third question from the top of this document, moved out. The next project in this category builds exactly that, for real.</p>
+<hr>
+<h2>Pitfalls</h2>
+<p><strong>Putting business logic in the proxy.</strong> Covered above, and it is the one that does lasting damage, because the damage is to the next person&#x27;s ability to find things.</p>
+<p><strong>Forgetting the proxy is a dependency.</strong> If a service&#x27;s health check passes while its sidecar is down, the service will be sent traffic it cannot serve. Whatever decides &quot;is this instance ready?&quot; has to include the thing beside it.</p>
+<p><strong>A sidecar that grows.</strong> Each addition is individually reasonable and collectively turns a narrow, boring, reliable process into a second application with its own bugs — one that now takes the whole service down when it fails.</p>
+<p><strong>Debugging across two logs.</strong> A request now appears in the service&#x27;s log and in the proxy&#x27;s log, with different formats and different clocks. A trace identifier that crosses both is not optional once you have done this; see §39.</p>
+<p><strong>Reaching for it when a library would do.</strong> The most common mistake, and the most expensive, because the costs are all real and the benefit is zero if both questions above are &quot;no&quot;.</p>
+<hr>
+<h2>Related patterns</h2>
+<p><strong>Decorator (§11)</strong> is the same structure inside one process. Discussed at length above.</p>
+<p><strong>Proxy (§14)</strong> is the same structure with a different intent: Proxy controls access to something, a sidecar takes work off something. A sidecar usually <em>is</em> a proxy in the network sense, which is why the word keeps appearing.</p>
+<p><strong>API Gateway (§26)</strong> is in front of <em>all</em> the services and handles traffic coming in. A sidecar is beside <em>one</em> service and, in this project, handles traffic going out. The question a gateway answers is &quot;is this request allowed into the shop at all?&quot;; the question a sidecar answers is &quot;how does anything on this network talk to that supplier?&quot;</p>
+<p><strong>Retry with Backoff (§29)</strong> is the policy itself. This project is about <em>where that policy lives</em>, not what it says.</p>
+<p><strong>Circuit Breaker (§30)</strong> is the natural next thing to move out here, for exactly the same reasons, and with exactly the same warning about what must not follow it.</p>
+<p><strong>Externalised Configuration (§38)</strong> is the other half of Act 4. The sidecar is where the behaviour runs; externalised configuration is why you can change it without a deploy.</p>
+</main>
+<footer>
+Generated from <code>sidecar-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

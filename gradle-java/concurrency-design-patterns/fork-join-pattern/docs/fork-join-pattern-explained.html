@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fork-Join, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Fork-Join, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>Fork-join splits a big job into smaller pieces of the same kind, runs the pieces at the same time on several workers, and joins their answers back into one.</p>
+<h2>The six acts</h2>
+<h3>One Loop</h3>
+<p>Adding up a hundred thousand order totals in a loop gives four hundred and ninety nine million eight hundred and thirty eight thousand pence, on one thread.</p>
+<pre><code>  adding up 100000 order totals in a loop: 499838000 pence, on one thread.</code></pre>
+<h3>Split It Until It Is Small</h3>
+<p>The job is split in halves until a piece is ten thousand or fewer. That gives sixteen pieces added directly and thirty one tasks in all, and the same total as the loop.</p>
+<pre><code>  split in halves until a piece is 10000 or fewer: 16 pieces added directly, 31 tasks in all.
+  the total: 499838000, which is the same as the loop: true.</code></pre>
+<h3>The Pieces Really Run Together</h3>
+<p>A pool of four workers, sixteen pieces, each held until four are running at once. The most running at the same moment is four.</p>
+<pre><code>  a pool of 4 workers, 16 pieces, each held until 4 are running at once. most running at the same moment: 4.</code></pre>
+<h3>How Small Is Small Enough</h3>
+<p>With a threshold of a hundred thousand there is one piece, which is just the loop. Ten thousand gives sixteen, a hundred gives a thousand and twenty four, and one gives a hundred thousand pieces and nearly two hundred thousand tasks, which is mostly the cost of making tasks.</p>
+<pre><code>  a piece of 100000 or fewer is added directly: 1 pieces, 1 tasks.
+  a piece of 10000 or fewer is added directly: 16 pieces, 31 tasks.
+  a piece of 100 or fewer is added directly: 1024 pieces, 2047 tasks.
+  a piece of 1 or fewer is added directly: 100000 pieces, 199999 tasks.
+  one piece is just the loop. one task for every item is mostly the cost of making tasks.</code></pre>
+<h3>Pieces That Are Not The Same Size</h3>
+<p>Four equal pieces could give four times the speed. If one piece costs eighty five and the others five each, the best possible speedup is one point one eight, because the job waits for the big piece.</p>
+<pre><code>  four pieces of work, costs [25, 25, 25, 25]: the best possible speedup on 4 workers is 4.0 times.
+  costs [85, 5, 5, 5]: 1.18 times. the job waits for the big piece, and three workers wait for it too.</code></pre>
+<h3>The Bill</h3>
+<p>A pool of two workers and eight pieces that each wait on something slow run only two at once, so six pieces wait. Fork-join is for work that uses the processor. And splitting twenty items to single items makes thirty nine tasks to add up twenty numbers.</p>
+<pre><code>  a pool of 2 workers and 8 pieces that each wait on something slow, such as a database: most running at once: 2 of 8.
+  fork-join is for work that uses the processor. a worker that waits is a worker that cannot help.
+  and for 20 items, split to single items: 39 tasks to add up 20 numbers. small jobs are faster in a loop.</code></pre>
+<h2>The verdict</h2>
+<p>Use fork-join for large, processor-bound jobs that split into independent pieces of about the same cost, such as sums, sorts, searches and image work. Choose the threshold from measurement, keep the pieces free of shared mutable state, and prefer a parallel stream when the job fits one. Do not use it for work that waits, or for small jobs.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>A class that extends <code>RecursiveTask</code> or <code>RecursiveAction</code>, with <code>fork()</code> and <code>join()</code>.</li><li><code>ForkJoinPool.commonPool()</code>, <code>parallelStream()</code>, and <code>Arrays.parallelSort</code>.</li><li>A <code>compute()</code> method that starts with an <code>if (size &lt;= THRESHOLD)</code>.</li><li><code>CompletableFuture</code> chains that run on the common pool.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Java&#x27;s parallel streams and <code>Arrays.parallelSort</code>, and merge sort taught in every algorithms class.</p>
+<h2>When this is too much</h2>
+<p>For small jobs, or work that waits on I/O, fork-join is overhead or starvation. A plain loop, or a thread pool sized for waiting, is better.</p>
+</main>
+<footer>
+Generated from <code>fork-join-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

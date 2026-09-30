@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Problem</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Problem</h1>
+<p>Our online store needs to place purchase orders. Every order has two facts that never change: who is buying, and where it ships. But the options pile up fast:</p>
+<ul><li>most orders are plain</li><li>some are gift-wrapped, and some of those carry a message</li><li>some are marked priority</li><li>some carry a coupon code</li><li>some need a note for the warehouse</li></ul>
+<p>Something has to build a <code>PurchaseOrder</code> out of all of that. The obvious tool is a constructor. Let us try.</p>
+<h2>Attempt one: a constructor with a parameter for everything</h2>
+<pre><code>public class PurchaseOrder {
+
+    public PurchaseOrder(String orderId, String customerId, List&lt;LineItem&gt; items,
+                          Address shippingAddress, boolean giftWrapped, String giftMessage,
+                          String couponCode, boolean priority, String notes) {
+        ...
+    }
+}</code></pre>
+<p>It compiles. Now look at what calling it looks like.</p>
+<pre><code>new PurchaseOrder(&quot;ORD-9001&quot;, &quot;CUST-100&quot;, items, home,
+        true, &quot;Happy birthday!&quot;, &quot;WELCOME10&quot;, false, null);
+
+new PurchaseOrder(&quot;ORD-9004&quot;, &quot;CUST-103&quot;, items, home,
+        false, null, null, true, &quot;Ship same-day if received before 2pm.&quot;);</code></pre>
+<p>It works. It is also awful, and it is worth being precise about why.</p>
+<h2>Why That Hurts</h2>
+<p><strong>1. Nobody can read the call sites.</strong> Which argument is <code>giftWrapped</code> and which is <code>priority</code>? Both are <code>boolean</code>, they sit four and five slots from the end, and a reader has to open <code>PurchaseOrder</code> and count parameters to find out. Swap the two <code>true</code>/<code>false</code> values by accident and the order ships gift-wrapped instead of priority, and the compiler will not say a word.</p>
+<p><strong>2. Most calls are mostly <code>null</code> and <code>false</code>.</strong> The plain order above spends five of its nine arguments saying &quot;nothing here&quot; — <code>null</code>, <code>null</code>, <code>false</code>, <code>null</code> — just to reach the one it actually wants to set. That is not a fluke of this example; it is what happens whenever a handful of callers each want a different one or two options out of many.</p>
+<p><strong>3. Order matters, and it is arbitrary.</strong> <code>giftWrapped</code> before <code>giftMessage</code> before <code>couponCode</code> before <code>priority</code> before <code>notes</code> — there is no natural reason for that sequence, which means there is nothing to help a reader remember it, and nothing stops a ninth caller demanding a different one.</p>
+<p><strong>4. Every new option widens the constructor, everywhere.</strong> Marketing asks for a delivery time window. That is a tenth parameter, and every existing call site — plain orders included — needs another <code>null</code> or <code>false</code> inserted in the right place, whether or not it cares.</p>
+<p><strong>5. There is no room to enforce a rule between two options.</strong> Suppose a gift message should always imply gift wrap — nobody writes a card for a box that is not wrapped. A constructor either trusts every caller to set both correctly, or buries an <code>if</code> inside itself that quietly overrides one argument based on another, which is worse: now the constructor lies about what it was handed.</p>
+<h2>Attempt two: telescoping constructors</h2>
+<p>The traditional patch is to write an overload for every common combination:</p>
+<pre><code>public PurchaseOrder(String orderId, String customerId, List&lt;LineItem&gt; items, Address address) { ... }
+public PurchaseOrder(String orderId, String customerId, List&lt;LineItem&gt; items, Address address,
+                      boolean giftWrapped) { ... }
+public PurchaseOrder(String orderId, String customerId, List&lt;LineItem&gt; items, Address address,
+                      boolean giftWrapped, String giftMessage) { ... }
+// ...and so on, one overload per combination anyone has needed so far</code></pre>
+<p>This is <em>Effective Java</em>&#x27;s name for it — <strong>the telescoping constructor pattern</strong> — and the name is not a compliment. Five optional pieces have thirty-two possible combinations. You will never write all of them, so you pick a handful, and the day a caller needs a combination you did not anticipate, they either take an overload that sets something they did not want and then cannot unset it, or you add overload number nine.</p>
+<h2>The Question This Project Answers</h2>
+<blockquote><p>How do we assemble an object with a couple of required facts and a long, growing tail of optional ones, so that a caller sets only the options it actually wants, in any order, in a way a reader can follow at the call site — and without a combinatorial explosion of constructors?</p></blockquote>
+<p>The answer is a pattern that is both a Gang of Four pattern and <em>Effective Java</em>&#x27;s Item 2: give the type a <strong>builder</strong> — a companion object with one chainable method per piece, and a <code>build()</code> that assembles and validates the whole thing at the end.</p>
+<p>Read on in <a href="builder-pattern-explained.html"><code>builder-pattern-explained.md</code></a>.</p>
+</main>
+<footer>
+Generated from <code>problem-statement.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

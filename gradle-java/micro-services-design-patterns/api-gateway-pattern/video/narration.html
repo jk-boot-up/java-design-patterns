@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API Gateway Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>API Gateway Pattern — Video Narration Script</h1>
+<h2>1. API Gateway</h2>
+<p>Hello, and welcome. This video explains the A P I Gateway pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. An A P I gateway is one service placed in front of all the others. So a client makes a single call, instead of five, and only needs to know one address. The gateway asks whichever services it needs, joins their answers, and sends back one reply. Think of a hotel reception desk. You do not phone housekeeping, the restaurant, and the concierge separately. You ring reception, and reception deals with the rest. In our online store, the product page is built from four different services. By the end, you will know why one call beats four, even when four calls work perfectly. What a gateway must never start doing. And how deciding in advance which services matter keeps the shop selling when one of them stops answering.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The shop&#x27;s mobile app has a product page for an espresso machine. To draw it, the app needs four pieces of information, owned by four services. The name and description come from the catalog service. The price comes from the pricing service. Whether it is in stock comes from the inventory service. And the row of suggestions, customers also bought, comes from a recommendations service. The obvious design is an app that makes four calls, and puts the answers together. To be fair, it works. It shows the right page, and every test passes. Its problems only show up on the clock, and on the day something goes wrong.</p>
+<h2>3. Four Calls From a Phone on a Train</h2>
+<p>Let&#x27;s put numbers on it. A round trip from a phone on a train to a data centre takes about two hundred milliseconds. Most of that is distance and radio, not work. Four calls, one after another, is eight hundred milliseconds. Eight hundred milliseconds of a shopper staring at a half-drawn screen. Second, each service must check that the caller is a signed-in shopper. So the access token is checked four times, for one page, in four different codebases. Third, the app knows four addresses. So when a service is moved or split, the app on the phone must change. And you cannot simply update a phone. You release a new version, and wait months for people to install it.</p>
+<h2>4. The Naive Approach — The App Does the Joining</h2>
+<p>The naive app&#x27;s product page method is four ordinary lines of Java. Ask catalog for the product. Ask pricing for the price. Ask inventory for the stock. Ask recommendations for the suggestions. Then build one page from the four answers. Nothing is badly written. What is wrong is what is missing. There is no line saying which answers the page truly needs, and which it could live without. All four are called the same way, so all four are treated as equally important. So the page fails whenever any one of them fails. The suggestions row has become essential, and nobody decided that.</p>
+<h2>5. Why That Hurts</h2>
+<p>So what exactly is wrong? Five separate costs. One. The waiting adds up, on the slowest link in the system: the phone&#x27;s connection. Two. The token is checked four times, in four codebases, for one page. Three. The app is tied to the layout of the back end. Every reorganisation means changing the phone app, the slowest thing in the company to change. Four. Every kind of client repeats the same work. The website, the app, and the in-store till each join the same four answers. And five, the expensive one. When the recommendations service stops answering, the whole product page is lost. The name, price, and stock had all arrived. And all are thrown away, because a feature nobody would miss did not answer.</p>
+<h2>6. The API Gateway Pattern</h2>
+<p>Here is the pattern, as it is usually stated. A service that is the entry point into the system from the outside world. It sends each request to the right service, or joins the results of several. In plain words: one front door. The client asks once, at one address. Behind that door, the gateway does all the asking around. And returns one answer, already shaped the way the client wants to show it. That gives you one trip across the slow network, instead of four. One place to check the token. One address for the client to know. And one place where someone decides what happens when a service does not answer.</p>
+<h2>7. An Analogy</h2>
+<p>Here is the analogy to hold on to: a hotel reception desk. You want fresh towels, and a table in the restaurant at eight. You do not phone housekeeping and the restaurant separately. You ring reception, and reception handles it. One number to remember. It does not change when the hotel reorganises its departments. Reception checks who you are once, from your room number. And your one request becomes several errands you never see. Now the most important part of the analogy: restraint. Reception does not decide the room rate. Reception does not decide what the kitchen can cook. The moment reception starts making those decisions, the hotel has two policies for one question. Remember that, because it is the most common way this pattern is ruined.</p>
+<h2>8. The Roles</h2>
+<p>So here are the pieces. On the outside is the client: the mobile app. It makes one call, over the slow network, to one address. In the middle is the gateway, called the product page gateway. It is the only thing that knows the page is built from four parts. Behind it, on the fast internal network, are the four services: catalog, pricing, inventory, and recommendations. Each owns its own data, and knows nothing about the page. Beside them is the sign-in service, which the gateway asks once per request. And one more piece, which does not look like a piece. The decision, made in advance, that recommendations is optional, and the other three are not.</p>
+<h2>9. The Gateway — and the One Catch Block</h2>
+<p>The gateway class is short, and it does four things. First, it checks the access token once, at the front door. Nothing behind it needs to ask again. Second, it calls the services it needs, over the fast internal network. About ten milliseconds each, instead of two hundred. Third, it returns one object, shaped exactly as the page wants it. Fourth, and most interesting, there is exactly one try and catch in the class. It is wrapped around one call only: recommendations. If that service does not answer, the page is served without suggestions. Why not wrap all four calls? Because losing the suggestions costs the shopper nothing. But losing the price would mean a product page with no price. That is worse than an honest error. And notice the restraint. The gateway does not change prices, apply discounts, or decide what may be sold. It only joins, and forwards.</p>
+<h2>10. The Same Outage, Both Ways</h2>
+<p>Now the same outage, twice, as a timeline. Without a gateway. The name arrives at two hundred milliseconds. The price at four hundred. The stock at six hundred. Then, at eight hundred, the recommendations service fails to answer. Everything that arrived is thrown away. Three correct answers lost, because the fourth was missing. Eight hundred milliseconds, to end up with nothing. With a gateway. The token is checked at one hundred milliseconds. Catalog, pricing, and inventory answer quickly, over the internal network. At one hundred and forty, recommendations fails, just as before. And the gateway serves the page anyway. Name, price, and stock, with no suggestions, in two hundred and forty milliseconds. From the shopper&#x27;s point of view, nothing is wrong.</p>
+<h2>11. The Tests — Asserting the Cost, Not the Page</h2>
+<p>The project has twenty-five tests. And what they check is the point. No test checks that the product page is correct. Both versions build the same page, so that would prove nothing. Instead, every test checks something only the gateway gives you. The phone makes one call, not four. The token is checked once, not four times. The page arrives in two hundred and forty milliseconds, instead of eight hundred. One test exists only to block a future mistake. It checks that the price on the page is exactly the pricing service&#x27;s answer, unchanged. The day someone adds a discount inside the gateway, that test fails.</p>
+<h2>12. Running It — Five Acts</h2>
+<p>Let&#x27;s run the demo, which has five parts. Part one: no gateway. Four round trips, four token checks, and eight hundred milliseconds. Part two: with a gateway. One round trip, one token check, two hundred and forty milliseconds, and the same page. Parts three and four are the outage we just heard. The whole page lost without a gateway, and the page served minus one row with it. Part five is the one most people get wrong. This time, the catalog service is down. That is the service that knows the product&#x27;s name. And the gateway does not carry on. It refuses, and tells the shopper the page cannot be shown right now. That is correct. A product page with no product on it is not a partial page. It is a blank one. A gateway is not a machine for hiding failures. It is where someone has decided, service by service, what each failure costs.</p>
+<h2>13. What to Remember</h2>
+<p>So, what should you remember? An A P I gateway is one front door. One trip across the network, one token check, one address, and one place that owns the decision about failures. People often ask how this differs from the Facade pattern. The shape is the same. A facade is one door in front of many classes, inside one program. A gateway is one door in front of many services, across a network that can be slow, and can fail. One variation worth knowing: Backends for Frontends. If the phone app and the in-store till want very different pages, give each its own gateway. The same pattern, one gateway per kind of client.</p>
+<h2>14. The Costs, Honestly</h2>
+<p>Now the honest costs. A gateway is one more service to run, watch, and scale. Every request goes through it. So if it is slow, the whole shop is slow. And the worst outcome, which is also the most common, is a gateway that slowly fills with business rules. A discount here, a special case there. Until it is a bottleneck that owns no data, and that nobody dares to change. Keep it to joining, and forwarding. And know when you do not need one. One client and three services, on a fast connection, may be fine without it. Reach for a gateway when the clients multiply, when the network is the slow part. Or when nobody can say what happens to a page if one service goes down.</p>
+<h2>15. Thanks for Watching</h2>
+<p>That&#x27;s the A P I Gateway pattern. If you remember one sentence, make it this one. A gateway is one front door that joins and forwards, and the place where someone decides which failures cost a section, and which cost the page. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Move the try and catch in the gateway so it wraps all four calls. Then stop the pricing service, and look at the page. You will have turned an honest error into a page with no price on it. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Proxy Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Proxy Pattern</h1>
+<blockquote><p>&quot;Provide a surrogate or placeholder for another object to control access to it.&quot; — Gang of Four, <em>Design Patterns</em></p></blockquote>
+<h2>A Stand-In, Not an Enhancement</h2>
+<p>It is easy to confuse Proxy with Decorator — both wrap an object behind the same interface, and both delegate to it. The difference is <em>intent</em>. A Decorator adds new behaviour on top of what it wraps: gift-wrapping adds a fee that was never there before. A Proxy adds no new behaviour at all — it controls <em>access</em> to behaviour that already exists: whether the real object gets created yet, whether the caller is allowed to reach it, whether the call needs to cross a network first. Strip away the proxy and the visible result should be identical; strip away a decorator and it usually is not.</p>
+<h2>The Bouncer Analogy</h2>
+<p>A nightclub bouncer is a proxy for the club. Standing at the door, the bouncer implements the same promise the club makes — &quot;you may enter&quot; — but decides whether to honour it before the guest ever reaches the room. The guest never sees an alternate club; they see the same one, just reached through a checkpoint. That checkpoint is the whole pattern: same interface, same eventual result, an extra decision-maker in between.</p>
+<h2>Participants</h2>
+<table><thead><tr><th>Role</th><th>In this project</th><th>Responsibility</th></tr></thead><tbody><tr><td>Subject</td><td><code>ProductImage</code></td><td>The shared interface — the real object and every proxy implement it identically.</td></tr><tr><td>Real Subject</td><td><code>HighResolutionProductImage</code></td><td>The object that is expensive (or restricted) to use directly.</td></tr><tr><td>Proxy</td><td><code>LazyProductImage</code></td><td>Controls <em>when</em> the real subject is created — a <strong>virtual proxy</strong>.</td></tr><tr><td>Proxy</td><td><code>RestrictedProductImage</code></td><td>Controls <em>who</em> may reach the real subject — a <strong>protection proxy</strong>.</td></tr><tr><td>Client</td><td><code>ProductImageDemo</code></td><td>Calls <code>render()</code> without knowing, or needing to know, which kind of <code>ProductImage</code> it holds.</td></tr></tbody></table>
+<h2>Code Walkthrough</h2>
+<h3>The shared interface</h3>
+<pre><code>public interface ProductImage {
+    String render();
+    String sku();
+}</code></pre>
+<p>Every class in this project implements <code>ProductImage</code> identically. That is what makes substitution invisible — a client typed to <code>ProductImage</code> cannot tell a real image from a proxy by looking at the type.</p>
+<h3>The virtual proxy: defer creation, then cache</h3>
+<pre><code>public final class LazyProductImage implements ProductImage {
+
+    private final String sku;
+    private HighResolutionProductImage realImage;
+
+    public LazyProductImage(String sku) {
+        this.sku = sku;
+    }
+
+    @Override
+    public String render() {
+        if (realImage == null) {
+            realImage = new HighResolutionProductImage(sku);
+        }
+        return realImage.render();
+    }
+
+    @Override
+    public String sku() {
+        return sku;
+    }
+}</code></pre>
+<p>Constructing a <code>LazyProductImage</code> costs almost nothing — it just remembers a SKU. The expensive <code>HighResolutionProductImage</code> only comes into existence the first time <code>render()</code> is called, and after that the proxy holds onto it, so a second <code>render()</code> call reuses the same instance instead of loading again. <code>sku()</code> never touches the real subject at all — useful for building a list of thumbnails or captions without paying for a single full load.</p>
+<h3>The protection proxy: check before delegating</h3>
+<pre><code>public final class RestrictedProductImage implements ProductImage {
+
+    private final ProductImage image;
+    private final Role role;
+
+    public RestrictedProductImage(ProductImage image, Role role) {
+        this.image = image;
+        this.role = role;
+    }
+
+    @Override
+    public String render() {
+        if (role != Role.CATALOG_ADMIN) {
+            throw new SecurityException(&quot;Only catalog admins may view &quot; + image.sku());
+        }
+        return image.render();
+    }
+
+    @Override
+    public String sku() {
+        return image.sku();
+    }
+}</code></pre>
+<p>Notice the constructor takes a <code>ProductImage</code>, not a <code>HighResolutionProductImage</code>. That one detail is what makes proxies composable: wrap an <code>RestrictedProductImage</code> around a <code>LazyProductImage</code> and you get lazy loading <em>and</em> access control, with neither class aware the other exists.</p>
+<pre><code>ProductImage composed = new RestrictedProductImage(new LazyProductImage(&quot;SKU-9001&quot;), Role.CATALOG_ADMIN);
+composed.render(); // checks the role, then loads (and caches) the real image</code></pre>
+<p>If the role check fails, the wrapped <code>LazyProductImage</code> is never even asked to load — the real subject stays untouched, which matters when &quot;untouched&quot; means &quot;never spent the loading cost at all.&quot;</p>
+<h2>What You Gain</h2>
+<ul><li><strong>The client is oblivious.</strong> <code>ProductImageDemo</code> calls <code>render()</code> on a <code>ProductImage</code> and never branches on whether it got the real thing or a proxy.</li><li><strong>Expensive work happens exactly when it is needed, once.</strong> The virtual proxy defers construction and then caches it — no wasted loads, no repeated loads.</li><li><strong>Access rules live in one place.</strong> Every caller that goes through <code>RestrictedProductImage</code> gets the same rule; there is nowhere else for the check to be forgotten.</li><li><strong>Proxies compose.</strong> Wrapping one proxy in another combines their concerns without either needing to know about the other.</li></ul>
+<h2>What to Watch Out For</h2>
+<ul><li><strong>A leaky proxy is worse than no proxy.</strong> If <code>sku()</code> had needed data only the real subject holds, the proxy would have been forced to load early just to answer a cheap question — defeating the whole point. Keep the proxy&#x27;s own state (here, just the SKU) enough to answer as much as it can without delegating.</li><li><strong>Caching hides staleness.</strong> <code>LazyProductImage</code> caches forever once loaded. That is correct here because the underlying file never changes mid-run, but a proxy over something mutable needs an invalidation strategy, or callers will see stale data indefinitely.</li><li><strong>Don&#x27;t reach for Proxy to add behaviour.</strong> If the goal is &quot;add a feature,&quot; not &quot;control access,&quot; that is Decorator&#x27;s job — see the comparison below.</li></ul>
+<h2>Proxy vs. Other Structural Patterns</h2>
+<table><thead><tr><th>Pattern</th><th>Same interface as wrapped object?</th><th>Purpose</th></tr></thead><tbody><tr><td><strong>Proxy</strong></td><td>Yes</td><td>Controls <em>access</em> — when to create, whether to allow, where the real object lives</td></tr><tr><td>Decorator</td><td>Yes</td><td>Adds <em>new behaviour</em> on top of the wrapped object</td></tr><tr><td>Adapter</td><td>No — translates one interface to another</td><td>Makes an incompatible interface usable</td></tr><tr><td>Facade</td><td>New, simplified interface</td><td>Hides a complex subsystem behind one entry point</td></tr></tbody></table>
+<p>Proxy and Decorator have the same UML shape — an object implementing an interface while holding another instance of it — which is exactly why intent is the only thing that tells them apart. Ask &quot;does this add something new, or just guard the way to what&#x27;s already there?&quot;</p>
+<h2>Real-World Sightings</h2>
+<ul><li><strong>Hibernate / JPA lazy-loading proxies</strong> — an entity reference is actually a proxy; the real row is fetched from the database only when a field is first accessed.</li><li><strong><code>java.rmi</code> remote proxies</strong> — a local object stands in for one that actually lives on another machine, hiding the network call.</li><li><strong>Spring&#x27;s <code>@Transactional</code> proxies</strong> — the bean you inject is a proxy that opens a transaction before delegating to your real method.</li><li><strong>Firewalls and API gateways</strong> — a network-level protection proxy that decides whether a request reaches the real service at all.</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li>Add a <code>LoggingLazyProductImage</code> that records every <code>render()</code> call (to a <code>List&lt;String&gt;</code>, say) before delegating — a <strong>logging proxy</strong>, another GoF variant, alongside virtual and protection.</li><li>Compose three deep: <code>LoggingLazyProductImage</code> wrapping <code>RestrictedProductImage</code> wrapping <code>LazyProductImage</code>. Confirm a denied shopper still gets logged, but the real image still never loads.</li><li>Give <code>LazyProductImage</code> an <code>invalidate()</code> method that clears the cached <code>realImage</code>, and write a test proving the next <code>render()</code> call increments <code>HighResolutionProductImage.loadCount()</code> again.</li></ol>
+</main>
+<footer>
+Generated from <code>proxy-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

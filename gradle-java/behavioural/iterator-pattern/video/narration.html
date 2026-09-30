@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iterator Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Iterator Pattern — Video Narration Script</h1>
+<h2>1. Iterator</h2>
+<p>Hello, and welcome. This video explains the Iterator pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. An iterator is a small object with one job: remembering where you are in a collection. It answers two questions. Is there another one? And, give me the next one. Think of a book and a bookmark. The book holds the pages. The bookmark remembers where you stopped reading. In this video, we browse the product catalogue of an online shop. The warehouse system only hands over products three at a time. By the end, you will know what your for-each loop really turns into. Why the reading position must not live on the collection. And when this pattern is ceremony you do not need.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The shop&#x27;s catalogue lives in the warehouse system, not in our program. And the warehouse only hands it over one page at a time. Ask for page zero, and you get three products. Page one gives three more. Page two gives the last two. How do you know you have finished? You ask for page three, and get an empty list. That is the whole interface. There is no total count, and no way to ask whether more pages exist. Everything else, you work out yourself, in a loop. And that is where things go wrong.</p>
+<h2>3. Look Closely at One Method</h2>
+<p>Before any code, let&#x27;s look closely at one method, called find cheapest. It walks through the pages, and returns the cheapest product in the shop. But someone started the page counter at one, instead of zero. So it never looks at page zero. And the four pound socks are on page zero. So it returns the eight pound coffee mug instead. Think about that for a moment. It is a real product, at a real price, in exactly the shape the caller expected. Nothing crashes, and nothing is logged. The shop&#x27;s cheapest-first list is simply wrong, quietly, until someone counts by hand.</p>
+<h2>4. The Naive Approach — Three Methods, Three Page Loops</h2>
+<p>Here is why it happens. Three methods need to walk the catalogue. And each one writes its own paging loop. The first loop is correct. The second one assumes there are exactly three pages. That is true today. But when a ninth product is added, it will not fail. It will just start counting too few. The third is our off-by-one, starting at page one. The lesson is not that loops are hard. All three are the same bug. The page loop was written three times, so it could go wrong in three ways. And none of those ways causes an error.</p>
+<h2>5. Why That Hurts</h2>
+<p>So what exactly is wrong? Four separate things. One. Every caller must learn how the warehouse stores its pages. Change the page size, and you must edit every caller. Two. The bugs are silent. A crash gets fixed the same afternoon. A believable wrong answer can survive for a year. Three. Returning a full list means fetching everything. A caller that wanted just the first two products still causes every page to be fetched. And four. None of this works with a for-each loop, because that loop needs something the shop does not have.</p>
+<h2>6. The Iterator Pattern</h2>
+<p>Here is the pattern&#x27;s definition, from the famous Gang of Four book. Provide a way to access the elements of a collection in order, without exposing how it is stored inside. How it is stored is the important part. In our shop, the catalogue is stored in pages. And right now, every caller knows about those pages. So here is the move. Write one object whose whole job is walking the pages. And let the catalogue hand one out to anyone who asks. Now the page loop is written once, in one named place, that can be tested on its own. And Java already has the two interfaces this pattern needs.</p>
+<h2>7. An Analogy</h2>
+<p>Here is the analogy to hold on to. A book, and a bookmark. The book knows what is in it. The bookmark knows where you are. Two different facts, so they belong in two different objects. Two people can read the same book at once, if each has their own bookmark. But glue a single bookmark into the spine, and they fight over it. Every time one reader turns a page, the other loses their place. That is the whole pattern. When an iterator behaves strangely, it is very often because a bookmark was glued into the spine.</p>
+<h2>8. The Roles</h2>
+<p>So here are the pieces, and we wrote very few of them. Java provides the two main roles. Iterable has one method, called iterator. And Iterator has two methods: has next, and next. Our Product Catalogue implements Iterable, in just four lines. It has no page number, no position, and no next method. It only holds the warehouse feed. Our Catalogue Iterator implements Iterator. Every one of its fields is about position: which page, where in that page, and whether it has started. It is the only class in the project with a page loop. And underneath sits the catalogue feed, the awkward paged system we are hiding.</p>
+<h2>9. The Aggregate — Notice What Is Missing</h2>
+<p>Let&#x27;s look at the catalogue class, and focus on what is missing. There is no page number. No current position. No next method. It holds the feed, and it can hand you an iterator. That is all. It is tempting to put the position on the catalogue itself. It feels like the collection should know where you are. That is the most common mistake with this pattern. And it bites the day someone writes a loop inside a loop, over the same catalogue. Every time you ask for an iterator, you get a brand new one. Every caller gets their own bookmark, and nothing is shared.</p>
+<h2>10. The Iterator — The Only Page Loop in the Project</h2>
+<p>Now the iterator, where the page loop lives, just once. The has next method does all the work. If it has not started yet, it fetches page zero. Notice that happens here, not when the iterator is created. Creating an iterator costs nothing. The first fetch only happens when someone actually asks. Then, if it has reached the end of the current page, it fetches the next page. An empty page means the catalogue is finished. And this is the only place in the project that knows that. It uses a while loop, not a single if. That way, an empty page in the middle cannot leave it stuck. The next method is only three lines, because has next already did the work. And has next must be safe to call twice in a row. A has next that uses up an item is another classic bug.</p>
+<h2>11. The Tests — Asserting What Was NOT Fetched</h2>
+<p>The project has thirteen tests. Two of them prove the pattern. A test like, the catalogue has eight products, would pass for the naive code too. So it proves nothing about the pattern. The first special test checks what was not fetched. The feed counts its own calls. After creating an iterator, zero pages have been fetched. After reading two products, just one page has been fetched. Move the fetch into the constructor, and this test fails. The second test uses two iterators over one catalogue. Move one forward, and the other is still at the start. That is the glued bookmark problem, written as a test. Put the position on the catalogue, and this test fails.</p>
+<h2>12. Running It</h2>
+<p>Let&#x27;s run the demo. First, the naive browser. Its product count is right, but only by luck. And its cheapest product is not the cheapest. Second, the same catalogue in a for-each loop. All eight products, in order. And the calling code never mentions pages at all. Third, the most telling result. Two products were read, and only one page was fetched. The other two pages were never requested. On a real system, that is two network calls that never happened. And fourth, two bookmarks. Two readers walk the same catalogue, and neither disturbs the other.</p>
+<h2>13. What to Remember</h2>
+<p>So, what should you remember? The collection knows what is in it. The iterator knows where you are. Keep those in two different objects, and the for-each loop comes free. There are three ways to walk through things. Use an index loop when you really need the position number. Use an iterator when you want each item in turn. And use a stream when you want to describe a pipeline of steps. Streams are not an alternative to this pattern. They are built on top of it. Now the honest cost. If you already have a list, it already has an iterator. Writing your own around it is pure ceremony. This pattern pays off when the storage is awkward. Pages, a tree, a file read one line at a time, or a sequence with no end.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s the Iterator pattern. If you remember one sentence, make it this one. The collection knows what is in it, and the iterator knows where you are, so keep them apart. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Move the page number and position off the iterator, and onto the catalogue. Run the tests, and watch the two-bookmarks test fail. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

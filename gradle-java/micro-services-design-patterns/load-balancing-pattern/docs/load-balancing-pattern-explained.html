@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client-Side Load Balancing, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Client-Side Load Balancing, Explained</h1>
+<h2>In One Sentence</h2>
+<p>When several identical copies of a service are running, the caller decides which copy to talk to — and it decides again for every single request.</p>
+<h2>Everyday Analogy: The Supermarket Tills</h2>
+<p>You have finished your shopping and there are six tills open. Nobody is directing anybody. You look along the row, see which queue is shortest, and join that one.</p>
+<p>Three things about that are worth saying out loud, because all three come back as soon as we talk about code.</p>
+<p>The first is that <strong>you did the choosing</strong>. There was no member of staff at the head of the queues assigning shoppers to tills. The decision was made by the person with the trolley, from where they were standing.</p>
+<p>The second is that <strong>you chose with what you could see</strong>. You did not know which cashier is quickest, or that till four is about to need a price check. You looked down the row and used the one piece of information available to you: queue length.</p>
+<p>The third is the one people forget. <strong>You will choose again next week.</strong> Picking a till is not a setting. It is a decision you make fresh every time, and the right answer is different on a Tuesday morning than it is on a Saturday afternoon.</p>
+<p>Now the other way round. Some shops do put a member of staff at the head of all six queues, calling shoppers forward one at a time. That works too, and it works <em>better</em> in one specific respect: that person can see all six queues and every shopper. No individual shopper can. Keep that in your pocket — it is the honest ending to this pattern, and we come back to it.</p>
+<h2>The Problem, In The Shop</h2>
+<p>The Catalog service — the one that knows a product&#x27;s name — runs as three copies. Two of them answer in 10 milliseconds; the third takes 60, because it is on older hardware.</p>
+<p>Service discovery, the previous pattern, has already answered <em>what exists</em>: the checkout asks a registry and is handed three names. This pattern is the very next question. Now that you know about three, which one do you ask?</p>
+<p>The answer that costs no thought is to take the first name on the list:</p>
+<pre><code>ServiceInstance chosen = candidates.get(0);</code></pre>
+<p>Twelve requests later:</p>
+<pre><code>    catalog-1   12 requests (100%)   10ms each
+    catalog-2    0 requests ( 0%)   10ms each
+    catalog-3    0 requests ( 0%)   60ms each
+  12 requests took 120ms in total</code></pre>
+<p>One hundred and twenty milliseconds — and that is the fastest total in this whole project. Faster than taking turns, faster than the clever version. Taking the first instance is not slow, it is not wrong, and it does not throw anything. It is simply running the shop on one machine out of three that the shop is paying for, and arranging that when that machine dies, everything dies with it.</p>
+<p>This matters more than it looks, because it sets the tone for everything below: the bad strategy here does not fail. It passes. Every test in <code>FirstInstanceBalancerTest</code> passes, deliberately.</p>
+<h2>The Pattern</h2>
+<p>Pull the choice out of the caller and give it a name.</p>
+<pre><code>public interface LoadBalancer {
+    ServiceInstance choose(List&lt;ServiceInstance&gt; candidates);
+    default void observed(ServiceInstance instance, long tookMillis) { }
+    String name();
+}</code></pre>
+<p>One method that matters: given every instance currently believed to be running, return the one to call. And the caller becomes almost empty:</p>
+<pre><code>List&lt;ServiceInstance&gt; candidates = cluster.instances();
+ServiceInstance chosen = balancer.choose(candidates);
+log.note(clientName, &quot;CHOSE&quot;, chosen.instanceId() + &quot; by &quot; + balancer.name());
+
+long startedAt = clock.millis();
+String name = cluster.call(chosen, sku);
+balancer.observed(chosen, clock.millis() - startedAt);
+return name;</code></pre>
+<p>Five lines, and no policy in any of them. <code>CatalogClient</code> never asks which balancer it is holding. Swapping <em>take turns</em> for <em>prefer the fast ones</em> changes nothing in this file.</p>
+<p>Say it plainly: <strong>this is Strategy.</strong> Not &quot;like&quot; Strategy, not &quot;an application of&quot; it — the same structure, with one method, several interchangeable implementations, and a caller that holds one without knowing which. If you have done <code>behavioural/strategy-pattern</code>, you have already written this interface under a different name.</p>
+<p>What is new is the context. The decision is about machines rather than business rules; it is remade on every single request rather than once per order; and the chooser has information — how slow each instance has been <em>for it</em> — that nothing in the middle of the network can see.</p>
+<h2>Take Turns: The Right Default</h2>
+<pre><code>ServiceInstance chosen = candidates.get(Math.floorMod(next, candidates.size()));
+next++;</code></pre>
+<p>That is the whole of <code>RoundRobinBalancer</code>. A counter and a modulus. No measurements, no configuration, no knowledge of anything.</p>
+<pre><code>    catalog-1    4 requests (33%)   10ms each
+    catalog-2    4 requests (33%)   10ms each
+    catalog-3    4 requests (33%)   60ms each
+  12 requests took 320ms in total</code></pre>
+<p>A perfectly even split — and three hundred and twenty milliseconds, nearly three times the naive version&#x27;s total. Round-robin sent a third of the shop&#x27;s traffic to the slowest machine the shop owns, cheerfully, because round-robin does not know what &quot;slow&quot; means and was never told.</p>
+<p>This is the sentence to take away from this section: <strong>fair is not the same as fast.</strong> An even split is only the best split when the instances are equally capable, and in a real cluster they are not.</p>
+<p>Round-robin is still the default, and should be. It has no state worth losing, it cannot be misconfigured, and it is impossible to get subtly wrong.</p>
+<h2>Prefer The Fast Ones: The Argument For Doing This In The Client</h2>
+<p><code>LeastLatencyBalancer</code> keeps a running mean of how long each instance has taken and prefers the lowest — but only after it has tried each one once:</p>
+<pre><code>for (ServiceInstance candidate : candidates) {
+    if (!averageMillis.containsKey(candidate.instanceId())) {
+        return candidate;   // never tried; measure it before judging it
+    }
+}
+return candidates.stream()
+        .min((a, b) -&gt; Long.compare(averageMillis.get(a.instanceId()),
+                averageMillis.get(b.instanceId())))
+        .orElseThrow();</code></pre>
+<p>That first loop is not politeness. A balancer that trusts a measurement it has not taken is round-robin with extra confidence.</p>
+<pre><code>    catalog-1   10 requests (83%)   10ms each
+    catalog-2    1 requests ( 8%)   10ms each
+    catalog-3    1 requests ( 8%)   60ms each
+  12 requests took 170ms in total
+  the client now believes: catalog-1 10ms, catalog-2 10ms, catalog-3 60ms</code></pre>
+<p>One hundred and seventy milliseconds instead of three hundred and twenty, and the slow box was asked exactly once — the once it took to find out it was slow.</p>
+<p>Now read the last line again, because it is the argument for this entire pattern. Nothing configured those three numbers. No file, no environment variable, no operator. The client measured them, from its own requests, and it would have measured different numbers if it were running in a different rack.</p>
+<p>&quot;How slow has this instance been <strong>for me</strong>&quot; is a question only the caller can answer. A balancer in the middle of the network measures its own view of the cluster, and its view is not the caller&#x27;s view: different path, different switches, different distance. That is the one thing client-side balancing can do that server-side balancing structurally cannot.</p>
+<h2>The Half That Is Usually Skipped, Part One: Herding</h2>
+<p>Look at act three once more. <code>catalog-2</code> is exactly as fast as <code>catalog-1</code> — both 10 milliseconds — and it received one request out of twelve.</p>
+<p>Ties broke towards whoever happened to be measured first. The client found a favourite and stayed with it, which is harmless with one client.</p>
+<p>Now put a thousand clients in front of the same cluster. They all measure the same thing, they all reach the same conclusion, and they all pile onto the same instance. They make it slow. They then all notice it is slow, and they all leave together, for the same replacement. The cluster oscillates, and no individual client did anything wrong.</p>
+<p>A learning balancer needs a tie-break — a random choice among the near-equals, or a small random jitter on the measurements — or it will herd. That is the honest cost of the cleverer strategy, and a large part of why round-robin stays the default.</p>
+<h2>The Half That Is Usually Skipped, Part Two: A Client Cannot See The Others</h2>
+<p>Act four runs two clients, each with its own round-robin balancer, four requests each:</p>
+<pre><code>    catalog-1    2 requests (50%)   10ms each
+    catalog-2    2 requests (50%)   10ms each
+    catalog-3    0 requests ( 0%)   60ms each</code></pre>
+<p>Both clients behaved impeccably. Each took perfect turns. Between them they left an instance with nothing at all to do.</p>
+<p>There is no bug to find here, and this is what makes it worth a section of its own. The counter lives inside one client, so it counts one client&#x27;s requests. Two counters that each start at zero and each advance by one produce a pattern that is correct twice over and wrong collectively.</p>
+<p>So the limit of this pattern, stated plainly: <strong>a client-side balancer can only balance the traffic it can see, and it can only see its own.</strong> The more clients there are, and the more they come and go, the further the collective pattern drifts from the one each client thinks it is producing.</p>
+<p>And here is the ending the textbooks tend to hurry past. If the callers are not yours to change, or there are too many of them to reason about, do not build a cleverer client — <strong>put one balancer in front of the cluster and let it see every request.</strong> That is server-side balancing. It is the member of staff at the head of all six queues. It is simpler, it is easier to operate, and it is the right answer more often than this pattern&#x27;s fans admit. The price is one more hop and one more thing that can fail; the prize is a single component with the complete picture.</p>
+<h2>What It Costs</h2>
+<ul><li><strong>One more decision on every request.</strong> Cheap here, but it is code on the hot path of every call the caller makes.</li><li><strong>State in the caller.</strong> Round-robin&#x27;s counter and least-latency&#x27;s table both live in the client, so they are lost on restart and are per-instance-of-the-client, not per-service.</li><li><strong>A learning balancer can herd</strong>, as above, unless it deliberately breaks ties randomly.</li><li><strong>No client has the whole picture</strong>, so the collective result is never as good as each client&#x27;s local result looks.</li><li><strong>It has to be in every caller.</strong> A balancing policy implemented in the client is implemented once per client language and once per client team. Server-side balancing is implemented once.</li></ul>
+<h2>When Not To Use It</h2>
+<ul><li><strong>When you do not own the callers.</strong> A mobile app in the app store cannot be updated to fix a balancing policy. Put the balancer in front of the cluster.</li><li><strong>When the instances really are identical.</strong> If every box is the same speed, least-latency has nothing to learn and round-robin is already optimal.</li><li><strong>When there are very many short-lived callers.</strong> Per-client state is worthless if the client exits after three requests, and the herd problem is at its worst.</li><li><strong>When a platform already does it.</strong> A service mesh or a Kubernetes Service is already balancing. A second balancer inside your caller does not compose with it so much as argue with it.</li></ul>
+<h2>What To Remember</h2>
+<ol><li>Several identical instances means a choice, and the choice is remade on every request.</li><li>Taking the first one is not slow and does not fail — it just runs the shop on one machine out of three and falls over completely when that machine does.</li><li>Pull the choice behind an interface. That interface is Strategy, and the caller ends up holding no policy at all.</li><li>Round-robin is fair. Fair is not fast, because the instances are not equally capable.</li><li>Least-latency is fast because the <em>caller</em> measured the latency, which is something only the caller can do.</li><li>A clever balancer with many copies will herd unless it breaks ties at random.</li><li>A client can only balance what it can see. When that is not enough, one balancer in front of the cluster is the better answer, not a cleverer client.</li></ol>
+</main>
+<footer>
+Generated from <code>load-balancing-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

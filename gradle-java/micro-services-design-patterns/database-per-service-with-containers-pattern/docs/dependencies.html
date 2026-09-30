@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dependencies</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Dependencies</h1>
+<p>This project uses PostgreSQL, MongoDB, a driver for each, and Testcontainers, which the hand-built project does not. This page says what they are, why they are here, and what they cost. It comes before the first line of database code on purpose.</p>
+<p><strong>Skipping this project loses none of the pattern.</strong> The plain-Java Database per Service project in this course teaches the pattern itself in plain Java, with nothing installed.</p>
+<h2>What PostgreSQL is</h2>
+<p>PostgreSQL, usually called Postgres, is a relational database: a separate program that keeps data in tables. Think of a spreadsheet with fixed column headings, where every row must fill in the same columns. It is asked questions in SQL, a language for asking a database questions. Three of its abilities matter here.</p>
+<p>It can <strong>join</strong>: answer one question from two tables at once, by matching a value in one with a value in the other. It keeps <strong>foreign keys</strong>: a rule, written into the database, that a value in one table must exist in another, so it refuses a change that would break the rule. And it runs <strong>transactions</strong>: a group of changes that are kept together or undone together, where undoing them is called a <strong>rollback</strong>.</p>
+<p>One Postgres server can hold several separate databases. This project uses two on one server: <code>shop</code>, the shared database before the split, and <code>orders</code>, the Orders service&#x27;s own. Postgres will not join across two of them, even on the same server.</p>
+<h2>What MongoDB is</h2>
+<p>MongoDB is a document database. Think of a filing drawer of filled-in forms, where each form can have its own set of boxes. Each form is a <strong>document</strong>: a record of named fields and their values. A drawer of them is a <strong>collection</strong>. There are no tables and no fixed columns, so the kettle&#x27;s document can have a wattage and the mug&#x27;s a capacity, and nothing has to change first.</p>
+<p>It is asked questions with query documents rather than SQL. A <strong>find</strong> asks for the documents that match. An <strong>aggregation</strong> is a list of steps each document passes through, and one of those steps, <strong><code>$lookup</code></strong>, is MongoDB&#x27;s join: for each document, attach the matching documents from another collection in the same database. If that other collection does not exist, MongoDB treats it as empty and attaches nothing, without an error. That behaviour is the headline of this project.</p>
+<h2>What the drivers are</h2>
+<p>A driver is the library a Java program uses to talk to one kind of database over the network. The PostgreSQL JDBC driver, 42.7.13, speaks Postgres&#x27;s protocol through Java&#x27;s standard database interface, JDBC. The MongoDB Java driver, 5.12.0, in its synchronous flavour, speaks MongoDB&#x27;s. Each service in this project has exactly one of them. The Orders service has no MongoDB driver in its hands, and the Catalog service has no Postgres connection. That is the pattern.</p>
+<h2>What Testcontainers is</h2>
+<p>Testcontainers is a Java library that starts a container from inside your program and stops it again when you are done. It is here so that the demo owns both databases&#x27; lifetimes: <code>./gradlew run</code> brings them up, uses them, stops MongoDB on purpose in the sixth act, and takes both away. Each is reached on a random free port chosen each run. In the 2.x line each database has its own module, <code>testcontainers-postgresql</code> and <code>testcontainers-mongodb</code>.</p>
+<h2>Why this project uses them</h2>
+<p>Because the thing the plain-Java twin could only describe — two services on two different databases, with no join between them — needs two real engines to be true. Inside one Java program both &quot;databases&quot; were maps, and the join was forbidden by an exception written for the purpose. Here the join cannot be written at all, the foreign key cannot reach across, the rollback stops at the edge of its engine, and one engine can be down while the other is up.</p>
+<h2>What to install</h2>
+<p>Only a JDK, version 21, and a container runtime. Gradle downloads the rest, and the versions are pinned:</p>
+<table><thead><tr><th>Tool</th><th>Version</th></tr></thead><tbody><tr><td>Docker, or a Docker-compatible runtime</td><td>running; 24 or later</td></tr><tr><td>PostgreSQL image</td><td><code>postgres:18.6-alpine</code></td></tr><tr><td>MongoDB image</td><td><code>mongo:8.3.11-noble</code></td></tr><tr><td><code>org.postgresql:postgresql</code></td><td>42.7.13</td></tr><tr><td><code>org.mongodb:mongodb-driver-sync</code></td><td>5.12.0</td></tr><tr><td><code>org.testcontainers:testcontainers-postgresql</code></td><td>2.0.5</td></tr><tr><td><code>org.testcontainers:testcontainers-mongodb</code></td><td>2.0.5</td></tr><tr><td><code>org.slf4j:slf4j-simple</code></td><td>2.0.17</td></tr></tbody></table>
+<p>Every one of these is the newest generally available release; none is held back.</p>
+<h2>What it costs</h2>
+<p>The first run pulls both images: about 300 MB for Postgres and 830 MB for MongoDB once unpacked. MongoDB has no Alpine image, which is why it is the larger. After that a run takes about twelve seconds, most of it the two databases starting. Testcontainers also runs a small helper container that removes anything left behind if the demo is killed part way through; it exits on its own a few seconds after the demo does.</p>
+<p>In a real shop the larger cost is not disk. It is two engines to back up, upgrade, watch and learn, where there was one; two query languages in the team&#x27;s heads; and every page that used to be one join now two questions and some code.</p>
+<h2>Where this pattern lives in a real system</h2>
+<p>In each service&#x27;s configuration, which holds the address and password of its own database and no other. In the database accounts, where the Orders service&#x27;s login simply cannot see the Catalog&#x27;s data. In the code that assembles a page from two services and decides what to show when one of them does not answer. And in the agreements between teams that replace the foreign key.</p>
+</main>
+<footer>
+Generated from <code>dependencies.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

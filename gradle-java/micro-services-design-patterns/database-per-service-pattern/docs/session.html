@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Database per Service</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Database per Service</h1>
+<p>A one-hour session. The mechanism takes four minutes and is a single <code>if</code> statement. Everything worth the hour is on either side of it: why a correct migration breaks somebody else&#x27;s page, and what the split costs once you have made it.</p>
+<p>Protect the last twenty minutes. A room that leaves believing this pattern is free, or that it is a technical improvement, has learned something worse than nothing.</p>
+<p><strong>Audience:</strong> developers who know Java and have used a relational database. No distributed-systems experience assumed.</p>
+<p><strong>Format:</strong> laptops open. Everything runs offline with a JDK. There is no database to install, which is worth saying at the start because people will ask.</p>
+<h2>Learning Objectives</h2>
+<p>By the end, a participant can:</p>
+<ol><li>Explain why a correct migration by one team breaks another team&#x27;s page, and why no test suite owns that failure.</li><li>State the mechanism honestly — a refusal, enforced by credentials — and say that there is no algorithm in it.</li><li>Say what the split buys (teams that can change their minds without asking permission) and what it does not buy (speed, correctness).</li><li>Price the two losses: the join, and the foreign key.</li><li>Explain why the cross-service call must be batched.</li><li>Argue for or against splitting a specific schema in a system of their own, and name the line they would split it on.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check, and being fair to the shared database</td></tr><tr><td>0:05–0:16</td><td>The Tuesday rename</td></tr><tr><td>0:16–0:22</td><td>Three tempting fixes</td></tr><tr><td>0:22–0:32</td><td>The mechanism, and the same page for more money</td></tr><tr><td>0:32–0:40</td><td>The payoff, and being precise about what it is</td></tr><tr><td>0:40–0:56</td><td>Exercises, and the bill</td></tr><tr><td>0:56–1:00</td><td>Wrap-up</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check, And Being Fair</h2>
+<pre><code>cd micro-services-design-patterns/database-per-service-pattern
+./gradlew test</code></pre>
+<p>16 tests, green, in about a second.</p>
+<p>Then, before anything else, spend two minutes selling the shared database. The room will expect you to attack it, and the session does not work if they think that is where this is going.</p>
+<blockquote><p>One query. One join, done by an engine that is extremely good at joins. Every row has a name, because a join cannot forget one. A foreign key guarantees the product row exists. Nothing is eventually consistent. <strong>If a shop can live like this, it should.</strong></p></blockquote>
+<h2>0:05–0:16 — The Tuesday Rename</h2>
+<p>Run it and stop at act two:</p>
+<pre><code>  catalog team: migration ran, catalog tests green, done
+  order history page: no column &#x27;product_name&#x27; in products -- somebody renamed it</code></pre>
+<p><strong>Ask the room whose fault this is before you say anything.</strong> Let them argue. Somebody will blame the catalog team, somebody will say there should have been a test.</p>
+<p>Then land the two facts:</p>
+<ol><li><strong>The migration was correct.</strong> <code>theRenameLosesNothing</code> asserts the data is all still there, readable under the new name.</li><li><strong>The catalog team could not have known.</strong> The query that broke is in a repository they have no reason to open.</li></ol>
+<p>Then show the thing that usually changes the mood of the room — open <code>SharedSchemaTest</code> and point out that <strong>every test in it passes</strong>, including <code>aRenameBreaksTheOrderHistoryPage</code>.</p>
+<blockquote><p>Your test suite is not going to tell you. A test suite tests a codebase, and this problem is between two codebases.</p></blockquote>
+<p>Close with the consequence that actually costs money, which is not the broken page:</p>
+<blockquote><p>The page gets fixed in an hour. What does not get fixed is the meeting the two teams now agree to hold before any schema change. That is what slows a shop down for years.</p></blockquote>
+<h2>0:16–0:22 — Three Tempting Fixes</h2>
+<p>Ask for fixes before offering any. All three of these will come up.</p>
+<p><strong>&quot;Write a test that catches it.&quot;</strong> Whose repository does it live in? A build that runs one team&#x27;s queries against another team&#x27;s schema is a shared build with a shared owner — the same coupling wearing a hat.</p>
+<p><strong>&quot;Just don&#x27;t rename columns.&quot;</strong> The one that actually gets adopted, and the worst, because nobody writes it down. The schema fills up with names that are wrong and everybody learns that change is expensive.</p>
+<p><strong>&quot;Use a view so the old name still works.&quot;</strong> A real technique that buys real time. It does not change who is allowed to decide, and somebody now maintains a layer that belongs to neither side.</p>
+<p>Then the question, on the board, left there:</p>
+<blockquote><p>What if the catalog team&#x27;s data were somewhere the orders team physically could not read?</p></blockquote>
+<h2>0:22–0:32 — The Mechanism, And Act Three</h2>
+<p>Show the mechanism and let it be small:</p>
+<pre><code>if (!OWNER.equals(requester)) {
+    throw new NotYourDataException(requester, OWNER);
+}</code></pre>
+<p>Say the important sentence:</p>
+<blockquote><p>In a real shop nothing throws this. Orders is given database credentials that cannot see the Catalog tables, and the read fails as a permissions error before it reaches any Java. If your rule is a comment asking people not to, you do not have this pattern.</p></blockquote>
+<p>Now act three:</p>
+<pre><code>      0ms -&gt;    10ms  Orders           OK        2 order(s)
+     10ms -&gt;    20ms  Catalog          OK        2 name(s) in one call
+     20ms -&gt;    20ms  HistoryPage      ASSEMBLED 2 row(s) from 2 services
+  the same page took 20ms and 2 service calls instead of 1 query</code></pre>
+<p>Two things to point at:</p>
+<ul><li><code>itProducesTheSamePage</code> — the assembled page is identical to the joined one. Same rows, same names, same order. <strong>The cost changed; the answer did not.</strong></li><li><code>namesFor</code> takes a <em>list</em>. Ask what act three would look like with <code>nameOf</code> in a loop, and then what a fifty-row page would look like. <code>itAsksCatalogOnce</code> is the guard.</li></ul>
+<h2>0:32–0:40 — The Payoff, Stated Precisely</h2>
+<p>Act four, which is deliberately boring:</p>
+<pre><code>  the page is unchanged. Nothing outside Catalog ever named that column.</code></pre>
+<p>Then do not let the room round this up into &quot;microservices are better&quot;. Put the three statements up and say them plainly:</p>
+<ul><li>It bought <strong>no speed</strong>. Act three is slower than act one.</li><li>It bought <strong>no correctness</strong>. The page was already right.</li><li>It bought the catalog team the <strong>right to change their minds</strong> without asking permission or coordinating a release.</li></ul>
+<blockquote><p>That is an organisational benefit, and it is the only one on offer. Which gives you the test: if the two teams are the same three people, you are paying an organisational price for an organisational problem you do not have.</p></blockquote>
+<h2>0:40–0:56 — Exercises, And The Bill</h2>
+<p>Start with act five, because it makes the exercises honest.</p>
+<pre><code>     Orders may not read Catalog&#x27;s database directly. Ask Catalog for it.
+  ord-101   SKU-KETTLE   (no longer in the catalogue) x1
+     the row survives with no name. A foreign key would have refused the delete.</code></pre>
+<p>Two losses, and the second is the one people forget. Ask the room what a foreign key actually is — a rule the database will not let you break — and then what it has become here: a rule that lives in code, tests, and agreements between teams.</p>
+<h3>Exercise 1 — Break it in the shared schema (everyone)</h3>
+<p>Rename a <em>different</em> column in <code>SharedSchema</code> and find every place that needs changing. Then count how many repositories those places would be in, in a real shop.</p>
+<h3>Exercise 2 — Un-batch the call (everyone)</h3>
+<p>Change <code>OrderHistoryPage</code> to call <code>catalog.nameOf(sku)</code> per row instead of <code>namesFor</code>. Watch <code>itAsksCatalogOnce</code> fail, and read the timeline. Then imagine fifty rows. This is the single most common way this pattern gets implemented badly.</p>
+<h3>Exercise 3 — Where does the line go? (discussion)</h3>
+<p>In pairs, on a schema they actually work on: draw one line through it. Which tables go on which side, which query that exists today would break, and where that query would live afterwards. Expect a fight about the reporting query — that is the useful part.</p>
+<h3>Exercise 4 — Stretch: put the integrity back</h3>
+<p>Catalog deletes a product an order refers to. Where could the rule &quot;you may not delete a product that has been ordered&quot; now live? Walk through the options — Catalog asks Orders before deleting, Catalog soft-deletes, Orders copies the name at order time — and notice that the last one is the answer most real shops reach, and that it is a denormalisation, not a constraint.</p>
+<h2>0:56–1:00 — Wrap-Up</h2>
+<p>Five sentences:</p>
+<ol><li>The unit of ownership is the data, not the code — two services sharing a schema are one service with two pipelines.</li><li>The mechanism is a refusal enforced by credentials, not a convention.</li><li>Every test can pass while the system is broken, because the failure is between two codebases.</li><li>The split buys the right to change your mind, and buys nothing else.</li><li>You lose the join and the foreign key, and the foreign key is the expensive one.</li></ol>
+<h2>Facilitator Notes</h2>
+<ul><li><strong>Sell the shared database first, and mean it.</strong> If the room thinks you are building a straw man, nothing after act two lands. The strongest version of this session has someone arguing at the end that their own shop should <em>not</em> split, and being right.</li><li><strong>The whose-fault-is-it question in act two is the best five minutes available.</strong> Do not shorten it. People arrive believing that every production failure is somebody&#x27;s mistake, and this one genuinely is not.</li><li><strong>Expect &quot;this is just microservices&quot;.</strong> Narrow it: this is the one rule that makes the rest of microservices mean anything. Services that share a schema are not separate services, whatever the deployment diagram says.</li><li><strong>Expect &quot;we could use a read replica of their database&quot;.</strong> Take it seriously and then ask who owns the column names in that replica. It is the shared schema again with extra infrastructure.</li><li><strong>Expect &quot;what about reporting?&quot;</strong> Say plainly that this project loses it, and that CQRS is where it comes back. Do not improvise an answer.</li><li><strong>If the group is quiet in exercise 3</strong>, put your own schema up and let them argue with your line.</li><li><strong>Timings assume a group that talks.</strong> Act four and exercise 1 compress. Act two and the bill do not.</li></ul>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>JDK 21 installed, <code>./gradlew test</code> run once beforehand so nothing downloads live</li><li>A terminal with a font big enough to read the act three timeline from the back</li><li><a href="animation.html"><code>animation.html</code></a> open in a browser tab for the rename spreading, and then not spreading</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> open for the five acts as sequences</li><li>A whiteboard for the three tempting fixes, and for exercise 3</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Database per Service with Containers Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Database per Service with Containers Pattern — Video Narration Script</h1>
+<h2>1. Database per Service with Containers</h2>
+<p>Hello, and welcome. This video explains the Database per Service pattern in Java, using two real databases: PostgreSQL and MongoDB. It is written and presented by Jayasekhar Konduru. Here is the plain definition, in general words. Each service keeps its own data, in its own database. No other service may read that database directly. If you want somebody else&#x27;s data, you ask them for it. Now the same thing in our online store. The shop has an Orders team and a Catalog team. Orders knows what each customer bought. Catalog knows what each product is called, what it costs, and how many are on the shelf. Each team gets a database of its own, and in this video they are two different kinds of database. By the end you will have seen one shared database work well and then break, the split survive the same change, and the old join tried against two real engines. One of them refuses it out loud. The other one says nothing at all.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Customer cust-7 has two orders. Order one oh one is one Stainless Steel Kettle. Order one oh two is four Blue Stoneware Mugs. The order history page belongs to the Orders team. It shows each order with the product&#x27;s name beside it. But the names belong to the Catalog team. So the page needs data from both teams. The hand-built twin of this project told this story with two maps inside one Java program. This time the data lives in real databases, each in a container that the demo starts at the beginning and removes at the end.</p>
+<h2>3. Postgres&#x27;s Words</h2>
+<p>Before the first act, some words, each in plain language first. PostgreSQL, usually called Postgres, keeps data in tables. Think of a spreadsheet with fixed column headings, where every row fills in the same columns. It is asked questions in a language called SQL. Postgres can answer one question from two tables at once, by matching a value in one with a value in the other. That is called a join. It can also keep a rule between two tables: a value in one must exist in the other. It refuses any change that would break the rule. That rule is called a foreign key. And a group of changes that are kept together or undone together is a transaction. Undoing it is a rollback. Every error Postgres gives has a five-character code, and the video will say those codes out loud.</p>
+<h2>4. One Shared Database</h2>
+<p>Act one. Both teams keep their tables in one Postgres database, called shop. Catalog owns the products table. Orders owns the orders table. And a foreign key says every order must name a product that exists. The order history page is one SQL join. Both rows come back with their names, and it takes one round trip: one question sent to the database. Then the Catalog team tries to delete the kettle, which order one oh one still names. Postgres refuses, with error two three five zero three: the foreign key would be broken. This is the arrangement working well. Fast, correct, and guarded by the database itself.</p>
+<h2>5. The Rename</h2>
+<p>Act two. The Catalog team renames its column, from product name to title. The change is correct. They update their own queries, and their tests pass. But the order history page belongs to the Orders team, and its query still names the old column. Postgres answers with error four two seven zero three: the column does not exist. Nobody did anything wrong. The column was Catalog&#x27;s. The query naming it was Orders&#x27;. The break lives between two teams, where no test suite looks.</p>
+<h2>6. MongoDB&#x27;s Words</h2>
+<p>Now the second engine, and its words. MongoDB is a document database. Think of a drawer of filled-in forms, where each form can have its own set of boxes. Each form is what MongoDB calls a document: one record of named fields. A drawer of them is a collection. There are no tables, and two documents in one collection need not have the same fields. Asking MongoDB for the documents that match is called a find. And MongoDB has its own kind of join. For each document, it attaches the matching documents from another collection in the same database. That step is called lookup, written with a dollar sign in front.</p>
+<h2>7. Two Services, Two Engines</h2>
+<p>Act three is the split. Orders keeps Postgres, in a database of its own, holding one table. Catalog moves to MongoDB, in a database of its own, holding one collection of documents. The kettle&#x27;s document has a wattage. The mug&#x27;s has a capacity in millilitres. Nobody changed a table to allow either. That is the usual reason a team wants its own database: a different kind of store that suits its data. The page is now two questions. One SQL query to Orders for the customer&#x27;s orders. One find to Catalog for both names at once. Java puts the answers side by side. Two round trips, where the join took one. Then the Catalog team renames its name field to title, in every document. MongoDB changed two documents. The page is unchanged, because nothing outside Catalog ever named that field.</p>
+<h2>8. Who Can Reach What</h2>
+<p>Here is who can reach what, in words. The order history page asks the Orders service, and then asks the Catalog service. The Orders service holds one connection, to its own Postgres database, and nothing else. The Catalog service holds one client, for its own MongoDB database, and nothing else. Between the two databases there is no line at all. No join, no foreign key, and no shared transaction. No engine holds both halves. Hold on to that, because the next act tries to cross that gap anyway.</p>
+<h2>9. The Whole Pattern, In Two Constructors</h2>
+<p>In the code, the whole pattern is two constructors. The Orders service is handed Postgres, and opens a connection to one database, called orders. The Catalog service is handed MongoDB, and opens a client for one database, called catalog, and one collection, called products. What matters is what they are not handed. The Orders service has no MongoDB address and no MongoDB password. The Catalog service has no Postgres connection. The hand-built twin needed an exception class to say you may not. Here nothing says it. The rule is the wiring.</p>
+<h2>10. The Join, Tried Anyway</h2>
+<p>Act four is the headline of this project. The old join is tried from both sides. From the Orders side, the old SQL. Postgres answers with error four two P zero one: there is no table called products here. Then a reach across to the shop database, which sits on the very same Postgres server. Error zero A zero zero zero: cross-database references are not implemented. Postgres will not even join two of its own databases. From the Catalog side, MongoDB&#x27;s own join, pointed at a collection called orders. MongoDB has no such collection. The orders are in Postgres. And it does not complain. It treats the missing collection as empty, and hands back both products, each with zero orders. That quiet answer is the dangerous one. A report built on it would say nobody ever bought a kettle, and no log anywhere would say why. The join is not forbidden. It cannot be written.</p>
+<h2>11. No Foreign Key Between Engines</h2>
+<p>Act five. The Catalog team deletes the kettle. MongoDB deleted one document, and nothing refused. Postgres still holds one order naming the kettle, and it has no way of knowing the kettle has gone. The page has to decide what to show, and it shows: no longer in the catalogue. In act one, Postgres refused this exact delete. Across two engines, nothing can. The rule that used to live in the database now lives in code, and in agreements between teams.</p>
+<h2>12. The Bill</h2>
+<p>Act six is the bill. Customer cust-7 checks out two more mugs. Orders writes order one oh three inside a Postgres transaction. Catalog takes two mugs off the shelf in MongoDB. Then the payment is declined, and Orders rolls back. Postgres forgets the order: the customer has two orders again. MongoDB keeps its change: thirty eight mugs, where there were forty. The rollback reached one engine, not both. In the shared database, the stock and the order would have been one transaction. Then MongoDB is stopped. The page asks Orders, which answers. It asks Catalog, which does not. Every name reads: catalog unreachable. The page is half there. And the shop now runs two containers, two drivers and two query languages, where it had one of each.</p>
+<h2>13. What The Simulation Left Out</h2>
+<p>So what did the hand-built simulation get right? The whole argument. One shared database answers the page in one join, and a foreign key protects it. A correct rename breaks somebody else&#x27;s page. The split does the same page in two calls, and the rename becomes harmless. What it left out was everything that needs real engines. Its two databases were the same kind of thing, so it could not show a team choosing a different store for different data. Its refusal was an exception it wrote itself, so it could not show a real engine answering a join with a quiet nothing. It had no transactions, so no rollback could stop halfway. And a map in memory is never down.</p>
+<h2>14. The Verdict</h2>
+<p>The verdict. When two teams keep breaking each other, give each service its own database, and let each pick the engine that suits its data. Then say out loud what that gives up. One. The join becomes two questions and some code. Two. The foreign key becomes an agreement between teams. Three. One transaction becomes two, and they can disagree. Four. One engine can be down while the other is up. And never trust an answer of nothing from a join, until you know where the other half lives.</p>
+<h2>15. What Is Real, And When Not</h2>
+<p>What is real here? Two real databases. Postgres, version eighteen point six, and MongoDB, version eight point three point eleven, the newest releases, each in its own container. The demo starts both at the beginning and removes both at the end, each on a random free port. Java talks to them through the newest Postgres driver and the newest MongoDB driver. The one thing you need is a container runtime, such as Docker Desktop, switched on before you start. Every number and every error code in this video comes from the program&#x27;s own output, and two runs one after the other print the same thing. So when is this too much? If one small team owns both halves, one database keeps the join, the foreign key and the single transaction. And if the two teams&#x27; data has the same shape, two databases on one engine is often enough. A second engine is one more thing to back up, upgrade, watch and learn.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s Database per Service with Containers. If you take one sentence away, take this one: once each service has its own engine, the join is not forbidden, it is impossible, and one engine will not even tell you. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, create a real orders collection in the catalog database with one document in it, guess what the lookup will say, and then run it. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

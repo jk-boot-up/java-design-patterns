@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Problem Statement — Fulfilling an Order Three Different Ways</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Problem Statement — Fulfilling an Order Three Different Ways</h1>
+<h2>The Scenario</h2>
+<p>An online shop fulfils every order through the same six steps, in the same order, whatever it is selling.</p>
+<table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody><tr><td>Validate</td><td>Refuse anything that cannot be fulfilled at all</td></tr><tr><td>Reserve</td><td>Make sure the goods are actually available</td></tr><tr><td>Charge</td><td>Take the customer&#x27;s money</td></tr><tr><td>Pack</td><td>Get the goods ready to leave</td></tr><tr><td>Dispatch</td><td>Hand them over, and produce a reference the customer can chase</td></tr><tr><td>Notify</td><td>Tell the customer, quoting that reference</td></tr></tbody></table>
+<p>The order of those six is not a style choice. Charging before reserving means taking money for goods you cannot supply. Notifying before dispatching means sending an email about a consignment number that does not exist yet.</p>
+<p>What <em>does</em> vary is the middle of each step, and it varies a lot. The store has three fulfilment routes:</p>
+<table><thead><tr><th>Route</th><th>Reserve</th><th>Charge</th><th>Pack</th><th>Dispatch</th></tr></thead><tbody><tr><td>Own warehouse</td><td>Hold stock at Reading</td><td>Full subtotal</td><td>Box and label it</td><td>Courier consignment</td></tr><tr><td>Marketplace seller</td><td>Ask the seller to confirm</td><td>Subtotal, minus 12% commission</td><td>The seller&#x27;s job</td><td>Queue a job for them</td></tr><tr><td>Digital download</td><td>Nothing to reserve</td><td>Full subtotal</td><td>Nothing to pack</td><td>Mint a licence key</td></tr></tbody></table>
+<p>And one of them does not even have a shipping address to validate.</p>
+<h2>The Obvious First Move</h2>
+<p>Write each route out. Three methods, or three classes; either way, each one says what it does from beginning to end and can be read without looking anywhere else.</p>
+<pre><code>public FulfilmentReport fulfilDigital(Order order) {
+    // validate
+    // reserve  -- nothing to reserve
+    // charge
+    // pack     -- nothing to pack
+    report.notified(&quot;... ready to download. Key: &quot; + report.dispatchReference());
+    report.dispatchedAs(LicenceKeys.mint(order));
+}</code></pre>
+<p>Be fair to this. It is a third of the code of the alternative, it needs no vocabulary to read, and on the day it was written it was almost certainly correct. Three copies of a six-step sequence is not, on its own, a crisis.</p>
+<h2>Where It Breaks</h2>
+<p>The sequence exists only as a <strong>convention</strong>, repeated by hand in three places. Nothing in the language, the compiler or the test suite knows the six steps have an order at all. So the copies drift — not dramatically, but one line at a time, in whichever copy somebody last edited in a hurry.</p>
+<h3>The customer who is emailed a key that does not exist</h3>
+<p>Look again at the snippet above. The last two lines are the wrong way round. The email is composed before <code>dispatchedAs</code> has run, so it quotes the placeholder:</p>
+<pre><code>sam@example.com: Order D-9001 is ready to download. Key: (not dispatched)</code></pre>
+<p>The key is minted a microsecond later and is perfectly correct. Nobody is ever told what it is. Nothing throws, nothing fails to compile, and the order is marked fulfilled.</p>
+<h3>The customer who is charged for an order that is refused</h3>
+<p>In the marketplace copy, the charge moved above the seller confirmation.</p>
+<pre><code>charge   £42.00 taken
+reserve  Acme Optics will not confirm T-410   -&gt; FulfilmentException</code></pre>
+<p>The exception is correct and the refusal is correct. The money has already gone.</p>
+<h3>And a seventh step that has to be added three times</h3>
+<p>The day the store adds a fraud check, somebody has to find all three copies and insert it in the same place in each. The compiler will not help: a copy that is missing the step is not an error, it is just a route that does not run it.</p>
+<h2>Why the Obvious Fixes Do Not Hold</h2>
+<p><strong>&quot;Extract the common bits into helper methods.&quot;</strong> Worth doing, and it is not enough. Helpers remove the duplicated <em>bodies</em>; the thing that is actually duplicated and actually drifting is the <strong>call order</strong>, and a helper cannot own that.</p>
+<p><strong>&quot;Write a test that checks all three do the same steps.&quot;</strong> Better — and this project has exactly that test. But a test tells you the order broke after somebody broke it. It does not stop a fourth route being written with the steps in a new order by an author who never saw the test.</p>
+<p><strong>&quot;Put the whole sequence in one method with an <code>if</code> per route.&quot;</strong> Now the order is in one place, which is the right instinct. But every route&#x27;s specifics are in there with it, the method grows a branch per route, and adding click-and-collect means editing a method that already works for three other routes — the exact change the open/closed principle exists to avoid.</p>
+<p><strong>&quot;Compose it: pass in six lambdas.&quot;</strong> This genuinely works and is worth knowing — it is Strategy, and for many problems it is the better modern answer. It costs you the thing being bought here, though: nothing forces a caller to supply all six, in this order, and there is no natural home for a step whose default is &quot;do the usual&quot;. Where the sequence is the invariant and the steps are not independently swappable at runtime, inheritance expresses it more directly.</p>
+<h2>What Is Actually Missing</h2>
+<p>Every one of these problems has the same root: <strong>the sequence is not owned by anybody.</strong> It is a shape that lives in three method bodies and in the head of whoever wrote them. Nothing can enforce it, because nothing <em>is</em> it.</p>
+<h2>What the Design Must Deliver</h2>
+<ol><li><strong>The sequence is written once</strong>, in one method, and that method is the only thing that decides the order.</li><li><strong>A route cannot change the order</strong>, however much it might want to — not by overriding, not by accident.</li><li><strong>Steps that genuinely differ are holes</strong> the route must fill in.</li><li><strong>Steps with a sensible default cost a route nothing</strong> if it wants the usual behaviour.</li><li><strong>A route can opt out of behaviour it cannot support</strong> — an order with no address — without weakening that behaviour for every other route.</li><li><strong>A fourth route is one new class</strong>, with no change to the base class and no change to any existing route.</li></ol>
+<p>That is <a href="template-method-pattern-explained.html">the Template Method pattern</a>.</p>
+</main>
+<footer>
+Generated from <code>problem-statement.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

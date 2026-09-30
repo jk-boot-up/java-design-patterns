@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Transactional Outbox Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Transactional Outbox Pattern, Explained</h1>
+<h2>In One Sentence</h2>
+<p>Instead of writing to your database and then sending a message, write the message <em>into</em> your database in the same transaction as the data — and let a separate process come round later, pick up the written-down messages, and send them.</p>
+<h2>Everyday Analogy: The Out-Tray</h2>
+<p>Think about how a busy office used to work before email.</p>
+<p>You finish a piece of work and it needs to go to another department. You could walk it over yourself — but then you are standing in a corridor instead of doing your job, and if the other department&#x27;s door is locked you are stuck holding it.</p>
+<p>So you do not. You put the letter in the out-tray on the corner of your desk, at the same moment as you file your own copy. Filing and out-tray, one movement, and you go back to work.</p>
+<p>Someone from the post room comes round every twenty minutes, takes whatever is in the tray, and delivers it. If the other department is closed, the post room brings the letter back and it goes out on the next round. Nobody had to invent a policy for that. It is simply what happens when the letter stays in the tray until it has definitely been delivered.</p>
+<p>And the one flaw is exactly the pattern&#x27;s one flaw. If the post room delivers your letter and then loses track of whether it did, it will deliver it again. The other department gets it twice. That is annoying, and it is a great deal better than never getting it at all.</p>
+<h2>Act One — Two Lines, And They Work</h2>
+<pre><code>      0ms -&gt;     0ms  OrderDb        COMMIT   order ord-8001 on its own
+      0ms -&gt;    15ms  Broker         OK       accepted msg-ord-8001
+      7ms -&gt;     7ms  Notifications  EMAILED  message msg-ord-8001
+  orders saved: 1, events delivered: 1, emails sent: 1</code></pre>
+<p>Save the order, publish the event. One order, one event, one email.</p>
+<p>This is what every test the author writes will see, and it is why the bug survives to production. <code>theHappyPathIsFine</code> is that test, and it passes.</p>
+<h2>Act Two — A Deploy Lands In Between</h2>
+<pre><code>      0ms -&gt;     0ms  OrderDb  COMMIT  order ord-8002 on its own
+      0ms -&gt;     0ms  Orders   DIED    after the save, before the publish
+  events delivered: 0, emails sent: 0
+  the order is real. The customer will be charged. Nobody will ever be told.</code></pre>
+<p>The gap between the two lines is tiny — <code>theCrashIsNarrow</code> says so explicitly — and tiny is not zero. At a thousand orders an hour, tiny happens.</p>
+<p>The important sentence is the one after: <strong>nothing is left anywhere that knows a message was owed.</strong> There is no failed send to retry, no dead-letter queue, no error. There is an order, and a silence.</p>
+<p>Swapping the lines does not help. Publish first, crash second, and the shop has announced an order it never saved.</p>
+<h2>Act Three — Put The Message In The Database</h2>
+<pre><code>  after the commit, before any sweep:
+    orders saved: 1, messages waiting in the out-tray: 1, events delivered: 0
+  Orders never called the broker. Now the relay comes round:
+      0ms -&gt;     0ms  OrderDb  COMMIT       1 order(s) and 1 outbox message(s) together
+      0ms -&gt;    15ms  Broker   OK           accepted msg-1
+     15ms -&gt;    15ms  OrderDb  MARKED-SENT  msg-1</code></pre>
+<p>Here is the whole idea. The order service writes two rows — the order, and the message it owes — in <strong>one transaction</strong>. Then it stops. It does not call the broker at all, and <code>theServiceNeverTalksToTheBroker</code> is the test that pins that down.</p>
+<p>Because both rows are in one commit, there is no instant at which one exists without the other. <code>bothOrNeither</code> and <code>oneCommitOnly</code> assert exactly that. A crash before the commit leaves nothing; a crash after it leaves both.</p>
+<p>Then a separate component, the relay, sweeps the out-tray: read the unsent rows, publish them, mark them sent.</p>
+<h2>Act Four — The Broker Is Down, And Nobody Notices</h2>
+<pre><code>  two customers checked out while the broker was unreachable
+  first sweep, broker still down: published 0
+  messages still in the out-tray: 2
+  broker comes back. Second sweep: published 2
+  nobody wrote any retry logic. The retry is a consequence of where the message is kept.</code></pre>
+<p>Two things happen here that are worth separating.</p>
+<p><strong>Checkout kept working.</strong> It never needed the broker, so the broker being down is not a checkout outage. <code>checkoutDoesNotDependOnTheBroker</code> is the test.</p>
+<p><strong>The messages waited, and then went.</strong> No retry loop, no backoff configuration, no scheduled-retry table. An unsent row is still an unsent row on the next sweep. <code>nothingIsLostWhenTheBrokerIsDown</code> and <code>theTrayIsCollectedInOrder</code> cover it.</p>
+<p>That is the sentence to remember: <strong>the retry is not code, it is a consequence of where the message is kept.</strong></p>
+<h2>Act Five — What The Guarantee Costs</h2>
+<pre><code>  the broker took the message. Emails sent: 1
+  but the relay died before writing down that it had, so the out-tray still holds: 1
+  ...
+  times message msg-1 was delivered: 2
+  emails in the customer&#x27;s inbox: 2
+    &quot;your order ord-8006 for £70.95 is confirmed&quot;
+    &quot;your order ord-8006 for £70.95 is confirmed&quot;</code></pre>
+<p>The relay publishes, and then dies before it can mark the row as sent. The row is still unsent, so the next sweep publishes it again. The customer gets the email twice.</p>
+<p>You cannot engineer this away. Publishing and marking-as-sent are in two different systems, so there is a gap between them — which is, exactly, the gap this whole pattern was invented to close, reappearing one level down.</p>
+<p>What you can do is choose which way the gap falls. Mark sent <em>first</em> and a crash loses the message. Publish first and a crash duplicates it. <strong>The pattern chooses to duplicate</strong>, and that choice has a name: at-least-once delivery. <code>deliveryIsAtLeastOnce</code> is the test.</p>
+<p>The fix is not in this project. It belongs to whoever receives the message. What this project owes the receiver is a way to spot the duplicate, and it provides one: the message id was identical both times. <code>theDuplicateIsRecognisable</code> asserts it.</p>
+<h2>The Mechanism</h2>
+<p>Three pieces, and none of them is clever.</p>
+<p><strong>An outbox row.</strong> <code>OutboxMessage</code> is a record with a message id, a type, and the payload, stored in the same database as the business data.</p>
+<p><strong>One transaction.</strong> <code>OrderDatabase.begin()</code> returns a <code>Transaction</code> that can save an <code>Order</code> and an <code>OutboxMessage</code> and then <code>commit()</code> both. Nothing is visible until the commit — <code>writesAreHeldUntilTheCommit</code> proves it.</p>
+<p><strong>A relay.</strong> <code>OutboxRelay.sweep()</code> reads the unsent rows, publishes each to the broker, and marks each sent. If publishing fails, the row is left where it is.</p>
+<p>In a real system the relay is either a polling job like this one, or a process tailing the database&#x27;s replication log. The choice affects latency and load, not the guarantee.</p>
+<h2>What It Buys</h2>
+<ul><li>The data and the announcement are one atomic act, with no window between them.</li><li>Checkout does not depend on the broker being up.</li><li>Every message is delivered eventually, with no retry logic written by anybody.</li><li>Messages go out in the order they were written down.</li></ul>
+<h2>What It Costs</h2>
+<ul><li><strong>Latency.</strong> The message goes out on the next sweep, not immediately.</li><li><strong>A moving part.</strong> Somebody has to run and monitor the relay. A relay that is quietly dead looks exactly like a quiet shop.</li><li><strong>Table growth.</strong> Sent rows accumulate and need clearing out.</li><li><strong>Duplicates.</strong> At-least-once, forever. This is not tunable.</li><li><strong>A dependency on the next pattern.</strong> The receiving side has to cope with duplicates, or the guarantee you bought is a bill you passed downstream.</li></ul>
+<h2>When Not To Use It</h2>
+<ul><li><strong>When losing the message genuinely does not matter.</strong> Some analytics events are like this. Be honest about which ones.</li><li><strong>When the message is not about data you are writing.</strong> If there is no database transaction to join, there is no outbox to be part of.</li><li><strong>When your broker and database genuinely support a distributed transaction and you have a strong reason</strong> — rare, and the operational cost is usually worse than duplicates.</li></ul>
+<h2>What To Remember</h2>
+<ol><li>A database write and a broker publish cannot be made atomic, so do not try.</li><li>Write the message into the database, in the same transaction as the data.</li><li>The service that owns the data never calls the broker at all.</li><li>A separate relay sweeps the out-tray, publishes, and marks rows sent.</li><li>Retry is not code here. It is a consequence of the message still being in the tray.</li><li>The broker being down is not a checkout outage.</li><li>Delivery is at-least-once: never lost, sometimes twice.</li><li>The duplicate is somebody else&#x27;s problem, and the least you owe them is a stable message id to recognise it by.</li></ol>
+</main>
+<footer>
+Generated from <code>transactional-outbox-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

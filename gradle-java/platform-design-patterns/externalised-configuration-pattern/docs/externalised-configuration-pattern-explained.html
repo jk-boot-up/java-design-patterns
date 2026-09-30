@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Externalised Configuration Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Externalised Configuration Pattern, Explained</h1>
+<h2>In One Sentence</h2>
+<p><strong>Values that change on a business calendar are read from outside the program at runtime, with a default in the code so the program still starts when the source is unreachable — and with validation, an audit trail and a fast rollback taking over the job the compiler and the code reviewer used to do for free.</strong></p>
+<p>That sentence is deliberately long, because the short version — &quot;put the number in a config file&quot; — is where most of the trouble starts. The second half is the pattern too.</p>
+<h2>Everyday Analogy: The Price Board Outside the Greengrocer</h2>
+<p>A greengrocer has a chalkboard on the pavement with today&#x27;s prices on it. When tomatoes come in cheap, someone walks outside, wipes a number off, and writes a new one. It takes ten seconds. Nobody consults anybody.</p>
+<p>Now imagine the prices were painted on the shopfront instead. Same information, same shop, same customers. Changing tomatoes from two pounds to one fifty now needs a sign-writer, a quote, a booking, and a day when it is not raining. The price is still correct — it is just fixed, in the literal sense.</p>
+<p>Painted prices are not a mistake in every case. The shop&#x27;s <em>name</em> is painted on, and rightly so: it should be hard to change, and if it changes overnight without anybody noticing, something has gone badly wrong. The skill is telling the shop name apart from the price of tomatoes.</p>
+<p>Then notice the two things the chalkboard costs, because they are the honest part of the analogy. First, anyone with a hand and some chalk can write anything on it. If they write &quot;tomatoes 0.15&quot; by slipping a decimal point, the shop sells tomatoes at fifteen pence all morning and nothing squeaks — the board is not wrong, it is just not what anybody meant. A painted sign would have gone past a sign-writer who would have said &quot;are you sure?&quot;. Second, the board has no memory. By Thursday nobody can tell you what tomatoes cost on Tuesday, because wiping the old number off is how you write the new one.</p>
+<p>So the greengrocer who is serious about the chalkboard keeps a notebook by the till with every price change in it, and has a rule that nothing goes on the board outside a sensible range. That notebook and that rule are the second half of this pattern, and the greengrocer worked them out the hard way, which is also how most teams get there.</p>
+<h2>The Problem, In The Shop</h2>
+<p>Free delivery when you spend over fifty pounds. The number is a constant in the checkout code, which is the right place for it right up until marketing asks for thirty-five pounds for one weekend, starting nine o&#x27;clock on Saturday morning, and asks on Friday afternoon.</p>
+<p>The demo prints the cost of granting that request:</p>
+<pre><code>  edit the constant         15 min   done Fri 07 Mar 16:45
+  code review               45 min   done Mon 10 Mar 09:30
+  build and test            25 min   done Mon 10 Mar 09:55
+  release approval          30 min   done Mon 10 Mar 10:25
+  deploy and watch          20 min   done Mon 10 Mar 10:45
+  total work: 2 hours 15 minutes
+  live at:    Mon 10 Mar 10:45
+  the promotion was for the weekend. It is late by 2 days 1 hour 45 minutes.</code></pre>
+<p>Two hours and a quarter of actual work, spread across two and a bit days, because the release window closes at five on Friday and reopens on Monday. The weekend promotion goes live after the weekend.</p>
+<p>See <a href="problem-statement.html"><code>problem-statement.md</code></a> for why none of those five steps is unreasonable, and why the constant is a well-written line of code rather than a mistake.</p>
+<h2>The Pattern</h2>
+<p>Three moves, and the third one is the one that gets skipped.</p>
+<p><strong>Move one: the value comes from outside, and is read per use.</strong> The constant becomes a lookup against a <code>ConfigSource</code>, and — this is the detail that matters — the lookup happens inside the method that needs it, on every quote. Reading it once in the constructor would look tidier and would buy you almost nothing, because the value would then be fixed for the life of the object: you would have traded a rebuild for a restart, and a restart of a live shop on Saturday morning is not much of a trade.</p>
+<p><strong>Move two: the code keeps a default.</strong> Every setting declares a fallback that is compiled in. If the source has no value, or cannot be reached at all, the program uses the fallback and keeps trading. A shop that refuses to start because a config server is down is a worse shop than one with a hard-coded threshold.</p>
+<p><strong>Move three: the guards move out with the value.</strong> The number used to be protected by the compiler, the type system, a reviewer, and version control. None of those follows it out of the source file. You replace them explicitly: a <strong>typed setting</strong> with a <strong>declared range</strong>, an <strong>audit trail</strong> of every change, and a <strong>rollback</strong> that is as fast as the change.</p>
+<p>Do moves one and two and you have the pattern as it is usually described. Do all three and you have the pattern as it survives contact with a Saturday.</p>
+<h2>Participants</h2>
+<table><thead><tr><th>Role</th><th>In this project</th><th>Job</th></tr></thead><tbody><tr><td>Client</td><td><code>ConfiguredCheckout</code></td><td>Asks for the value it needs, every time it needs it</td></tr><tr><td>Setting declaration</td><td><code>MoneySetting</code></td><td>Names the key, the default, and the acceptable range</td></tr><tr><td>Settings reader</td><td><code>SettingsReader</code></td><td>The seam between the program and the outside world</td></tr><tr><td>Naive reader</td><td><code>TrustingSettings</code></td><td>Externalises the value and validates nothing</td></tr><tr><td>Careful reader</td><td><code>GuardedSettings</code></td><td>Validates, keeps the last good value, records rejections</td></tr><tr><td>Configuration source</td><td><code>ConfigSource</code> / <code>ConfigServer</code></td><td>Stores text, and can be unreachable</td></tr><tr><td>Audit trail</td><td><code>ChangeLog</code>, <code>ConfigChange</code></td><td>Who changed what, when, and from what</td></tr><tr><td>The alternative</td><td><code>HardCodedCheckout</code></td><td>The correct, unchangeable version</td></tr><tr><td>The cost of the alternative</td><td><code>ReleasePipeline</code></td><td>What a release actually takes, in hours</td></tr></tbody></table>
+<h2>Code Walkthrough</h2>
+<h3>The setting, declared</h3>
+<pre><code>public static final MoneySetting FREE_DELIVERY_OVER = new MoneySetting(
+        &quot;delivery.freeOver&quot;, Money.pounds(50), Money.pounds(5), Money.pounds(200));</code></pre>
+<p>Four facts. The key it is stored under, so a log line can name it. The default compiled into the program, so the shop starts. And a lowest and a highest value, which is the interesting part: below five pounds free delivery is being given away on a packet of crisps, and above two hundred nobody ever qualifies and the promotion is broken in the other direction. Both ends are business judgements rather than technical limits, which is exactly why they have to be written somewhere a program can enforce them.</p>
+<p>This record is the replacement for the compiler. Read it that way and the shape makes sense.</p>
+<h3>The read, per quote</h3>
+<pre><code>@Override
+public DeliveryQuote quote(Basket basket) {
+    SettingValue threshold = settings.money(FREE_DELIVERY_OVER);
+    Money cost = basket.goodsTotal().isAtLeast(threshold.amount())
+            ? Money.zero()
+            : standardDelivery;
+    return new DeliveryQuote(basket, cost, threshold.amount(), threshold.origin());
+}</code></pre>
+<p>Compare that with <code>HardCodedCheckout.quote</code>. The arithmetic is identical; the only change is where the number comes from. And notice <code>threshold.origin()</code> travelling into the quote. Once a value can come from a server, from a cached last-good copy, or from a compiled-in default, &quot;the threshold is thirty-five&quot; stops being a complete answer to anything, and the shop wants the provenance on the screen rather than in somebody&#x27;s head.</p>
+<h3>The naive reader, and what it buys</h3>
+<pre><code>Money value = Money.parse(raw.get())
+        .orElseThrow(() -&gt; new InvalidSettingException(...));
+return new SettingValue(value, source.name());</code></pre>
+<p><code>TrustingSettings</code> does the good half of the pattern. It reads per call, so a change is live on the next order. It falls back to the default when the key is missing or the source is unreachable, so the shop survives an outage. Those two behaviours are genuinely why anyone does this, and the demo shows them working:</p>
+<pre><code>  #1  Fri 07 Mar 16:30:04  delivery.freeOver  (not set) -&gt; 35        by marketing
+  the very next quote, 4 seconds later:
+    ORD-7101  goods £62.00  delivery FREE
+    ORD-7102  goods £48.00  delivery FREE
+    ORD-7103  goods £31.50  delivery £4.99
+  ORD-7102 now ships free. No rebuild, no redeploy, no restart.</code></pre>
+<p>Four seconds, against two days and change.</p>
+<h3>The outage, and the quiet cost of surviving it</h3>
+<pre><code>Act 4 - the config server stops answering
+    ORD-7102  goods £48.00  delivery £4.99
+  threshold in force: £50.00
+  came from: the default compiled into the code, because the config server could not be reached
+  the shop starts and keeps selling, because the code carries its own default.
+  note what it quietly lost, though: the promotion. Back to £50.00 with no error and no alarm.</code></pre>
+<p>The shop stays up, which is the point of the default. But read the last line. The promotion is off, and nothing anywhere says so. This is a real failure mode of this pattern and it is why the origin string is worth carrying: the only way anybody finds out is if something is looking at where the value came from.</p>
+<h3>And now the bill</h3>
+<p>The demo spends three of its nine acts here, because this is the part write-ups leave out and the part teams discover on a Saturday.</p>
+<p><strong>A well-formed, catastrophic number.</strong> Somebody types <code>-1</code>:</p>
+<pre><code>  #2  Sat 08 Mar 09:12:04  delivery.freeOver  35       -&gt; -1        by marketing
+    ORD-7101  goods £62.00  delivery FREE
+    ORD-7102  goods £48.00  delivery FREE
+    ORD-7103  goods £31.50  delivery FREE
+  every basket in the shop now ships free, including the £31.50 one.
+  -1 is a perfectly well-formed number, so nothing complains. There is no exception and no log line.</code></pre>
+<p>Every basket is worth more than minus one pound, so every basket ships free. No exception, no log line, no alert. The program was told the threshold is minus one pound and is faithfully applying it. The first symptom is the margin.</p>
+<p><strong>Text that is not a number.</strong> Eight minutes later, <code>fifty</code>:</p>
+<pre><code>    ORD-7101  checkout failed: setting &#x27;delivery.freeOver&#x27; has value &quot;fifty&quot; — expected an amount of money such as &quot;35&quot; or &quot;4.99&quot;
+  not one basket can be quoted. The shop is down, and it was taken down by a text box.</code></pre>
+<p>A full outage, with nothing deployed. In one sense this is the better failure, because you find out immediately.</p>
+<h3>Paying the bill: validate at the boundary</h3>
+<p><code>GuardedSettings</code> reads the same key from the same source, and behaves identically whenever the value is sensible. Four rules cover the cases where it is not.</p>
+<p><strong>Validate at the boundary.</strong> Every value goes through <code>MoneySetting.read</code>, which insists the text is money and that the money is in range. Nothing that fails gets further into the program, so no downstream code has to wonder.</p>
+<p><strong>Keep the last good value.</strong> When a bad value arrives, carry on with the last one that passed — not the compiled-in default. This matters more than it sounds. Reverting to fifty pounds because somebody fat-fingered an unrelated edit would silently cancel a perfectly good promotion, which is its own kind of wrong.</p>
+<p><strong>Fall back to the default only as a last resort.</strong> If there has never been a good value — the shop has just started and the first thing it read was rubbish — there is nothing to keep, so the default keeps the shop selling.</p>
+<p><strong>Say so, loudly.</strong> Every rejection is recorded. A guard that silently swallows bad input is half a guard: the typo is still there and the promotion still is not running. In a real shop this is an error-level log and an alert.</p>
+<pre><code>  delivery.freeOver: money, £5.00 to £200.00, default £50.00
+  REJECTED  setting &#x27;delivery.freeOver&#x27; has value &quot;fifty&quot; — expected an amount of money such as &quot;35&quot; or &quot;4.99&quot;
+  REJECTED  setting &#x27;delivery.freeOver&#x27; has value &quot;-1&quot; — expected between £5.00 and £200.00
+  both bad values were stopped at the edge, and the shop kept the last value that passed.</code></pre>
+<h3>Paying the bill: the audit trail</h3>
+<pre><code>  #1  Fri 07 Mar 16:30:04  delivery.freeOver  (not set) -&gt; 35        by marketing
+  #2  Sat 08 Mar 09:12:04  delivery.freeOver  35       -&gt; -1        by marketing
+  #3  Sat 08 Mar 09:20:04  delivery.freeOver  -1       -&gt; fifty     by marketing
+  #4  Sat 08 Mar 10:05:04  delivery.freeOver  fifty    -&gt; 35        by marketing
+  #5  Sat 08 Mar 11:40:04  delivery.freeOver  35       -&gt; -1        by ops
+  5 changes to one setting in under a day, and not one of them is in the git history.</code></pre>
+<p>Five facts per line, and the one people leave out is <code>was</code>. Without it a rollback is a feat of memory performed at speed while the shop gives delivery away. With it, a rollback is a lookup.</p>
+<p>The log is append-only on purpose. An audit trail you can tidy up afterwards answers nothing, because the one occasion you most need it is the one occasion somebody has a motive to tidy it.</p>
+<p>And note the question the log is for. Nobody will ever ask you what the threshold is <em>now</em> — you can read that off the server. They will ask what it was at nine o&#x27;clock on Saturday.</p>
+<h3>Paying the bill: a rollback as fast as the change</h3>
+<pre><code>  #6  Sat 08 Mar 11:40:08  delivery.freeOver  -1       -&gt; 35        by on-call (rollback)
+  back in force at 4 seconds past the decision, and nobody had to remember the old value: the log had it.
+  the same correction through the release pipeline would be live Mon 10 Mar 11:15.</code></pre>
+<p>This is the guard with no equivalent in the source-code world, and the one that genuinely makes externalised configuration <em>safer</em> rather than merely faster. A bad release takes a release to undo. A bad value takes four seconds.</p>
+<h2>What this simulation does not show</h2>
+<p>Being explicit about the edges, because the code deliberately stops short of several real things.</p>
+<p><strong>No network.</strong> <code>ConfigServer</code> is a map in the same JVM. A real config server is a process you call over HTTP, which adds latency to every read and makes caching unavoidable — see the note on caching below. Nothing here models that, because modelling it would teach you about HTTP clients rather than about configuration.</p>
+<p><strong>No caching or refresh interval.</strong> This project reads the source on every quote. A real implementation caches the value and refreshes it on a timer, or is pushed a notification when it changes. That is an optimisation, and it introduces its own subtlety: a cache means there is a window in which two instances of the shop are quoting different thresholds.</p>
+<p><strong>No multiple layered sources.</strong> Real systems stack sources with a precedence order — environment variables over a mounted file over a config server over the compiled-in default — so that an operator can override one value on one instance. The idea is a short step from <code>ConfigSource</code>; the project sticks to one source to keep the lesson about the guards rather than the plumbing.</p>
+<p><strong>No secrets.</strong> Passwords, API keys and certificates are configuration in the technical sense and a completely different problem in practice, because the audit trail must not contain the value and the source must be encrypted. Treating a database password the way this project treats a delivery threshold would be a serious mistake.</p>
+<p><strong>No consistency across instances.</strong> When the shop runs on six machines, a change does not reach all six at the same instant. For a delivery threshold that is harmless. For a value two instances must agree on — a shard count, a feature flag that changes a data format — it is not, and that is a distributed-systems problem this pattern does not solve.</p>
+<h2>Why The Tests Are The Proof</h2>
+<p>Fifty-four tests, and two of them are worth singling out because of what they assert.</p>
+<p><code>TheBillTest.minusOneGivesEverythingAway</code> <strong>passes</strong>. It asserts that every basket in the shop ships free when the threshold is minus one pound, and that nothing throws. It is not describing a bug; it is describing the pattern working exactly as designed with a value somebody typed wrongly. A test suite that only contained the happy path would let you believe this could not happen.</p>
+<p><code>ConfiguredCheckoutTest.theThresholdIsReadEveryTime</code> changes the configured value three times and quotes between each change. It is there to catch the tempting refactor — reading the value once in the constructor — which would pass every other test in the suite and quietly destroy the point of the pattern.</p>
+<p><code>ReleasePipelineTest</code> pins the naive cost: 135 minutes of work, live Monday at 10:45, late by two days one hour forty-five. Those figures are spoken out loud in the video, so they are asserted here rather than trusted.</p>
+<p><code>DemoRunsTest</code> runs the demo twice and requires identical output, and checks every number the narration quotes against what the program actually prints.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>A business decision moves at business speed.</strong> Four seconds instead of two days, without weakening the pipeline that protects everything else.</li><li><strong>The pipeline gets its dignity back.</strong> Code review is for code again, instead of being a rubber stamp on somebody&#x27;s marketing calendar.</li><li><strong>The same build runs everywhere.</strong> One artefact, configured differently for staging and production, rather than a build per environment.</li><li><strong>The shop survives its configuration source.</strong> A default in the code means a config outage is a degradation, not an outage.</li><li><strong>Rollback becomes cheap enough to actually use.</strong> Which changes behaviour: people try things when undoing them is four seconds.</li><li><strong>The provenance of every value is answerable.</strong> &quot;Where did this threshold come from&quot; has an answer on the screen.</li></ul>
+<h2>What To Watch Out For</h2>
+<p><strong>Externalising things that should not be externalised.</strong> Not every constant is a business policy. The order of the steps in a fulfilment workflow, the structure of a total, the algorithm — those belong in the source, behind the review. If you can break the shop by typing into a text box, you have externalised too much. The test is simple: does this value change on a marketing calendar or an engineering one?</p>
+<p><strong>Forgetting the range.</strong> A type alone does not save you. <code>-1</code> is money, and it is catastrophic. Every numeric setting wants a floor and a ceiling, and picking them is a conversation with whoever owns the number, not a guess.</p>
+<p><strong>Falling back to the default on a bad value.</strong> Tempting, and wrong. A typo in one setting should not silently cancel a good value somebody set deliberately an hour ago. Keep the last good value and shout.</p>
+<p><strong>Failing silently.</strong> The commonest mistake once validation exists. Rejecting a bad value and saying nothing leaves the shop correct and the promotion off, with nobody looking for the cause. A rejection is an alert.</p>
+<p><strong>Putting secrets through the same path.</strong> See above. Different problem, different tooling.</p>
+<p><strong>No audit trail.</strong> When the value left the source code it left the version history. If nothing replaced that, &quot;what was the threshold on Saturday&quot; is unanswerable, and that question <em>will</em> be asked — usually by somebody in finance.</p>
+<p><strong>Assuming the change is atomic across instances.</strong> For a threshold, fine. For anything two instances must agree on, not fine.</p>
+<h2>Externalised Configuration vs. Feature Flags</h2>
+<p>These overlap enough to be worth separating, because the confusion causes real architectural mess.</p>
+<p>Both read a value from outside at runtime. The difference is what the value <em>is</em>. Externalised configuration holds <strong>parameters</strong>: a threshold, a page size, a timeout, a courier name. Feature flags hold <strong>switches that select code paths</strong>: is the new checkout on, is this customer in the experiment.</p>
+<p>The practical distinction is what accumulates. A parameter lives forever and has a value. A flag is supposed to be temporary — it exists to de-risk a release and then be deleted, along with the branch it was guarding. Flags that are never removed turn the codebase into a maze of dead paths, which is the failure mode of that pattern and not of this one.</p>
+<p>If you find yourself putting an <code>if</code> on a configured value to choose between two implementations, you are building a feature flag, and it wants a plan for its own deletion.</p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><strong>Spring Boot&#x27;s <code>@Value</code> and <code>@ConfigurationProperties</code></strong> — the second with validation annotations, which is exactly <code>MoneySetting</code>&#x27;s job with a framework doing the parsing.</li><li><strong>Spring Cloud Config Server with <code>@RefreshScope</code></strong> — the canonical Java implementation, and what Tier 2 of this project builds.</li><li><strong>Kubernetes ConfigMaps and Secrets</strong> — configuration as a mounted file or environment variables, with the secrets path deliberately separate.</li><li><strong>The twelve-factor app&#x27;s third factor</strong>, &quot;store config in the environment&quot;, which is where a lot of teams first meet the idea.</li><li><strong><code>application.properties</code> with a profile per environment</strong> — the same pattern, read at startup rather than per use, which is why a change needs a restart.</li><li><strong>AWS Parameter Store, HashiCorp Consul, etcd</strong> — the same shape at infrastructure scale, usually with the audit trail built in.</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li><strong>Add a second setting.</strong> Externalise the standard delivery charge alongside the threshold. Give it its own range. Notice how little of <code>ConfiguredCheckout</code> changes, and that the audit trail now has two keys in it.</li></ol>
+<ol><li><strong>Break the range on purpose.</strong> Widen <code>MoneySetting</code>&#x27;s lowest bound to minus one thousand pounds and run the demo. Act 7 will now accept <code>-1</code>, and the shop gives delivery away with validation switched on. The range is the guard, not the type.</li></ol>
+<ol><li><strong>Move the read into the constructor.</strong> Change <code>ConfiguredCheckout</code> to read the threshold once when it is built. Run the tests and watch <code>theThresholdIsReadEveryTime</code> fail. Then think about which real-world change you have just made necessary: a restart.</li></ol>
+<ol><li><strong>Add a layered source.</strong> Write a <code>LayeredConfigSource</code> that tries an environment-variable source first and the config server second. Decide what its <code>name()</code> should say, and notice that the origin string is now doing real work.</li></ol>
+<ol><li><strong>Make the rollback safer.</strong> <code>ConfigServer.rollback</code> goes back exactly one step. Make it roll back to the last value that would have passed validation, so rolling back twice in a row cannot land on an earlier bad value.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the naive version and its cost</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — the structure</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the call flow of one quote</li><li><a href="animation.html"><code>animation.html</code></a> — step through the nine acts in a browser</li><li><a href="session.html"><code>session.md</code></a> — a 60-minute guided teaching session</li><li><a href="prerequisites.html"><code>prerequisites.md</code></a> — what you need to know first</li></ul>
+</main>
+<footer>
+Generated from <code>externalised-configuration-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

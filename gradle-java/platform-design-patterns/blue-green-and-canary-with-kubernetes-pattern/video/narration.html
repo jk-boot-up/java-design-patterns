@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blue-Green and Canary with Kubernetes Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Blue-Green and Canary with Kubernetes Pattern — Video Narration Script</h1>
+<h2>1. Blue-Green and Canary with Kubernetes</h2>
+<p>Hello, and welcome. This video explains the Blue-Green and Canary pattern with Kubernetes, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the Blue-Green and Canary video. That one ran two releases of the checkout behind a router that was a rule on the request number. It showed an in place upgrade failing requests, a switch and a switch back, a canary, and a gate that halts a bad release. This one shows the same idea inside Kubernetes. The plain definition, in short: on Kubernetes, blue green is a change to a service&#x27;s selector, between two deployments. A canary is a change to the replica counts of two deployments behind one service. By the end you will see a real cluster fail every request while a release is replaced, see a real switch and a real switch back, see a canary spread by the cluster itself, see a gate halt a bad release, and see the bill: pods for two releases at once.</p>
+<h2>2. The Partner Project</h2>
+<p>This video assumes the Blue-Green and Canary video. If you have not seen it, start there. It runs two releases behind a router that is a rule on the request number, and shows a switch, a switch back, a canary and a gate. This one uses the same example. It does not teach the pattern again. It shows what Kubernetes does with it.</p>
+<h2>3. Before The First Line</h2>
+<p>Before the first line of code, what Kubernetes is. Kubernetes is a system that runs containers in groups called pods, and keeps as many as you ask for. A service gives them one address, and picks them by label. Kind runs a whole cluster inside Docker on your own machine. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.</p>
+<h2>4. Replace It Where It Stands</h2>
+<p>First, replace it where it stands. Version one is stopped to make room for version two. Twenty requests arrive while nothing is running, and all twenty fail. This is a real cluster, and it really refuses.</p>
+<h2>5. Blue And Green</h2>
+<p>Second, blue and green. Version two runs beside version one, and only a test port reaches it. Twenty requests before the switch are all answered by version one. The switch is one patch to the service. Twenty after are all answered by version two, and none failed.</p>
+<h2>6. Going Back</h2>
+<p>Third, going back. Version two has a bug with big orders. Twenty big orders on version two: all twenty fail. One patch sends the service back to version one, whose pods never stopped. Twenty big orders: none fail.</p>
+<h2>7. A Canary</h2>
+<p>Fourth, a canary. Nine pods of version one and one of version two, behind one service. Three hundred big orders: a few dozen failed, a small share, as a canary should be. The spread is chosen by the cluster&#x27;s own rules, so the exact count changes from run to run. Had all three hundred gone to version two, all would have failed.</p>
+<h2>8. Promote In Steps, With A Gate</h2>
+<p>Fifth, promote in steps, with a gate. Steps of one, five and ten pods of version two, with a gate at five failures in a hundred. The buggy release is halted, and every pod is version one again. A first step with few requests can miss a bug, and the next step, with more traffic, catches it.</p>
+<h2>9. The Bill</h2>
+<p>Last, the bill. During a blue-green switch both releases are fully running: four pods, where one release needs two. Both share one database, so a release that changes the data cannot be switched back safely. And a cluster is a lot to run for a checkout.</p>
+<h2>10. The Verdict</h2>
+<p>My verdict, plainly. Release beside the old version. On Kubernetes, switch with a selector and go back with the same. Use replica counts for a canary, with a gate on failures and enough traffic per step. Automate it with a rollout tool, and keep data changes compatible in both directions.</p>
+<h2>11. How To Recognise It</h2>
+<p>How do you recognise this in code you did not write? A Service whose selector includes a version label. Two Deployments of one app, with different version labels. Argo Rollouts or Flagger objects.</p>
+<h2>12. Where You Have Met This</h2>
+<p>You have met this in kubernetes platforms and their release tools.</p>
+<h2>13. What Was Used</h2>
+<p>For the record. Kubernetes, via kind 0.33. nginx, alpine. Docker, 24 or later.</p>
+<h2>14. What Is Real Here</h2>
+<p>The same honest admission as everywhere in this course. Everything is real: a real cluster, real pods, and a real service. The canary&#x27;s spread is the cluster&#x27;s own, so its counts change from run to run.</p>
+<h2>15. When This Is Too Much</h2>
+<p>So when is it too much? For an internal tool where a short outage is fine, a plain restart is enough, and a cluster is a lot to run for one service.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s Blue-Green and Canary with Kubernetes. If you take one sentence away, take this one: on Kubernetes a release is a selector and some replica counts, and the cluster does the rest. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, change the gate to two failures in a hundred, and rerun act five. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

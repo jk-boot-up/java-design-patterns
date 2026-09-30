@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Externalised Configuration Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Externalised Configuration Pattern</h1>
+<p>A 60-minute guided session. The unusual shape of this one is that the pattern itself takes ten minutes to teach and the rest of the hour is spent on what it costs. Resist the urge to rebalance that; the costs are the part the room will actually meet in production.</p>
+<h2>Learning Objectives</h2>
+<p>By the end of the session a participant can:</p>
+<ol><li>Explain why a well-written constant can still be the wrong place for a value.</li><li>Tell a business-policy value apart from a behaviour value, and justify the call.</li><li>Name the three moves of the pattern, including the third one most write-ups omit.</li><li>Describe the two distinct ways a bad configured value fails, and why the quiet one is worse.</li><li>Name the four guards that must be rebuilt outside the program, and say which original guard each one replaces.</li><li>Explain why a rejected value falls back to the last good value rather than to the compiled-in default.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup, and the line of code that is not wrong</td></tr><tr><td>0:05–0:15</td><td>The problem: Friday at half past four</td></tr><tr><td>0:15–0:25</td><td>The pattern: three moves</td></tr><tr><td>0:25–0:38</td><td>Code walkthrough</td></tr><tr><td>0:38–0:50</td><td>Exercises</td></tr><tr><td>0:50–0:58</td><td>The bill, and the feature-flag question</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup, And The Line That Is Not Wrong</h2>
+<p>Everyone runs:</p>
+<pre><code>cd platform-design-patterns/externalised-configuration-pattern
+./gradlew -q run</code></pre>
+<p>Then put this on the screen and ask the room to criticise it:</p>
+<pre><code>private static final Money FREE_DELIVERY_OVER = Money.pounds(50);</code></pre>
+<p>Let them try. Someone will reach for &quot;magic number&quot; and then notice it is named. Someone may suggest it should be configurable, which is the answer but not yet the reasoning. Land the point explicitly: <strong>there is nothing wrong with this line.</strong> It is a named constant, in one place, correctly typed, and a reviewer would approve it.</p>
+<p>That matters for the rest of the hour. This pattern does not fix bad code. It fixes a value that is in a place with the wrong change speed.</p>
+<h2>0:05–0:15 — The Problem: Friday At Half Past Four</h2>
+<p>Read act 2 of the output together, one line at a time.</p>
+<pre><code>  edit the constant         15 min   done Fri 07 Mar 16:45
+  code review               45 min   done Mon 10 Mar 09:30</code></pre>
+<p>Stop there. Ask what happened between those two lines. The window closed at five and did not reopen until Monday.</p>
+<pre><code>  total work: 2 hours 15 minutes
+  live at:    Mon 10 Mar 10:45
+  the promotion was for the weekend. It is late by 2 days 1 hour 45 minutes.</code></pre>
+<p><strong>Discussion question, five minutes:</strong> which step in that list would you remove?</p>
+<p>The useful outcome is that nobody can remove one. Code review is how a typo does not reach a million customers. The build is how you avoid shipping something that does not compile. Approval is how a regulated business shows releases are controlled. The weekday window exists because the people who would notice a bad release are at their desks on weekdays.</p>
+<p>Close with the distinction that carries the whole session: <strong>some values are decisions about behaviour, and some are decisions about business policy.</strong> Behaviour belongs behind the pipeline and you should be glad it is hard to change. Policy changes on a marketing calendar, and putting it behind the pipeline does not make it safer — it makes it late.</p>
+<h2>0:15–0:25 — The Pattern: Three Moves</h2>
+<p><strong>Move one: the value comes from outside, and is read per use.</strong> Show act 3. Four seconds, and ORD-7102 flips to free delivery on the next quote.</p>
+<p>Then labour the placement, because this is where tidy-minded developers go wrong. Ask: why not read it once in the constructor and keep it in a field? Let them answer. The answer is that you would have traded a rebuild for a restart, and a restart of a live shop on Saturday morning is not much of a trade.</p>
+<p><strong>Move two: the code keeps a default.</strong> Show act 4 — the server goes away and the shop keeps selling. Then read the last line of that act out loud:</p>
+<pre><code>  note what it quietly lost, though: the promotion. Back to £50.00 with no error and no alarm.</code></pre>
+<p>Ask the room how anybody would find out. The answer is only the origin string.</p>
+<p><strong>Move three: the guards move out with the value.</strong> Ask what protected the constant. Push until you get all four: the compiler, the type system, the reviewer, version control. Then point out that none of them follows the value out of the source file, and that the rest of the session is about replacing them deliberately.</p>
+<h2>0:25–0:38 — Code Walkthrough</h2>
+<p>Four files, in this order.</p>
+<p><strong><code>HardCodedCheckout</code></strong> — thirty seconds. It is correct. Move on.</p>
+<p><strong><code>ConfiguredCheckout.quote</code></strong> — put it beside <code>HardCodedCheckout.quote</code> and have the room name the difference. The arithmetic is identical; one line reads a setting. Point at where that read sits: inside the method.</p>
+<p><strong><code>MoneySetting</code></strong> — the key, the fallback, the lowest, the highest. Ask the room to justify £5 and £200 as the bounds. Below five pounds free delivery is being given away on a packet of crisps; above two hundred nobody qualifies and the promotion is broken the other way. The important realisation is that these are <em>business</em> judgements, which is exactly why a program has to enforce them.</p>
+<p><strong><code>TrustingSettings</code> beside <code>GuardedSettings</code></strong> — read them side by side. They differ in one <code>try</code> block. Make sure the room sees that <code>GuardedSettings</code> falls back to <code>lastGood</code>, not to <code>setting.fallback()</code>, and ask why before telling them.</p>
+<h2>0:38–0:50 — Exercises</h2>
+<h3>Exercise 1 — Break the range on purpose (everyone)</h3>
+<p>In <code>ConfiguredCheckout</code>, change the setting&#x27;s lowest bound from <code>Money.pounds(5)</code> to <code>Money.pounds(-1000)</code>. Run the demo.</p>
+<p>Act 7 now accepts <code>-1</code> and the shop gives delivery away with validation switched on. The point: the type was never the guard. The range is.</p>
+<h3>Exercise 2 — Move the read into the constructor (everyone)</h3>
+<p>Change <code>ConfiguredCheckout</code> to read the threshold once when it is constructed. Run <code>./gradlew test</code>.</p>
+<p><code>ConfiguredCheckoutTest.theThresholdIsReadEveryTime</code> fails, and it is the only one that does. Discuss what real-world change that refactor has just made necessary: a restart.</p>
+<h3>Exercise 3 — Fall back to the default instead (discussion, then code)</h3>
+<p>In <code>GuardedSettings.fallBack</code>, delete the <code>lastGood</code> lookup so a rejected value always falls back to <code>setting.fallback()</code>. Run the demo.</p>
+<p>Act 7 now reverts to £50 when somebody types <code>-1</code>, silently cancelling a promotion that was set deliberately an hour earlier. Ask the room which is worse, and make them argue it.</p>
+<h3>Exercise 4 — Stretch</h3>
+<p>Write a <code>LayeredConfigSource</code> that consults an environment-variable source first and the config server second. The interesting part is not the loop — it is deciding what <code>name()</code> should return, because the origin string is now doing real work.</p>
+<h2>0:50–0:58 — The Bill, And The Feature-Flag Question</h2>
+<p>Walk acts 5 and 6, and insist on the difference between them.</p>
+<p><code>-1</code> is <strong>quiet</strong>. Every basket ships free, no exception, no log line, no alert, and the first symptom is the margin report. <code>fifty</code> is <strong>loud</strong>. Nothing can be quoted at all and you find out in seconds.</p>
+<p>Ask which is worse. The room usually says the outage. Push back: the outage is detected immediately by anything that watches error rates, and rolls back in four seconds. The quiet one runs all weekend.</p>
+<p>Then open <code>TheBillTest</code> and point out that <code>minusOneGivesEverythingAway</code> <strong>passes</strong>. It is not a bug report. It is a description of the pattern working exactly as designed with a value somebody typed wrongly.</p>
+<p>Close on the boundary question, which is the one they will actually have to answer at work: <strong>what should never be externalised?</strong> Anything you can break the shop with by typing into a text box. The order of the steps in a workflow, the structure of a total, the algorithm. If someone raises feature flags, take it — externalised configuration holds parameters that live forever; feature flags hold switches that select code paths and are supposed to be deleted. Flags that are never removed turn a codebase into a maze of dead paths, and that is the failure mode of that pattern, not this one.</p>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>One sentence: <strong>take the number out of the code, and take the compiler, the reviewer and the history out with it.</strong></p>
+<p>Then the table:</p>
+<table><thead><tr><th>What you lost</th><th>What replaces it</th></tr></thead><tbody><tr><td>The compiler refusing &quot;fifty&quot;</td><td>A typed setting that parses and rejects</td></tr><tr><td>A reviewer querying <code>-1</code></td><td>A declared range the value must fall inside</td></tr><tr><td>Version control&#x27;s history</td><td>An audit trail of who changed what, and when</td></tr><tr><td>A revert and a redeploy</td><td>A rollback as fast as the change</td></tr></tbody></table>
+<p>Homework: find one constant in your own codebase that changes on a marketing calendar rather than an engineering one, and write down the range it should be allowed to take. The range is usually the hard part, and it is usually a conversation with somebody who is not an engineer.</p>
+<h2>Facilitator Notes</h2>
+<p><strong>The most common wrong turn</strong> is a participant concluding that configuration should be avoided because it is dangerous. Correct it early: the pipeline is not safer for this value, it is slower, and the demo shows the promotion missing its weekend. The lesson is to externalise deliberately with the guards rebuilt, not to externalise nothing.</p>
+<p><strong>The second most common</strong> is agreeing enthusiastically that everything should be configurable. Exercise 3 and the closing boundary question are aimed at this.</p>
+<p><strong>If the room is senior</strong>, spend longer on the audit trail. Experienced people have usually been asked &quot;what was this value at 9am on Saturday&quot; and have not been able to answer.</p>
+<p><strong>If the room is junior</strong>, spend longer on act 2 and less on act 7. The realisation that a correct one-line change can still be useless is the one that sticks.</p>
+<p><strong>Timing risk:</strong> the code walkthrough over-runs if you read <code>Money</code> or <code>ReleasePipeline</code> in detail. Neither is the pattern. <code>ReleasePipeline</code> is a price tag and <code>Money</code> is plumbing; show their output, not their internals.</p>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>JDK 21 installed, <code>./gradlew test</code> green before the session</li><li><code>./gradlew -q run</code> output on screen, scrollable</li><li><code>docs/images/class-diagram.png</code> on screen for the walkthrough</li><li><code>docs/animation.html</code> open in a browser as a fallback for the acts</li><li><code>HardCodedCheckout.quote</code> and <code>ConfiguredCheckout.quote</code> side by side</li><li><code>TrustingSettings</code> and <code>GuardedSettings</code> side by side</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

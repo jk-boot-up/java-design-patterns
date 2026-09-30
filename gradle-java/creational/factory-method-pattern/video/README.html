@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Factory Method Pattern — Teaching Video</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Factory Method Pattern — Teaching Video</h1>
+<p>A narrated, slide-based video that teaches the Factory Method pattern using this project&#x27;s code. Aimed at beginners with no prior design-pattern knowledge.</p>
+<h2>Output Files</h2>
+<table><thead><tr><th>File</th><th>What it is</th></tr></thead><tbody><tr><td><code>factory-method-pattern-explained.mp4</code></td><td>The video — 1920×1080, H.264, 30 fps, stereo AAC. Upload-ready for YouTube.</td></tr><tr><td><code>factory-method-pattern-explained.m4a</code></td><td>Audio-only version, for listening on the move or for revision.</td></tr><tr><td><code>factory-method-pattern-explained.srt</code></td><td>Subtitles, timed from the encoded scene clips. Upload alongside the video for accurate captions.</td></tr><tr><td><code>poster.png</code></td><td>The opening title card, 1920×1080. Upload it as the video&#x27;s custom thumbnail.</td></tr></tbody></table>
+<p><strong>Runtime:</strong> approximately 8 minutes 30 seconds. <strong>Narration:</strong> female voice (macOS <code>Samantha</code>, US English).</p>
+<p>The <code>.mp4</code>, <code>.m4a</code> and <code>.srt</code> are build output and are not committed — run <code>./build_video.sh</code> to produce them. <code>poster.png</code> <em>is</em> committed, so the title card is available without a build.</p>
+<h2>Source Files</h2>
+<table><thead><tr><th>File</th><th>Purpose</th></tr></thead><tbody><tr><td><code>narration.md</code></td><td>The full spoken script, scene by scene — read this to review or edit the wording.</td></tr><tr><td><code>scenes.py</code></td><td>Slide content <em>and</em> narration text, kept together so they cannot drift apart.</td></tr><tr><td><code>make_slides.py</code></td><td>Renders one 1920×1080 PNG per scene.</td></tr><tr><td><code>make_subtitles.py</code></td><td>Generates the SRT, timed from the encoded scene clips.</td></tr><tr><td><code>build_video.sh</code></td><td>The whole pipeline: slides → narration → per-scene clips → final video → subtitles.</td></tr><tr><td><code>build/</code></td><td>Generated slide images (regenerated on every build).</td></tr></tbody></table>
+<h2>Rebuilding</h2>
+<pre><code>./build_video.sh</code></pre>
+<p>The script will:</p>
+<ol><li>render the slides,</li><li>narrate each scene with the <code>say</code> command,</li><li>pair every slide with its narration into a clip,</li><li>concatenate the clips, export the audio-only version and lift out <code>poster.png</code>,</li><li>generate the SRT subtitles, then clean up the intermediates.</li></ol>
+<h3>Why audio and video are kept apart until the last step</h3>
+<p>This is the part of the pipeline most worth understanding before changing anything, because getting it wrong produces a file that looks fine and sounds broken.</p>
+<p>AAC is a lapped format: every separately encoded clip carries priming samples at its head and padding at its tail. Concatenating such clips with <code>-c copy</code> cannot strip either, so each join leaves a hole in the timeline — the voice cuts out for a moment at every scene change, and over a full video the gaps add up to tens of seconds of missing narration. So each scene&#x27;s narration is written as lossless WAV, and the whole narration is encoded to AAC exactly once, at the mux. One encode, one set of priming samples, no internal joins.</p>
+<p>Loudness normalisation is run in two passes for a related reason. Left to itself <code>loudnorm</code> works dynamically, riding the level as it goes, and on some narrations that makes it emit a timestamp discontinuity partway through — the same audible hole, in the middle of a sentence, with nothing wrong anywhere upstream. Measuring the narration first and handing the numbers back with <code>linear=true</code> reduces it to one constant gain, which cannot do that, and which also stops it pumping between quiet and loud lines.</p>
+<p>The build checks itself for both: after the mux it reads every audio packet timestamp and fails if any two are more than one AAC frame apart. If you change the ffmpeg calls, that check is what will tell you.</p>
+<p>Scene lengths are rounded up to a whole number of video frames and the audio padded to match, so a scene&#x27;s picture and its narration are exactly the same length. Slide changes therefore cannot drift away from the voice, however many scenes the video grows to.</p>
+<p>The final mux is deliberate, not incidental: the file is written with <code>+faststart</code> so the index sits at the front and the poster paints the moment the file is opened, and the AAC priming edit list is dropped so the video track starts at 0.000 alongside the audio rather than 21 ms late. Without either, players show black at 0:00. If you change the ffmpeg calls, check with <code>ffprobe -show_entries stream=start_time</code> that both streams still start at zero.</p>
+<p>The narration is cleaned up before it is encoded, and that matters more than it sounds. Every voice macOS ships by default is the compact 22 kHz tier, and resampling it straight to the 48 kHz the AAC track needs leaves an audible hiss. The <code>CLEANUP</code> filter chain in <code>build_video.sh</code> resamples with a long filter so the upsampling adds no grit of its own, drops the rumble below the voice, and lifts the consonant range slightly.</p>
+<p>There is deliberately no denoiser in that chain. An earlier version ran <code>afftdn</code> over the narration, and by the numbers it worked — about 15 dB off the noise floor. It also made the voice noticeably worse. A spectral denoiser assumes a real, roughly stationary noise floor to subtract; synthesised speech has almost none, so <code>afftdn</code> ends up subtracting parts of the speech instead and leaves it warbling. The faint hiss is much the lesser problem, so it stays.</p>
+<p>Levelling is deliberately not part of that chain either — run per scene it re-measures on every clip, so a quiet scene gets pushed up to match a loud one and the level audibly steps at each join. It happens once instead, over the whole narration, at YouTube&#x27;s -16 LUFS target.</p>
+<p>An Enhanced or Premium voice would sound better still — those sample at 44.1 kHz — but they are a manual download: <strong>System Settings → Accessibility → Spoken Content → System Voice → Manage Voices</strong>. Once one is installed, just re-run the build.</p>
+<p>Set <code>KEEP_INTERMEDIATE=1</code> to retain the per-scene narration and clips for inspection.</p>
+<h3>Options</h3>
+<p>Both are environment variables:</p>
+<pre><code>VOICE=Ava RATE=155 ./build_video.sh</code></pre>
+<table><thead><tr><th>Variable</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>VOICE</code></td><td><code>Samantha</code></td><td>Any voice from <code>say -v &#x27;?&#x27;</code></td></tr><tr><td><code>RATE</code></td><td><code>145</code></td><td>Speaking rate in words per minute — the pace educational YouTube converges on for technical material</td></tr></tbody></table>
+<h3>Requirements</h3>
+<ul><li><strong>macOS</strong> — the narration uses the built-in <code>say</code> command</li><li><strong>ffmpeg</strong> — <code>brew install ffmpeg</code></li><li><strong>Python 3</strong> with <code>pillow</code> and <code>matplotlib</code> (<code>matplotlib</code> is used only for its bundled DejaVu fonts)</li></ul>
+<h2>Scene List</h2>
+<table><thead><tr><th>#</th><th>Scene</th><th>Covers</th></tr></thead><tbody><tr><td>1</td><td>Poster</td><td>Title card, author credit, the plain-language definition of the pattern, and the thumbnail</td></tr><tr><td>2</td><td>The Scenario</td><td>Four delivery tiers, four carriers</td></tr><tr><td>3</td><td>The Workflow Is Always the Same</td><td>Three shared steps, one that varies</td></tr><tr><td>4</td><td>The Problem</td><td>One class doing the workflow <em>and</em> the choosing</td></tr><tr><td>5</td><td>Why That Hurts</td><td>Editing working code, tangled branches, closed extension</td></tr><tr><td>6</td><td>The Factory Method</td><td>The GoF definition, then the plain-language one</td></tr><tr><td>7</td><td>The Coffee Chain Analogy</td><td>How to remember it forever</td></tr><tr><td>8</td><td>The Four Roles</td><td>Product, products, creator, concrete creators</td></tr><tr><td>9</td><td>A Product</td><td><code>AirCourier</code> — small and unaware</td></tr><tr><td>10</td><td>The Creator</td><td>The abstract method, and the <code>final</code> workflow</td></tr><tr><td>11</td><td>A Concrete Creator</td><td>Six lines, and no <code>switch</code> anywhere</td></tr><tr><td>12</td><td>What You Gain</td><td>Open/Closed, shared behaviour, external extension</td></tr><tr><td>13</td><td>Running It</td><td>The real program output</td></tr><tr><td>14</td><td>Wrap Up</td><td>When to use it, when not to, and the one sentence to remember</td></tr><tr><td>15</td><td>Thanks for Watching</td><td>Like, subscribe, and where the source code lives</td></tr></tbody></table>
+<p>The first and last scenes carry the branding: scene 1 credits the author out loud, scene 15 asks for the thumbs up and the subscribe. Both are rendered by their own slide styles (<code>poster</code> and <code>outro</code> in <code>make_slides.py</code>) and are the only two scenes with no page number in the footer.</p>
+<h2>Related: the animation&#x27;s narration</h2>
+<p><a href="../docs/animation.html"><code>../docs/animation.html</code></a> has its own optional narration, generated separately by <a href="../docs/make_animation_audio.sh"><code>../docs/make_animation_audio.sh</code></a> into <code>docs/audio/</code>. It uses the same voice and rate as this video so the two sound consistent. Those clips are short per-step explanations, not the video script.</p>
+<h2>Editing the Script</h2>
+<p>Narration lives in <code>scenes.py</code>, next to the slide it belongs to. Edit the <code>narration</code> field of a scene, then re-run <code>./build_video.sh</code>. The script is written to be spoken rather than read, and <code>[[slnc NNN]]</code> markers insert a pause of NNN milliseconds where a person would draw breath. They are instructions to <code>say</code>, not words: <code>make_subtitles.py</code> strips them, so keep any new ones in that exact form or they will be read out loud. Keep <code>narration.md</code> in sync if you change the wording substantially — it is the human-readable copy used for review.</p>
+<p>Note that some words are spelled phonetically for the synthesiser — &quot;sky link air&quot; rather than &quot;SkyLink Air&quot;. Keep that habit, or the narration will mispronounce them.</p>
+<h2>Publishing Notes</h2>
+<p>The video is encoded to YouTube&#x27;s recommended settings already (1080p, H.264, 30 fps, stereo AAC at 48 kHz), so it can be uploaded as-is.</p>
+<p><strong>Upload <code>factory-method-pattern-explained.mp4</code>, with <code>poster.png</code> as the thumbnail and the <code>.srt</code> as the captions.</strong> The <code>.m4a</code> and the build scripts have no role on YouTube.</p>
+<h3>Adding the subtitles</h3>
+<p>YouTube auto-generates captions, but they mis-hear class names like <code>DeliveryService</code>. Uploading <code>factory-method-pattern-explained.srt</code> gives exact wording and makes the video searchable.</p>
+<p><strong>During upload</strong> — on the <em>Video elements</em> step, choose <strong>Add subtitles</strong> → <strong>Upload file</strong> → <strong>With timing</strong>, pick the <code>.srt</code>, then <strong>Save</strong>.</p>
+<p><strong>After publishing</strong> — YouTube Studio → <strong>Subtitles</strong> → select the video → next to your language click <strong>Add</strong> → <strong>Upload file</strong> → <strong>With timing</strong> → choose the <code>.srt</code> → <strong>Publish</strong>.</p>
+<p>Set the video language (Details → <em>Show more</em> → Video language) to English first, or the subtitle option may not appear.</p>
+<p>Two further things that affect how well it plays for viewers:</p>
+<ul><li><strong>Wait for HD processing.</strong> YouTube serves a low-resolution version first; 1080p can take several extra minutes to appear. Code slides are unreadable at 360p, so do not share the link until 1080p is available in the quality menu.</li><li><strong>Set the thumbnail.</strong> Do not let YouTube auto-pick a frame — upload <code>poster.png</code>. It is the same image as the opening scene, drawn large and bright enough to stay readable at search-result size, and it carries both the topic and the author&#x27;s name. In YouTube Studio: <strong>Details</strong> → <strong>Thumbnail</strong> → <strong>Upload file</strong>. (A custom thumbnail needs a verified channel; if the option is missing, verify the account first.)</li></ul>
+<p>Suggested description:</p>
+<blockquote><p>Factory Method pattern in Java 21, explained by building an online store&#x27;s delivery tiers. We start with the problem — a shipping method with an if/else chain buried in the middle of it — and end with an abstract creator whose subclasses answer one question each, and no <code>switch</code> anywhere. We also cover, honestly, when the pattern is more machinery than the job needs. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.</p></blockquote>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

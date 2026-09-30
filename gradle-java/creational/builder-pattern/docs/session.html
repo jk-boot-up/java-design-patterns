@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Plan — The Builder Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Plan — The Builder Pattern</h1>
+<p>A guided session for teaching this project to people who are new to design patterns.</p>
+<ul><li><strong>Audience:</strong> anyone comfortable writing a Java class. No pattern knowledge assumed, though having done the static factory method session first helps — this one builds on it.</li><li><strong>Duration:</strong> ~60 minutes</li><li><strong>Format:</strong> live coding and discussion. Slides optional; the code is the material.</li><li><strong>Group size:</strong> works from 1 to about 20. Beyond that, the exercises need pairs.</li></ul>
+<blockquote><p><strong>Optional pre-work.</strong> Ask participants to watch the video (<a href="../video/"><code>../video/</code></a>) beforehand. If they do, you can compress the first two blocks and spend the time on the exercises instead.</p></blockquote>
+<h2>Before You Start</h2>
+<p>Check that every machine can run:</p>
+<pre><code>./gradlew build</code></pre>
+<p>Have open in tabs: <code>PurchaseOrder.java</code>, <code>PurchaseOrderPresets.java</code>, <code>PurchaseOrderDemo.java</code>, <code>animation.html</code>.</p>
+<h2>The One Thing They Should Leave With</h2>
+<p>If they remember nothing else:</p>
+<blockquote><p><strong>A constructor makes you decide the whole object in one call. A builder lets you decide it a piece at a time, in any order, and checks it is complete only when you say you are done.</strong></p></blockquote>
+<p>Everything in the session is in service of that sentence.</p>
+<h2>Timings</h2>
+<table><thead><tr><th>Time</th><th>Block</th><th>Goal</th></tr></thead><tbody><tr><td>0:00–0:08</td><td>The constructor with nine parameters</td><td>Make them feel the wall</td></tr><tr><td>0:08–0:20</td><td>The fix, live</td><td>Show the technique</td></tr><tr><td>0:20–0:30</td><td>The rule that lives in one place</td><td>Why it is more than a rename</td></tr><tr><td>0:30–0:38</td><td>The Director, the Java way</td><td>Connect to the GoF book honestly</td></tr><tr><td>0:38–0:50</td><td>Exercises</td><td>Hands on keyboard</td></tr><tr><td>0:50–0:58</td><td>When <em>not</em> to use it</td><td>Honesty and boundaries</td></tr><tr><td>0:58–1:00</td><td>Wrap up</td><td>The one sentence</td></tr></tbody></table>
+<h2>0:00–0:08 — The Constructor With Nine Parameters</h2>
+<p>Open a scratch file. Type this in front of them, live:</p>
+<pre><code>public PurchaseOrder(String orderId, String customerId, List&lt;LineItem&gt; items,
+                      Address shippingAddress, boolean giftWrapped, String giftMessage,
+                      String couponCode, boolean priority, String notes) { ... }</code></pre>
+<p>Then call it twice:</p>
+<pre><code>new PurchaseOrder(&quot;ORD-9001&quot;, &quot;CUST-100&quot;, items, home,
+        true, &quot;Happy birthday!&quot;, &quot;WELCOME10&quot;, false, null);
+
+new PurchaseOrder(&quot;ORD-9004&quot;, &quot;CUST-103&quot;, items, home,
+        false, null, null, true, &quot;Ship same-day if received before 2pm.&quot;);</code></pre>
+<p>Ask: <em>&quot;Which one is the priority order, and which is the gift?&quot;</em> Let them count. Then ask: <em>&quot;What happens if I swap those two <code>boolean</code>s by accident?&quot;</em> The compiler says nothing. That silence is the whole problem.</p>
+<p><strong>Do not rush this block.</strong> The rest of the session is only interesting to people who felt this problem.</p>
+<h2>0:08–0:20 — The Fix, Live</h2>
+<p>Rewrite the same two orders using the builder:</p>
+<pre><code>PurchaseOrder.builder(&quot;ORD-9001&quot;, &quot;CUST-100&quot;)
+        .addItem(mug).addItem(book)
+        .shippingAddress(home)
+        .giftMessage(&quot;Happy birthday!&quot;)
+        .couponCode(&quot;WELCOME10&quot;)
+        .build();
+
+PurchaseOrder.builder(&quot;ORD-9004&quot;, &quot;CUST-103&quot;)
+        .addItem(mug).addItem(book)
+        .shippingAddress(home)
+        .priority()
+        .notes(&quot;Ship same-day if received before 2pm.&quot;)
+        .build();</code></pre>
+<p>Ask: <em>&quot;Now which one is the priority order?&quot;</em> Instant answer. Nobody counted anything.</p>
+<p>Then open <code>PurchaseOrder.Builder</code> and point at <code>return this;</code> in two or three methods. Ask: <em>&quot;Why does that make the chain work?&quot;</em> Let someone explain it back to you — each call&#x27;s result is the same builder, ready for the next call.</p>
+<h2>0:20–0:30 — The Rule That Lives in One Place</h2>
+<p>Open <code>giftMessage(String message)</code>:</p>
+<pre><code>public Builder giftMessage(String message) {
+    this.giftMessage = message;
+    this.giftWrapped = true;
+    return this;
+}</code></pre>
+<p>Ask: <em>&quot;Why does setting a message also set gift wrap?&quot;</em> Work towards: a gift message on a box that is not wrapped makes no sense in this domain, and the builder is the one place that rule needs to be written.</p>
+<p>Then show <code>build()</code>:</p>
+<pre><code>public PurchaseOrder build() {
+    if (items.isEmpty()) { throw new IllegalStateException(...); }
+    if (shippingAddress == null) { throw new IllegalStateException(...); }
+    return new PurchaseOrder(this);
+}</code></pre>
+<p>Ask: <em>&quot;Why can&#x27;t <code>addItem</code> check this instead?&quot;</em> The answer to draw out: <code>addItem</code> cannot know whether the caller is finished. Only <code>build()</code> marks the moment the caller has declared themselves done, so it is the only place that can honestly ask &quot;is this complete?&quot;</p>
+<p>Run the demo and point at the reused-builder proof:</p>
+<pre><code>first items: 1, second items: 2</code></pre>
+<p>Ask: <em>&quot;Why doesn&#x27;t <code>first</code> also have 2 items?&quot;</em> Answer: <code>List.copyOf</code> in the constructor takes a snapshot. The product stops watching the builder the moment <code>build()</code> returns.</p>
+<h2>0:30–0:38 — The Director, the Java Way</h2>
+<p>Open <code>PurchaseOrderPresets.expressOrder(...)</code>. Tell them plainly: the Gang of Four book has a fourth role here, a <strong>Director</strong>, usually drawn as its own interface and class. Point at this method and say: <em>&quot;This is that role. Java just doesn&#x27;t bother with the class.&quot;</em></p>
+<p>Ask them to find something specific: <em>&quot;Does this method touch a <code>PurchaseOrder</code> field anywhere?&quot;</em> It does not — only <code>Builder</code>&#x27;s public methods. Ask why that matters: it means <code>PurchaseOrder</code> can change its private fields tomorrow and not one preset needs to change.</p>
+<h2>0:38–0:50 — Exercises</h2>
+<h3>Exercise 1 — Add an option (about 7 minutes)</h3>
+<blockquote><p>Add a <code>deliveryWindow</code> (e.g. <code>&quot;9am-12pm&quot;</code>) to <code>PurchaseOrder</code>, with a matching <code>Builder.deliveryWindow(String)</code>.</p></blockquote>
+<p>Steps:</p>
+<ol><li>Add the field to <code>PurchaseOrder</code> and its constructor.</li><li>Add the field and chainable method to <code>Builder</code>.</li><li>Add an accessor, <code>Optional&lt;String&gt; deliveryWindow()</code>.</li><li>Run the tests — everything still passes.</li></ol>
+<p>The thing to draw out: <strong>every existing call site kept compiling</strong>, including the ones that do not use the new option at all. That is the opposite of what happened to the telescoping constructor.</p>
+<h3>Exercise 2 — Break the invariant on purpose (about 5 minutes)</h3>
+<blockquote><p>Delete <code>this.giftWrapped = true;</code> from <code>giftMessage(...)</code>. Then write a test that asserts a gift message implies gift wrap.</p></blockquote>
+<p>Watch it fail. Ask: <em>&quot;Where did that rule actually live?&quot;</em> One line, now missing. Put it back and watch the test pass. This is the clearest way to show that a builder is not just a bag of setters — it is a place rules can live.</p>
+<h2>0:50–0:58 — When <em>Not</em> to Use It</h2>
+<p>End on the boundaries, or they will over-apply it next week.</p>
+<p><strong>Do not bother when there is nothing to decide.</strong> <code>LineItem</code> and <code>Address</code> in this project are plain records with public constructors — two or three required fields, no options, no rules between them. Point at them and ask: <em>&quot;What would a builder buy us here?&quot;</em> The honest answer is nothing.</p>
+<p><strong>A builder is a second object.</strong> For every <code>PurchaseOrder</code> built, a <code>Builder</code> briefly exists too. For an order placed a few times a second, irrelevant. For something built millions of times in a hot loop, it is a real allocation to weigh against the readability gained.</p>
+<p><strong>It solves a different problem than a static factory method.</strong> A static factory method is about <em>naming and hiding</em> a constructor for one call. A builder is about <em>spreading</em> a constructor&#x27;s many optional arguments across several calls. A type can have both — <code>PurchaseOrder.builder(...)</code> is a static factory method that happens to return a builder.</p>
+<h2>0:58–1:00 — Wrap Up</h2>
+<p>Back to the one sentence:</p>
+<blockquote><p>A constructor makes you decide the whole object in one call. A builder lets you decide it a piece at a time, and checks it is complete only when you say you are done.</p></blockquote>
+<p>Then send them somewhere:</p>
+<ul><li><a href="../README.html"><code>../README.md</code></a> to run it themselves</li><li><a href="animation.html"><code>animation.html</code></a> to step through it again slowly</li><li><a href="../video/"><code>../video/</code></a> if they want it narrated</li><li>Back to <a href="../../static-factory-pattern"><code>../../static-factory-pattern</code></a> if they have not done it yet — the two compose, and this project&#x27;s own <code>builder()</code> method is proof</li></ul>
+<h2>Facilitator Notes</h2>
+<ul><li><strong>The swapped-booleans moment in block one is the hook.</strong> Let someone actually get it wrong before you explain why. If you just tell them, half the room will not feel it.</li><li><strong>Expect &quot;isn&#x27;t this just a bunch of setters?&quot;</strong> Worth taking seriously. The answer is <code>giftMessage</code>: a setter only ever sets the field it is named after. A builder method is free to enforce a rule across several fields at once, and often should.</li><li><strong>Expect &quot;why not use a static factory method with named parameters instead?&quot;</strong> Java has no named parameters. A static factory method with nine positional parameters has exactly the same readability problem as a constructor with nine positional parameters — the fix there was never the keyword <code>new</code>, it was spreading the call across several named steps, which is what a builder does.</li><li><strong>If you are running short</strong>, cut the Director block (0:30–0:38). It is useful context but the session survives without it.</li><li><strong>If you have longer than an hour</strong>, have them build a <code>Builder</code> for a type of their own choosing from an earlier project in this repository, and see which one they pick — it usually reveals whether the idea has landed.</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

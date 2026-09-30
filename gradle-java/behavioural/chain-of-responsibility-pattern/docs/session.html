@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Chain of Responsibility</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Chain of Responsibility</h1>
+<p>A 60-minute guided session for teaching or self-studying the Chain of Responsibility pattern using this project.</p>
+<ul><li><strong>Audience:</strong> beginners comfortable with core Java</li><li><strong>Duration:</strong> ~60 minutes</li><li><strong>Format:</strong> live coding + discussion</li><li><strong>Prerequisites:</strong> see <a href="prerequisites.html"><code>prerequisites.md</code></a></li></ul>
+<blockquote><p><strong>Optional pre-work.</strong> Ask participants to watch the video (<code>video/chain-of-responsibility-pattern-explained.mp4</code>) beforehand. If they do, you can compress the problem and pattern segments and spend the extra time on the exercises. If you are teaching a group that has <em>not</em> watched it, run the session exactly as written below.</p></blockquote>
+<h2>Learning Objectives</h2>
+<p>By the end of this session a participant should be able to:</p>
+<ol><li>Explain why a sequence of <code>if</code> statements welds an ordering into a method, and why extracting each check into a private helper does not fix it.</li><li>Say what &quot;no opinion&quot; buys, and why <code>Optional.empty()</code> and a rejection are different things.</li><li>Point at the links that were <strong>not</strong> consulted and say why that absence is the pattern rather than an implementation detail.</li><li>Distinguish Chain of Responsibility from Decorator by asking one question, without appealing to the class diagram, because the diagram is the same.</li><li>State honestly what the pattern costs, starting with the fact that the policy is no longer readable in one place.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Segment</th><th>Mode</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td><td>Hands-on</td></tr><tr><td>0:05–0:16</td><td>The problem</td><td>Discussion</td></tr><tr><td>0:16–0:26</td><td>The pattern</td><td>Explanation</td></tr><tr><td>0:26–0:41</td><td>Code walkthrough</td><td>Live coding</td></tr><tr><td>0:41–0:51</td><td>Exercises</td><td>Hands-on</td></tr><tr><td>0:51–0:58</td><td>Costs &amp; comparisons</td><td>Discussion</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td><td>—</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<p>Everyone runs:</p>
+<pre><code>java -version
+./gradlew run</code></pre>
+<p>Anyone whose build fails pairs up with a neighbour. Do not debug installs during the session — that is what the prerequisites doc is for.</p>
+<h2>0:05–0:16 — The Problem</h2>
+<p>Open <code>NaiveScreening.validate</code> and put it on the screen. <strong>Do not</strong> start by saying it is bad. Ask the room to read it and tell you what is wrong with it.</p>
+<p>The honest answer is <em>nothing</em>. It is short, it is one file, and it is the right answer for a shop with one market and fixed rules. Say that out loud before you take it apart — the whole argument depends on the audience believing you are being fair to it.</p>
+<p>Then run section 1 and let this land:</p>
+<pre><code>  A monitor, on a £250 card, scoring 92 out of 100 for fraud:
+    naive says      : REJECTED — card limit exceeded, please try another card</code></pre>
+<p><strong>The question to sit on for a full minute:</strong> what does the customer do next? (They try another card. It works. The order ships.) And what did the fraud team receive? (Nothing. The method returned two lines before it got there.)</p>
+<p>Then the trade copy, side by side with <code>validate</code>, and ask the room to find the missing check before you tell them. Somebody usually finds it in about twenty seconds — which is the point. It was <em>findable</em> and nobody was looking, because nothing in the code relates the two methods.</p>
+<p><strong>Anticipate the objection</strong>, because somebody will make it: <em>&quot;extract each check into a private method&quot;</em>. That is the right instinct and it does help readability. Ask what happens next: the <em>order</em> is still four call sites in one method, the trade variant is still a second method, and the fraud check is still only reachable by satisfying the three above it. Park it — it comes back at 0:51.</p>
+<h2>0:16–0:26 — The Pattern</h2>
+<p>Use the expenses-approval analogy from <a href="chain-of-responsibility-pattern-explained.html">the explainer</a>: you submit once, whoever can approve it approves it, and the hierarchy is not in the claim form. Then push on the third part — a claim nobody is authorised to approve sits in a queue forever and nobody is told. Ask the room what the software equivalent is. That is the fallback the chain&#x27;s constructor insists on, and it is worth them predicting it before they see it.</p>
+<p>Draw the class diagram on the board <strong>without names</strong>: an abstract class, a <code>next</code> field of its own type, four subclasses. Then say: this is also the Decorator diagram. Do not resolve it yet. Tell them you will come back to it at 0:51, and that anyone who solves it before then should say so.</p>
+<h2>0:26–0:41 — Code Walkthrough</h2>
+<p>Order matters here. Do it in this sequence:</p>
+<ol><li><strong><code>ScreeningHandler.java</code> first, and slowly.</strong> It is about twenty lines and the whole pattern is in <code>screen</code>. Ask why <code>screen</code> is <code>final</code>. (Because the textbook version has every handler write its own <code>else next.handle(...)</code>, and the bug everybody hits is the missing <code>else</code> — the request vanishes with no error.)</li></ol>
+<ol><li><strong><code>check</code>&#x27;s return type.</strong> <code>Optional&lt;Decision&gt;</code>. Ask what empty means. (No opinion.) Then ask what a rejection means. (An answer.) Make sure somebody says out loud that those are different, because half the confusion about this pattern is people reading &quot;returns nothing&quot; as &quot;says no&quot;.</li></ol>
+<ol><li><strong><code>ScreeningChain</code>.</strong> Note there is no loop, no index, and no count. Then note that the constructor takes a fallback and there is no constructor without one, and ask why somebody went to that trouble.</li></ol>
+<ol><li><strong>Two <code>check</code> methods</strong>, opened side by side: <code>AddressCheck</code> and <code>FraudScoreCheck</code>. The second one is the slide that changes people&#x27;s mental model — it has three answers where the first has two, and the base class knows about none of them.</li></ol>
+<ol><li><strong><code>ScreeningReport.neverRan</code>.</strong> Run section 2 and read the <code>never ran:</code> line out. Ask what that costs in a system where the risk model is a paid API call.</li></ol>
+<ol><li><strong><code>ScreeningChainTest.linksBehindTheDecisionNeverRun</code>.</strong> Ask which of the tests in this project would still pass against <code>NaiveScreening</code>. (The outcome ones. Not this one.)</li></ol>
+<h2>0:41–0:51 — Exercises</h2>
+<h3>Exercise 1 — Add a velocity check (everyone)</h3>
+<p>Reject when a customer has placed more than three orders in the last hour. They will need a field on <code>CheckoutRequest</code> and one new class.</p>
+<p>Have them <strong>count the files they had to open</strong>: the request record, the new class, and the wiring. Then have them add the same rule to <code>NaiveScreening</code> — in both methods — and count again.</p>
+<h3>Exercise 2 — Move a link and watch the answer change (everyone)</h3>
+<p>Take the standard chain and move <code>PaymentLimitCheck</code> above <code>FraudScoreCheck</code>. Run the demo.</p>
+<p><code>ScreeningChainTest.reorderingChangesTheAnswer</code> already does exactly this and asserts the naive answer comes back, and section 3 of the demo prints it. Have them find that test afterwards. The point to make: the naive behaviour was not wrong, it was <em>a configuration you could not change without editing code</em>.</p>
+<h3>Exercise 3 — Reuse one link in two chains (discussion, then code)</h3>
+<p>Ask them to put the <em>same</em> <code>AddressCheck</code> instance into two chains. Predict what happens first, then try it.</p>
+<p>The second chain rewires the instance&#x27;s <code>next</code> field, so the first chain now runs the second chain&#x27;s links, and nothing complains. Ask what the alternative designs are — a chain that builds its own links, or a stateless handler with the successor passed in as an argument — and what each of those costs.</p>
+<h3>Exercise 4 — Stretch (for fast finishers)</h3>
+<p>Turn the chain into a collector: report <em>every</em> problem with a request instead of the first. Notice what has to go: the early return, the <code>neverRan</code> list, and the entire skipping-work argument. Then ask whether the result is still Chain of Responsibility. (It is not. It is a list and a loop, and that is fine.)</p>
+<h2>0:51–0:58 — Costs &amp; Comparisons</h2>
+<p>Resolve the diagram question first, and make somebody else say it if you can:</p>
+<blockquote><p>Does every layer have to run? If yes, it is a Decorator, and a layer that did not delegate would be a bug. If no, it is a chain, and a layer that always delegated would be pointless.</p></blockquote>
+<p>Point at the <code>if</code> in <code>ScreeningHandler.screen</code>. In a decorator, the call to <code>next</code> is not inside a conditional. That is the whole structural difference, and it is one character deep.</p>
+<p>Then the bill, honestly:</p>
+<ul><li>Four check classes, a base class, a chain and a wiring line where there was one method.</li><li><strong>The policy is no longer readable in one place.</strong> <code>validate</code> could be read top to bottom. Ask whether <code>ScreeningChain.toString()</code> is documentation or a second source of truth — there is no comfortable answer.</li><li><strong><code>ScreeningReport</code> exists only because the pattern needs explaining.</strong> Four <code>if</code>s never needed a record of which of them ran. Count that as a cost, not a feature.</li><li>A link instance belongs to one chain, because it holds its own successor.</li><li>Now return to the parked &quot;extract private methods&quot; suggestion. It is genuinely the right answer when the checks and their order never change. Say so plainly: reaching for a chain every time you see three <code>if</code>s in a row is the same mistake in the other direction, and the closing lines of the demo say so in the program&#x27;s own output.</li></ul>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>One sentence each, round the room: <em>when would you not use this?</em></p>
+<p>Good answers mention a fixed set of checks; a requirement to report every problem rather than the first; genuine data dependencies between the checks, where B only makes sense after A has produced something; and two checks, where the machinery costs more than it saves.</p>
+<p>Point at <a href="animation.html"><code>animation.html</code></a> and the video for revision, and at <a href="chain-of-responsibility-pattern-explained.html"><code>chain-of-responsibility-pattern-explained.md</code></a> for the written version of everything above.</p>
+<h2>Facilitator Notes</h2>
+<ul><li><strong>The best single moment in this session</strong> is the gap between &quot;REJECTED — card limit exceeded&quot; and &quot;so they used another card&quot;. Do not rush it. Almost everyone has shipped that bug, and almost nobody has thought of it as an ordering problem.</li><li><strong>Be genuinely fair to <code>validate</code> at 0:05.</strong> If the room thinks you are attacking a straw man, nothing after 0:16 lands.</li><li><strong>Expect the <code>List&lt;Check&gt;</code> and a <code>for</code> loop suggestion</strong>, probably around 0:26. It is a good suggestion and <a href="prerequisites.html"><code>prerequisites.md</code></a> agrees with it. The honest answer is that the loop is fine here and the linked version earns its keep when a handler needs a say in where the request goes next.</li><li><strong>Watch for &quot;returns nothing means no&quot;</strong> in exercise 1. Someone will write a <code>check</code> that returns a rejection for the case it does not care about.</li><li><strong>If you are short on time</strong>, cut exercise 4 and the single-use-instance bullet. Never cut the Decorator comparison at 0:51 — it is the reason this pattern gets misapplied.</li></ul>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>Java 21 and the Gradle wrapper working for every participant</li><li><code>./gradlew run</code> output on screen, or printed</li><li><code>docs/images/class-diagram.png</code> and <code>docs/images/screening-flow.png</code> visible side by side</li><li><code>docs/animation.html</code> open in a browser tab</li><li>A whiteboard, for the unnamed class diagram at 0:16</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Distributed Tracing Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Distributed Tracing Pattern, Explained</h1>
+<h2>In One Sentence</h2>
+<p>Give every customer request a single identifier at the front door, make every piece of work along the way record what it was, how long it took, and <strong>which piece of work called it</strong>, and the request&#x27;s shape — and the reason it was slow — falls out of the arithmetic.</p>
+<p>Two fields are doing all the work there. The <strong>trace id</strong> is what lets you gather one request&#x27;s worth of data out of four hundred requests&#x27; worth of noise. The <strong>parent span id</strong> is what turns that data into a shape you can read. Most homegrown versions of this pattern have the first and not the second, which is why they can filter a log and still not name a culprit.</p>
+<hr>
+<h2>Everyday Analogy: The Hospital Wristband</h2>
+<p>A patient arrives at a hospital for a day of tests. Reception puts a wristband on them with a number printed on it, and from that moment on every department writes that number on everything: the blood sample, the X-ray, the notes, the prescription. At the end of the day somebody can pull every record with that number on it and see the whole visit.</p>
+<p>That is the trace id, and on its own it is already a large improvement over a hospital where each department keeps its own book. But notice what it still cannot tell you. If the patient waited three hours, the wristband number lets you gather all the records, and it does not tell you <em>where the three hours went</em>, because nothing in the file says that the X-ray was waiting on the blood result, or that the consultant was waiting on the X-ray.</p>
+<p>Now add one line to each record: <strong>who sent me here</strong>. Radiology writes down that the patient was sent by the consultant. The consultant writes down that the patient came from reception. Suddenly the day has a shape. You can lay every department&#x27;s slot out on a timeline, nested under whoever referred the patient, and see at a glance that two hours and forty minutes of the three hours was one department, and that everybody else was simply waiting behind it.</p>
+<p>That second line — <em>who sent me here</em> — is the parent span id, and it is the whole difference between a searchable record and an answer.</p>
+<p>One more thing the analogy gets right, unfortunately. If a porter wheels the patient to a department and forgets to hand over the notes, nothing goes wrong visibly. The department does its work, writes its own record, and that record sits in the file with no referral on it — belonging to the visit, but attached to nothing. Nobody is alerted. The only symptom is that the timeline no longer adds up, and you have to already be looking to notice.</p>
+<hr>
+<h2>The Problem, In The Shop</h2>
+<p>A customer opens a product page and it takes nine hundred milliseconds. Four services contributed: catalog, pricing, inventory and recommendations. Every one of them is healthy, every one of them logs, and the log aggregator works.</p>
+<p>The aggregator merges the four streams by time, and because the shop serves more than one customer at once, the merged log contains two of everything:</p>
+<pre><code>  14:32:07.120  catalog          lookup complete
+  14:32:07.120  pricing          quote started
+  14:32:07.160  catalog          lookup complete
+  14:32:07.160  pricing          quote started
+  14:32:07.300  pricing          quote complete
+  14:32:07.340  pricing          quote complete</code></pre>
+<p>Two starts, two finishes, four correct timestamps and no way to pair them. Pairing the first start with the first finish gives 180ms. Pairing it with the second gives 220ms. Both look plausible; one of them is Ada&#x27;s start and Ben&#x27;s finish.</p>
+<p>Adding more fields to the log lines does not help, because the missing thing is not detail. It is an identifier that is the same across one request and different across the next.</p>
+<hr>
+<h2>The Pattern</h2>
+<p>Three moves, and the third is the one that is usually skipped.</p>
+<p><strong>One: mint an id at the front door.</strong> The first service to see the request generates a trace id and puts it in the outgoing headers of every call it makes. Everything downstream reads it from the incoming headers and passes it on. In this project the id is <code>trace-4f2a</code>; in a real system it is random hexadecimal.</p>
+<p><strong>Two: record a span around every unit of work.</strong> A span is four things — a name, a start, a duration, and the id of the span that caused it. Opening and closing a span is all the instrumentation asks of you:</p>
+<pre><code>try (Tracer.Scope pricing = tracer.start(request, &quot;pricing&quot;)) {
+    clock.advance(PRICING_MS);
+}</code></pre>
+<p><strong>Three: pass the context to everything you call.</strong> <code>scope.context()</code> carries the trace id and this span&#x27;s id, and whatever receives it opens its spans as children of that. This is the move that produces the shape, and it is also the move that gets forgotten, because forgetting it is silent.</p>
+<p>Once those three habits are in place, nobody has to design the waterfall. The waterfall is simply what a set of spans <em>looks like</em> when each one knows its parent.</p>
+<hr>
+<h2>Participants</h2>
+<table><thead><tr><th>Type</th><th>Role</th></tr></thead><tbody><tr><td><code>TraceContext</code></td><td>The two values that must travel: trace id and current span id</td></tr><tr><td><code>Span</code></td><td>One unit of work — name, start, duration, parent</td></tr><tr><td><code>Tracer</code></td><td>Mints span ids, times the work, collects the spans</td></tr><tr><td><code>Tracer.Scope</code></td><td>An open span; closing it is what records the duration</td></tr><tr><td><code>Trace</code></td><td>Every span from one request, and the arithmetic over them</td></tr><tr><td><code>Waterfall</code></td><td>The drawing, derived entirely from the parent links</td></tr><tr><td><code>ProductPage</code></td><td>The e-commerce request being traced, instrumented and not</td></tr><tr><td><code>InterleavedLog</code></td><td>The problem: four logs merged by time, with nothing to pair</td></tr><tr><td><code>AsyncHandoff</code></td><td>The thread boundary, breaking the trace and then not</td></tr><tr><td><code>Sampler</code></td><td>The third item on the bill: the trace you needed was discarded</td></tr><tr><td><code>Clock.Scripted</code></td><td>Declared durations, so every number here is reproducible</td></tr></tbody></table>
+<hr>
+<h2>Code Walkthrough</h2>
+<h3>The two values that have to travel</h3>
+<pre><code>public record TraceContext(String traceId, String spanId) {
+
+    public TraceContext childWith(String childSpanId) {
+        return new TraceContext(traceId, childSpanId);
+    }
+}</code></pre>
+<p>The smallest type in the project and the one everything else depends on. Same trace, new parent: the span doing the calling becomes the parent of the span being called. Get that one line wrong — keep the parent id instead of replacing it — and the trace comes back flat, every span a sibling of every other, with the shape that told you where the time went thrown away.</p>
+<p>Notice that it is passed as an ordinary method argument throughout this project. Real libraries hide it in a thread-local, and that convenience is exactly where it gets lost. More on that below.</p>
+<h3>The span, and the field people leave out</h3>
+<pre><code>public record Span(String traceId,
+                   String spanId,
+                   String parentSpanId,   // null only at the front door
+                   String name,
+                   long startMillis,
+                   long durationMillis) { }</code></pre>
+<p>A name so you know what the work was. A start and a duration so you know when and how long. And a parent, which is the field that turns a pile of timings into a tree. Timestamps tell you when things happened; they do not tell you that the pricing call happened <em>because of</em> this page request.</p>
+<h3>Opening and closing a span</h3>
+<pre><code>public Scope startRoot(String name) {
+    return new Scope(null, name);
+}
+
+public Scope start(TraceContext parent, String name) {
+    return new Scope(parent.spanId(), name);
+}</code></pre>
+<p>And the part worth dwelling on — <code>close()</code> is what records the span, because closing is the moment the duration is known:</p>
+<pre><code>@Override
+public void close() {
+    if (closed) {
+        return;
+    }
+    closed = true;
+    spans.add(new Span(traceId, spanId, parentSpanId, name,
+            startMillis, clock.now() - startMillis));
+}</code></pre>
+<p>A span that is started and never closed never appears in the trace at all. That is not a quirk of this implementation; it is why real instrumentation uses try-with-resources. An exception thrown past an un-closed span deletes the record of the very call that failed, which is the worst possible moment to lose a span. <code>TracerTest</code> pins that behaviour down deliberately rather than treating it as an embarrassment.</p>
+<h3>The instrumented page</h3>
+<pre><code>try (Tracer.Scope page = tracer.startRoot(&quot;product-page&quot;)) {
+    TraceContext request = page.context();
+
+    try (Tracer.Scope catalog = tracer.start(request, &quot;catalog&quot;)) {
+        clock.advance(CATALOG_MS);
+    }
+    ...
+    try (Tracer.Scope recommendations = tracer.start(request, &quot;recommendations&quot;)) {
+        try (Tracer.Scope model =
+                     tracer.start(recommendations.context(), &quot;ranking-model&quot;)) {
+            clock.advance(RANKING_MODEL_MS);
+        }
+        clock.advance(RECOMMENDATIONS_MS - RANKING_MODEL_MS);
+    }</code></pre>
+<p>Read the shape rather than the contents. Every unit of work opens a span, hands <code>context()</code> to anything it calls, and closes the span when it is done. Note the inner block: the ranking model is started from <code>recommendations.context()</code>, not from <code>request</code>, which is why it nests one level deeper. That single argument is the difference between &quot;recommendations is slow&quot; and &quot;the scoring model inside recommendations is slow&quot;, and only one of those is actionable.</p>
+<h3>Self time, which is the whole trick</h3>
+<pre><code>public long selfTime(Span span) {
+    long childTime = childrenOf(span.spanId()).stream()
+            .mapToLong(Span::durationMillis)
+            .sum();
+    return span.durationMillis() - childTime;
+}</code></pre>
+<p>Four lines, and they are the reason a trace beats a stopwatch.</p>
+<p>The root span lasted the entire request, so on total time it is always the biggest and always useless — it tells you the page was slow, which is what you were told at the start. Subtract the time it spent waiting on its children and the page&#x27;s self time is <strong>zero</strong>, because the page did no work; it waited. Do that for every span and the list sorts itself into an accusation:</p>
+<pre><code>    ranking-model     340ms   37% of the page
+    pricing           180ms   20% of the page
+    catalog           120ms   13% of the page
+    render            110ms   12% of the page
+    inventory          90ms   10% of the page
+    recommendations    60ms    6% of the page</code></pre>
+<p>Recommendations lasted four hundred milliseconds but is charged only sixty, because three hundred and forty of them belong to the model it called. And those six figures add up to exactly nine hundred — every millisecond of the request charged to exactly one span, which <code>TraceTest</code> asserts, because if that sum ever drifts the arithmetic is lying.</p>
+<h3>The drawing</h3>
+<pre><code>long total = Math.max(trace.endMillis(), 1);
+
+int offset = (int) (span.startMillis() * BAR / total);
+int length = Math.max(1, (int) (span.durationMillis() * BAR / total));</code></pre>
+<p>Two lines of arithmetic per span: where its bar starts, and how long it is, both as a share of the whole request. Everything else is indentation from the parent links.</p>
+<p>The <code>Math.max(1, ...)</code> matters more than it looks. A one-millisecond span in a nine-hundred-millisecond request rounds to zero characters of bar, and a span drawn as nothing looks exactly like a span that never happened — which is the one thing this drawing must never suggest.</p>
+<p>And <code>trace.endMillis()</code> rather than the root&#x27;s duration, because on a broken trace those are different numbers. Scaling to the first root would draw orphaned work as though it filled the request, hiding the very failure the drawing is being used to show.</p>
+<hr>
+<h2>And Now The Bill</h2>
+<h3>One: a service that is not instrumented</h3>
+<p>Recommendations forgets to open a span. It still receives the context and still forwards it, so nothing errors and nothing warns:</p>
+<pre><code>// No span opened here. The context is forwarded unchanged, which is
+// the part that makes this so hard to spot: the chain is not
+// broken, it is just missing a link, so the model&#x27;s parent becomes
+// the page.
+try (Tracer.Scope model = tracer.start(request, &quot;ranking-model&quot;)) {
+    clock.advance(RANKING_MODEL_MS);
+}
+clock.advance(RECOMMENDATIONS_MS - RANKING_MODEL_MS);</code></pre>
+<p>The result is not a gap. It is a wrong answer:</p>
+<pre><code>  trace trace-7c19   total 900ms
+  product-page            |============================================|   900ms   60ms of it its own
+    catalog               |=====                                       |   120ms
+    pricing               |     ========                               |   180ms
+    inventory             |              ====                          |    90ms
+    ranking-model         |                   ================         |   340ms
+    render                |                                      ===== |   110ms</code></pre>
+<p>The four hundred milliseconds did not disappear — it landed on the parent. The page now appears to spend sixty milliseconds doing work it never did. The ranking model appears to hang directly off the page, which is a call that does not exist in the code. And the service actually responsible is not on the diagram at all.</p>
+<p>The trace has one root and no orphans. By every check you would think to run, it looks healthy. <code>ProductPageTest</code> asserts exactly that, because &quot;it looks healthy&quot; is the finding, not an oversight:</p>
+<pre><code>assertEquals(List.of(), partial.orphans());
+assertEquals(1, partial.roots().size());</code></pre>
+<p>Somebody spends the afternoon reading the page renderer.</p>
+<h3>Two: the work moves to another thread</h3>
+<pre><code>private static final ThreadLocal&lt;TraceContext&gt; CURRENT = new ThreadLocal&lt;&gt;();</code></pre>
+<p>Real tracing libraries do this, for a good reason: it keeps the context out of every method signature. It works perfectly until the work moves to a thread pool, a <code>CompletableFuture</code>, or a scheduled job, because a thread-local belongs to a thread and the new thread&#x27;s copy is empty.</p>
+<pre><code>runOnAnotherThread(() -&gt; {
+    // On the worker thread this is null, because thread-locals
+    // do not travel. The code reads as though it does.
+    TraceContext inherited = CURRENT.get();</code></pre>
+<pre><code>  trace trace-async-broken   total 400ms   2 separate roots — this trace is broken
+  product-page            |============================================|   400ms
+  recommendations         |============================================|   400ms</code></pre>
+<p>Two roots in one trace. Four hundred milliseconds belonging to nobody. No exception, no warning, and the broken code is indistinguishable from the working code at a glance.</p>
+<p>The fix is unglamorous and total. Read the context on the thread that has it, and hand it to the task as an ordinary value:</p>
+<pre><code>// Captured here, on the thread that actually has it.
+TraceContext captured = page.context();
+
+runOnAnotherThread(() -&gt; {
+    try (Tracer.Scope strip = tracer.start(captured, &quot;recommendations&quot;)) {
+        clock.advance(ProductPage.RECOMMENDATIONS_MS);
+    }
+});</code></pre>
+<pre><code>  trace trace-async-fixed   total 400ms
+  product-page            |============================================|   400ms   0ms of it its own
+    recommendations       |============================================|   400ms</code></pre>
+<p>A value does not care which thread reads it. Every real tracing library ships a wrapper that does this for you, and the reason to see it written out once is so the wrapper stops being magic — and so that when you write the executor submission yourself, you remember there is something to wrap.</p>
+<p><code>AsyncHandoffTest</code> has one assertion that states the discomfort plainly: both versions record two spans, the same four hundred milliseconds, and no error. The only thing the broken run lost is the link, and the link was the only useful part.</p>
+<h3>Three: you kept one trace in a hundred</h3>
+<pre><code>public boolean keep() {
+    return seen++ % oneIn == 0;
+}</code></pre>
+<p>A thousand requests a second at six spans each is half a billion spans a day. Nobody pays for that, so you sample.</p>
+<pre><code>  kept       10,000
+  discarded  990,000
+
+  A customer complains about request number 862,144.
+  Was it kept?  no — it is gone, and it is not recoverable</code></pre>
+<p>The uncomfortable part is <em>when</em> the decision is made. Sampling is per trace, at the front door, before anybody could know the request was going to matter. So the one request somebody complains about was discarded for exactly the same reason as every other request: nothing about it stood out yet.</p>
+<p>You are not left with nothing. A one per cent sample answers &quot;recommendations is slow on average&quot; perfectly well, which is what tracing is genuinely best at. What you are left without is the specific trace for the specific complaint, which is what you were asked for.</p>
+<p>The way out is <strong>tail sampling</strong>: buffer the spans briefly and decide to keep the trace once you know it was slow or it failed. That costs more and needs a collector that can hold spans in flight, and it is what to reach for the first time &quot;we sample at one per cent&quot; fails you.</p>
+<hr>
+<h2>What This Simulation Does Not Show</h2>
+<p>Being straight about the boundaries of the model matters, because Tier 1 here runs entirely offline with declared durations.</p>
+<p><strong>There is no network.</strong> The five services are method calls. In a real system the context travels in HTTP headers — <code>traceparent</code>, under the W3C Trace Context standard — and the failure modes include a proxy that strips unknown headers, a message queue with no header support, and a service written in another language whose library uses a different propagation format. None of those can happen here.</p>
+<p><strong>Time is declared, not measured.</strong> <code>Clock.Scripted</code> moves forward when a service says how long it took. That is what makes every figure in this document and in the video reproducible, and it also means there is no clock skew — which in a real distributed trace is a genuine nuisance, because two machines disagreeing by fifty milliseconds can draw a child that appears to start before its parent.</p>
+<p><strong>Span ids are sequential.</strong> <code>span-1</code>, <code>span-2</code>, and so on, for readability. Real ids are random so that two machines cannot collide.</p>
+<p><strong>The handoff waits.</strong> <code>AsyncHandoff</code> submits to an executor and then blocks on the result, because the scripted clock is not thread-safe and this project would rather be readable than concurrent. The trace breaks in exactly the same way it would under a real pool, because what breaks it is the thread change, not the parallelism.</p>
+<p><strong>There is no backend.</strong> No collector, no storage, no query UI, no retention policy. The waterfall is drawn in the console. That is deliberate: a hosted tracing tool&#x27;s flame graph is not a feature of the tool, it is what a set of spans looks like once each one knows its parent, and seeing it drawn from forty lines of Java is the point.</p>
+<p>The Tier 2 directory, described in the category&#x27;s plan, is where the trace id has to survive a real HTTP hop into a real backend.</p>
+<hr>
+<h2>Why The Tests Are The Proof</h2>
+<p>Eighty-two tests, and they are doing something slightly unusual: several of them assert that a <strong>broken</strong> trace is broken in a specific way.</p>
+<p><code>ProductPageTest</code> asserts that the partially-instrumented trace has one root and no orphans — that it passes every health check — and then asserts that the page&#x27;s self time is sixty milliseconds when it should be zero. Those two assertions together are the finding: the failure is invisible to structure and visible only in arithmetic.</p>
+<p><code>AsyncHandoffTest</code> asserts that the broken and fixed traces contain the same number of spans and the same elapsed time, differing only in one parent link.</p>
+<p><code>WaterfallTest</code> checks properties rather than characters — that a child is indented under its parent, that a later span&#x27;s bar starts further right, that a one-millisecond span still gets one character — so the drawing can be re-tuned without rewriting the tests.</p>
+<p><code>DemoRunsTest</code> captures the demo&#x27;s output and asserts the exact strings this document and the video quote, including <code>ranking-model     340ms   37% of the page</code>. Nothing in the teaching material is typed from memory; if a figure in a narration line stops matching the program, a test says so before a recording does.</p>
+<hr>
+<h2>What You Gain</h2>
+<ul><li><strong>A culprit, by name.</strong> &quot;The ranking model, 340ms, 37% of the page&quot; instead of &quot;the page is slow&quot;.</li><li><strong>The shape of the request.</strong> Which calls were sequential, which nested, and what each one was waiting on.</li><li><strong>A readable merged log.</strong> The trace id alone fixes the pairing problem the four logs had.</li><li><strong>Arithmetic that closes.</strong> Every millisecond charged to exactly one span, so you can tell the difference between slow work and slow waiting.</li><li><strong>One place to look.</strong> Not four dashboards and a guess.</li></ul>
+<hr>
+<h2>What To Watch Out For</h2>
+<p><strong>Partial instrumentation is worse than none.</strong> A missing span produces a confident wrong answer, not a visible gap. If you instrument, instrument every hop in the path you care about.</p>
+<p><strong>Thread and process boundaries are where the context dies.</strong> Executors, <code>CompletableFuture</code>, message queues, scheduled jobs, retries on a background thread. Pass the context as a value, or use your library&#x27;s wrapper, and never assume a thread-local made the trip.</p>
+<p><strong>Head-based sampling throws away the trace you will want.</strong> If the question is &quot;why was this one slow&quot;, one per cent will fail you. Know that before the incident, not during it.</p>
+<p><strong>Span names must be low-cardinality.</strong> <code>&quot;pricing&quot;</code>, not <code>&quot;pricing for customer 88213&quot;</code>. A name per customer makes aggregation impossible and the storage bill enormous.</p>
+<p><strong>A trace is not a log and not a metric.</strong> It tells you where the time went in one request. It will not tell you the error message, and it will not tell you the ninety-ninth percentile across the day. Those are the other two of the three, and this pattern does not replace them.</p>
+<p><strong>Instrumentation has a cost.</strong> Six spans per request is not free — there is serialisation, a network write to a collector, and storage. It is usually a small cost, and it is not zero, and &quot;trace everything at full fidelity&quot; is a decision with an invoice attached.</p>
+<hr>
+<h2>Distributed Tracing vs. Logs vs. Metrics</h2>
+<table><thead><tr><th></th><th>Answers</th><th>Cannot answer</th></tr></thead><tbody><tr><td><strong>Logs</strong></td><td>What happened, and what the error said</td><td>Which of four hundred concurrent requests this line belongs to</td></tr><tr><td><strong>Metrics</strong></td><td>How the system behaves in aggregate, cheaply</td><td>Anything about one specific request</td></tr><tr><td><strong>Traces</strong></td><td>Where the time went in one request, and what called what</td><td>What the error message was; how yesterday compared</td></tr></tbody></table>
+<p>The three are complements, not competitors, and the usual mistake is trying to make logs do the third column&#x27;s job by adding fields to them. A trace id in your log lines is the bridge — it is the single highest-value change you can make to an existing logging setup, because it makes the logs you already have request-scoped.</p>
+<hr>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><strong>OpenTelemetry</strong> — the vendor-neutral standard for spans and propagation, and the thing to learn rather than any one vendor&#x27;s SDK.</li><li><strong>W3C Trace Context</strong> — the <code>traceparent</code> header, which is why a Java service and a Python service can share a trace.</li><li><strong>Jaeger</strong> and <strong>Zipkin</strong> — open-source backends that collect spans and draw the waterfall you have just drawn by hand.</li><li><strong>Micrometer Tracing</strong> — Spring&#x27;s bridge, which instruments the web layer and the HTTP client for you, so a Spring service is traced with configuration rather than code.</li><li><strong>Google&#x27;s Dapper paper (2010)</strong> — the origin of all of the above, and still the clearest statement of why sampling is unavoidable at scale.</li></ul>
+<hr>
+<h2>Try It Yourself</h2>
+<pre><code>./gradlew run     # the seven acts
+./gradlew test    # 82 tests</code></pre>
+<p>Then break things on purpose:</p>
+<ol><li>In <code>ProductPage.load</code>, start the ranking model from <code>request</code> instead of <code>recommendations.context()</code>. Run it. The model is now a sibling of recommendations rather than its child, recommendations&#x27; self time jumps from 60 to 400, and the arithmetic still adds to 900 — a plausible, wrong answer from a one-word change.</li><li>Delete the <code>try (...)</code> around the pricing span and call <code>tracer.start(...)</code> without closing it. Pricing vanishes from the trace entirely and the page grows 180ms of self time.</li><li>Change <code>Sampler</code>&#x27;s rate to one in ten and see how many complaints are still unanswerable.</li><li>Add a sixth service — a <code>fraud-check</code> that runs inside pricing — and watch the percentages redistribute without touching <code>Waterfall</code> or <code>Trace</code>.</li></ol>
+<hr>
+<h2>See Also</h2>
+<ul><li><code>docs/problem-statement.md</code> — the nine hundred milliseconds, and why the logs cannot help</li><li><code>docs/class-diagram.md</code> — the static structure, and the one dependency direction that matters</li><li><code>docs/uml-diagram.md</code> — the sequences, including both sides of the thread boundary</li><li><code>docs/animation.html</code> — the waterfall assembling itself, span by span</li><li><code>docs/session.md</code> — a one-hour facilitated session</li></ul>
+</main>
+<footer>
+Generated from <code>distributed-tracing-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

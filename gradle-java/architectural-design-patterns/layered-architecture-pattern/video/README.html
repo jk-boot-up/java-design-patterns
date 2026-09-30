@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layered Architecture Pattern — Teaching Video</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Layered Architecture Pattern — Teaching Video</h1>
+<p>A narrated, slide-based video that teaches Layered Architecture using this project&#x27;s code. This is the category&#x27;s reference project, so the video also sets the standard the other four architectures are measured against: how the architecture test reads and how it fails, and how a forced change is counted and printed.</p>
+<h2>Output Files</h2>
+<table><thead><tr><th>File</th><th>What it is</th></tr></thead><tbody><tr><td><code>layered-architecture-pattern-explained.mp4</code></td><td>The video — 1920×1080, H.264, 30 fps, stereo AAC. Upload-ready for YouTube.</td></tr><tr><td><code>layered-architecture-pattern-explained.m4a</code></td><td>Audio-only version, for listening on the move or for revision.</td></tr><tr><td><code>layered-architecture-pattern-explained.srt</code></td><td>Subtitles, timed from the encoded scene clips. Upload alongside the video for accurate captions.</td></tr><tr><td><code>poster.png</code></td><td>The video&#x27;s opening frame, 1920×1080. Not the thumbnail — see the publishing notes below.</td></tr></tbody></table>
+<p><strong>Narration:</strong> female voice (macOS <code>Samantha</code>, US English), 145 words per minute.</p>
+<p>The <code>.mp4</code>, <code>.m4a</code> and <code>.srt</code> are build output and are not committed — run <code>./build_video.sh</code> to produce them. <code>poster.png</code> <em>is</em> committed, so the title card is available without a build.</p>
+<h2>Source Files</h2>
+<table><thead><tr><th>File</th><th>Purpose</th></tr></thead><tbody><tr><td><code>narration.md</code></td><td>The full spoken script, scene by scene — read this to review the wording. It is generated from <code>scenes.py</code> by <code>../../docs/make_narration.py</code>, so edit the scenes, not the script.</td></tr><tr><td><code>scenes.py</code></td><td>Slide content <em>and</em> narration text, kept together so they cannot drift apart.</td></tr><tr><td><code>make_slides.py</code></td><td>Renders one 1920×1080 PNG per scene.</td></tr><tr><td><code>make_subtitles.py</code></td><td>Generates the SRT, timed from the encoded scene clips.</td></tr><tr><td><code>build_video.sh</code></td><td>The whole pipeline: slides → narration → per-scene clips → final video → subtitles.</td></tr><tr><td><code>build/</code></td><td>Generated slide images (regenerated on every build).</td></tr></tbody></table>
+<h2>Rebuilding</h2>
+<pre><code>./build_video.sh</code></pre>
+<p>The pipeline, the audio chain and the reasons behind both — no denoiser, two-pass loudness, lossless per-scene WAV joined to a single AAC encode, <code>+faststart</code> and a dropped edit list — are identical across every project in this repository and documented at length in the platform category&#x27;s <a href="../../platform-design-patterns/externalised-configuration-pattern/video/README.md"><code>externalised-configuration-pattern/video/README.md</code></a>. Nothing about this project changes that pipeline; only the scenes and the slide renderer differ.</p>
+<p>Set <code>KEEP_INTERMEDIATE=1</code> to retain the per-scene narration and clips for inspection.</p>
+<h3>Options</h3>
+<pre><code>VOICE=Ava RATE=155 ./build_video.sh</code></pre>
+<table><thead><tr><th>Variable</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>VOICE</code></td><td><code>Samantha</code></td><td>Any voice from <code>say -v &#x27;?&#x27;</code></td></tr><tr><td><code>RATE</code></td><td><code>145</code></td><td>Speaking rate in words per minute</td></tr></tbody></table>
+<h3>Requirements</h3>
+<ul><li><strong>macOS</strong> — the narration uses the built-in <code>say</code> command</li><li><strong>ffmpeg</strong> — <code>brew install ffmpeg</code></li><li><strong>Python 3</strong> with <code>pillow</code> and <code>matplotlib</code> (<code>matplotlib</code> is used only for its bundled DejaVu fonts)</li></ul>
+<h2>Scene List</h2>
+<table><thead><tr><th>#</th><th>Scene</th><th>Covers</th></tr></thead><tbody><tr><td>1</td><td>Layered Architecture</td><td>Title card, author credit, the plain-language definition of a layered architecture, and then the same idea in the online store</td></tr><tr><td>2</td><td>The Scenario</td><td>Ada&#x27;s £382.50 order — the same feature every project in this category places</td></tr><tr><td>3</td><td>Version One — No Layers At All</td><td><code>EverythingOrderService</code>, and why its pricing cannot be tested without its storage</td></tr><tr><td>4</td><td>Four Layers, Stacked</td><td>Presentation, application, domain, infrastructure — what each one&#x27;s job is and what it must not know</td></tr><tr><td>5</td><td>The One Call That Ruins Them</td><td><code>OrderHistoryScreen</code>&#x27;s shortcut, and the line that names this project&#x27;s whole lesson: nothing in the build objected</td></tr><tr><td>6</td><td>Why This Keeps Happening</td><td>Diagrams and adjectives versus a test that can fail — the category&#x27;s anti-vagueness argument</td></tr><tr><td>7</td><td>The Rule, Written Where A Build Can Read It</td><td><code>ArchitectureTest</code>&#x27;s ArchUnit rule, read almost as English</td></tr><tr><td>8</td><td>Watching It Go Red</td><td>The failure message naming <code>OrderHistoryScreen</code> and <code>InMemoryOrderTable</code> by name</td></tr><tr><td>9</td><td>The Forced Change</td><td>Swapping the storage layer, counted: 1 file added, 1 modified, 1 line, 16 of 17 classes never opened</td></tr><tr><td>10</td><td>And The One That Took The Shortcut</td><td>Why <code>OrderHistoryScreen</code> alone fails to compile after the swap</td></tr><tr><td>11</td><td>What This Project Does Not Fix</td><td>The application layer still names infrastructure by package — the one thing Hexagonal Architecture changes next</td></tr><tr><td>12</td><td>An Order That Is Not Obvious</td><td>Why the card is charged before anything is written down</td></tr><tr><td>13</td><td>The Bill</td><td>Indirection, pass-through layers, and the bottom layer still being the database</td></tr><tr><td>14</td><td>When This Is Too Much</td><td>The size of application at which four layers stop paying for themselves</td></tr><tr><td>15</td><td>Thanks for Watching</td><td>The widen-the-architecture-test exercise, like, subscribe, and where the source lives</td></tr></tbody></table>
+<p>The first and last scenes carry the branding: scene 1 credits the author out loud, scene 15 asks for the thumbs up and the subscribe. Scene 11 is a <code>diagram</code> slide laid out by hand in <code>make_slides.py</code>; scenes 5, 8, 9 and 10 are <code>console</code> slides showing what the demo actually prints. If you change <code>PlaceAnOrderDemo</code>, re-check all four against its real output.</p>
+<p>Scene 15 deliberately does not name whichever pattern comes next. Publishing order on YouTube is not the order these projects were built in, and a rendered video cannot be corrected without re-uploading it.</p>
+<h2>Related: the animation&#x27;s narration</h2>
+<p><a href="../docs/animation.html"><code>../docs/animation.html</code></a> has its own optional narration, generated separately by <a href="../docs/make_animation_audio.sh"><code>../docs/make_animation_audio.sh</code></a> into <code>docs/audio/</code>. It uses the same voice and rate as this video so the two sound consistent. Those clips are short per-step explanations, not the video script.</p>
+<h2>Editing the Script</h2>
+<p>Narration lives in <code>scenes.py</code>, next to the slide it belongs to. Edit the <code>narration</code> field of a scene, re-run <code>python3 ../../docs/make_narration.py --force layered-architecture</code> to refresh <code>narration.md</code>, then re-run <code>./build_video.sh</code>. <code>[[slnc NNN]]</code> markers insert a pause of NNN milliseconds; they are instructions to <code>say</code>, not words, and <code>make_subtitles.py</code> strips them.</p>
+<p>This is the hardest audio-only category in the course: architecture is normally taught by pointing at a diagram, and a listener has no diagram. Every narration line describes structure as rules and directions in words — &quot;the checkout names the application layer, and nothing else&quot; — and the phrase &quot;as you can see&quot; does not appear anywhere in <code>scenes.py</code>. If a scene needs the picture to make sense, the scene is rewritten rather than the rule relaxed.</p>
+<h2>Publishing Notes</h2>
+<p>The video is encoded to YouTube&#x27;s recommended settings already. Upload <code>layered-architecture-pattern-explained.mp4</code>, with <code>../docs/thumbnail.png</code> as the thumbnail and the <code>.srt</code> as the captions. The title, description, chapters and tags to paste at upload time live in <a href="../docs/youtube.html"><code>../docs/youtube.md</code></a>.</p>
+<p><code>poster.png</code> is the video&#x27;s opening frame, not the thumbnail: it is composed for a full screen, whereas <code>thumbnail.png</code> is drawn at 1280×720 with only the pattern name, one promise and one line of code, so it survives being shrunk to search-result size.</p>
+<p>Wait for HD processing before sharing the link — code and console slides are unreadable at 360p — and set the custom thumbnail under <strong>Details</strong> → <strong>Thumbnail</strong> rather than letting YouTube auto-pick a frame.</p>
+<p>Suggested description:</p>
+<blockquote><p>Layered Architecture pattern in Java, explained by building a real online shop with four layers, where each layer may only depend on the one directly beneath it, like a customer who talks to the waiter and never walks into the store room. Drawing four boxes costs nothing, so we watch a developer add one import that skips a layer and see that nothing complains. Then we write the rule as a test, watch it catch the shortcut, make a real change and count what it touched, and say plainly what layering does not fix. A layered architecture is not four folders; it is the test that fails when someone skips one.</p></blockquote>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

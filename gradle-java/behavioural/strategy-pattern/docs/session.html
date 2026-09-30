@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Strategy Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Strategy Pattern</h1>
+<p>A 60-minute guided session for teaching or self-studying the Strategy pattern using this project.</p>
+<ul><li><strong>Audience:</strong> beginners comfortable with core Java</li><li><strong>Duration:</strong> ~60 minutes</li><li><strong>Format:</strong> live coding + discussion</li><li><strong>Prerequisites:</strong> see <a href="prerequisites.html"><code>prerequisites.md</code></a></li></ul>
+<blockquote><p><strong>Optional pre-work.</strong> Ask participants to watch the video (<code>video/strategy-pattern-explained.mp4</code>) beforehand. If they do, you can compress the problem and pattern segments and spend the extra time on the exercises. If you are teaching a group that has <em>not</em> watched it, run the session exactly as written below.</p></blockquote>
+<h2>Learning Objectives</h2>
+<p>By the end of this session a participant should be able to:</p>
+<ol><li>Describe, in one sentence, what problem the Strategy pattern solves.</li><li>Explain why <code>CheckoutService</code> takes a <code>ShippingCostRule</code> as a constructor argument instead of a <code>ShippingMethod</code> enum.</li><li>Identify the three roles — strategy, concrete strategy, context — in real code.</li><li>Say honestly where the branch went, and why a registry at the edge is not the same thing as a <code>switch</code> in the pricing logic.</li><li>Distinguish Strategy from State, and from Simple Factory.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Segment</th><th>Mode</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td><td>Hands-on</td></tr><tr><td>0:05–0:15</td><td>The problem</td><td>Discussion</td></tr><tr><td>0:15–0:25</td><td>The pattern</td><td>Explanation</td></tr><tr><td>0:25–0:40</td><td>Code walkthrough</td><td>Live coding</td></tr><tr><td>0:40–0:50</td><td>Exercises</td><td>Hands-on</td></tr><tr><td>0:50–0:58</td><td>Pitfalls &amp; comparisons</td><td>Discussion</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td><td>—</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<p>Everyone runs:</p>
+<pre><code>java -version
+./gradlew run</code></pre>
+<p>Anyone whose build fails pairs up with a neighbour. Do not debug installs during the session — that is what the prerequisites doc is for.</p>
+<h2>0:05–0:15 — The Problem</h2>
+<p><strong>Do not show <code>ShippingCostRule</code> yet.</strong> Start with the pain.</p>
+<p>Open <code>NaiveCheckoutService</code> and put the whole <code>quote</code> method on the screen. Read the four branches out loud, slowly. Then ask:</p>
+<blockquote><p><em>&quot;Everything in this method is correct. Every price it produces is right. So what is wrong with it?&quot;</em></p></blockquote>
+<p>Let the group work. Steer towards, in this order:</p>
+<ol><li>Four unrelated policies live in one method.</li><li>None of them can be tested without going through checkout.</li><li>A fifth rule means editing the method every existing rule depends on.</li></ol>
+<p><strong>Then point at the <code>default</code> branch.</strong> Ask:</p>
+<blockquote><p><em>&quot;What happens if I add <code>LOCKER_COLLECTION</code> to <code>ShippingMethod</code> and forget this method exists?&quot;</em></p></blockquote>
+<p>Land it hard: the shop ships for free. No compile error, no exception, just a quietly wrong number on the receipt. This is the moment the session turns — it converts &quot;this is a bit untidy&quot; into &quot;this is a live hazard&quot;.</p>
+<h2>0:15–0:25 — The Pattern</h2>
+<p>Use the getting-across-town analogy from <a href="strategy-pattern-explained.html"><code>strategy-pattern-explained.md</code></a>. Ask: <em>&quot;When you walk to the station, do you re-decide &#x27;bus or bike?&#x27; at every street corner?&quot;</em> Land on: no — the choice is made once, then you just use it.</p>
+<p>Show the class diagram (<a href="images/class-diagram.png"><code>images/class-diagram.png</code></a>) and name the three roles. Then show the sequence diagram (<a href="images/uml-diagram.png"><code>images/uml-diagram.png</code></a>) and point out that its two halves have the <em>same message sequence</em> with different participants.</p>
+<p>Optionally open <a href="animation.html"><code>animation.html</code></a> in a browser and play it through once. It has a <strong>Narration</strong> button: leave it off if you want to talk over the animation yourself, or switch it on to let it explain each step in its own voice.</p>
+<p><strong>The one point that must land:</strong></p>
+<blockquote><p><code>CheckoutService</code> cannot behave differently depending on which rule it holds, because there is no message it can send to find out which one it is. If you ever need <code>instanceof</code> there, the pattern has not been applied.</p></blockquote>
+<h2>0:25–0:40 — Code Walkthrough</h2>
+<p>Open the files in this order. Resist jumping ahead.</p>
+<p><strong>1. The strategy — <code>ShippingCostRule.java</code></strong> Two methods. Ask: <em>&quot;Why is <code>name()</code> on here at all?&quot;</em> Because otherwise the client needs a map from rule to display name — and that map is the <code>switch</code> growing back somewhere new.</p>
+<p><strong>2. The parameter object — <code>Shipment.java</code></strong> Point out that <code>FlatRateRule</code> reads none of these fields. Ask: <em>&quot;Isn&#x27;t that wasteful?&quot;</em> No — it is what keeps the interface stable. If <code>costFor</code> took just a weight, adding the distance rule would change every implementation.</p>
+<p><strong>3. Two concrete strategies — <code>FlatRateRule.java</code>, then <code>WeightBandedRule.java</code></strong> The first ignores everything; the second has a band table. Ask: <em>&quot;What do these two have in common?&quot;</em> Only the interface. That is the point — they are peers, not variations on each other.</p>
+<p><strong>4. The context — <code>CheckoutService.java</code></strong> This is the heart of the session. Search the file live, on screen, for the words &quot;flat&quot;, &quot;weight&quot; and &quot;distance&quot;. Zero hits. Say out loud: <em>the switch did not move, it is gone.</em></p>
+<p><strong>5. The honest bit — <code>ShippingRules.java</code></strong> Somebody will say &quot;you just moved the switch&quot;. Agree, then draw the distinction: the naive branch ran inside the pricing logic on every quote; this runs once, at the edge, answering &quot;which rule is configured today&quot;. In production it is a database row, not code.</p>
+<p><strong>6. The trap — <code>NaiveCheckoutService.java</code></strong> Back to it with fresh eyes now the alternative exists. Ask which version they would rather add a fifth rule to.</p>
+<p><strong>7. The proof — <code>CheckoutServiceTest.java</code></strong> Show <code>acceptsARuleDefinedEntirelyInThisTest</code>. Ask: <em>&quot;Could this test exist against the naive design?&quot;</em> No — and note that the arithmetic tests <em>could</em>, which is why they prove nothing about the pattern.</p>
+<p><strong>8. Run it — <code>ShippingCostDemo.java</code></strong> Run <code>./gradlew run</code> live. Read down the &quot;campaign&quot; column and across the Cardiff row.</p>
+<h2>0:40–0:50 — Exercises</h2>
+<p>Let participants work; circulate and help.</p>
+<h3>Exercise 1 — Add a fifth rule (everyone)</h3>
+<p>Add a <code>LockerCollectionRule</code>: free when the destination contains &quot;Locker&quot;, £3.00 otherwise. Register it in <code>ShippingRules</code> under <code>&quot;locker&quot;</code>. Then count the files you had to open.</p>
+<blockquote><p><strong>The payoff:</strong> one new class and one registry line. <code>CheckoutService</code>, and all four existing rules, were not touched. Say this out loud when someone finishes.</p></blockquote>
+<h3>Exercise 2 — Do the same thing to the naive version (everyone)</h3>
+<p>Add <code>LOCKER_COLLECTION</code> to <code>ShippingMethod</code> — <em>and do not touch <code>NaiveCheckoutService</code></em>. Run it. Watch the shop ship for free. Then fix it properly and compare the diff to Exercise 1&#x27;s.</p>
+<h3>Exercise 3 — Break the abstraction on purpose (discussion)</h3>
+<p>Add a <code>getRule()</code> accessor to <code>CheckoutService</code>, and have the demo write <code>if (checkout.getRule() instanceof FreeOverThresholdRule) { ... }</code>. Discuss: <em>&quot;What did we just throw away?&quot;</em> Every reason the four rules were separated. Client code can now branch on rule type again, and the fifth rule will break it.</p>
+<h3>Exercise 4 — Stretch (for fast finishers)</h3>
+<p>Rewrite <code>FlatRateRule</code> as a lambda at the call site. It works — Strategy with a single-method interface is just a function. Then ask what <code>checkout.ruleName()</code> prints, and what you would have to give up or add back to fix it.</p>
+<h2>0:50–0:58 — Pitfalls &amp; Comparisons</h2>
+<p>Cover the &quot;What to Watch Out For&quot; section:</p>
+<ul><li>Strategies must not carry state between calls; the registry hands out shared instances, so a rule that remembers the last shipment is a concurrency bug waiting for traffic.</li><li>The client must never ask what it is holding — <code>instanceof</code> is the branch returning.</li><li>The interface must not grow a method per rule. New data goes on <code>Shipment</code>.</li><li>Four classes instead of one method is a genuine cost. For two rules that will never change, the <code>switch</code> is the better answer.</li></ul>
+<p>Then the comparison table. The line worth memorising:</p>
+<blockquote><p><strong>Strategy and State have the same shape. The difference is who chooses and how often: Strategy&#x27;s choice comes from outside and stays put; a State object swaps itself for another as events arrive.</strong></p></blockquote>
+<p>Close with real-world sightings: <code>Comparator</code>, <code>RejectedExecutionHandler</code>, Spring&#x27;s <code>PasswordEncoder</code>, and cache eviction policies.</p>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>Ask three people for a one-sentence definition. Then assign follow-up:</p>
+<blockquote><p>Find one <code>switch</code> or <code>if/else</code> chain in your own codebase that branches on a &quot;type&quot; or &quot;mode&quot; field and does real work in each branch — tax calculation, export format, and retry policy are common ones — and sketch what the strategy interface would be called.</p></blockquote>
+<h2>Facilitator Notes</h2>
+<p><strong>Common misconceptions to correct:</strong></p>
+<table><thead><tr><th>They say</th><th>Correct with</th></tr></thead><tbody><tr><td>&quot;You just moved the switch into <code>ShippingRules</code>&quot;</td><td>Half right, and worth taking seriously. The naive branch ran inside the pricing logic on every quote, tangling decision with arithmetic. The registry runs once, at the edge, and answers a different question. In production it is a config table, not code</td></tr><tr><td>&quot;Isn&#x27;t this just polymorphism?&quot;</td><td>Yes — Strategy <em>is</em> polymorphism, applied deliberately to a family of interchangeable algorithms. The pattern is the naming and the discipline, not a new language feature</td></tr><tr><td>&quot;Isn&#x27;t this the same as State?&quot;</td><td>Same shape, different question. Strategy&#x27;s rule is handed in from outside and does not change itself; a State object decides what replaces it. Cover this properly in the State project</td></tr><tr><td>&quot;Four classes for four <code>if</code>s seems like a lot&quot;</td><td>Agree. For two rules that never change, it is. The pattern pays when the family is open-ended — and delivery pricing genuinely is, because marketing owns it</td></tr><tr><td>&quot;Why not a <code>Map&lt;ShippingMethod, Supplier&lt;Money&gt;&gt;</code>?&quot;</td><td>That <em>is</em> the pattern, with the interface replaced by a functional type. Ask them where <code>name()</code> went</td></tr></tbody></table>
+<p><strong>If you are running short on time:</strong> cut Exercise 4 and shorten the pitfalls discussion. Never cut Exercise 2 — watching the naive version ship for free is the single most persuasive minute in the session.</p>
+<p><strong>If you have extra time:</strong> have participants write a full test class for their <code>LockerCollectionRule</code>, mirroring the <code>@Nested</code> structure of <code>ShippingCostRuleTest</code>, and add it to the interchangeability loop in <code>CheckoutServiceTest</code> (it will pass with no changes — that is the point).</p>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>Everyone has JDK 21 and a green <code>./gradlew run</code></li><li>Diagrams open in a tab (<code>images/</code>)</li><li><code>animation.html</code> open in a browser</li><li>Video on hand (<code>../video/strategy-pattern-explained.mp4</code>) — useful as a recap for anyone who joins late, or to send round afterwards</li><li><code>NaiveCheckoutService</code> open in a second window, so you can put it beside <code>CheckoutService</code> at the 0:25 mark</li><li>The printed four-rule table from <code>./gradlew run</code> ready to put on the board</li><li>IDE font size raised for screen sharing</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

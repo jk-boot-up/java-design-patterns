@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strangler Fig with NGINX, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Strangler Fig with NGINX, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>A strangler fig replaces an old system by growing the new one around it, one piece at a time, behind a single front door that decides, piece by piece, which system answers.</p>
+<h2>The analogy, before any of NGINX&#x27;s words</h2>
+<p>Think of the reception desk in a large office building. Visitors never wander the corridors. They tell the receptionist who they want, and the receptionist sends them to the right floor from a list. The company is moving, department by department, into a new building next door. When the accounts team moves, the receptionist&#x27;s list changes one line, and visitors asking for accounts are sent next door. Everybody else still goes upstairs. No visitor ever notices a move.</p>
+<p>Now four things the receptionist makes you think about. The receptionist reads the list by rules of their own, and an old sticky note on the desk that says &quot;anyone asking about money, upstairs&quot; can quietly beat the new line on the list. The way the receptionist writes a room number on a visitor&#x27;s slip can change which room the visitor asks for when they arrive. When the list changes mid-morning, a visitor already on their way upstairs should still be seen, not turned back. And if the new building&#x27;s door is locked, only the visitors sent there are stuck; everybody else is fine. Those four things, and one bill, are this project.</p>
+<h2>What NGINX calls these things</h2>
+<p><strong>NGINX</strong> is the receptionist: a web server used here as a <strong>reverse proxy</strong>, a program that stands in front of other programs, takes every request, and passes it to whichever one should answer. It runs in a container the demo starts and stops.</p>
+<p>The <strong>old shop</strong> does everything: prices, stock, the basket, checkout and orders. The <strong>new service</strong> is the rewrite, and so far it has built prices and checkout. Both are real web servers running inside the demo&#x27;s own Java program. NGINX reaches them from its container by the name <code>host.testcontainers.internal</code>.</p>
+<p>A <strong>location</strong> block is one line of the receptionist&#x27;s list. It matches the start of a web address, called a <strong>prefix</strong>, such as <code>/api/prices/</code>. The catch-all prefix <code>/</code> matches everything.</p>
+<p>A <strong>regular expression</strong> is a pattern for matching text, written with symbols. <code>^/api/(prices|stock)/</code> means &quot;starts with /api/prices/ or /api/stock/&quot;. A location marked with <code>~</code> uses one.</p>
+<p>NGINX picks a location like this. It finds the longest matching prefix and remembers it. Then it tries the regular-expression locations, in the order they are written, and the first one that matches wins. Only if none matches does the remembered prefix win. A prefix written with <strong><code>^~</code></strong> in front tells NGINX to stop looking once it matches, and skip the regular expressions.</p>
+<p><strong><code>proxy_pass</code></strong> says where to send the request. <strong><code>upstream</code></strong> gives a name to a service&#x27;s address, here <code>old_shop</code> and <code>new_service</code>. Written with nothing after the name, <code>proxy_pass</code> passes the path on untouched; written with anything after it, even one slash, it cuts the matched prefix off first.</p>
+<p><strong><code>nginx -t</code></strong> checks a configuration without using it, and <strong><code>nginx -s reload</code></strong> tells NGINX to start using it. NGINX&#x27;s <strong>main process</strong> reads the configuration and never restarts; its <strong>worker processes</strong> handle the requests, and a reload replaces them.</p>
+<p>An <strong>HTTP status code</strong> is the three-digit answer every web request gets first. 200 is success, 404 is no such page, 422 is &quot;understood, and refused&quot;, and <strong>502 Bad Gateway</strong> is NGINX saying the service behind it did not answer.</p>
+<p>A <strong>cookie</strong> is a small note a site asks the browser to keep and send back with every request. The old shop&#x27;s is called <code>LEGACYSESSION</code>, and it is how the old shop finds a customer&#x27;s basket.</p>
+<h2>The six acts</h2>
+<h3>The Big Bang</h3>
+<p>NGINX starts in front of the old shop, with one rule: everything to the old shop. The shop&#x27;s four pages — a price, a stock level, the basket and an old order — all answer 200, all from the old shop. Then the Monday of a big-bang migration: one line sends every route to the new service. The new service has built only prices and checkout, so the price page works and the other three answer 404. One page in four works.</p>
+<pre><code>  NGINX 1.31.6 is running in a container, in front of the old shop. every route goes to the old shop.
+  the shop&#x27;s four pages: prices 200, stock 200, basket 200, orders 200. pages that work: 4 of 4 (4 from the old shop, 0 from the new service).
+  Monday: one line sends every route to the new service, which has built only prices and checkout so far.
+  the four pages: prices 200, stock 404, basket 404, orders 404. pages that work: 1 of 4 (0 from the old shop, 1 from the new service).</code></pre>
+<h3>One Route At A Time</h3>
+<p>The pattern, on a real proxy. A customer&#x27;s price request has already reached the old shop, and the old shop is slow to answer it. While it is open, the configuration gains one location, <code>/api/prices/</code>, sent to the new service, and NGINX reloads. Its main process is number 1 before and after: nothing restarted. While the old request is still open there are two workers: 1 still finishing old requests, and 1 taking new ones. A new price request goes to the new service. Then the open request finishes, with a 200, from the old shop, and the old worker exits. The four pages all work: prices from the new service, the other three from the old shop.</p>
+<p>One detail the demo has to respect. A reload is not instant. NGINX starts the new worker first, then tells the old worker to stop taking new connections. For a short moment both take new connections, and a request sent then can be answered under either configuration. So the demo, after every reload, waits until NGINX answers with the new configuration&#x27;s number and exactly one worker is taking new connections. An early version of this demo waited only for the first condition, and in one of its first runs the basket page was answered by the old shop after the big bang had already been applied.</p>
+<pre><code>  a customer&#x27;s price request has reached the old shop, and the old shop is slow to answer it.
+  the configuration gains location /api/prices/, sent to the new service. nginx -s reload.
+  NGINX&#x27;s main process: number 1 before the reload and number 1 after. nothing restarted.
+  while that request is still open: workers still finishing old requests: 1. workers taking new requests: 1.
+  a new price request: 200, from the new service.
+  the open request then finishes: 200, from the old shop. workers still finishing old requests: 0.
+  the four pages now: prices 200, stock 200, basket 200, orders 200. pages that work: 4 of 4 (3 from the old shop, 1 from the new service).</code></pre>
+<h3>A Regular Expression Wins</h3>
+<p>The headline find. The shop&#x27;s real configuration has one more rule, written years ago to let browsers cache catalogue reads for a minute: <code>location ~ ^/api/(prices|stock)/</code>, sent to the old shop. The same move as before — <code>location /api/prices/</code>, to the new service — goes into that configuration. <code>nginx -t</code> finds nothing wrong, and the reload succeeds. Ten price requests: ten from the old shop, none from the new service. NGINX found the prefix, then tried the regular expression, which matched, and won. The move did nothing, and nothing said so. Written as <code>location ^~ /api/prices/</code>, which tells NGINX to stop looking once the prefix matches, all ten go to the new service.</p>
+<pre><code>  the shop&#x27;s real configuration has one more rule, written years ago to cache catalogue reads: location ~ ^/api/(prices|stock)/
+  the same move, location /api/prices/, in that configuration, and a reload. 10 price requests: 10 from the old shop, 0 from the new service.
+  NGINX tries its regular-expression rules after finding the longest prefix, and the first one that matches wins. the move did nothing, and nothing said so.
+  written as location ^~ /api/prices/, which tells NGINX to stop looking: 10 price requests: 0 from the old shop, 10 from the new service.</code></pre>
+<h3>One Slash</h3>
+<p>The new service&#x27;s address is written two ways that differ by one character. Without a slash after the name, NGINX passes the path on as it came: the new service is asked for <code>/api/prices/SKU-1</code>, and answers 200. With a slash, NGINX cuts the matched prefix, <code>/api/prices/</code>, off the path and puts the slash in its place: the new service is asked for <code>/SKU-1</code>, and answers 404. The new service writes down every path it receives, which is how the demo knows exactly what arrived.</p>
+<pre><code>  proxy_pass http://new_service; the new service is asked for /api/prices/SKU-1 and answers 200.
+  proxy_pass http://new_service/; the new service is asked for /SKU-1 and answers 404.
+  with anything after the address, even one slash, NGINX cuts the matched prefix off the path it passes on.</code></pre>
+<h3>The New Service Goes Down</h3>
+<p>Prices are on the new service, and the new service stops. Ten price requests: ten answers of 502 Bad Gateway, written by NGINX itself, because nobody answered behind it. Ten stock requests, still on the old shop: ten answers of 200. Only the moved route is hurt. Rolling back is removing the one location block and reloading; the next ten price requests are answered by the old shop. When the new service is back, one more reload moves prices to it again.</p>
+<pre><code>  10 price requests: 10 answered 502 Bad Gateway, by NGINX itself. 10 stock requests: 10 answered 200, by the old shop.
+  roll back: the one location removed, and a reload. 10 price requests: 10 answered 200, by the old shop.
+  the new service comes back, and one more reload moves prices to it again: 10 price requests: 0 from the old shop, 10 from the new service.</code></pre>
+<h3>The Bill</h3>
+<p>A customer puts three items in the basket. The old shop keeps the basket in its own memory and sets a cookie, <code>LEGACYSESSION=L-1</code>, so it can find the basket again. Checkout moves to the new service. NGINX passes the cookie along faithfully, and the new service receives <code>LEGACYSESSION=L-1</code> — and has no idea what it means, because it keeps its own baskets under its own cookie. It answers 422: your basket is empty, to a customer with three items in it. Moved back to the old shop, the same checkout places order 1002: three items, 4249 pence. Checkout cannot move until the basket does, or until both services agree on one session. The old shop still serves four of the five routes. And there are now three things to run, not one: an NGINX container, the old shop and the new service, and a configuration file that decides who answers.</p>
+<pre><code>  a customer puts 3 items in the basket. the old shop answers &quot;basket: 3 items&quot; and sets the cookie LEGACYSESSION=L-1.
+  checkout moves to the new service. it receives the cookie LEGACYSESSION=L-1 and has no use for it: 422, your basket is empty.
+  checkout moved back to the old shop: 200, order 1002 placed: 3 items, 4249 pence.
+  checkout cannot move until the basket does. the old shop still serves 4 of 5 routes: stock, basket, checkout and orders.
+  and three things to run now, not one: 1 NGINX container, the old shop and the new service, and a configuration file that decides who answers.</code></pre>
+<h2>What this project does not show</h2>
+<ul><li><strong>Shadow reads.</strong> The plain-Java twin sent orders to both sides and compared the answers before moving anything. NGINX&#x27;s <code>mirror</code> directive can send a copy of a request to the new service, but it throws the copy&#x27;s answer away; comparing the two needs a program of its own.</li><li><strong>A migration that stalls.</strong> The twin modelled the cost of a migration that stops half-finished. That is about budgets and people, and no proxy shows it.</li><li><strong>Two teams and two release calendars.</strong> Here both services run in one Java program on one machine. The network between NGINX and them is real; the organisation around them is not.</li></ul>
+<h2>The verdict</h2>
+<p>Put a real proxy in front of the old system on day one, with one catch-all rule to the old system, and move routes by adding one location each. Then say three things out loud, because NGINX will not: write every moved route with <code>^~</code>, or check that no regular-expression location can take it back; decide deliberately whether the new service expects the full path or not, and write the slash to match; and wait for a reload to finish before trusting the new configuration. Before moving a route, find every cookie and header it depends on, and whether the new service can read them.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>A gateway configuration with one catch-all <code>location /</code> to an old system and a growing list of specific locations to new ones. That is a strangler fig.</li><li>A <code>location ~</code> or <code>location ~*</code> anywhere above the moved routes. Check whether it matches any of them; if it does, it wins.</li><li>A <code>proxy_pass</code> with a path, or just a slash, after the address. That location rewrites every path it passes on.</li><li>A restart, rather than <code>nginx -t</code> and <code>nginx -s reload</code>, in the deploy script. That drops the requests in progress.</li><li>A session cookie set by the old system and read by routes that are about to move.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Any migration with an <code>/api/v2</code> running beside an <code>/api/v1</code>, behind NGINX, HAProxy, Envoy, a cloud load balancer or an API gateway. Each has its own order of matching rules, its own way of rewriting paths, and its own way of changing rules without dropping requests.</p>
+<h2>When this is too much</h2>
+<p>If the old system can be rewritten and replaced in a few weeks, the router and the months of running two systems cost more than they save. And if the old and new systems cannot share a session, the routes that depend on it cannot be split until that is solved.</p>
+</main>
+<footer>
+Generated from <code>strangler-fig-with-nginx-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

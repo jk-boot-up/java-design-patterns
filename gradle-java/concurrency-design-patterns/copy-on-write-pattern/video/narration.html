@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Copy-on-Write Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Copy-on-Write Pattern — Video Narration Script</h1>
+<h2>1. Copy-on-Write</h2>
+<p>Hello, and welcome. This video explains the Copy-on-Write pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. With copy-on-write, readers use the current version of the data, with no locks at all. A writer never changes that version. It makes a copy, changes the copy, and swaps it in. Think of a restaurant&#x27;s printed menus. Diners read them for as long as they like. To change a dish, the manager prints a whole new batch, and swaps them in at the door. Diners already reading finish with the old menu. In this video, the domain is an online shop. When a price changes, it tells a list of listeners: the web page cache, the loyalty service, and the phone app. By the end, you will hear how a plain list crashes when it changes while being read. How copy-on-write fixes it. Why readers never lock. And what every write costs.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. When a price changes, the shop tells every listener on a list. Prices change all the time. The list of listeners rarely changes. But sometimes a listener adds another, while it is being told. The listeners were kept in a plain array list.</p>
+<h2>3. Act One — A plain list, changed while read</h2>
+<p>First demo: a plain list, changed while it is being read. The kettle&#x27;s price changes. The shop tells each listener in turn. The web page cache hears it. The loyalty service hears it, and subscribes the email service, adding to the list as it goes. The loop crashes, with a concurrent modification exception. The phone app never hears about the new price.</p>
+<h2>4. Act Two — A copy-on-write list</h2>
+<p>Second demo: a copy-on-write list. The same thing happens. The loyalty service subscribes the email service while being told. This time, the loop is reading an array that nobody will ever change. The new subscription copies the array, adds to the copy, and swaps it in. The first change reaches all three listeners. The next change reaches all four.</p>
+<h2>5. Act Three — Readers never lock</h2>
+<p>Third demo: readers never lock, and are never disturbed. One thread tells the listeners about prices, a hundred thousand times. At the same moment, another thread subscribes and unsubscribes, a thousand times. Failures: zero. Locks taken by the readers: zero.</p>
+<h2>6. Act Four — Snapshots</h2>
+<p>Fourth demo: each reader sees a snapshot. A reader starts going through the list. It has three listeners. Before it finishes, a fourth is added. The reader finishes with the three it started with. Like a diner with the old menu. The next reader sees four.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. Every write copies everything. Add ten thousand listeners, one at a time. Nearly fifty million references are copied along the way. That is fine for a list that is read constantly and changed rarely. It is wrong for anything that changes all the time.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the pattern. Readers take the current array, and read it with no lock. Writers copy the array, change the copy, and swap it in, in one step. The rule that makes it safe: once an array is published, nobody ever changes it again.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. Cow list holds the array, and swaps in new copies. A price listener is anyone who wants to be told about price changes. The notification loop is a reader. Subscribing is a write. And the plain array list is the old way, kept for comparison.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met this pattern already. Java&#x27;s copy on write array list, and copy on write array set. Listener lists in Swing, Spring, and many libraries use them. Linux shares memory between processes until one writes to it. And file systems use the same trick for snapshots.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use it? For small collections that are read constantly, and changed rarely. Lists of listeners are the classic case. Use Java&#x27;s copy on write array list, rather than writing your own. And for data that changes often, choose a concurrent collection, or a lock.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Copy-on-Write pattern. If you remember one sentence, make it this one. Readers read freely, and writers copy, change, and swap. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Replace the hand-written list with Java&#x27;s copy on write array list, and run the demo again. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

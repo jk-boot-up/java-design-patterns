@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Event Sourcing with EventStoreDB Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Event Sourcing with EventStoreDB Pattern</h1>
+<p>A 60-minute session built around one question: once two programs can write to the same history, what stops them both spending the same points?</p>
+<h2>Learning Objectives</h2>
+<ol><li>Say, in plain words, what a stream, a revision, an append and an expected revision are, and what the rename from EventStoreDB to KurrentDB changes.</li><li>Reproduce two checkouts spending the same points with no check, and explain why the server accepted both.</li><li>Show the expected revision refusing the second append, and explain why the refused writer must read again rather than resend.</li><li>Explain how an event id lets the server recognise a retry.</li><li>Name the bill: a delete that hides, projections that must forget too, the check being off by default, and a server that ran insecure.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:08</td><td>The post office ledgers, the rename, and the twin recapped in two minutes</td></tr><tr><td>0:08–0:15</td><td>Act one: a real log, read back</td></tr><tr><td>0:15–0:30</td><td>Acts two and three: the race, with and without the check</td></tr><tr><td>0:30–0:38</td><td>Act four: the retry</td></tr><tr><td>0:38–0:46</td><td>Act five: the catch-up subscription</td></tr><tr><td>0:46–0:55</td><td>Act six: the delete, and the verdict</td></tr><tr><td>0:55–1:00</td><td>Exercises</td></tr></tbody></table>
+<h2>Walkthrough</h2>
+<p>Start Docker Desktop, or another container runtime, first.</p>
+<pre><code>cd platform-design-patterns/event-sourcing-with-eventstoredb-pattern
+./gradlew -q run</code></pre>
+<p>Questions to ask as you go through the output:</p>
+<ul><li><strong>Act one:</strong> where is 140 stored?</li><li><strong>Act two:</strong> at what moment did the second checkout&#x27;s decision become wrong, and could it have known?</li><li><strong>Act three:</strong> which checkout won? The output does not say. Why not?</li><li><strong>Act four:</strong> why did the same id need the same expectation too?</li><li><strong>Act five:</strong> what would the dashboard show if it had started first?</li><li><strong>Act six:</strong> after the delete, where does C-5122&#x27;s history still exist?</li></ul>
+<p>Then open <code>src/main/java/com/jk/explore/eventsourcingeventstoredb/LoyaltyLog.java</code> and read <code>append</code> and <code>appendExpecting</code> aloud. The only difference is one <code>StreamState</code>.</p>
+<h2>Discussion</h2>
+<p>Ask the room how many places in a real shop append to a customer&#x27;s points. The candidates include the website, the app, the till, the refund job and the expiry job. Every one of them has to carry the revision it read.</p>
+<p>Then ask what the refused checkout should do if the second look still shows enough points. It should try again with the new revision. How many times? What does the customer see meanwhile?</p>
+<h2>Exercises</h2>
+<ol><li>Change act two to use <code>Check.EXPECTED_REVISION</code> and predict every line of its output before you run it.</li><li>In the race, make the refused checkout retry with the <em>same</em> expected revision and the same event id. What does the server answer, and why?</li><li>Replace <code>delete</code> with <code>tombstoneStream</code> in act six and predict what the later append does.</li><li>Give the dashboard a checkpoint, the last position it saw. Restart it from there instead of from the start, and count the events it receives.</li><li>Add a third checkout to the race and predict the counts of accepted and refused appends.</li></ol>
+<p>Close with the verdict: look, decide and append with the revision you looked at; on a refusal, look again; one event id per decision; erasure reaches every copy.</p>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

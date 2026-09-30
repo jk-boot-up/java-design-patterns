@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API Gateway with Spring Cloud Gateway Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>API Gateway with Spring Cloud Gateway Pattern — Video Narration Script</h1>
+<h2>1. API Gateway with Spring Cloud Gateway</h2>
+<p>Hello, and welcome. This video explains the API Gateway pattern, in Java, using Spring Cloud Gateway. This video is presented by Jayasekhar Konduru. First, a simple definition. An API gateway is one front door for many services. Every request comes in through that one door, and the gateway sends it on to the right service. Think of a hotel with one front desk. You don&#x27;t phone the kitchen, the laundry, and the spa, one by one. You call the front desk, and they pass your request to the right place. Now, our online store. The mobile app needs four services: the catalogue, pricing, inventory, and recommendations. Without a gateway, the app has to know all four addresses. With a gateway, it knows just one. In this video, Spring Cloud Gateway is that front desk. We will watch it route real requests, check a token, and deal with a slow service. And we will see two things it does not do for you.</p>
+<h2>2. The Partner Project</h2>
+<p>Before we start, a quick note. This video has a partner: the hand-built API Gateway video. That one builds the gateway from scratch, in plain Java. It also merges four answers into one product page. If you are new to the pattern, watch that one first. Here, we keep the same online store. We won&#x27;t teach the pattern again. Instead, we ask one question. What does a real framework do with it?</p>
+<h2>3. Before The First Line</h2>
+<p>So, what is Spring Cloud Gateway? It is a ready-made gateway, built on Spring. You don&#x27;t write the forwarding code yourself. You describe two things. Routes, which say: this path goes to that service. And filters, which change a request on its way through. It runs on a fast web server called Netty. One promise before we go on. If you skip this video, you lose none of the pattern. This one is about the tool.</p>
+<h2>4. One Address, Four Services</h2>
+<p>Let&#x27;s look at the first thing it does. One address. The app sends four requests, all to the gateway. Each one has a different path. Slash api, slash catalogue, goes to the catalogue service. Slash api, slash pricing, goes to pricing. And the same for inventory and recommendations. So the app knows one address. The gateway&#x27;s routing table knows the rest. And this is not a simulation. These are real HTTP requests, over real network connections.</p>
+<h2>5. The Prefix Is Stripped</h2>
+<p>Second, the gateway can change a request as it passes through. The app asked for slash api, slash pricing, slash products. But the pricing service received just slash products. Why? The front part of the path is only for the outside world. The gateway strips it off, so the services never need to know about it. It also adds a header, a small label on the request, that says: this came through the gateway.</p>
+<h2>6. One Token Check, For Every Route</h2>
+<p>Third, security. A token is like a wristband at a concert. No wristband, no entry. We send a request with no token. The gateway answers four hundred and one, which means: not allowed. We try a different route. Same answer. And here is the key number. Zero requests reached a service. The gateway stopped them all at the door. Now we add a token, and the request goes through. The important point? The check is written once, in the gateway. In the hand-built version, every service had to repeat it.</p>
+<h2>7. One Service Down</h2>
+<p>Fourth, what happens when a service goes down? We stop the recommendations service. Calls to recommendations now fail. But calls to the catalogue still work. One broken service does not break the others. Now, listen carefully to the error code. The gateway answers five hundred. Not five oh three. Five hundred means: something is broken inside. Five oh three means: that service is not available right now. So the app sees what looks like a bug in the shop, when really a service is just down. If that difference matters to you, you have to map it yourself.</p>
+<h2>8. A Gateway Forwards</h2>
+<p>Fifth, something a gateway does not do. A product page needs three services. The app makes three calls. And three calls reach the services. The gateway forwards requests. It does not merge the answers. Remember the partner video? There, the gateway combined four answers into one page. With Spring Cloud Gateway, that combining is a separate job, and you write the code for it.</p>
+<h2>9. A Slow Service</h2>
+<p>And last, a slow service. Imagine the pricing service never answers at all. Without protection, the app would just wait, and wait. Here, the gateway has a timeout. When the time is up, it answers on the service&#x27;s behalf, with five oh four, which means gateway timeout. The app gets a clear answer, instead of hanging. So, one simple rule. Set a timeout on every route.</p>
+<h2>10. The Verdict</h2>
+<p>So, here is the verdict. Use Spring Cloud Gateway at the edge of your system. Let it do routing, token checks, headers and limits. Then remember three things. One. Set a timeout on every route. Two. Decide what a dead service should look like to the app. And three. Merging answers happens somewhere else, in code you write.</p>
+<h2>11. How To Recognise It</h2>
+<p>How can you spot this in code someone else wrote? Look for three clues. A route locator builder, with calls to route. Settings that start with spring cloud gateway. Or a global filter bean. See any of those, and you are looking at a gateway.</p>
+<h2>12. Where You Have Met This</h2>
+<p>Where have you met this before? At the front door of most Spring based platforms. Every request you send them passes through one.</p>
+<h2>13. What Was Used</h2>
+<p>For the record, here are the versions. Spring Boot four point one point one. Spring Cloud twenty twenty five point one point three. And the gateway itself, five point zero point three, running on Netty.</p>
+<h2>14. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything in it is real. Real network connections, real HTTP, and the real gateway. The four services are small Java servers, each on its own free port. And the slow service is held back on purpose, so we can watch the timeout happen.</p>
+<h2>15. When This Is Too Much</h2>
+<p>So, when is a gateway too much? If you only have one service, a gateway is just an extra hop. It adds work, and gives you nothing back.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s the API Gateway pattern, with Spring Cloud Gateway. If you remember one sentence, make it this one. Spring Cloud Gateway routes and checks real requests, but merging the answers is still your job. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. When a service refuses the connection, make the gateway answer five oh three, instead of five hundred. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

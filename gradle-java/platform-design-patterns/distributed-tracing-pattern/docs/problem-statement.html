@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Problem — Nine Hundred Milliseconds, And Nobody Knows Where They Went</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Problem — Nine Hundred Milliseconds, And Nobody Knows Where They Went</h1>
+<h2>One page, four services</h2>
+<p>A customer opens the product page for item A-2231. Behind that single click the shop asks the catalog for the product, pricing for the price, inventory for the stock figure, and recommendations for the &quot;customers also bought&quot; strip, and then renders the page.</p>
+<pre><code>Act 1 — a product page takes nine hundred milliseconds
+
+  A customer opens the page for product A-2231. It takes 900ms.
+  Four services contributed to it: catalog, pricing, inventory
+  and recommendations. Nobody can say which one is at fault.</code></pre>
+<p>Nine hundred milliseconds is not an outage. Nothing has failed. No alert has fired. It is simply slower than it should be, and somebody has been asked to find out why.</p>
+<p>Start by being fair to the shop. Every one of those four services is healthy. Every one of them is logging. There is a log aggregator, and it works. The dashboards are green. This is not a story about a team that neglected its observability — it is a story about a team that did everything the usual advice says and still cannot answer the question.</p>
+<h2>What the logs give you</h2>
+<p>Each service writes a timestamped line when it starts a piece of work and another when it finishes. The aggregator merges the four streams by time and shows you the result. Here it is, and this is the part to read slowly:</p>
+<pre><code>  14:32:07.000  gateway          GET /product/A-2231
+  14:32:07.000  catalog          lookup started
+  14:32:07.040  gateway          GET /product/A-2231
+  14:32:07.040  catalog          lookup started
+  14:32:07.120  catalog          lookup complete
+  14:32:07.120  pricing          quote started
+  14:32:07.160  catalog          lookup complete
+  14:32:07.160  pricing          quote started
+  14:32:07.300  pricing          quote complete
+  14:32:07.300  inventory        stock check started
+  14:32:07.340  pricing          quote complete
+  14:32:07.340  inventory        stock check started</code></pre>
+<p>There are two &quot;quote started&quot; lines and two &quot;quote complete&quot; lines. Try to work out how long pricing took.</p>
+<p>You cannot. Not because the data is missing, and not because the timestamps are wrong — every timestamp on that page is correct to the millisecond. You cannot do it because <strong>two customers are on the site at once</strong>, and nothing on any line says which customer it belongs to. Subtracting the first &quot;quote complete&quot; from the first &quot;quote started&quot; is a guess. It might be right. It might be pairing Ada&#x27;s start with Ben&#x27;s finish, in which case the answer is off by forty milliseconds and looks entirely plausible.</p>
+<p>Now imagine four hundred customers instead of two.</p>
+<h2>More logging does not fix this</h2>
+<p>This is the point at which most teams add more logging, and it is worth being clear about why that fails. The thing missing from those lines is not <em>detail</em>. You could add the product id, the response size, the JVM thread name, the pod name, and you would still be unable to pair a start with its finish, because none of those values is unique to one customer&#x27;s request and shared across all the services that served it.</p>
+<p>What is missing is exactly one thing: <strong>an identifier that is the same on every line of one request and different on everybody else&#x27;s.</strong> That is the whole idea. Everything else in this pattern follows from it.</p>
+<h2>The identifier, and the shape</h2>
+<p>Give the front door a trace id and pass it down to everything it calls, and the merged log becomes readable again. But the pattern goes one step further, and the extra step is the one that turns a readable log into an answer.</p>
+<p>Alongside the trace id, each unit of work records a <strong>span</strong>: what the work was, when it started, how long it took, and — the important field — <strong>which span caused it</strong>. That last field is the one people leave out when they build this themselves, and it is the difference between a pile of timings and a shape.</p>
+<pre><code>  catalog          span-2     parent span-1      120ms
+  pricing          span-3     parent span-1      180ms
+  inventory        span-4     parent span-1       90ms
+  ranking-model    span-6     parent span-5      340ms
+  recommendations  span-5     parent span-1      400ms
+  render           span-7     parent span-1      110ms
+  product-page     span-1     parent (none)      900ms</code></pre>
+<p>Read the parent column. Catalog, pricing, inventory, recommendations and render all hang off <code>span-1</code>, which is the page itself. The ranking model hangs off <code>span-5</code>, which is recommendations. That column is the shape of the request, and once you have it the drawing draws itself:</p>
+<pre><code>  trace trace-4f2a   total 900ms
+  product-page            |============================================|   900ms   0ms of it its own
+    catalog               |=====                                       |   120ms
+    pricing               |     ========                               |   180ms
+    inventory             |              ====                          |    90ms
+    recommendations       |                   ===================      |   400ms   60ms of it its own
+      ranking-model       |                   ================         |   340ms
+    render                |                                      ===== |   110ms</code></pre>
+<p>For anyone listening rather than looking: each line is one unit of work, indented under whatever called it, with a bar showing when it ran and how long it lasted, all against the same timeline. The page&#x27;s bar fills the full width, because the page is the whole request. Catalog&#x27;s bar is short and sits at the left. Render&#x27;s is short and sits at the right. The long one in the middle is recommendations, and nested inside it, filling almost all of it, is the ranking model.</p>
+<h2>The number that names the culprit</h2>
+<p>The drawing is persuasive, but the arithmetic underneath it is what actually answers the question, and it turns on one idea: <strong>self time</strong>.</p>
+<p>The page span lasted the full nine hundred milliseconds. On total time it is the biggest thing in the trace and it always will be, which makes total time useless for finding anybody. Subtract the time each span spent <em>waiting on its children</em> and what is left is the time that piece of work is genuinely responsible for:</p>
+<pre><code>    ranking-model     340ms   37% of the page
+    pricing           180ms   20% of the page
+    catalog           120ms   13% of the page
+    render            110ms   12% of the page
+    inventory          90ms   10% of the page
+    recommendations    60ms    6% of the page</code></pre>
+<p>The ranking model is thirty-seven per cent of what the customer waited for. Recommendations as a whole — the model plus its own work — is four hundred milliseconds, forty-four per cent of the page.</p>
+<p>Notice that the page span, which lasted the longest of anything in the trace, does not appear in that list at all, because its self time is zero. It did no work. It waited. That is the distinction that lets a trace name a culprit where a stopwatch cannot.</p>
+<h2>The bill — and this is the part people skip</h2>
+<p>Every write-up of this pattern stops at the waterfall. Here is what it costs, and all three items are real failures that happen in real systems, none of which announces itself.</p>
+<p><strong>One service is not instrumented.</strong> Recommendations is well-behaved in every respect but one: it never opens a span of its own. It still receives the trace context and still passes it on, so nothing errors and nothing warns.</p>
+<pre><code>  trace trace-7c19   total 900ms
+  product-page            |============================================|   900ms   60ms of it its own
+    catalog               |=====                                       |   120ms
+    pricing               |     ========                               |   180ms
+    inventory             |              ====                          |    90ms
+    ranking-model         |                   ================         |   340ms
+    render                |                                      ===== |   110ms</code></pre>
+<p>The four hundred milliseconds did not vanish — it had to land somewhere, and it landed on the parent. The page now appears to spend sixty milliseconds doing its own work, work it never did. The ranking model appears to hang directly off the page, which is a call that does not exist. The service actually responsible is not on the diagram at all.</p>
+<p>This is worse than a gap, because a gap you would notice. What you get instead is a complete, plausible, wrong picture, and somebody spends an afternoon reading the page renderer.</p>
+<p><strong>The work moves to another thread.</strong> Real tracing libraries keep the current context in a thread-local so that your method signatures stay clean. That is a genuine kindness right up to the moment the work moves to a thread pool, a <code>CompletableFuture</code>, or a scheduled job — because a thread-local belongs to a thread, and the new thread&#x27;s copy is empty.</p>
+<pre><code>  trace trace-async-broken   total 400ms   2 separate roots — this trace is broken
+  product-page            |============================================|   400ms
+  recommendations         |============================================|   400ms</code></pre>
+<p>Two roots in one trace. Four hundred milliseconds of work that belongs to nobody. And the code that broke it is line-for-line indistinguishable from the code that worked.</p>
+<p><strong>You kept one trace in a hundred.</strong> A shop serving a thousand requests a second, six spans each, is asking a backend to store half a billion spans a day. Nobody pays for that, so you sample.</p>
+<pre><code>  kept       10,000
+  discarded  990,000
+
+  A customer complains about request number 862,144.
+  Was it kept?  no — it is gone, and it is not recoverable</code></pre>
+<p>Sampling is decided per trace, at the front door, <em>before</em> anybody could know the request was going to matter. So the one request somebody complains about has a ninety-nine per cent chance of having been thrown away, and it was thrown away for exactly the same reason as every other request: nothing about it stood out yet.</p>
+<h2>What the shop actually needs</h2>
+<table><thead><tr><th>What logs could not do</th><th>What the trace gives you</th></tr></thead><tbody><tr><td>Pair a start line with its finish</td><td><strong>A trace id</strong> shared across one request and no other</td></tr><tr><td>Say which call caused which</td><td><strong>A parent span id</strong> on every span</td></tr><tr><td>Name a culprit</td><td><strong>Self time</strong> — duration less the time spent waiting</td></tr><tr><td>Show where the time sat in the request</td><td><strong>A waterfall</strong>, drawn from the parent links</td></tr></tbody></table>
+<p>And the three things it costs, each of which has to be engineered rather than assumed:</p>
+<table><thead><tr><th>The failure</th><th>What it takes to avoid it</th></tr></thead><tbody><tr><td>A service that opens no span</td><td>Instrument <strong>every</strong> hop, or accept a wrong answer</td></tr><tr><td>Work handed to another thread</td><td>Pass the context as a <strong>value</strong>, never rely on a thread-local</td></tr><tr><td>The one trace you needed was discarded</td><td><strong>Tail sampling</strong> — decide to keep once you know it was slow</td></tr></tbody></table>
+<p>That is the whole of this project: one identifier, one parent link, and an honest account of the three ways it stops working.</p>
+</main>
+<footer>
+Generated from <code>problem-statement.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layered Architecture, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Layered Architecture, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>Split the program into stacked groups of classes — <strong>layers</strong> — where each layer depends only on the layer directly beneath it, and enforce that rule with a test rather than a diagram.</p>
+<h2>The four layers, and what each one is not allowed to know</h2>
+<table><thead><tr><th>Layer</th><th>Package</th><th>Job</th><th>Must not know</th></tr></thead><tbody><tr><td>Presentation</td><td><code>presentation</code></td><td>Turn a request into a call, and an answer into words</td><td>How orders are stored</td></tr><tr><td>Application</td><td><code>application</code></td><td>Run the checkout as a fixed sequence of steps</td><td>How a screen renders, how storage works internally</td></tr><tr><td>Domain</td><td><code>domain</code></td><td>The nouns: <code>Order</code>, <code>Product</code>, <code>Money</code></td><td>Everything — no dependency on any other layer, in either direction</td></tr><tr><td>Infrastructure</td><td><code>infrastructure</code></td><td>Where orders, products, cards and email actually live</td><td>Nothing above it exists</td></tr></tbody></table>
+<p><code>CheckoutScreen</code>, the presentation layer, has exactly two imports and both are the application layer. It does not know whether orders are kept in a map, a log, or a filing cabinet, and it must never find out — that not-finding-out is the entire architecture. <code>PlaceOrderService</code>, the application layer, runs one method: check stock, charge the card, reduce stock, save the order, send the confirmation. Reading it aloud <em>is</em> the feature; there is no fifth thing it does. <code>Order</code>, <code>Money</code> and the rest of the domain hold no reference to anything above or below them — an order and a price are true whether or not anybody is storing them or showing them to a customer. <code>ProductTable</code>, <code>InMemoryOrderTable</code>, <code>CardNetwork</code> and <code>EmailServer</code>, the infrastructure layer, are where the actual work of keeping and sending happens, and they know nothing about a use case or a screen calling them.</p>
+<h2>The one line that ruins it</h2>
+<p>The naive <code>OrderHistoryScreen</code> lives in <code>naive.presentation</code>, and its second import is not the <code>OrderTable</code> interface — it is <code>InMemoryOrderTable</code>, the concrete class, because that was what was sitting in the variable being copied. It compiles. It works. A reviewer skimming the diff sees a small, tidy screen and approves it.</p>
+<p>That one import is the whole failure mode of layering as it is usually taught. The four packages are real. The rule that presentation may not touch infrastructure was never written down anywhere a machine could check it — so it decayed the first time following it cost fifteen minutes more than not following it.</p>
+<h2>The rule, written where a build can read it</h2>
+<p><code>ArchitectureTest</code> states three sentences, each one an ArchUnit rule over the four real layer packages:</p>
+<pre><code>ArchRule rule = noClasses()
+        .that().resideInAPackage(PRESENTATION)
+        .should().dependOnClassesThat().resideInAPackage(INFRASTRUCTURE)
+        .because(&quot;a screen that reads storage directly is a screen that has &quot;
+                + &quot;to be opened every time storage changes, and nothing &quot;
+                + &quot;warns you&quot;);
+
+rule.check(layers);</code></pre>
+<p>That is not a comment. It is a test, it runs in <code>./gradlew test</code>, and it fails loudly the moment it is untrue. <code>ArchitectureRuleCatchesTheShortcutTest</code> widens the same rule to include the <code>naive</code> package on purpose and asserts that it goes red, with a failure message naming <code>OrderHistoryScreen</code> by name and <code>InMemoryOrderTable</code> as the class it reached for. A green test that has never been seen red is indistinguishable from a test asserting nothing; this one has been seen red, deliberately, and the message is printed so you can read it yourself.</p>
+<h2>The forced change, performed and counted</h2>
+<p>The architecture&#x27;s claim is always about a future change: <em>this shape makes some future change cheap.</em> So this project performs one.</p>
+<p><strong>Before:</strong> orders live in <code>InMemoryOrderTable</code>, a map keyed by order id. <strong>After:</strong> orders live in <code>AppendOnlyOrderTable</code>, a list that is never updated in place, read backwards to find the newest version of an id — roughly how a log-structured store behaves, and about as different a storage decision as one page of code can make.</p>
+<p>The composition root — <code>PlaceAnOrderDemo</code>, the one place in the whole project that says <code>new</code> for a concrete storage class — changes one line:</p>
+<pre><code>OrderTable store = new AppendOnlyOrderTable();</code></pre>
+<p>Counted from the real files on disk, at the moment the demo runs:</p>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Files added</td><td>1 — <code>infrastructure/AppendOnlyOrderTable.java</code></td></tr><tr><td>Files modified</td><td>1 — <code>PlaceAnOrderDemo.java</code>, the composition root</td></tr><tr><td>Lines changed</td><td>1</td></tr><tr><td>Classes across the four layers</td><td>17</td></tr><tr><td>Of those, opened</td><td>1</td></tr><tr><td>Of those, never opened</td><td>16</td></tr></tbody></table>
+<p>Sixteen classes never opened is the argument. Not the word &quot;decoupled&quot; — the number.</p>
+<p><strong>And the one that took the shortcut.</strong> <code>naive/presentation/OrderHistoryScreen.java</code> imports <code>InMemoryOrderTable</code> directly, so the swap does not compile for it. Every screen that went through the application layer: untouched. The one that skipped it: broken by a change it was never involved in.</p>
+<h2>Why the order of steps inside the use case matters</h2>
+<p><code>PlaceOrderService.place</code> charges the card <strong>before</strong> it writes anything down. Reverse that order — save the order, reduce the stock, then charge — and a declined card leaves an order in storage and stock missing from the shelf, with no way to know that neither should have happened. Charging first means a decline throws before a single thing has changed. This is not incidental to the layer boundary; it is the kind of decision an application layer exists to own, in one place, rather than have repeated — and potentially reordered — at every call site that needed a checkout.</p>
+<h2>The bill</h2>
+<p>Layering is not free, and a project that only shows the benefit is a sales pitch.</p>
+<p><strong>Indirection.</strong> A field added to the checkout form touches the presentation layer&#x27;s request handling, the application layer&#x27;s request object, and possibly the domain object it fills. Four layers is four places to touch for a change that is, underneath, one idea.</p>
+<p><strong>Pass-through layers.</strong> Some methods on <code>PlaceOrderService</code> do nothing but forward a call and reshape its arguments. That is real, it is tedious, and pretending otherwise does not make it less tedious.</p>
+<p><strong>The bottom layer is still the database.</strong> Notice what <code>PlaceOrderService</code> imports: <code>OrderTable</code>, <code>CardNetwork</code>, <code>EmailServer</code> — all from <code>infrastructure</code>. The application layer still names the concrete package beneath it, because in a strictly layered design the interface lives with the implementation, not with the caller. That single fact — the domain and application layers still depend downward onto infrastructure — is exactly what the next project in this category, Hexagonal Architecture, exists to invert. One interface moves up into the core, storage implements it instead of defining it, and the arrow of dependency reverses. That is the entire difference between this project and the next one.</p>
+<h2>When this is too much</h2>
+<p>Four layers, one architecture test, and a composition root are worth their weight for anything with more than one caller of the same business logic, or anything expected to outlive its first storage choice.</p>
+<p>They are not worth it for a script that reads a file, does one calculation, and prints a result once. A four-package skeleton around fifteen lines of real logic is not layering, it is packaging — and the tell is the same one this project&#x27;s naive version shows in reverse: if writing the request object, the result object and the service method for a new screen would take longer than the screen itself is worth, the layers have stopped paying for themselves.</p>
+<h2>Comparison with the naive versions</h2>
+<table><thead><tr><th></th><th>No layers</th><th>Layers, unenforced</th><th>Layers, enforced</th></tr></thead><tbody><tr><td>Can you test pricing alone?</td><td>No — one class, one constructor</td><td>Yes</td><td>Yes</td></tr><tr><td>Does a shortcut compile?</td><td>N/A</td><td>Yes, silently</td><td>Yes — and the build fails</td></tr><tr><td>Cost of the storage swap</td><td>Rewrite the one class</td><td>1 file safe, 1 file broken silently until compiled</td><td>1 file added, 1 line changed, break caught immediately</td></tr><tr><td>What tells you the rule was broken</td><td>Nobody, until it costs something</td><td>Nobody</td><td><code>ArchitectureTest</code>, by name, in seconds</td></tr></tbody></table>
+</main>
+<footer>
+Generated from <code>layered-architecture-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

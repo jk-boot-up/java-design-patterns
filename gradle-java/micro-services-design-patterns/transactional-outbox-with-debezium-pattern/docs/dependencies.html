@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dependencies</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Dependencies</h1>
+<p>This project uses Postgres, Debezium, Kafka and Testcontainers, which the plain-Java version does not. This page says what they are, why they are here, and what they cost. It comes before the first line of connector code on purpose.</p>
+<p><strong>Skipping this project loses none of the pattern.</strong> The plain-Java Transactional Outbox project in this course teaches all of it, with nothing installed.</p>
+<h2>What Postgres&#x27;s log is</h2>
+<p>Postgres is a relational database: tables of rows, and a guarantee about groups of changes. A <strong>transaction</strong> is a group of changes kept together or thrown away together. Nothing in it is visible to anyone until it is <strong>committed</strong>; a <strong>rollback</strong> throws it all away.</p>
+<p>Before Postgres changes any table, it writes the change to a log on disk, so that after a crash it can replay the log and lose nothing. That is the <strong>write-ahead log</strong>, or <strong>WAL</strong>. Normally only Postgres reads it. Started with <strong><code>wal_level=logical</code></strong>, Postgres writes enough into it for an outside program to read the changes back as rows: this row was inserted into this table, in a transaction that committed. Turning that into rows is <strong>logical decoding</strong>, and <code>pgoutput</code> is the decoder built into Postgres that does it. The setting can only change when Postgres starts, which is why the demo starts its Postgres with it.</p>
+<p>A reader of the log connects through a <strong>replication slot</strong>: a named bookmark Postgres keeps for that one reader. Postgres will not throw away any part of the log the slot&#x27;s reader has not confirmed. That is what makes change data capture safe, and what makes a forgotten slot dangerous. The setting <code>max_slot_wal_keep_size</code> can put a ceiling on it; its default is -1, no ceiling.</p>
+<h2>What Debezium is</h2>
+<p>Debezium is change data capture: a program that connects to a database&#x27;s log through a replication slot and turns every committed change into a message. Its <strong>Postgres connector</strong> does the reading. Its <strong>outbox event router</strong> is a small step that turns each new outbox row into one clean event: the row&#x27;s <code>aggregateid</code>, here the order id, becomes the message key; the <code>payload</code> becomes the message body; the row&#x27;s <code>id</code> and <code>type</code> become headers; and the topic is chosen for it, here <code>order-events</code>. Debezium writes down how far it has read, its <strong>offset</strong>, which for Postgres is a position in the log, and tells Postgres the same through the slot.</p>
+<p>Debezium can run in three ways: inside Kafka Connect, as the standalone Debezium Server, or as a library inside a Java program, which Debezium calls the <strong>embedded engine</strong>. This project uses the embedded engine, so no third container is needed. It keeps its offset in a small file that the demo deletes at the end.</p>
+<h2>What Kafka is</h2>
+<p>Kafka is a message log: a separate program that keeps messages in the order they were written and lets any number of readers read them. A <strong>topic</strong> is one such log. It is split into <strong>partitions</strong>, separate lists that can be read side by side; <code>order-events</code> has three. A message&#x27;s <strong>key</strong> decides its partition, so every message with the same key lands in the same one, and order is kept within a partition, never across them. Each message sits at a numbered place in its partition, its <strong>offset</strong>.</p>
+<h2>What Testcontainers is</h2>
+<p>Testcontainers is a Java library that starts a container from inside your program and stops it again when you are done. It is here so the demo owns both tools&#x27; lifetimes: <code>./gradlew run</code> brings Postgres and Kafka up, uses them, and takes them away at the end. It maps each tool&#x27;s port — 5432 for Postgres, 9092 for Kafka — to a free port on your machine picked at random.</p>
+<h2>Why this project uses them</h2>
+<p>Because the things this project teaches only happen when there is a real database log: a row deleted in its own transaction that is still sent, a rolled-back transaction that never appears, a slot that keeps the log while its reader is away, and a reader that is handed the same changes again after dying between sending and writing down its place. A map and a list inside one Java program have no log, so they cannot show any of that.</p>
+<h2>What to install</h2>
+<p>Only a JDK, version 21, and a container runtime. Gradle downloads the rest, and the versions are pinned:</p>
+<table><thead><tr><th>Tool</th><th>Version</th></tr></thead><tbody><tr><td>Docker, or a Docker-compatible runtime</td><td>running; 24 or later</td></tr><tr><td>Postgres image</td><td><code>postgres:18.6-alpine</code></td></tr><tr><td>Kafka broker image</td><td><code>apache/kafka:4.3.1</code></td></tr><tr><td><code>io.debezium:debezium-embedded</code></td><td>3.6.3.Final</td></tr><tr><td><code>io.debezium:debezium-connector-postgres</code></td><td>3.6.3.Final</td></tr><tr><td><code>org.apache.kafka:kafka-clients</code></td><td>4.3.1</td></tr><tr><td><code>org.postgresql:postgresql</code></td><td>42.7.13</td></tr><tr><td><code>org.testcontainers:testcontainers-postgresql</code></td><td>2.0.5</td></tr><tr><td><code>org.testcontainers:testcontainers-kafka</code></td><td>2.0.5</td></tr><tr><td><code>org.slf4j:slf4j-simple</code></td><td>2.0.17</td></tr></tbody></table>
+<p>Every one of these is the newest generally available release; none is held back. Debezium 3.6.3 is built against Kafka 4.3.0, and Gradle settles the Kafka libraries on 4.3.1, matching the broker. Postgres uses its Alpine build because it is smaller; Kafka has no Alpine build, so the Apache project&#x27;s one image is used, in KRaft mode on a single node with its memory held to 256 MB.</p>
+<h2>What it costs</h2>
+<p>The first run pulls two images, Postgres at about 298 MB and Kafka at about 446 MB once unpacked, and downloads Debezium&#x27;s libraries. After that a run takes about fifteen seconds. Testcontainers also runs a small helper container that removes anything left behind if the demo is killed part way through; it exits on its own a few seconds after the demo does.</p>
+<p>In production the bill is larger than the containers. Postgres has to run with <code>wal_level=logical</code>, which means a restart to switch on and a little more log written. Somebody has to watch the slot, because a slot that stops moving makes the database keep its log until the disk fills. And every reader of the topic has to cope with an event arriving twice.</p>
+<h2>Where this pattern lives in a real system</h2>
+<p>In one <code>outbox</code> table with the columns Debezium&#x27;s router expects, in the insert beside every business write, in a connector configuration with <code>table.include.list</code> naming that table and a <code>transforms</code> line naming the outbox event router, in an alert on the slot&#x27;s lag, and in an idempotent reader at the other end.</p>
+</main>
+<footer>
+Generated from <code>dependencies.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

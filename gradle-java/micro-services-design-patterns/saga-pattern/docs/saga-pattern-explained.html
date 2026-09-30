@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Saga Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Saga Pattern, Explained</h1>
+<h2>In One Sentence</h2>
+<p>A saga is a sequence of steps that each commit immediately and on their own, where every step is paired with an action that cancels it out — so that when a step fails, the steps that already succeeded can be walked backwards and undone.</p>
+<h2>Everyday Analogy: Booking A Holiday</h2>
+<p>You are booking a holiday over the phone. Flight, hotel, hire car.</p>
+<p>You cannot hold all three open until you are happy with all three. The airline will not keep a seat unconfirmed while you ring the hotel, and the hotel will not hold a room while you ring the car hire company. So you book them one at a time, and each booking is final the moment you make it.</p>
+<p>Then the car hire company says they have nothing that week.</p>
+<p>You do not have a magic button that makes the last twenty minutes not have happened. What you have is the cancellation policy for each thing you booked. So you ring the hotel and cancel the room, then ring the airline and cancel the flight. You end up back where you started — approximately.</p>
+<p>Approximately, because three things are different from the way you started.</p>
+<p>The airline charged a cancellation fee, so it cost you something. Your bank statement shows a charge and a refund rather than nothing at all. And if you had already texted your family to say the holiday was booked, no amount of cancelling unsends that text.</p>
+<p>Every hard part of the saga pattern is in that paragraph.</p>
+<h2>Act One — It Usually Works</h2>
+<pre><code>      0ms -&gt;    30ms  Stock            OK        res-1
+     30ms -&gt;   130ms  Payments         OK        chg-1
+    130ms -&gt;   150ms  Orders           OK        ord-9001
+    150ms -&gt;   210ms  Shipping         OK        shp-1
+    210ms -&gt;   250ms  Email            OK        emailed cust-7
+    250ms -&gt;   250ms  Saga             COMPLETED ord-9001 for £70.95
+  no transaction spanned any of that. Each step committed on its own.</code></pre>
+<p>Five services, five steps, one order. Nothing clever happens and that is the point of showing it first.</p>
+<p>Read the last line carefully, because it is the thing that makes everything afterwards necessary. <strong>No transaction spanned any of that.</strong> By the time payment is taken, the stock reservation is already committed and there is nothing holding it open. By the time shipping is called, the money is already gone. <code>everyStepIsAlreadyCommittedWhenTheNextOneStarts</code> is that fact written as a test.</p>
+<h2>Act Two — The Courier Refuses</h2>
+<pre><code>    130ms -&gt;   150ms  Orders           OK        ord-9002
+    180ms -&gt;   180ms  Saga   STEP-FAILED schedule shipment: no courier covers ...
+    180ms -&gt;   200ms  Orders           OK        cancelled ord-9002
+    200ms -&gt;   300ms  Payments         OK        refunded chg-1
+    300ms -&gt;   330ms  Stock            OK        released res-1
+    330ms -&gt;   330ms  Saga   COMPENSATED everything undone, customer owes nothing
+  kettles back on the shelf: 20 of 20
+  money the shop is holding: £0.00
+  order state: CANCELLED</code></pre>
+<p>The shipping step fails, and the orchestrator walks backwards. Order cancelled, payment refunded, stock released. The shop is back where it started and the customer owes nothing.</p>
+<p><strong>Why backwards?</strong> Not tidiness. Later steps can depend on earlier ones. The order has to be cancelled before the payment is refunded, or finance is briefly looking at a confirmed order with no money against it. <code>itCompensatesInReverse</code> pins the order down.</p>
+<p>And then the demo prints something most explanations leave out:</p>
+<pre><code>  and note what the payment ledger looks like:
+    CHARGE £70.95  chg-1
+    REFUND -£70.95  ref-2
+  two lines, not zero. A refund is a new fact, not an erasure.</code></pre>
+<p><strong>Compensation is not rollback.</strong> A rollback leaves no trace — the database behaves as though the write never happened. A refund is a new event that happens to cancel out an earlier one. The net is zero, but the history is two lines, the customer saw the money leave and come back, and in a real shop the card network may keep its fee. <code>aRefundIsANewFactNotAnErasure</code> is the test, and it is the sentence to quote when somebody describes a saga as &quot;rollback for microservices&quot;.</p>
+<h2>Act Three — The Refund Fails As Well</h2>
+<pre><code>    200ms -&gt;   300ms  Payments         FAILED    no answer
+    300ms -&gt;   300ms  Saga   UNDO-FAILED take payment: Payments did not answer
+    300ms -&gt;   330ms  Stock            OK        released res-1
+    330ms -&gt;   330ms  Saga   NEEDS-HUMAN could not undo [take payment]
+  money the shop is holding that it should not: £70.95</code></pre>
+<p>A compensation is a call to somebody else&#x27;s service over a network. It can be slow, it can be refused, and it can fail outright. So what happens when the <em>refund</em> fails?</p>
+<p>Two things, and both are deliberate.</p>
+<p><strong>The unwinding carries on.</strong> The payment could not be refunded, but the order was still cancelled and the stock was still released. A saga that gave up at the first refusal would leave more broken than it had to. <code>unwindingCarriesOn</code> asserts that.</p>
+<p><strong>The outcome says so, out loud.</strong> <code>SagaOutcome</code> has three values, not two: <code>COMPLETED</code>, <code>COMPENSATED</code>, and <code>NEEDS_HUMAN_HELP</code>. The third one names a state no code in this project can fix — the shop is holding money it is not entitled to and cannot give back automatically.</p>
+<p>In a real shop that outcome is a row in a queue that a person works through. Building the saga without one is choosing not to find out when this happens. <code>aFailedCompensationNeedsAHuman</code> is the test, and it is the most important one in the project.</p>
+<h2>Act Four — The Email, Sent Too Early</h2>
+<pre><code>Act 4 - the confirmation email, sent too early
+  emails in the customer&#x27;s inbox: 1
+    &quot;your order ord-9004 is confirmed&quot;
+  the order is cancelled and the money is back, and that email is still sitting there
+  there is no unsend.</code></pre>
+<p>This act runs the same five steps with the email moved before the shipping step. Then shipping fails.</p>
+<p>Everything unwinds. The order is cancelled, the money is refunded, the stock goes back. And the customer has a message in their inbox telling them their order is confirmed, which it is not. There is no <code>compensate</code> that can help, because there is no unsend. The only available fix is a second email apologising — which is, once again, a new fact rather than an erasure.</p>
+<p><code>SagaStep.canBeCompensated()</code> returns false for that step, the orchestrator records it as a step it could not undo, and the saga reports <code>NEEDS_HUMAN_HELP</code>. Nothing in the code is broken. <strong>The sequence is.</strong></p>
+<p>Which gives the rule: <strong>steps that cannot be undone go last, after everything that might fail.</strong> <code>theEmailGoesLast</code> asserts it for the correct ordering, and <code>theEmailCannotBeCompensated</code> asserts the consequence of getting it wrong.</p>
+<h2>Act Five — Without A Saga</h2>
+<pre><code>  returned: null
+  card charged: £70.95
+  kettles still reserved: 1
+  order state: CONFIRMED
+  shipments scheduled: 0
+  a @Transactional annotation on that method would have covered its own database
+  and nothing else.</code></pre>
+<p>The same failure, through <code>NaiveCheckoutService</code>: four calls in a <code>try</code> block. The customer is charged for a parcel that will never be sent, and nothing threw.</p>
+<p>This act is last on purpose. By the time you reach it you have seen what the alternative costs, so the comparison is honest rather than rhetorical.</p>
+<h2>The Mechanism</h2>
+<p>The whole thing is two pieces.</p>
+<p><strong>A step that carries its own reversal.</strong> <code>SagaStep</code> has <code>execute</code>, <code>compensate</code>, and <code>canBeCompensated</code>. If that looks familiar it should — it is the Command pattern&#x27;s <code>execute</code> and <code>undo</code> under different names, and the reason is the same: an operation that carries its own reversal can be sequenced, logged and unwound by code that knows nothing about what any particular one does.</p>
+<p><strong>An orchestrator that walks them.</strong> <code>SagaOrchestrator.run</code> goes forward through the steps keeping a list of the ones that succeeded. If one throws, it stops and walks that list backwards calling <code>compensate</code>. It never throws; it always returns an outcome. <code>itAlwaysReturnsAnOutcome</code> is a test, because a saga that can itself blow up has no way to report what state the shop is in.</p>
+<h2>Orchestration Versus Choreography</h2>
+<p>This project is an <strong>orchestrator</strong>: one class holds the sequence. The flow can be read in one file and tested in one place, and the price is that every service knows the orchestrator exists.</p>
+<p>The alternative is <strong>choreography</strong>: each service publishes an event and the next one reacts to it. Nothing is in charge, which couples the services less — and means nobody can answer &quot;what happens when an order is placed&quot; without reading five codebases.</p>
+<p>For a flow as important as checkout, being able to read it in one file is usually worth more. For something peripheral, choreography is often the better trade. Neither is the right answer everywhere.</p>
+<h2>What It Buys</h2>
+<ul><li>Each step commits immediately, so nothing holds a lock across a network call.</li><li>A failure part-way through leaves the shop consistent rather than half-finished.</li><li>The failure is <em>visible</em>: an outcome object, not a log line nobody reads.</li><li>The state that genuinely needs a person is named and reported rather than hidden.</li></ul>
+<h2>What It Costs</h2>
+<ul><li>Every step needs a compensation written, tested, and kept working.</li><li>There is a window where the shop is inconsistent — between the failure and the end of the unwinding. Nothing is holding it steady during that window.</li><li>Compensations leave traces. Two ledger lines, a phone call, a bank fee.</li><li>Some things cannot be compensated, so the ordering of steps becomes a design decision with consequences.</li><li>You need somewhere for <code>NEEDS_HUMAN_HELP</code> to go, and somebody to work through it.</li></ul>
+<h2>When Not To Use It</h2>
+<ul><li><strong>When one service can do the whole job.</strong> If every write is in one database, use a database transaction. It is stronger and simpler, and a saga would be a worse version of it.</li><li><strong>When no step can be compensated.</strong> A saga needs an undo for most of its steps. If the flow is irreversible end to end, the pattern has nothing to offer.</li><li><strong>When the inconsistency window is unacceptable</strong> and cannot be shortened — some regulated flows genuinely need a stronger guarantee, and the honest answer is to redesign the boundaries rather than reach for a saga.</li></ul>
+<h2>What To Remember</h2>
+<ol><li>You cannot hold a transaction across services, so let each step commit and pair it with an undo.</li><li><code>@Transactional</code> covers its own database and nothing else. It is not a distributed transaction and it never was.</li><li>Compensation runs in reverse, because later steps depend on earlier ones.</li><li>Compensation is not rollback. A refund is a new fact, and the ledger shows two lines.</li><li>A compensation can fail. There are three outcomes, not two.</li><li>The unwinding carries on past a failed compensation rather than giving up.</li><li>Steps that cannot be undone go last.</li><li><code>NEEDS_HUMAN_HELP</code> is not a defeat. It is the saga doing the one useful thing left: telling somebody.</li></ol>
+</main>
+<footer>
+Generated from <code>saga-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

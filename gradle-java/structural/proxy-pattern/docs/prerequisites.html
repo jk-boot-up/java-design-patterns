@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>What you need to know, and what you need installed, before working through this Proxy pattern demo.</p>
+<h2>Knowledge Prerequisites</h2>
+<p>You do <strong>not</strong> need prior design-pattern experience. You do need comfortable familiarity with core Java.</p>
+<h3>Required</h3>
+<table><thead><tr><th>Topic</th><th>Why it matters here</th><th>Quick self-check</th></tr></thead><tbody><tr><td><strong>Interfaces</strong></td><td><code>ProductImage</code> is the shared type the real image and every proxy implement identically</td><td>Can you write an interface and two unrelated classes implementing it?</td></tr><tr><td><strong>Composition (wrapping an object)</strong></td><td><code>RestrictedProductImage</code> holds a <code>ProductImage</code> field and delegates to it after checking a rule</td><td>Can you explain the difference between wrapping an object and extending it?</td></tr><tr><td><strong>Lazy initialization</strong></td><td><code>LazyProductImage</code> defers constructing <code>HighResolutionProductImage</code> until <code>render()</code> is first called</td><td>Do you know the <code>if (field == null) { field = ...; }</code> pattern and when it&#x27;s safe?</td></tr><tr><td><strong><code>final</code> fields set in a constructor</strong></td><td><code>LazyProductImage.sku</code> and <code>RestrictedProductImage.image</code>/<code>role</code> are <code>final</code></td><td>Do you know why a <code>final</code> field must be assigned in every constructor path?</td></tr><tr><td><strong>Static state (<code>static</code> fields/methods)</strong></td><td><code>HighResolutionProductImage.LOAD_COUNT</code> is a static counter shared by every instance, standing in for &quot;expensive to create&quot;</td><td>Do you understand why static state is shared across all instances, not per-object?</td></tr><tr><td><strong>Exceptions for control flow</strong></td><td><code>RestrictedProductImage.render()</code> throws <code>SecurityException</code> when the role check fails</td><td>Comfortable reading <code>assertThrows</code> in a test and reasoning about what didn&#x27;t happen (no load) as well as what did (the throw)?</td></tr></tbody></table>
+<h3>Helpful, but explained as we go</h3>
+<table><thead><tr><th>Topic</th><th>Where it appears</th></tr></thead><tbody><tr><td><strong>JUnit 5 basics</strong></td><td>Every <code>*Test.java</code> file</td></tr><tr><td><strong><code>System.setOut</code> / stdout capturing</strong></td><td><code>ProductImageDemoTest</code></td></tr><tr><td><strong>Gradle basics</strong></td><td><code>build.gradle</code>, <code>./gradlew run</code></td></tr><tr><td><strong>UML class &amp; sequence diagrams</strong></td><td>The diagram docs</td></tr></tbody></table>
+<h3>Explicitly NOT required</h3>
+<ul><li>Spring, Spring Boot, or any framework</li><li>A real image-decoding or networking library — this project only counts constructor calls, no actual files or network calls</li><li>Any UI toolkit</li><li>Any other design pattern</li></ul>
+<h2>A 60-Second &quot;Proxy&quot; Primer</h2>
+<p>If &quot;a stand-in that controls access to another object&quot; feels abstract, this is all you need:</p>
+<pre><code>public interface ProductImage {                                  // &lt;-- the shared shape
+    String render();
+    String sku();
+}
+
+public final class HighResolutionProductImage implements ProductImage { ... }  // &lt;-- expensive to build
+
+public final class LazyProductImage implements ProductImage {
+    private final String sku;
+    private HighResolutionProductImage realImage;                 // &lt;-- not built yet
+
+    public LazyProductImage(String sku) {
+        this.sku = sku;
+    }
+
+    public String render() {
+        if (realImage == null) {
+            realImage = new HighResolutionProductImage(sku);  // &lt;-- built on first use
+        }
+        return realImage.render();                         // &lt;-- then delegate
+    }
+}</code></pre>
+<p><code>LazyProductImage</code> <em>is a</em> <code>ProductImage</code> and <em>has a</em> <code>ProductImage</code>-shaped real subject at the same time — the same trick Decorator uses. The difference is what it does with that shape: it decides <em>whether and when</em> to touch the real object, rather than adding anything new to what it returns.</p>
+<h2>A 60-Second Proxy vs. Decorator Primer</h2>
+<p>Both wrap an object behind the same interface. Ask this one question to tell them apart:</p>
+<ul><li><strong>Does the wrapper change what comes back, or add a new capability?</strong> → That&#x27;s a <strong>Decorator</strong> (<code>GiftWrapDecorator</code> adds a fee).</li><li><strong>Does the wrapper decide whether/when the call even reaches the real object?</strong> → That&#x27;s a <strong>Proxy</strong> (<code>LazyProductImage</code> decides <em>when</em> to build it; <code>RestrictedProductImage</code> decides <em>whether</em> to allow it).</li></ul>
+<h2>Software Prerequisites</h2>
+<table><thead><tr><th>Tool</th><th>Minimum version</th><th>Check with</th></tr></thead><tbody><tr><td><strong>JDK</strong></td><td>21</td><td><code>java -version</code></td></tr><tr><td><strong>Gradle</strong></td><td>8.x+ (or use the bundled wrapper)</td><td><code>gradle -v</code></td></tr><tr><td><strong>Git</strong></td><td>any recent</td><td><code>git --version</code></td></tr><tr><td><strong>IDE</strong></td><td>IntelliJ IDEA / VS Code / Eclipse</td><td>—</td></tr></tbody></table>
+<h3>Installing JDK 21</h3>
+<p><strong>macOS (Homebrew)</strong></p>
+<pre><code>brew install --cask temurin@21
+java -version</code></pre>
+<p><strong>Linux (SDKMAN)</strong></p>
+<pre><code>curl -s &quot;https://get.sdkman.io&quot; | bash
+sdk install java 21-tem</code></pre>
+<p><strong>Windows</strong> — download the Temurin 21 MSI from <a href="https://adoptium.net">adoptium.net</a> and run the installer.</p>
+<p>Expected output:</p>
+<pre><code>openjdk version &quot;21.0.1&quot; 2023-10-17 LTS</code></pre>
+<h3>Gradle</h3>
+<p>You do not need to install Gradle — the project ships a wrapper:</p>
+<pre><code>./gradlew build     # macOS / Linux
+gradlew.bat build   # Windows</code></pre>
+<p>The first run downloads the correct Gradle version automatically, so an internet connection is needed once. If you already have Gradle installed, plain <code>gradle build</code> works too.</p>
+<h2>Verify Your Setup</h2>
+<p>Run these three commands from the project directory. All three must succeed before the session.</p>
+<pre><code>java -version      # must report 21
+./gradlew build    # must end with BUILD SUCCESSFUL
+./gradlew run      # must print the listing&#x27;s proxy walkthrough</code></pre>
+<p>Expected output from <code>./gradlew run</code> (abridged — see <a href="../README.html"><code>../README.md</code></a> for the full transcript):</p>
+<pre><code>== Naive listing -- eagerly loads every image, even ones never shown ==
+Images loaded eagerly, before rendering anything: 3
+...</code></pre>
+<h2>Troubleshooting</h2>
+<table><thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead><tbody><tr><td><code>Unsupported class file major version</code></td><td>Wrong JDK on <code>PATH</code></td><td>Point <code>JAVA_HOME</code> at JDK 21</td></tr><tr><td><code>permission denied: ./gradlew</code></td><td>Wrapper not executable</td><td><code>chmod +x gradlew</code></td></tr><tr><td>Load count keeps climbing across tests</td><td><code>HighResolutionProductImage.LOAD_COUNT</code> is static and not reset</td><td>Call <code>HighResolutionProductImage.resetLoadCount()</code> in <code>@BeforeEach</code></td></tr><tr><td><code>SecurityException</code> thrown when you expected success</td><td>Role passed is not <code>Role.CATALOG_ADMIN</code></td><td>Check which <code>Role</code> is passed to the proxy&#x27;s constructor</td></tr></tbody></table>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — why we need this</li><li><a href="proxy-pattern-explained.html"><code>proxy-pattern-explained.md</code></a> — the pattern</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — static structure</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — runtime flow</li><li><a href="animation.html"><code>animation.html</code></a> — watch it happen</li><li>The source code in <code>src/main/java/com/jk/explore/proxy/</code></li><li><a href="session.html"><code>session.md</code></a> — the guided walkthrough</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundational Patterns — Category Specification</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Foundational Patterns — Category Specification</h1>
+<p>The ninth category. Five projects, numbered 68 to 72 — the patterns that are taught alongside the Gang of Four without being in it, and that every Java codebase uses daily.</p>
+<p>This document fixes what each project is before any of it is written. It is the contract; <a href="implementation-plan.html"><code>implementation-plan.md</code></a> is the schedule.</p>
+<hr>
+<h2>1. Scope</h2>
+<p>Five patterns, in learning order:</p>
+<table><thead><tr><th>#</th><th>Project</th><th>One line</th></tr></thead><tbody><tr><td>68</td><td><code>null-object-pattern</code></td><td>The discount that is not there</td></tr><tr><td>69</td><td><code>object-pool-pattern</code></td><td>Expensive to make, cheap to borrow</td></tr><tr><td>70</td><td><code>registry-pattern</code></td><td>The well-known place everything is kept</td></tr><tr><td>71</td><td><code>service-locator-pattern</code></td><td>Ask a middleman for what you need</td></tr><tr><td>72</td><td><code>dependency-injection-pattern</code></td><td>Stop asking; be given</td></tr></tbody></table>
+<p>These are often called loose ends, and this category rejects that framing. They share a subject:</p>
+<blockquote><p><strong>How does an object get hold of another object — and what happens when there isn&#x27;t one?</strong></p></blockquote>
+<p>Null Object answers the second question. Object Pool answers it when creating one is expensive. The last three are one argument in three moves: Registry is a well-known place to put things, Service Locator is a middleman you ask, and Dependency Injection is what happens when you stop asking altogether. Taught in that order they are a single story with a conclusion, and the conclusion is worth arriving at rather than being handed.</p>
+<hr>
+<h2>2. Why this category exists</h2>
+<p>Two reasons, and the second is the important one.</p>
+<p><strong>They are ubiquitous and rarely taught.</strong> Dependency Injection is the mechanism behind every Spring application, and most developers meet it as an annotation rather than as an idea. Null Object removes more null checks than any other technique available. Object Pool is what a connection pool is. A course that teaches all twenty-three Gang of Four patterns and not these has left out the ones the reader will use this week.</p>
+<p><strong>Three of them exist mainly to be argued about, and that argument is the lesson.</strong> Service Locator is widely considered an anti-pattern — Fowler weighed it against Dependency Injection and most of the industry went the other way. Registry is a shared global by another name. Object Pool is usually the wrong answer on a modern JVM, where allocation is cheap.</p>
+<p>A course that teaches those three as straightforwardly good is teaching something false. A course that skips them leaves a reader unable to recognise them in the code they maintain. So:</p>
+<blockquote><p><strong>This category teaches contested patterns honestly: what the pattern is, why it was reasonable, what replaced it, and how to recognise it in code you did not write.</strong></p></blockquote>
+<p>That makes it the category where &quot;the bill&quot; — already required everywhere in this course — carries the most weight. For §69, §70 and §71 the bill is close to the whole point.</p>
+<hr>
+<h2>3. The store, continued</h2>
+<p>Same online shop. The running example across the five is small and concrete: a checkout needs a <strong>discount policy</strong>, a <strong>payment gateway</strong> and a <strong>notifier</strong>, and it has to get hold of all three.</p>
+<p>Null Object is the customer with no discount. Object Pool is the payment gateway&#x27;s expensive connection. Registry, Service Locator and Dependency Injection are three answers to the same question about the same three collaborators — which is what lets the last three projects be compared directly rather than described separately.</p>
+<hr>
+<h2>4. The five scenarios</h2>
+<h3>4.68 Null Object — the discount that is not there</h3>
+<p><strong>Scenario.</strong> Most customers have no discount. Some have a loyalty discount, a few a staff discount.</p>
+<p><strong>The naive version.</strong> <code>getDiscount()</code> returns <code>null</code>, and the caller checks. The demo shows the check spreading — five call sites, then eight — and then shows the one that was missed, with a real <code>NullPointerException</code> at checkout. It also shows the subtler cost: <code>if (discount != null)</code> appears so often that a reader stops seeing it, and the missing check hides in plain sight.</p>
+<p><strong>The pattern.</strong> A <code>NoDiscount</code> that implements the same interface and does nothing — returns the price unchanged. <code>getDiscount()</code> never returns null. The demo deletes every null check in one diff and the behaviour is identical.</p>
+<p><strong>The bill, and it is the one most treatments omit.</strong> A null object <strong>hides errors</strong>. &quot;No discount&quot; and &quot;the discount service was down&quot; now look the same to the caller, and the demo shows a failed lookup silently becoming a full-price order that nobody notices. That is a worse bug than the exception it replaced, because it is quiet.</p>
+<p>So the project must draw the line clearly: a null object is right when absence is a <strong>legitimate domain state</strong>, and wrong when absence means <strong>something went wrong</strong>. It then shows the two modern alternatives fairly — <code>Optional</code>, which makes absence explicit at the type level and is often the better answer in Java, and an explicit failure. A reader should leave able to choose, not converted.</p>
+<h3>4.69 Object Pool — expensive to make, cheap to borrow</h3>
+<p><strong>Scenario.</strong> The payment gateway connection takes 200ms to establish.</p>
+<p><strong>The naive version.</strong> A new connection per payment. The demo prints the timings and the cost is obvious and real.</p>
+<p><strong>The pattern.</strong> A pool of connections, borrowed and returned. The demo prints the difference, and it is large.</p>
+<p><strong>The bill, which here is larger than the benefit in most cases and must be stated up front.</strong> Pooling is one of the most over-applied ideas in Java, and the project&#x27;s honesty is its value:</p>
+<ul><li><strong>On a modern JVM, allocation is cheap.</strong> Object pools for ordinary objects are almost always a pessimisation, and the demo shows pooling a small object being <em>slower</em> than allocating one, because the pool adds synchronisation and defeats the generational garbage collector&#x27;s cheapest path.</li><li><strong>A returned object carries its old state.</strong> The demo shows a connection returned dirty and the next borrower seeing the previous customer&#x27;s data — which is a security bug, not a performance one, and it is the failure that actually happens in the field.</li><li><strong>A leaked object is never returned</strong>, and the demo exhausts the pool and shows the application hang, which is worse than a slow start.</li><li><strong>Sizing is a guess</strong>, and both directions are shown.</li></ul>
+<p><strong>The conclusion the project must reach.</strong> Pool things that are expensive <em>outside</em> the JVM — connections, threads, native handles — and nothing else. That is why connection pools and thread pools exist and general object pools do not. The project links to Thread Pool (§47) as the pattern&#x27;s one unambiguously correct application.</p>
+<h3>4.70 Registry — the well-known place</h3>
+<p><strong>Scenario.</strong> Several parts of the checkout need the same configured payment gateway.</p>
+<p><strong>The naive version.</strong> Pass it down through six constructors, four of which do not use it and exist only to forward it. The demo shows those four, and this naive version deserves genuine sympathy: constructor-passing through deep stacks is real friction and pretending otherwise is dishonest.</p>
+<p><strong>The pattern.</strong> A well-known object others can find things in. <code>Registry.get( PaymentGateway.class)</code>. The demo shows the six constructors collapsing and the friction disappearing.</p>
+<p><strong>The bill, and it arrives fast.</strong> A registry is a global variable with better manners, and it brings everything that implies. Dependencies become <strong>invisible</strong> — the demo shows a class whose constructor takes nothing and which cannot run without three things being registered first, and nothing in its signature says so. Tests must set up global state and leak it into each other, and the demo shows one test failing <em>because of the order the tests ran in</em>, which is the symptom teams meet first. Thread safety becomes a question. And &quot;what is in the registry at this moment&quot; is not answerable by reading any one file.</p>
+<p>The project ends by naming the one place it is genuinely the best answer — a small number of truly application-wide things, established at startup and never changed — and §71 as where it leads.</p>
+<h3>4.71 Service Locator — asking a middleman</h3>
+<p><strong>Scenario.</strong> The same three collaborators, with the registry&#x27;s problems now felt.</p>
+<p><strong>The pattern.</strong> A locator that knows how to <em>find or create</em> what you ask for, rather than a bag of things someone remembered to put in. It can create lazily, manage lifetimes, and be swapped for a test implementation — the demo shows that swap, which is the genuine advance over §70.</p>
+<p><strong>The bill, and this project&#x27;s job is to make the case against itself honestly.</strong> Service Locator is widely regarded as an anti-pattern, and the project must show why rather than assert it:</p>
+<ul><li><strong>Dependencies are still hidden.</strong> <code>new CheckoutService()</code> compiles fine and fails at runtime. The demo shows the compiler saying nothing while a required collaborator is missing — the failure arrives in production, not in the build.</li><li><strong>Every class now depends on the locator</strong>, which is coupling to infrastructure everywhere, in code that is otherwise pure domain logic.</li><li><strong>Testing needs the locator configured</strong>, so a unit test is never quite a unit test.</li><li><strong>A missing registration is a runtime error</strong>, and the demo produces it.</li></ul>
+<p>The project is fair about where it is still used and why — plugin systems where what is available is genuinely not known until runtime, and Java&#x27;s own <code>ServiceLoader</code>, which is this pattern in the standard library and is not anybody&#x27;s mistake.</p>
+<p><strong>The moment it hands over.</strong> The whole difficulty is the word <em>ask</em>. The class asks, so nobody outside it knows what it needs. §72 removes the asking.</p>
+<h3>4.72 Dependency Injection — stop asking; be given</h3>
+<p><strong>Scenario.</strong> The same checkout, the same three collaborators, one more time.</p>
+<p><strong>The pattern.</strong> The class declares what it needs in its constructor and is given it. It never looks anything up. The demo prints the constructor and the point makes itself out loud: <strong>the signature is the dependency list</strong>, complete and checked by the compiler.</p>
+<p>Then the three forms — constructor, setter, field — with a clear recommendation rather than a survey. Constructor injection, because it makes dependencies mandatory and visible and the object valid the moment it exists. Setter injection for genuinely optional things. Field injection discouraged, with the reason shown: the object can be constructed in an invalid state, and it cannot be built in a test without a framework.</p>
+<p>And the wiring is shown by hand first — a <code>main</code> method that constructs everything in order — so the reader sees that <strong>a container is an optimisation of something they can write themselves</strong>, roughly twenty lines for this application. That demystification is the project&#x27;s most valuable minute.</p>
+<p><strong>The bill.</strong> The wiring has to live somewhere, and by hand it grows with the application. A container solves that and costs you magic: the demo shows a container failing to start with an error about a bean it could not construct, which is the modern equivalent of §71&#x27;s missing registration — better, because it fails at startup rather than at the first request, but still not at compile time. Constructors grow long, and the project says plainly that a class needing seven collaborators has a design problem that no injection style fixes. Circular dependencies become a startup failure the demo produces on purpose.</p>
+<p><strong>Where this lands.</strong> Dependency Injection is not Spring. The demo has proved that by doing it in plain Java, and Tier 2 shows the same graph wired by a container so the reader recognises what the annotations replaced.</p>
+<p><strong>The capstone role.</strong> This project closes the three-part argument: Registry put things in a known place; Service Locator made a middleman that could find them; Dependency Injection stopped the class asking at all. It must state that progression explicitly, because arriving at the conclusion is what makes it stick.</p>
+<hr>
+<h2>5. Relationships to the existing projects</h2>
+<table><thead><tr><th>Project</th><th>Depends on</th><th>Why</th></tr></thead><tbody><tr><td>Null Object</td><td>Strategy (§20), Special Case (PoEAA)</td><td>It is a Strategy that does nothing; Fowler&#x27;s Special Case is its generalisation.</td></tr><tr><td>Object Pool</td><td>Thread Pool (§47), Flyweight (§13), Singleton (§4)</td><td>§47 is the correct application; Flyweight shares instead of recycling — the contrast matters.</td></tr><tr><td>Registry</td><td>Singleton (§4)</td><td>A registry is usually a singleton holding several singletons, and inherits every one of §4&#x27;s problems.</td></tr><tr><td>Service Locator</td><td>Factory Method (§3), Abstract Factory (§1)</td><td>A locator is a factory that decides what to return at runtime.</td></tr><tr><td>Dependency Injection</td><td>Clean Architecture (§66), Hexagonal (§65), Builder (§2)</td><td>It is how §65 and §66&#x27;s wiring happens; assembling a graph is close to §2.</td></tr></tbody></table>
+<p>The link to §66 runs both ways and matters for scheduling: <strong>building §72 before §66 is preferable</strong>, so Clean Architecture can link to it rather than explaining injection itself.</p>
+<hr>
+<h2>6. Deliverables per project</h2>
+<p>Identical to the microservices category — the same committed file set and the same generators, per <a href="../../micro-services-design-patterns/docs/ai-build-spec.html"><code>../../micro-services-design-patterns/docs/ai-build-spec.md</code></a>.</p>
+<p>Three additions specific to this category:</p>
+<ul><li><strong>A &quot;how to recognise this in code you did not write&quot; section.</strong> For the three contested patterns especially, a reader&#x27;s most likely encounter is maintenance, not greenfield. What does it look like, what breaks first, and what to do about it.</li><li><strong>A verdict, stated plainly.</strong> Every project ends with a clear position: use this, use it in these narrow cases, or prefer this other thing. Hedging is what makes contested patterns confusing, and this category exists partly to end that confusion.</li><li><strong>A <code>real/</code> Tier 2 for §72 only</strong>, showing the same object graph wired by a container. Excluded from <code>./gradlew test</code>, pinned, one command to run.</li></ul>
+<hr>
+<h2>7. Video, poster and publishing</h2>
+<p>Unchanged: 14 to 16 scenes, <code>Samantha</code> at 145 wpm, −16 LUFS, a poster that does not strike out its message, an outro naming no successor, and the required four-step opening. Target length eleven to thirteen minutes.</p>
+<p>Two of these — Service Locator and Object Pool — have videos that largely argue against their own subject. Their titles and posters must be straight about that rather than clickbait: a poster promising a technique and a video advising against it is a bait-and-switch, and the audience will say so.</p>
+<hr>
+<h2>8. Deliberately not included</h2>
+<table><thead><tr><th>Pattern</th><th>Why not</th></tr></thead><tbody><tr><td>Special Case (PoEAA)</td><td>Null Object generalised, covered in a scene of §68.</td></tr><tr><td>Multiton</td><td>A registry keyed by name, covered in §70.</td></tr><tr><td>Lazy Initialisation</td><td>An idiom rather than a pattern. It appears where it matters, in Lazy Load (§55) and in §71&#x27;s lazy creation.</td></tr><tr><td>Value Object, Money</td><td>Base patterns worth knowing, but there is no naive-version-fails-then-pattern story to build a project around.</td></tr><tr><td>Immutable Object</td><td>Absorbed by Java records and taught throughout the course by example.</td></tr><tr><td>Marker Interface, Type Object</td><td>Technique and idiom respectively, with too little design content for a project.</td></tr></tbody></table>
+<p>A sixth project requires editing this section first.</p>
+<hr>
+<h2>9. Conformance</h2>
+<p>Every item from the microservices category&#x27;s §9 applies, plus six:</p>
+<ul class="task"><li><strong>The project ends with a plain verdict</strong> — use this, use it narrowly, or prefer the alternative — and the video says it aloud.</li><li>The explainer has its <strong>&quot;how to recognise this in code you did not write&quot;</strong> section.</li><li><strong>The contested patterns argue against themselves with evidence, not assertion.</strong> §69&#x27;s slower-than-allocation demo, §70&#x27;s order-dependent test failure and §71&#x27;s compiler saying nothing are all runnable.</li><li><strong>The naive version is treated fairly.</strong> Constructor-passing through six levels really is friction; saying so is what makes §70&#x27;s bill credible.</li><li>The three-part progression — Registry, Service Locator, Dependency Injection — is stated explicitly in §72.</li><li>§72 shows the wiring by hand before showing any container, and says how many lines it took.</li></ul>
+</main>
+<footer>
+Generated from <code>spec.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

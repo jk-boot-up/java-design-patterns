@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Message Channel, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Message Channel, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>A message channel is a named queue that carries messages from a sender to a receiver, so the two systems can talk without being up at the same time.</p>
+<h2>The six acts</h2>
+<h3>Checkout Calls The Warehouse</h3>
+<p>With the warehouse down, three orders are placed and all three checkouts fail. The shop cannot sell while another system is away.</p>
+<pre><code>  the warehouse system is down for maintenance. orders placed: 3. checkouts that failed: 3.
+  the shop cannot sell while another system is away, though selling does not need it to answer yet.</code></pre>
+<h3>A Channel Between Them</h3>
+<p>Checkout sends three messages and carries on. The warehouse then takes them, each once, in order.</p>
+<pre><code>  checkout sends 3 messages and carries on. waiting in the channel: 3.
+  the warehouse takes them, each once: [ORD-1, ORD-2, ORD-3].</code></pre>
+<h3>The Receiver Is Away</h3>
+<p>The warehouse is down, and checkout sends three messages, and none fail. When the warehouse comes back, it works through them in order.</p>
+<pre><code>  the warehouse is down. checkout sends 3, and none fail. waiting: 3.
+  the warehouse comes back and works through them, in order: [ORD-1, ORD-2, ORD-3].</code></pre>
+<h3>An Envelope</h3>
+<p>A message has headers, such as priority and correlation, that can be read without opening the body. A router or receiver can decide from the envelope alone.</p>
+<pre><code>  headers, readable without opening the body: {correlation=ORD-1, priority=express}. type: PickOrder.
+  body: 2 x MUG-BLUE.
+  a router or a receiver can decide what to do from the envelope alone.</code></pre>
+<h3>One Channel, One Kind Of Message</h3>
+<p>The pick orders channel refuses a refund request. A receiver never has to ask what kind of message it was given.</p>
+<pre><code>  channel pick-orders carries PickOrder but was given RefundRequest.
+  a receiver of pick orders never has to ask what it was given.</code></pre>
+<h3>The Bill</h3>
+<p>If the warehouse stays down, a channel of five fills, and three more are refused. The sender no longer learns whether the order was picked, only that the message was accepted. Sent five, received none.</p>
+<pre><code>  the warehouse stays down and a channel of 5 fills: 5 accepted, 3 refused. a channel must have a limit, and somebody must decide what to do at it.
+  and the sender no longer learns whether the warehouse picked the order. it learns only that the message was accepted.
+  sent 5, received 0: the difference is work nobody has done yet.</code></pre>
+<h2>The verdict</h2>
+<p>Use a channel between systems that are not always up together, or that work at different speeds. Give it a type, a limit and a name. Put the routing information in the envelope. Decide what happens when it is full, and how the sender finds out the result, since it will not hear it from the call.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>A queue name in a configuration file, such as <code>pick-orders</code>.</li><li>A <code>send</code> call that returns at once, and a separate <code>receive</code> loop.</li><li>JMS destinations, SQS queues, RabbitMQ queues, Kafka topics.</li><li>A message class with headers and a payload.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Every message queue product, and Java&#x27;s own <code>BlockingQueue</code>, which is the same idea inside one process.</p>
+<h2>When this is too much</h2>
+<p>If both systems are always up and the caller needs the answer now, a direct call is simpler. A channel is for decoupling in time.</p>
+</main>
+<footer>
+Generated from <code>message-channel-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

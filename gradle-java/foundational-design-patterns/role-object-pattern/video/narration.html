@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Role Object Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Role Object Pattern — Video Narration Script</h1>
+<h2>1. Role Object</h2>
+<p>Hello, and welcome. This video explains the Role Object pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. With role objects, one core object holds who someone is. Each thing they do for a while, such as buying or selling, is a separate role object. Roles are added and removed as life changes, and the identity stays the same. Think of one person who is a parent, a nurse, and a weekend football coach. The same person, all along. When they stop coaching, the club removes that role. Nobody has to create a new person. In this video, the domain is an online shop. Its customers can also sell on its marketplace, and earn money by referring friends. By the end, you will hear why subclasses break when someone&#x27;s role changes. How role objects fix it. How to drop a role. And what it costs.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Customers of the shop can also become sellers on its marketplace. And they can join an affiliate scheme, earning a small commission for referring others. The shop modelled each kind as a subclass. A subclass is a class that extends another. Customer, and selling customer extends customer. Then Priya, who had twelve orders, opened a shop.</p>
+<h2>3. Act One — A subclass per kind</h2>
+<p>First demo: a subclass for every kind of customer. Priya is a customer with twelve orders. Then she opens a shop on the marketplace. The code creates a new object, a selling customer. The new object has zero orders. It is not even the same object as Priya the customer. And there are three kinds of role: buyer, seller, and affiliate. Every combination needs its own class. Seven classes.</p>
+<h2>4. Act Two — One account, many roles</h2>
+<p>Second demo: one account, with roles added as life changes. Priya&#x27;s account holds only who she is: an ID, and a name. A buyer role holds her twelve orders. When she opens a shop, a seller role is added. To the same account. She now plays two roles, buyer and seller. And all twelve orders are still there.</p>
+<h2>5. Act Three — Roles with behaviour</h2>
+<p>Third demo: each role brings its own data, and its own behaviour. The seller role lists a hand-thrown mug, under the shop name Priya&#x27;s Pottery. Priya also joins the affiliate scheme, at five percent. She refers two orders, of forty and sixty pounds. She earns five pounds. The account itself knows nothing about shops, or commission.</p>
+<h2>6. Act Four — Dropping a role</h2>
+<p>Fourth demo: a role can be dropped, while the account lives on. The marketplace suspends Priya&#x27;s selling. The seller role is removed. She tries to list another mug. Refused: Priya is not a seller. But she is still a buyer. She places her thirteenth order.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. Every caller must ask first. Is she a seller right now? And what do we do if she is not? And her data is spread out. Her name is on the account. Her shop name was on a role that is now gone.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the pattern. A core object holds who someone is. Here, the account. Each thing they do for a while is a separate role object, with its own data and behaviour. Buyer, seller, affiliate. Roles are added and removed as life changes. The core object, and its identity, stay the same.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. The account holds an ID, a name, and the roles it plays right now. Role is a small base class. Every role remembers which account it belongs to. Buyer, seller, and affiliate are the roles, each with its own data and methods. And customer and selling customer are the old way, kept for comparison.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met this pattern already. Marketplace accounts can be a buyer, a seller, and an admin, all at once. Enterprise data models often have a party, a person or a company, playing roles such as customer, supplier, and employee. And games give one character different roles over time.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use it? When roles come and go during an object&#x27;s life, combine freely, and bring their own behaviour. Keep the identity on the core object. Give each role its own data. And decide what should happen to that data when a role is removed. When an object&#x27;s kind never changes, a subclass or a simple field is clearer.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Role Object pattern. If you remember one sentence, make it this one. One identity, many hats, and the hats come and go. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Keep Priya&#x27;s shop name when selling is suspended, so it can be restored later. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

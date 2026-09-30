@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chain of Responsibility Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Chain of Responsibility Pattern — Video Narration Script</h1>
+<h2>1. Chain of Responsibility</h2>
+<p>Hello, and welcome. This video explains the Chain of Responsibility pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. You hand a request to a line of objects, one after another. Each object either answers, and the request stops there. Or it stays quiet, and passes the request to the next one. Think of calling a support line. The first person tries to help. If they can&#x27;t, they pass you on to someone more senior. You make one call, and you never need to know who will finally answer. In our online store, every order is checked before it is accepted. Is the address one we deliver to? Is the stock available? Is the order risky? And will the card cover the total? By the end, you will know why the order of those checks should be easy to change. And how this pattern differs from the Decorator pattern, which looks exactly the same on paper.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Before an online shop accepts an order, it checks it in four ways. One. Is the address somewhere a courier actually delivers? Two. Can the warehouse supply every item in the basket? Three. What does the fraud model think of this customer? Four. Does the card cover the total? Any one of those checks can reject the order. If none objects, the order is accepted. And here is the important part. Which checks run, and in what order, must be easy to change. For example, trade customers are invoiced at the end of the month. So they skip the card check.</p>
+<h2>3. Look Closely at One Order</h2>
+<p>Before any code, let&#x27;s look closely at one order. Someone buys a monitor for three hundred and twenty-nine pounds. Their card has a limit of two hundred and fifty pounds. And the fraud model scores the account ninety-two out of a hundred, which is very risky. Two of our four checks would reject this order. But only one gets to speak, because the first rejection ends the checking. So which one speaks? Whichever is written first. Nobody decided that on purpose. Yet it matters a lot. It is the difference between telling the customer to try another card, and alerting the fraud team.</p>
+<h2>4. The Naive Approach — Four Checks, One Method</h2>
+<p>The obvious first approach is one method, with four checks, one after another. Each check can return early with a rejection. To be fair, this has real strengths. It is short, and the whole policy is in one file. For a shop with simple rules that never change, it is the right answer. But in this method, the card check comes before the fraud check. So our risky order is rejected as a card problem. The customer tries another card, and it works. There was never anything wrong with the cards. Then there is a second method, for trade customers. Someone copied the first method, and deleted the card check. But in the same edit, the address check was deleted too. So an order of two desks is now on its way to an island that no courier serves.</p>
+<h2>5. Why That Hurts</h2>
+<p>So what exactly is wrong? Four separate things. One. The order of the checks is fixed inside the method. Changing it means editing the file where the rules live. Two. Each check can only say yes or no. But a fraud model gives a score, and the useful part is the middle band. Those are the orders a person should review. An order scoring sixty-four is simply accepted, because there is no third answer. Three. Variations are copies, and copies drift apart. We just heard that happen. And four. To test the fraud rule, a test must first build an address, a basket and a card, that the fraud rule does not even care about.</p>
+<h2>6. The Chain of Responsibility Pattern</h2>
+<p>Here is the pattern&#x27;s definition, from the famous Gang of Four book. Avoid coupling the sender of a request to its receiver, by giving more than one object a chance to handle the request. The key idea is not just running several checks in a row. A simple loop can do that. The key idea is that the caller does not know which check will answer. So here is the move. Instead of one method that knows all four checks, write four objects. Each one knows one check, and nothing about the others.</p>
+<h2>7. An Analogy</h2>
+<p>Here is an analogy to hold on to: an expenses claim at work. A forty pound lunch? Your team lead approves it. Four thousand pounds of laptops? Your team lead cannot, so it goes up to their director. Four hundred thousand pounds? That goes to the board. Three things about that office are the pattern. You submit once, without knowing who can approve what. Whoever can answer, answers, and it stops there. The board never sees your lunch receipt. And the chain of managers is not written on the claim form. The pattern&#x27;s risk is there too. A claim that nobody is allowed to approve can sit in a queue forever.</p>
+<h2>8. The Roles</h2>
+<p>So here are the pieces, and there are only a few. The client is the checkout. It holds one screening chain, calls it once, and gets back a report. The screening chain links the checks together. It hands the order to the first check, and then waits until someone answers. The screening handler is the shared base class for every check. It holds a link to the next check, and one method for each check to fill in. Below it sit the four real checks. And what comes back is a report. It says the decision, which check made it, and which checks never ran.</p>
+<h2>9. The Handler — And the Line That Is Written Once</h2>
+<p>The whole pattern fits in about twenty lines, in the base class. It has one field, a link to the next check. One method that each check writes, called check. And one method that walks along the chain, called screen. Listen to what check returns. It returns an optional decision. Empty means: I have no opinion, pass it on. A decision means: I am answering, and the chain stops here. Returning nothing does not mean no. It means, not my call. The screen method is marked final, so no check can change it. In textbook versions, every check writes its own pass-along code. And a common bug is a check that forgets to pass the request on, so it silently vanishes. Here, that logic is written exactly once, and no check ever touches the next link.</p>
+<h2>10. The Chain — And What Silence Means</h2>
+<p>Now the chain itself, and two things are worth noticing. First, what is missing. There is no loop over the checks, and no counting. The chain hands the order to the first check, and waits for an answer. That is why reordering the checks is only a wiring change. Second, the fallback. An order really can pass every check, with nobody deciding anything. Like the expenses claim nobody can approve. So the chain must be given a fallback decision when it is built. There is no way to build one without it. Approve by default, and the chain fails open. Refer to a person by default, and it fails closed. The same checks, with opposite attitudes to risk, decided by one setting.</p>
+<h2>11. Two Links — And the One With Three Answers</h2>
+<p>Let&#x27;s look at two of the checks, which work differently on purpose. The address check is the ordinary kind. If the country is not one we deliver to, it rejects the order, and names itself as the one who decided. If the address is fine, it returns empty, meaning no opinion. The fraud score check has three possible answers. A score of eighty or more, and it rejects. Between fifty-five and seventy-nine, it refers the order to a person. Below that, it says nothing. That third answer costs the chain nothing, because the chain never looks inside a decision. A check stops the chain whenever it is willing to own the answer. And that answer does not have to be no.</p>
+<h2>12. The Tests — Asserting What Did NOT Happen</h2>
+<p>The project has twenty-one tests. Two of them show the pattern best. Note that a simple test like, an order to an island is rejected, passes for the naive method too. So it proves nothing about the pattern. The first special test checks that a check behind the decision never ran. Not that its answer was ignored, but that it never ran at all. In real life, that means the payment service was never called, and never charged for. The second test uses the same four checks, but wires the card check before the fraud check. And the answer becomes the card problem again, exactly like the naive method. So the naive behaviour was not a bug in the checks. It was a setting that nobody could change without editing code.</p>
+<h2>13. Running It</h2>
+<p>Let&#x27;s run the demo, and compare the two approaches. First, the naive method. The risky order, with a fraud score of ninety-two, is rejected as a card problem. And a trade order is accepted, for delivery to an island that no courier serves. Second, the same checks as a chain. For the monitor order, the fraud check answers, and the report says the card check never ran. For the island order, the address check answers, and three checks never ran. No warehouse lookup, no fraud model call, and nothing to pay for. That never-ran list is the real difference between a chain and a validator that collects every problem. A chain gives one answer, from one check, and stops. Finally, the trade customers. They use the standard chain, with the card check simply left out of the wiring. Nothing was copied, so nothing could go missing. And the island order is caught.</p>
+<h2>14. What to Remember</h2>
+<p>So, what should you remember? First, the confusion promised at the start. Chain of Responsibility and Decorator have exactly the same class structure. So you cannot tell them apart by their diagram. Instead, ask one question. Does every layer have to run? If yes, you want a Decorator. There, a layer that fails to pass the work on is a bug. If no, because one layer might settle the matter alone, you want a chain. In code, the difference is tiny. In a decorator, the call to the next object always happens. In a chain, that call sits inside an if. Now, the honest cost. A policy that once read top to bottom in one method is now spread over four check classes, a base class, and some wiring. You need a report to see who decided. And an order can reach the end with nobody answering. So if the checks and their order never change, just write the four ifs. Use a chain when you need to change the order, without editing any check.</p>
+<h2>15. Thanks for Watching</h2>
+<p>That&#x27;s the Chain of Responsibility pattern. If you remember one sentence, make it this one. A chain passes a request along until one object is willing to answer, so the order of the checks becomes something you can change. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Take the standard chain, and move the card check above the fraud check. Run the demo, and listen to how the customer is told something different about the very same order. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

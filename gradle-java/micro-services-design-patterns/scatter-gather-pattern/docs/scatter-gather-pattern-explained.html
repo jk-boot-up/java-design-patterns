@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scatter-Gather, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Scatter-Gather, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>Scatter-gather sends one request to many parties at the same time, then gathers their answers, up to a deadline, and combines them into one.</p>
+<h2>The six acts</h2>
+<h3>Ask Them One After Another</h3>
+<p>Four suppliers answer in eighty, a hundred and twenty, two hundred and nine hundred milliseconds. Asked in turn, the page waits thirteen hundred.</p>
+<pre><code>  four suppliers answer in [80, 120, 200, 900] milliseconds. asked in turn, the page waits 1300.</code></pre>
+<h3>Ask Them All At Once</h3>
+<p>Asked together, the same four make the page wait for the slowest: nine hundred milliseconds.</p>
+<pre><code>  the same four, asked together: the page waits for the slowest, 900 milliseconds.</code></pre>
+<h3>Do Not Wait For The Slowest</h3>
+<p>All four suppliers are being asked at the same moment. With a deadline of five hundred milliseconds, three quotes are gathered and Delta, too slow, is left out. The best of three is shown, and the page waits five hundred, not nine hundred.</p>
+<pre><code>  four suppliers held at once, all being asked together: 4 at the same moment.
+  a deadline of 500 ms. quotes gathered: [Quote[supplier=Acme, pence=1250], Quote[supplier=Beta, pence=1190], Quote[supplier=Cargo, pence=1340]].
+  missing: [Delta (too slow)]. best price shown: Beta at 1190.
+  with the deadline, the page waits 500 ms, not 900.</code></pre>
+<h3>Say What Was Left Out</h3>
+<p>The page shows the best of two of three suppliers. The one that did not answer, Delta, would have been cheaper, at nine ninety. A partial answer is honest only if it says it is partial.</p>
+<pre><code>  the page shows: best of 2 of 3 suppliers, 1190 from Beta.
+  the one that did not answer, Delta, would have been 990. a partial answer is honest only if it says it is partial.</code></pre>
+<h3>A Supplier That Fails</h3>
+<p>Beta is down. The page gets the other two quotes, and names Beta as missing, with the reason. One failure did not fail the page.</p>
+<pre><code>  Beta is down. quotes: [Quote[supplier=Acme, pence=1250], Quote[supplier=Cargo, pence=1340]]. missing: [Beta (Beta is down)].
+  one failure did not fail the page.</code></pre>
+<h3>The Bill</h3>
+<p>One page view becomes four supplier calls, so a thousand views make four thousand. And if each supplier is quick ninety nine times in a hundred, asking four and waiting for all means only ninety six pages in a hundred are quick, and ten suppliers, ninety.</p>
+<pre><code>  one page view is now 4 supplier calls. 1000 page views: 4000 calls, to suppliers who see only the traffic, not the pages.
+  if each supplier is quick 99 times in 100, asking 1 and waiting for all means 99.0 in 100 pages are quick.
+  if each supplier is quick 99 times in 100, asking 4 and waiting for all means 96.1 in 100 pages are quick.
+  if each supplier is quick 99 times in 100, asking 10 and waiting for all means 90.4 in 100 pages are quick.
+  the more you ask, the more often the slowest one sets the pace. a deadline is what stops it.</code></pre>
+<h2>The verdict</h2>
+<p>Use scatter-gather when several independent sources can answer the same question, and the best or a combination of the answers is what you want. Always give it a deadline, treat a failure like a late answer, and say when an answer is partial. Watch the fan-out: every request now costs as many calls as there are sources.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li><code>CompletableFuture.allOf</code> or <code>invokeAll</code> with a timeout.</li><li>A price comparison, flight search, or federated search.</li><li>A method that returns results and a list of sources that did not respond.</li><li>Elasticsearch&#x27;s search across shards, which scatters and gathers.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Price comparison and travel sites, search engines across shards, and any API that fans out to several backends.</p>
+<h2>When this is too much</h2>
+<p>With one source, or when you need every answer without exception, scatter-gather has nothing to gather. With a very large fan-out, the deadline decides more than the data.</p>
+</main>
+<footer>
+Generated from <code>scatter-gather-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

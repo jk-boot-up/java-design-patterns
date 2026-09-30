@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Externalised Configuration with Spring Cloud Config, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Externalised Configuration with Spring Cloud Config, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>Externalised configuration means a value that changes on somebody else&#x27;s calendar lives outside the program, and the program reads it while it runs, so changing the value needs no rebuild and no release.</p>
+<h2>The analogy, before any of Spring&#x27;s words</h2>
+<p>Think of a chain of bakeries. The price list is kept at head office, in a filing cabinet, and every change is signed and dated in a ledger. Head office has a receptionist. When a branch opens in the morning, it phones the receptionist, who reads out the current list, and the branch writes the prices on its board for the day.</p>
+<p>Now four things this makes you think about. If head office changes a price at eleven, the branches carry on with the morning&#x27;s prices until somebody tells them to phone again. When a branch does phone again, it rewrites its board, but the poster it printed at opening time still shows the old price. If somebody at head office writes a nonsense price, the receptionist reads it out faithfully, because checking prices is not the receptionist&#x27;s job. And if head office&#x27;s phone line is down, a branch that is already open carries on, while a branch that is just opening has to decide: stay shut, or open on the prices printed on its old menu. Those four things are this project.</p>
+<h2>What Spring Cloud Config calls these things</h2>
+<p>The <strong>config server</strong> is the receptionist: a separate Java program, Spring Cloud Config Server, that reads a repository of settings files and answers over HTTP. Asked for the settings of the application called <code>checkout-service</code>, it answers with the file called <code>checkout-service.yml</code>.</p>
+<p>The <strong>git repository</strong> is the filing cabinet with its ledger. Every change is a <strong>commit</strong>, with who made it, when and why. A commit&#x27;s <strong>id</strong>, shortened to seven characters such as <code>2a6198d</code>, names it. The server reports which commit its answer came from as the <strong>version</strong>.</p>
+<p><strong>Fetching at startup</strong> is the branch phoning as it opens. The shop&#x27;s settings say <code>spring.config.import: configserver:</code> and the address, and Spring asks the server before the shop starts.</p>
+<p>A <strong>refresh</strong> is telling the branch to phone again: <code>POST /actuator/refresh</code>, a request to the running shop. <strong>Actuator</strong> is the Spring Boot library that provides it. It answers with the names of the settings that changed.</p>
+<p><strong><code>@RefreshScope</code></strong> marks an object to be thrown away and rebuilt after a refresh: the board. An ordinary object that copied a setting with <code>@Value</code> when the shop started is the poster.</p>
+<p><strong>Fail fast</strong> and <strong>optional</strong> are the two answers to a server that cannot be reached at startup: refuse to start, or start on the defaults packed inside the shop.</p>
+<h2>The six acts</h2>
+<h3>The Setting Lives In Git</h3>
+<p>The demo creates a git repository in a temporary folder and commits <code>free-over: 50.00</code>, as Priya in engineering. It starts the config server as a second Java process, pointed at that repository. Asked for <code>checkout-service</code>, the server answers with version 2a6198d and a threshold of 50.0. Then the shop starts, fetches its settings from the server, and quotes a £48.00 basket: delivery £4.99, because £48.00 is under £50.00. The banner across the top of the home page says free delivery on orders over £50.00.</p>
+<pre><code>  git commit 2a6198d by Priya in engineering: free-over 50.00
+    version 2a6198d, delivery.free-over 50.0
+    quote:  goods £48.00 delivery £4.99 threshold £50.00
+    banner: Free delivery on orders over £50.00</code></pre>
+<h3>Committed, Not In Force</h3>
+<p>Maya in marketing commits <code>free-over: 35.00</code> for the weekend. The config server reads the repository on every request, so it answers with the new commit, 64f6a92, and 35.0 straight away. The running shop has not asked again. It still quotes £4.99 on the £48.00 basket, against £50.00. The value in git and the value in force are now different, and nothing is broken.</p>
+<pre><code>  git commit 64f6a92 by Maya in marketing: free-over 35.00
+    version 64f6a92, delivery.free-over 35.0
+    quote:  goods £48.00 delivery £4.99 threshold £50.00</code></pre>
+<h3>The Refresh</h3>
+<p>The demo sends the running shop <code>POST /actuator/refresh</code>. The shop fetches its settings again and reports what changed: <code>config.client.version</code>, which is the commit its settings came from, and <code>delivery.free-over</code>. The next quote ships the £48.00 basket free, against £35.00. It is the same running copy of the shop, started in the first act: restarts 0.</p>
+<pre><code>  the shop fetches again and reports what changed: config.client.version, delivery.free-over
+    quote:  goods £48.00 delivery FREE threshold £35.00
+  the same running shop: yes, still the copy started in act 1. restarts: 0.</code></pre>
+<h3>The Surprise: Two Thresholds In One Shop</h3>
+<p>This is the headline of the project. The checkout&#x27;s settings object is marked <code>@RefreshScope</code>, so the refresh rebuilt it. The banner reads the very same setting with <code>@Value</code>, copied into a field when the shop started, and nothing rebuilds it. So one running shop quotes against £35.00 and advertises £50.00 at the same time. No error, no warning. Only a restart of the shop brings the banner to £35.00.</p>
+<pre><code>    quote:  goods £48.00 delivery FREE threshold £35.00
+    banner: Free delivery on orders over £50.00
+  after a restart of the shop:
+    banner: Free delivery on orders over £35.00</code></pre>
+<h3>The Bill: A Value Nobody Checked</h3>
+<p>On Saturday morning somebody commits <code>free-over: -1</code>. The config server serves it, because it does not check values. The refresh answers 200 and reports the key as changed. The shop&#x27;s settings declare a range, £5.00 to £200.00, and Spring checks it when it rebuilds the settings object, on the next quote. The check fails, and there is nothing to fall back to, so the quote fails. And the next. Five quotes, five failures, each with HTTP status 500. Sam on call commits 35.00 again and refreshes, and the shop quotes normally. Git&#x27;s own log is the history of all of it, newest first.</p>
+<pre><code>  git commit 6aaf4da by Maya in marketing: free-over -1
+    version 6aaf4da, delivery.free-over -1
+  the refresh answers 200 and reports: config.client.version, delivery.free-over
+  the next 5 quotes: 5 failed, each with HTTP status 500.
+  git commit f68331f by Sam on call: free-over 35.00, then a refresh: config.client.version, delivery.free-over
+    f68331f  Sam on call  Put the weekend promotion back
+    6aaf4da  Maya in marketing  Free delivery for everyone?
+    64f6a92  Maya in marketing  Weekend promotion: free delivery over 35 pounds
+    2a6198d  Priya in engineering  Free delivery over 50 pounds</code></pre>
+<h3>The Bill: The Server Stops</h3>
+<p>The demo stops the config server process. A refresh of the running shop now answers 500, and changes nothing: the shop keeps what it already fetched and still quotes the £48.00 basket free, against £35.00. A new copy of the shop, told to fail fast, refuses to start. A new copy told the server is optional starts on the default packed inside it, £50.00, and charges £4.99. The promotion is gone, and nothing reports an error.</p>
+<pre><code>  a refresh of the running shop now answers 500.
+    quote:  goods £48.00 delivery FREE threshold £35.00
+    refused to start: Could not locate PropertySource and the fail fast property is set, failing
+    quote:  goods £48.00 delivery £4.99 threshold £50.00</code></pre>
+<h2>The verdict</h2>
+<p>Put the settings that change on somebody else&#x27;s calendar in git, behind a config server, when several services share them and the history matters. Then say four things out loud, because Spring will not assume any of them. A commit is not in force until each running copy is refreshed, so decide who sends the refresh. A refresh reaches only <code>@RefreshScope</code> objects, so find every <code>@Value</code> that copies a changeable setting. A range check with nothing behind it turns a typo into an outage, so decide what the shop falls back to. And choose, for every service, between fail fast and optional, knowing that optional starts quietly on old values.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li><code>spring.config.import: configserver:</code> in a service&#x27;s settings. With <code>optional:</code> in front of it, the service starts without the server.</li><li><code>spring.cloud.config.fail-fast: true</code>, or its absence.</li><li><code>@RefreshScope</code> on a class, and <code>@Value(&quot;${...}&quot;)</code> on a constructor or a field in a class without it. The second one never changes after startup.</li><li><code>POST /actuator/refresh</code> in a pipeline script, or Spring Cloud Bus, which sends the refresh to every copy at once.</li><li><code>@Validated</code> with ranges on a <code>@ConfigurationProperties</code> class, and whether anything catches the failure.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Any Spring estate with more than a handful of services. Kubernetes ConfigMaps, Consul and AWS AppConfig ask the same two questions: when does a running program notice a change, and which parts of it hold on to the old value?</p>
+<h2>When this is too much</h2>
+<p>If the shop runs as one or two copies and a value changes a few times a year, an environment variable and a restart are simpler and have no server to keep alive. If a value changes every minute, or per customer, it is data or a feature flag, not configuration.</p>
+</main>
+<footer>
+Generated from <code>externalised-configuration-with-spring-cloud-config-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Retry with Backoff</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Retry with Backoff</h1>
+<p>A one-hour session. Its shape is unusual in a specific way: the naive version <em>works</em>. It rescues checkouts, it throws no exceptions, and all five of its tests pass. The room has to be walked all the way to a bank statement before the problem becomes visible, and that walk is the session.</p>
+<p><strong>Audience:</strong> developers who know Java. No distributed-systems experience assumed.</p>
+<p><strong>Format:</strong> laptops open. Everything runs offline with a JDK.</p>
+<h2>Learning Objectives</h2>
+<p>By the end, a participant can:</p>
+<ol><li>Say which failures are worth retrying and which are not, and give the rule in one sentence.</li><li>Explain why backoff exists, in terms of the service being called rather than politeness.</li><li>Explain what jitter is for, and why it is invisible with one caller.</li><li>Describe the lost-reply failure and say why the caller cannot detect it.</li><li>Define an idempotency key, say what it must be derived from, and say who has to keep the record for it to mean anything.</li><li>Point at the one line whose position separates one charge from two.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check, and what this project is not</td></tr><tr><td>0:05–0:14</td><td>The problem: a fifth of the checkouts fail for no reason</td></tr><tr><td>0:14–0:22</td><td>The pattern, from an engaged tone</td></tr><tr><td>0:22–0:32</td><td>Code walkthrough: two decisions and forty lines</td></tr><tr><td>0:32–0:44</td><td>The half that is usually skipped: the reply that got lost</td></tr><tr><td>0:44–0:56</td><td>Exercises</td></tr><tr><td>0:56–1:00</td><td>Wrap-up</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check, And An Honest Warning</h2>
+<pre><code>cd micro-services-design-patterns/retry-pattern
+./gradlew test</code></pre>
+<p>21 tests, green, in about a second.</p>
+<p>Then say the honest thing up front:</p>
+<blockquote><p>There is no network in this project, no Spring Retry and no Resilience4j. The payment gateway is an object you can tell to time out, to decline, or — the interesting one — to take the money and then lose the reply. The clock only moves when we move it, so the backoff costs no real time. What you will learn is the shape of the pattern and the trap inside it. What you will not learn is how to configure a particular library.</p></blockquote>
+<h2>0:05–0:14 — The Problem</h2>
+<p>Set the scene in words before any code:</p>
+<blockquote><p>The shop takes card payments through somebody else&#x27;s gateway, on the other side of the internet. About one call in five fails for a reason that has nothing to do with the payment — a dropped connection, a router that reset. The bank is fine. The money is there. And every one of those is a shopper who filled a basket, entered a card, and got an error page. Most of them do not come back.</p></blockquote>
+<p>Ask the room what to do. Somebody will say &quot;just try again&quot;. They are right, and the rest of the hour is about what &quot;just&quot; is hiding.</p>
+<p>Run act one:</p>
+<pre><code>./gradlew run</code></pre>
+<pre><code>      0ms -&gt;    50ms  Payments         TIMEOUT   request never arrived
+     50ms -&gt;    50ms  Retrier          RETRYABLE attempt 1 failed: Payments did not answer
+    153ms -&gt;   153ms  Retrier          WAITED    103ms before attempt 2
+    153ms -&gt;   203ms  Payments         CHARGED   chg-1 £449.99
+  card charged 1 time, £449.99 in total</code></pre>
+<p>A checkout that would have failed went through, and it cost the shopper 153 milliseconds. Let the room enjoy that for a moment — the pattern genuinely works and they should believe in it before it is complicated.</p>
+<p><strong>Then point at 103ms and ask why it is not 100.</strong> Park the answer until 0:22.</p>
+<h2>0:14–0:22 — The Pattern, From An Engaged Tone</h2>
+<p>You ring someone and the line is engaged. You redial. Still engaged, so you wait a moment and try once more. Draw out three things:</p>
+<ul><li>You <strong>judged the failure</strong>. Engaged is temporary. &quot;This number is no longer in service&quot; is not, and you would not redial that twenty times.</li><li>You <strong>waited longer each time</strong>, and not out of politeness — if the line is busy, the only thing that will help is time passing.</li><li>Everybody redialling instantly is <em>why</em> the line is busy.</li></ul>
+<p>Then the sentence that sets up the second half of the session:</p>
+<blockquote><p>Now imagine that when you redial, it turns out the other person had already answered the first time and you simply did not hear them. You would be having the conversation twice. A phone call is harmless to repeat. Taking money is not.</p></blockquote>
+<p>Now the two halves on screen:</p>
+<ol><li>The failure is genuinely temporary.</li><li>Doing the operation twice cannot do it twice.</li></ol>
+<p>Say plainly: everyone thinks about the first. The second is the one that charges people twice, and we are coming back to it.</p>
+<h2>0:22–0:32 — Code Walkthrough</h2>
+<p>Keep it brisk. The whole retrier is about forty lines.</p>
+<p><strong><code>Retrier.call</code></strong> — a loop, a wait, a try, a catch. Ask where the decisions are. There are exactly two.</p>
+<p><strong><code>worthRetrying</code></strong> first, because it is one line:</p>
+<pre><code>return failure instanceof GatewayTimeoutException;</code></pre>
+<p>Ask why it is written as a <em>whitelist</em> rather than &quot;retry unless it is a decline&quot;. Answer: the opposite rule eventually retries a null pointer exception in your own code four hundred times, to get four hundred identical crashes.</p>
+<p>Run act two:</p>
+<pre><code>      0ms -&gt;    50ms  Payments         DECLINED  the bank said no
+     50ms -&gt;    50ms  Retrier          PERMANENT not retrying: card declined for ORD-5001
+  the gateway was asked 1 time</code></pre>
+<p>One attempt, fifty milliseconds, a clear answer. The naive loop takes three attempts and three delays to arrive at the same &quot;no&quot;.</p>
+<p><strong><code>RetryPolicy.delayBeforeAttempt</code></strong> next. Backoff is a multiply. Then answer the 103ms question:</p>
+<blockquote><p>Jitter. Each caller waits a slightly different amount. With one caller it looks like pointless noise. With a thousand callers who all failed at the same instant, waiting exactly 100ms each, the stampede simply repeats on a timer.</p></blockquote>
+<p>There is a test called <em>two callers that fail together do not retry together</em>. Show the name; it is worth more than the assertion.</p>
+<p><strong><code>CheckoutService.pay</code></strong> last, and slowly — it is three lines and one of them is the punchline:</p>
+<pre><code>PaymentRequest request = PaymentRequest.forOrder(orderId, amount);
+Retrier retrier = new Retrier(policy, clock, log);
+return retrier.call(&quot;payment for &quot; + orderId, () -&gt; payments.charge(request));</code></pre>
+<p>Do not explain why the first line is outside the lambda yet. Just note that it is, and that you will come back to it in about four minutes.</p>
+<h2>0:32–0:44 — The Half That Is Usually Skipped</h2>
+<p>This is the part people remember. Spend the full twelve minutes.</p>
+<h3>The failure you cannot see</h3>
+<p>Describe it before showing anything:</p>
+<blockquote><p>The request arrives at the gateway. The card <strong>is</strong> charged. The reply is lost on the way home.</p></blockquote>
+<p>Then ask the room: <strong>what does the caller see?</strong></p>
+<p>Let them work it out. A timeout. Exactly the same timeout as act one. Press the point — is there a flag? a header? a status code? No. There is nothing, and that is not a gap in this project, it is a property of networks.</p>
+<h3>Act three</h3>
+<pre><code>      0ms -&gt;    50ms  Payments         CHARGED-THEN-LOST chg-1 taken, reply lost
+    153ms -&gt;   203ms  Payments         REPLAYED  key already charged, returning chg-1
+  card charged 1 time, £449.99 in total</code></pre>
+<p>Ask how it survived, given that the caller could not tell what had happened. Answer: it stopped trying to. It carried the same key, and the gateway recognised it.</p>
+<p>Now <code>PaymentRequest.forOrder</code>, and ask what the key is derived from. The order, and nothing else. Ask what would happen if the attempt number were in there. Let somebody say it out loud before you show act four.</p>
+<h3>Act four</h3>
+<pre><code>      0ms -&gt;    50ms  Payments         CHARGED-THEN-LOST chg-1 taken, reply lost
+     50ms -&gt;    50ms  NaiveCheckout    RETRYING  attempt 1 failed, going again immediately
+     50ms -&gt;   100ms  Payments         CHARGED   chg-2 £449.99
+  card charged 2 times, £899.98 in total</code></pre>
+<p><strong>Ask who is at fault.</strong> Somebody will blame the gateway. Push back: the gateway was handed a key it had never seen, which by definition means a new job. It behaved perfectly. Every double charge in this project is the caller&#x27;s doing.</p>
+<p>Then read the output for what is <em>not</em> in it. No exception. No error log. No failing test — <code>NaiveCheckoutServiceTest</code> is five passing tests and one of them asserts £899.98. The order looks perfect. The evidence is a phone call two days later.</p>
+<p>Finally, put the two <code>pay</code> methods side by side and let the room find the difference themselves. It is where one line sits.</p>
+<h2>0:44–0:56 — Exercises</h2>
+<h3>Exercise 1 — Make the careful class naive (everyone)</h3>
+<p>In <code>CheckoutService.pay</code>, move the <code>PaymentRequest.forOrder(...)</code> line <em>inside</em> the lambda. Run the tests.</p>
+<p><code>aLostReplyDoesNotChargeTwice</code> fails. Ask what it takes, in review, to notice that line being in the wrong place — and whether anyone in the room would have caught it.</p>
+<h3>Exercise 2 — Delete the classification (everyone)</h3>
+<p>Change <code>worthRetrying</code> to <code>return true</code>. Run act two.</p>
+<p>The declined card is now asked three times, with two waits, to produce the same &quot;no&quot;. Ask what the shopper experiences, and what the gateway&#x27;s owner sees in their traffic graphs on a day when a lot of cards are declining.</p>
+<h3>Exercise 3 — Turn off the jitter (discussion, then code)</h3>
+<p>Swap <code>RetryPolicy.threeAttempts(seed)</code> for <code>threeAttemptsNoBackoff()</code> in the demo. Everything still passes and act one gets <em>faster</em>.</p>
+<p>That is the discussion: the thing you just removed costs you time, buys you nothing measurable in this demo, and is the reason a thousand-caller system does not oscillate. How would you argue for keeping it in a code review where someone calls it premature?</p>
+<h3>Exercise 4 — Stretch</h3>
+<p>The retrier takes a <code>Supplier&lt;T&gt;</code> and has no idea what it is retrying. Discuss what it would take for it to <em>refuse</em> to retry an operation that is not safe to repeat.</p>
+<p>Let the room chase it: a marker interface? an annotation? a wrapper type? Then land the conclusion — the retrier cannot know, and pushing the check into the type system is the only honest answer. That is a genuinely good design conversation and it has no tidy ending, which is why it is last.</p>
+<h2>0:56–1:00 — Wrap-Up</h2>
+<p>Six sentences, spoken, no slides:</p>
+<ol><li>Retrying turns a network blip into a completed checkout, and that is real money.</li><li>Retry only the failures you recognise as temporary; everything else is a definite answer.</li><li>Back off, because a struggling service needs room rather than traffic.</li><li>Add jitter, because a thousand callers waiting the same amount are one wave.</li><li>The dangerous failure is the reply lost after the work was done, and the caller cannot detect it — so stop trying to, and carry a key.</li><li>Build the request outside the retry. That one line is the difference between one charge and two.</li></ol>
+<h2>Facilitator Notes</h2>
+<p><strong>Do not reveal the lost reply early.</strong> The session depends on the room believing the naive loop is fine for the first half hour. If somebody raises double charging at 0:10, thank them, write &quot;act four&quot; on the board, and hold it.</p>
+<p><strong>Somebody will say &quot;just use Resilience4j&quot;.</strong> They are largely right for production and it is not an interruption. The answer: a library gives you the backoff and the classification; it cannot give you the idempotency key, and the key is the half that costs money.</p>
+<p><strong>Somebody will ask about circuit breakers.</strong> That is the next pattern in the category, and the right answer is that retry has its own failure mode — retrying a service that is properly down turns a slow system into a dead one. Note it and move on.</p>
+<p><strong>If the room is senior</strong>, cut the code walkthrough to six minutes and spend the time on Exercise 4 and on real war stories about duplicate charges. Most senior rooms have one.</p>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>JDK 21 on every laptop, verified with <code>./gradlew test</code> before the session</li><li><code>./gradlew run</code> output on screen, all four acts, large enough to read</li><li><code>docs/animation.html</code> open in a browser tab for 0:32–0:44</li><li>The two <code>pay</code> methods side by side, ready to show at 0:44</li><li>A whiteboard for the lost-reply sketch — request out, charge made, reply gone</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

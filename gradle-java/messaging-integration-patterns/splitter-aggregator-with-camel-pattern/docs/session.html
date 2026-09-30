@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Splitter and Aggregator with Camel Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Splitter and Aggregator with Camel Pattern</h1>
+<p>A 60-minute session built around one question: once a real framework is doing the splitting and the gathering, who decides when the gathering is finished?</p>
+<h2>Learning Objectives</h2>
+<ol><li>Say, in plain words, what a route, a correlation identifier and a completion condition are.</li><li>Show an aggregator with a count and nothing else, and say why it will never emit.</li><li>Show a deadline firing without anybody asking, and read Camel&#x27;s own reason for it.</li><li>Explain why completion by size counted a repeated message as progress.</li><li>Name the memory a thousand unfinished orders hold, and what a restart does to them.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:08</td><td>The kitchen analogy, and the partner project recapped in two minutes</td></tr><tr><td>0:08–0:20</td><td>Acts one to three: the split, the stamp, the jumbled arrivals</td></tr><tr><td>0:20–0:35</td><td>Acts four and five: the completion condition, and the deadline</td></tr><tr><td>0:35–0:47</td><td>Act six: the bill, and the repeated message</td></tr><tr><td>0:47–0:53</td><td>The verdict</td></tr><tr><td>0:53–1:00</td><td>Exercises</td></tr></tbody></table>
+<h2>Walkthrough</h2>
+<pre><code>cd messaging-integration-patterns/splitter-aggregator-with-camel-pattern
+./gradlew -q run</code></pre>
+<p>Act one: how many steps in a row, and on how many threads? Act two: what did Camel stamp on each piece, and who asked it to? Act three: what order did they answer in, and what order did the answer come out in? Act four: how many answers came out, and how many orders are open? Act five: what word did Camel use for why it finished, and who told it to stop waiting? Act six: how many orders are held, what happens to them on a restart, and why did an order finish with a line missing?</p>
+<p>Then open <code>src/main/java/com/jk/explore/splitteraggregatorcamel/StoreRoutes.java</code> and read the three aggregators aloud. The only difference between the first and the second is two lines: a deadline, and how often the clock is looked at.</p>
+<h2>Discussion</h2>
+<p>Ask the room what the right deadline is for a real store. There is no answer, which is the point: it is a business decision about how long a customer will wait, and the framework makes you write it down.</p>
+<p>Then ask what should happen to the two shipments in a partial answer. Ship them and refund the rest? Hold them? Cancel? The pattern gives you the partial result; it does not tell you what it is worth.</p>
+<h2>Exercises</h2>
+<ol><li>Remove the deadline from the second aggregator and run the demo again. Watch the fifth act stop producing an answer, and find the sentence in <code>Results</code> that says so instead of hanging.</li><li>Move the deadline into a header, so an express order gives up sooner than a standard one.</li><li>Add a completion predicate: finish as soon as the total passes a threshold, whatever the count.</li><li>Make the fold reject a shipment whose expected count disagrees with the first one it saw for that order.</li><li>Replace the in-memory store of unfinished orders with one backed by a file, and say what now survives a restart.</li></ol>
+<p>Close with the verdict: stamp every piece, correlate on something unique, and never set a completion count without a deadline beside it.</p>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

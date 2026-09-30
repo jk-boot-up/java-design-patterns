@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rate Limiter with Redis, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Rate Limiter with Redis, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>A rate limiter gives each caller a bucket of tokens, spends one on every request, refuses when the bucket is empty and refills it on a timer — and when a service runs as many copies, the bucket has to live somewhere every copy can reach, or each copy grants the full limit on its own.</p>
+<h2>The analogy, before any of the tools&#x27; words</h2>
+<p>Think of a nightclub with three doors and a rule of 100 people inside. If each door has its own bouncer with his own clicker, each lets in 100, and the club holds 300. The fix is one tally everyone can see: a whiteboard in the middle, where every bouncer crosses off a place before letting someone in.</p>
+<p>Three new questions come with the whiteboard. What if two bouncers both read &quot;one place left&quot; and both walk off to let someone in, before either has crossed it off? What if one bouncer&#x27;s watch is an hour fast, and he decides it is a new night and wipes the board clean? And what if the whiteboard falls off the wall? Those three questions are this project.</p>
+<h2>What Redis and Bucket4j call these things</h2>
+<p><strong>Redis</strong> is the whiteboard: a separate program that keeps small values in memory and lets many programs read and change them over the network. It runs in a container the demo starts and stops.</p>
+<p>A <strong>key</strong> is a heading on the whiteboard: the name a value is kept under. Each client&#x27;s bucket is one key, such as <code>search-limit:client-42</code>.</p>
+<p><strong>Time to live</strong> is a countdown on a key, after which Redis deletes it by itself.</p>
+<p>A <strong>script</strong> is a short list of commands that Redis runs in one go, with nothing from any other connection in between.</p>
+<p><strong>Bucket4j</strong> is the Java library that does the token bucket. Its <strong>bucket configuration</strong> is the rule: 10 tokens, filled back up to 10 once an hour. Its <strong>proxy manager</strong> is the part that fetches a client&#x27;s bucket from Redis and writes it back.</p>
+<p><strong>Compare-and-swap</strong> is Bucket4j&#x27;s way of writing: write the new bucket only if the one in Redis is still the one that was read, and if not, read again and try again.</p>
+<p>The <strong>client clock</strong> is the clock Bucket4j uses to work out how many tokens have come back. It is the clock of the server Bucket4j runs on, not Redis&#x27;s.</p>
+<p>One note on timing. The bucket in this project refills once an hour, not once a second, so that no token comes back while the demo runs and every count is exact on every machine.</p>
+<h2>The six acts</h2>
+<h3>A Bucket In Each Server</h3>
+<p>Three copies of the search service sit behind a load balancer, which deals searches to them in turn. Each keeps its own bucket for each client in its own memory, with Bucket4j&#x27;s ordinary in-memory bucket. client-42 sends 90 searches, and each server lets 10 through: 30 in all. Scaled out to six servers, the same 90 searches get 60 through. Every server added loosens the limit by another 10.</p>
+<pre><code>  the rule: 10 searches per client, refilled once an hour. client-42 sends 90 searches, dealt in turn across the servers.
+  3 servers, each with its own bucket: 30 allowed, not 10.
+  scaled out to 6 servers, the same 90: 60 allowed. every server added loosens the limit by another 10.</code></pre>
+<h3>One Bucket In Redis</h3>
+<p>Now each server keeps no bucket at all. Each has its own connection to one Redis, and on every search it asks Redis for the client&#x27;s bucket. 90 searches through three servers: 10 allowed, 80 refused. Six servers, and a different client, client-77: still 10. Redis holds two keys, one per client, however many servers there are. Then server one is restarted with empty memory. client-42&#x27;s next search is refused, with the advice to come back in 60 minutes. The bucket was never in the server, so restarting the server does not refill it.</p>
+<pre><code>  3 servers, each with its own connection to one Redis. client-42 sends 90: 10 allowed, 80 refused.
+  scaled out to 6 servers, client-77 sends 90: 10 allowed. Redis holds 2 keys: one bucket per client, not per server.
+  server-1 is restarted with empty memory. client-42&#x27;s next search: refused. retry after 60 minutes.</code></pre>
+<h3>All At The Same Moment</h3>
+<p>Ninety searches, thirty on each of three servers, each on its own thread, all held at a gate and released at the same instant. Exactly 10 are allowed. Nobody holds a lock. Each server writes its answer back only if the bucket has not changed since it read it, and reads again if it has. The order the threads reach Redis differs from run to run; the count does not.</p>
+<pre><code>  3 servers, 30 searches each, all 90 released at the same instant on 90 threads: 10 allowed, 80 refused.
+  no server holds a lock. each writes its answer back only if the bucket has not changed since it read it, and reads again if it has.</code></pre>
+<h3>Why Not Just A Number In Redis?</h3>
+<p>The first thing most people write is a plain number: read it, check it, write it back one lower. This act puts two servers&#x27; steps in a fixed order by hand, so the failure happens on every run. One token is left. Server one reads 1. Server two reads 1. Both write back 0, and both serve a search: 2 searches from 1 token. Afterwards Redis says 0, so nothing looks wrong.</p>
+<p>Then the same, but each write lands only if the number is still what was read. Server one&#x27;s write lands. Server two&#x27;s is turned down; it reads again, finds 0, and refuses. 1 search from 1 token. That conditional write is what Bucket4j does on every search, as a small script Redis runs in one step.</p>
+<pre><code>  one token left. server-1 reads 1. server-2 reads 1. both write back 0 and serve: 2 searches from 1 token. Redis now says 0.
+  again, but each write lands only if the number is still what was read. server-2&#x27;s write is turned down; it reads again, finds 0, and refuses. 1 search from 1 token, 1 refused, 1 retry.
+  Bucket4j does the second, on every search: its write is a small script that Redis runs in one step.</code></pre>
+<h3>Whose Clock?</h3>
+<p>This is the headline find of the project. Two servers with correct clocks spend client-42&#x27;s 10 searches, and the next is refused. A third server&#x27;s clock runs one hour fast. client-42 sends 20 searches through it, and 10 are allowed. The fast server read the empty bucket, worked out by its own clock that the hour was up, refilled it, and wrote the answer to Redis. Redis stored it, because Redis never looks at a clock. It keeps the bucket; the sums are done on each server. So a limit shared by every server is only as good as the worst clock among them.</p>
+<pre><code>  server-1 and server-2 have correct clocks. client-42 spends 10 searches through them. the next: refused.
+  server-3&#x27;s clock runs one hour fast. client-42 sends 20 through it: 10 allowed. it thinks the hour is up, refills the bucket, and Redis stores its answer.
+  Redis keeps the bucket. the sums are done on each server, with that server&#x27;s clock. the servers&#x27; clocks must agree.</code></pre>
+<h3>The Bill</h3>
+<p>1000 different clients search once each, and Redis holds 1000 keys. Each is set to delete itself in 60 minutes, when its bucket would be full again, because a full bucket and no bucket mean the same thing. So the keys do not pile up for ever.</p>
+<p>Then Redis is stopped. Five searches reach the limiter and get five errors: not a yes and not a no. Let them through, and there is no limit at all. Refuse them, and five real customers see an error. Bucket4j cannot choose; the shop has to. And every search, allowed or not, now waits for a trip across the network to Redis before it is served. One container, for six servers.</p>
+<pre><code>  1000 different clients search once each: Redis holds 1000 keys. each is set to delete itself in 60 minutes, when its bucket would be full again.
+  Redis is stopped. 5 searches: 5 errors from the limiter, and no answer. let them through, and there is no limit at all; refuse them, and 5 real customers see an error. the shop must choose.
+  and every search now waits for a trip across the network to Redis before it is served. this demo needed 1 container for 6 servers.</code></pre>
+<h2>The verdict</h2>
+<p>When a service runs as more than one copy, keep the bucket outside all of them, in a store they all reach. Then say three things out loud, because the store will not: the check and the write must be one step, which Bucket4j&#x27;s compare-and-swap does for you and a plain number does not; the servers&#x27; clocks must agree, because they, not Redis, do the refill sums; and somebody must decide what the limiter answers when the store is down.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>A <code>Bucket.builder()</code> in a service that runs as several copies: a limit per copy, multiplied by however many there are.</li><li>A <code>Bucket4jLettuce.casBasedBuilder</code>, or a Jedis or Redisson equivalent, building a proxy manager: the bucket lives in Redis.</li><li>An <code>expirationAfterWrite</code> on that builder, which lets Redis forget full buckets. Without it, every client ever seen leaves a key behind.</li><li>A <code>GET</code> followed by a <code>SET</code> or <code>DECR</code> checked in application code: the two-step count that spends the last token twice.</li><li>A <code>try</code> around <code>tryConsume</code> with nothing in the <code>catch</code>, or nothing at all: nobody has decided what happens when Redis is down.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Any public API that answers &quot;429 Too Many Requests&quot; while running on many servers. Spring Cloud Gateway&#x27;s Redis rate limiter, Envoy&#x27;s global rate limit service and NGINX Plus&#x27;s shared zones all keep the count outside the servers, as this project does.</p>
+<h2>When this is too much</h2>
+<p>On one server, the twin&#x27;s in-memory bucket is exact, free and cannot go down. If a limit only needs to be roughly right, a bucket per server with the limit divided by the number of servers costs no network trip. A shared store earns its place when there are many servers, the number changes as they scale, and the limit has to be one number regardless.</p>
+</main>
+<footer>
+Generated from <code>rate-limiter-with-redis-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

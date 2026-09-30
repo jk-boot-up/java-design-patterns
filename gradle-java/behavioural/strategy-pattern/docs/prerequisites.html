@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>What you need to know, and what you need installed, before working through this Strategy pattern demo.</p>
+<h2>Knowledge Prerequisites</h2>
+<p>You do <strong>not</strong> need prior design-pattern experience. You do need comfortable familiarity with core Java.</p>
+<h3>Required</h3>
+<table><thead><tr><th>Topic</th><th>Why it matters here</th><th>Quick self-check</th></tr></thead><tbody><tr><td><strong>Interfaces</strong></td><td><code>ShippingCostRule</code> is the whole pattern — one interface, four implementations</td><td>Can you write an interface and two unrelated classes implementing it?</td></tr><tr><td><strong>Polymorphic dispatch</strong></td><td><code>shippingRule.costFor(...)</code> runs different code depending on the object, with no branch in sight</td><td>Can you explain why the caller does not need to know the concrete type?</td></tr><tr><td><strong>Composition and constructor injection</strong></td><td><code>CheckoutService</code> is handed its rule; it never creates one</td><td>Do you know why taking a collaborator as a constructor argument makes a class testable?</td></tr><tr><td><strong><code>final</code> fields</strong></td><td>Every rule&#x27;s constants and the context&#x27;s rule reference are <code>private final</code></td><td>Do you know why a <code>final</code> field must be assigned on every constructor path?</td></tr><tr><td><strong>Records</strong></td><td><code>Shipment</code> and <code>Quote</code> are records with compact-constructor validation</td><td>Do you know what a record generates for you, and what a compact constructor is for?</td></tr><tr><td><strong>Anonymous classes</strong></td><td>The tests define a rule inline that <code>src/main</code> has never heard of</td><td>Can you implement an interface without naming a class?</td></tr><tr><td><strong><code>switch</code> on enums</strong></td><td>The naive alternative is one, including its <code>default</code> trap</td><td>Do you know what happens when an enum gains a constant and a <code>switch</code> does not?</td></tr></tbody></table>
+<h3>Helpful, but explained as we go</h3>
+<table><thead><tr><th>Topic</th><th>Where it appears</th></tr></thead><tbody><tr><td><strong>JUnit 5 basics, including <code>@Nested</code></strong></td><td>Every <code>*Test.java</code> file</td></tr><tr><td><strong><code>AtomicInteger</code> as a call counter</strong></td><td><code>CheckoutServiceTest</code></td></tr><tr><td><strong>Integer arithmetic that rounds up</strong></td><td><code>DistanceBasedRule</code></td></tr><tr><td><strong>Gradle basics</strong></td><td><code>build.gradle</code>, <code>./gradlew run</code></td></tr><tr><td><strong>UML class &amp; sequence diagrams</strong></td><td>The diagram docs</td></tr></tbody></table>
+<h3>Explicitly NOT required</h3>
+<ul><li>Spring, Spring Boot, or any framework — the &quot;injection&quot; here is a constructor argument and nothing more</li><li>A real courier or payments integration; this project only computes numbers</li><li>Any other design pattern. If you have met Simple Factory, <code>ShippingRules</code> will look familiar, but nothing depends on that</li></ul>
+<h2>A 60-Second &quot;Strategy&quot; Primer</h2>
+<p>If &quot;define a family of algorithms and make them interchangeable&quot; feels abstract, this is all you need:</p>
+<pre><code>public interface ShippingCostRule {                  // &lt;-- the strategy
+    String name();
+    Money costFor(Shipment shipment);
+}
+
+public final class FlatRateRule implements ShippingCostRule {   // &lt;-- one algorithm
+    public Money costFor(Shipment shipment) { return fee; }
+}
+
+public final class CheckoutService {                 // &lt;-- the context
+    private final ShippingCostRule shippingRule;     // &lt;-- holds one, chosen outside
+
+    public Quote quote(Shipment shipment) {
+        Money delivery = shippingRule.costFor(shipment);   // &lt;-- no branch, ever
+        return new Quote(shippingRule.name(), shipment.orderSubtotal(), delivery);
+    }
+}</code></pre>
+<p><code>CheckoutService</code> cannot behave differently depending on which rule it holds, because it has no way of finding out which one that is. That is the whole trick.</p>
+<h2>A 60-Second Context vs. Strategy Primer</h2>
+<ul><li><strong>Strategy</strong> = the interface describing the job to be done — <code>ShippingCostRule</code>. One method that matters, no state carried between calls.</li><li><strong>Concrete Strategy</strong> = one way of doing that job — <code>WeightBandedRule</code>. It knows its own arithmetic and nothing about checkout.</li><li><strong>Context</strong> = the class that needs the job done — <code>CheckoutService</code>. It holds a strategy, calls it, and never inspects it.</li><li><strong>The choice</strong> is made by whoever constructs the context. In this project that is <code>ShippingRules</code>; in a real store it is configuration.</li></ul>
+<h2>Software Prerequisites</h2>
+<table><thead><tr><th>Tool</th><th>Minimum version</th><th>Check with</th></tr></thead><tbody><tr><td><strong>JDK</strong></td><td>21</td><td><code>java -version</code></td></tr><tr><td><strong>Gradle</strong></td><td>8.x+ (or use the bundled wrapper)</td><td><code>gradle -v</code></td></tr><tr><td><strong>Git</strong></td><td>any recent</td><td><code>git --version</code></td></tr><tr><td><strong>IDE</strong></td><td>IntelliJ IDEA / VS Code / Eclipse</td><td>—</td></tr></tbody></table>
+<h3>Installing JDK 21</h3>
+<p><strong>macOS (Homebrew)</strong></p>
+<pre><code>brew install --cask temurin@21
+java -version</code></pre>
+<p><strong>Linux (SDKMAN)</strong></p>
+<pre><code>curl -s &quot;https://get.sdkman.io&quot; | bash
+sdk install java 21-tem</code></pre>
+<p><strong>Windows</strong> — download the Temurin 21 MSI from <a href="https://adoptium.net">adoptium.net</a> and run the installer.</p>
+<p>Expected output:</p>
+<pre><code>openjdk version &quot;21.0.1&quot; 2023-10-17 LTS</code></pre>
+<h3>Gradle</h3>
+<p>You do not need to install Gradle — the project ships a wrapper:</p>
+<pre><code>./gradlew build     # macOS / Linux
+gradlew.bat build   # Windows</code></pre>
+<p>The first run downloads the correct Gradle version automatically, so an internet connection is needed once. If you already have Gradle installed, plain <code>gradle build</code> works too.</p>
+<h2>Verify Your Setup</h2>
+<p>Run these three commands from the project directory. All three must succeed before the session.</p>
+<pre><code>java -version      # must report 21
+./gradlew build    # must end with BUILD SUCCESSFUL
+./gradlew run      # must print four rules priced against three shipments</code></pre>
+<p>Expected output from <code>./gradlew run</code> (abridged — see <a href="../README.html"><code>../README.md</code></a> for the full transcript):</p>
+<pre><code>Four rules, priced against the same three shipments.
+
+Rule &quot;flat&quot; -&gt; Flat rate
+  Edinburgh, 0.4kg, 45 miles, order £18.00
+    Flat rate: subtotal £18.00 + delivery £4.99 = £22.99
+...</code></pre>
+<h2>Troubleshooting</h2>
+<table><thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead><tbody><tr><td><code>Unsupported class file major version</code></td><td>Wrong JDK on <code>PATH</code></td><td>Point <code>JAVA_HOME</code> at JDK 21</td></tr><tr><td><code>permission denied: ./gradlew</code></td><td>Wrapper not executable</td><td><code>chmod +x gradlew</code></td></tr><tr><td>Wrapper download times out</td><td>Offline / proxy</td><td>Install Gradle and run <code>gradle build</code></td></tr><tr><td>Pound signs print as <code>?</code> or mojibake</td><td>Console is not UTF-8</td><td><code>chcp 65001</code> on Windows, or set <code>-Dfile.encoding=UTF-8</code></td></tr><tr><td><code>no shipping rule called &quot;...&quot;</code></td><td>A rule name that is not registered</td><td>Use one of <code>flat</code>, <code>weight</code>, <code>distance</code>, <code>campaign</code> — the failure is deliberate, see <code>ShippingRules</code></td></tr><tr><td>Distance prices look one unit high</td><td>Part-hundreds round <strong>up</strong> by design</td><td>Read <code>DistanceBasedRule</code> and its test</td></tr></tbody></table>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — why we need this</li><li><a href="strategy-pattern-explained.html"><code>strategy-pattern-explained.md</code></a> — the pattern</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — static structure</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — runtime flow</li><li><a href="animation.html"><code>animation.html</code></a> — watch it happen</li><li>The source code in <code>src/main/java/com/jk/explore/strategy/</code></li><li><a href="session.html"><code>session.md</code></a> — the guided walkthrough</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

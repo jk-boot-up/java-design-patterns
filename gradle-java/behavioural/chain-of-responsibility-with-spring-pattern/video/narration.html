@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chain of Responsibility with Spring Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Chain of Responsibility with Spring Pattern — Video Narration Script</h1>
+<h2>1. Chain of Responsibility with Spring</h2>
+<p>Hello, and welcome. This video explains the Chain of Responsibility pattern, in Java, using Spring Boot. This video is presented by Jayasekhar Konduru. First, a simple definition. A chain passes a request along a line of objects, until one of them is willing to answer. In Spring, each link in the chain is a bean of one shared interface. And Spring hands you the whole list of links, already sorted. Think of airport security. Your bag goes through one check after another: passport, scanner, and a hand search. Any one of them can stop you. This is the framework version of the Chain of Responsibility video, with the same online checkout. We will build the same order checks from Spring beans. Then we will see what changes. The order of the checks becomes a cost, a failing check needs a policy, and a setting can remove a check.</p>
+<h2>2. The Partner Project</h2>
+<p>Before we start, a quick note. This video has a partner: the hand-built Chain of Responsibility video. That one passes a checkout request along four checks: address, stock, fraud, and payment. It stops at the first check that answers, and reports which checks never ran. If you are new to the pattern, watch that one first. Here, we keep the same example, and ask what Spring Boot does with it.</p>
+<h2>3. Before The First Line</h2>
+<p>One thing is new in this project: Spring Boot. At its heart, Spring is a container that creates your objects for you. It can collect every bean of one interface into a list. And it sorts that list using an order number written on each class. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.</p>
+<h2>4. Spring Builds The Chain</h2>
+<p>First demo: Spring builds the chain. Spring hands us the four checks, in this order. Address, stock, fraud, and payment limit. Where does that order come from? From order numbers, written on four different classes. So no single file shows you the whole chain.</p>
+<h2>5. Five Requests</h2>
+<p>Second demo: five customers place orders. Asha passes every check, so nobody objects, and the fallback approves her order. Erin is rejected by the address check. The other three checks never ran. Ben is stopped by the stock check. Carol is stopped by the fraud check. And Dev is referred to a person, by the payment limit check.</p>
+<h2>6. The Order Is The Cost</h2>
+<p>Third demo: the order of the checks is a cost. The fraud service is paid for, per call. With the cheap checks first, only three of the five orders reach the paid fraud service. Put the paid check first, and all five orders reach it. The same checks, and the same answers. But a bigger bill. And in Spring, a single order number decides it.</p>
+<h2>7. A Link That Throws</h2>
+<p>Fourth demo: a check that crashes. The fraud service is down, and its check throws an error. The chain catches the error, and refers Asha&#x27;s order to a person. The caller receives a decision, not an error. That is a policy, and it is written once, in the code that walks the chain. Without it, one broken service would stop every checkout.</p>
+<h2>8. Switched Off By A Property</h2>
+<p>Fifth demo: a setting switches a check off. Set the fraud check&#x27;s setting to false, and that check disappears. The chain is now three checks long. Carol, who was rejected before, is now approved. And no code changed. That is handy in a test, but dangerous in production. So print the chain&#x27;s order when the application starts.</p>
+<h2>9. Nobody Answers</h2>
+<p>Last demo: what if nobody answers? When every check has no opinion, a fallback decides. It is a named setting. By default, it approves, so Asha goes through. Change it to refer, and Asha is sent to a person instead. Reaching the end of a chain should be a decision, not an accident.</p>
+<h2>10. The Verdict</h2>
+<p>So, here is the verdict. Put the cheap, decisive checks first. Decide what a crashing check should mean. Print the chain&#x27;s order when the application starts. And test the whole chain, not just each check.</p>
+<h2>11. How To Recognise It</h2>
+<p>How can you spot this in code someone else wrote? Look for a constructor that receives a list of one interface. With the at Order annotation on each implementation. And a loop that stops at the first answer.</p>
+<h2>12. Where You Have Met This</h2>
+<p>Where have you met this before? In servlet filters, in Spring Security&#x27;s filter chain, and in validation pipelines.</p>
+<h2>13. What Was Used</h2>
+<p>For the record, here are the versions. Spring Boot four point one point one. No web server, no database, and no web library.</p>
+<h2>14. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Spring&#x27;s container, and its ordering, are real. The paid fraud service is only a counter. Nothing is really paid for.</p>
+<h2>15. When This Is Too Much</h2>
+<p>So, when is this too much? For two checks that never change, a plain if statement is clearer than a chain.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s Chain of Responsibility with Spring. If you remember one sentence, make it this one. Spring builds and orders the chain for you, and that order becomes a cost you have to watch. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Give two checks the same order number. Then run it, and find out what happens. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

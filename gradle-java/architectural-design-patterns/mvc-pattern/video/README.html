@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MVC Pattern — Teaching Video</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>MVC Pattern — Teaching Video</h1>
+<p>A narrated, slide-based video that teaches MVC using this project&#x27;s code — one order, two views, and the question of who is allowed to compute the total.</p>
+<h2>Output Files</h2>
+<table><thead><tr><th>File</th><th>What it is</th></tr></thead><tbody><tr><td><code>mvc-pattern-explained.mp4</code></td><td>The video — 1920×1080, H.264, 30 fps, stereo AAC. Upload-ready for YouTube.</td></tr><tr><td><code>mvc-pattern-explained.m4a</code></td><td>Audio-only version.</td></tr><tr><td><code>mvc-pattern-explained.srt</code></td><td>Subtitles, timed from the encoded scene clips.</td></tr><tr><td><code>poster.png</code></td><td>The video&#x27;s opening frame, 1920×1080. Not the thumbnail.</td></tr></tbody></table>
+<p><strong>Narration:</strong> female voice (macOS <code>Samantha</code>, US English), 145 words per minute.</p>
+<p>The <code>.mp4</code>, <code>.m4a</code> and <code>.srt</code> are build output and are not committed — run <code>./build_video.sh</code> to produce them. <code>poster.png</code> <em>is</em> committed.</p>
+<h2>Source Files</h2>
+<table><thead><tr><th>File</th><th>Purpose</th></tr></thead><tbody><tr><td><code>narration.md</code></td><td>The full spoken script, generated from <code>scenes.py</code> — edit the scenes, not the script.</td></tr><tr><td><code>scenes.py</code></td><td>Slide content and narration together.</td></tr><tr><td><code>make_slides.py</code></td><td>Renders one 1920×1080 PNG per scene.</td></tr><tr><td><code>make_subtitles.py</code></td><td>Generates the SRT.</td></tr><tr><td><code>build_video.sh</code></td><td>The whole pipeline.</td></tr><tr><td><code>build/</code></td><td>Generated slide images.</td></tr></tbody></table>
+<h2>Rebuilding</h2>
+<pre><code>./build_video.sh</code></pre>
+<p>The audio chain — no denoiser, two-pass loudness, lossless per-scene WAV joined to a single AAC encode, <code>+faststart</code> and a dropped edit list — is identical across every project in this repository and documented at length in <a href="../../layered-architecture-pattern/video/README.html"><code>../../layered-architecture-pattern/video/README.md</code></a> and, in full, in <a href="../../../platform-design-patterns/externalised-configuration-pattern/video/README.html"><code>../../../platform-design-patterns/externalised-configuration-pattern/video/README.md</code></a>.</p>
+<h3>Requirements</h3>
+<ul><li><strong>macOS</strong> — the narration uses the built-in <code>say</code> command</li><li><strong>ffmpeg</strong> — <code>brew install ffmpeg</code></li><li><strong>Python 3</strong> with <code>pillow</code> and <code>matplotlib</code></li></ul>
+<h2>Scene List</h2>
+<table><thead><tr><th>#</th><th>Scene</th><th>Covers</th></tr></thead><tbody><tr><td>1</td><td>MVC</td><td>Title card, author credit, the plain-language definition of Model/View/Controller</td></tr><tr><td>2</td><td>The Scenario</td><td>Ada&#x27;s £382.50 order, placed once, shown twice</td></tr><tr><td>3</td><td>Version One — No Separation At All</td><td><code>EverythingOrderScreen</code>, and why it cannot be tested without a full checkout</td></tr><tr><td>4</td><td>Three Roles</td><td>Model, View, Controller — what each is not allowed to know</td></tr><tr><td>5</td><td>The Shortcut</td><td><code>RoundedEmailView</code>&#x27;s bug: £382.50 on screen, £383.00 in the email</td></tr><tr><td>6</td><td>The Whole Mechanism, In One Interface</td><td><code>OrderSummaryView</code>&#x27;s single narrow method</td></tr><tr><td>7</td><td>Classic MVC, And The MVC You Have Used</td><td>Observation versus web MVC&#x27;s assemble-once model</td></tr><tr><td>8</td><td>MVP And MVVM, In One Scene</td><td>The passive view and the bound ViewModel</td></tr><tr><td>9</td><td>The Rule, Written Where A Build Can Read It</td><td><code>ArchitectureTest</code>&#x27;s view/infrastructure rule</td></tr><tr><td>10</td><td>Watching It Go Red</td><td>The failure naming <code>RoundedEmailView</code> and <code>ProductTable</code></td></tr><tr><td>11</td><td>The Forced Change</td><td>Adding the real second view, counted: 1 file added, 20 of 21 classes untouched</td></tr><tr><td>12</td><td>Both Views, Every Time</td><td>£382.50 on both, structurally guaranteed</td></tr><tr><td>13</td><td>The Bill</td><td>A narrow interface&#x27;s real cost, and controllers that grow</td></tr><tr><td>14</td><td>When This Is Too Much</td><td>One output that will never grow a second</td></tr><tr><td>15</td><td>Thanks for Watching</td><td>The widen-the-model exercise, like, subscribe</td></tr></tbody></table>
+<p>Scene 15 deliberately does not name whichever pattern comes next.</p>
+<h2>Editing the Script</h2>
+<p>Narration lives in <code>scenes.py</code>. Edit it, re-run <code>python3 ../../docs/make_narration.py --force mvc</code>, then re-run <code>./build_video.sh</code>. As with every project in this category, narration describes structure as rules and directions in words — no line depends on seeing the slide.</p>
+<h2>Publishing Notes</h2>
+<p>Upload <code>mvc-pattern-explained.mp4</code>, with <code>../docs/thumbnail.png</code> as the thumbnail and the <code>.srt</code> as the captions. Title, description, chapters and tags live in <a href="../docs/youtube.html"><code>../docs/youtube.md</code></a>.</p>
+<p>Suggested description:</p>
+<blockquote><p>Model View Controller pattern, MVC, in Java, explained with an online store where a screen and a confirmation email must show the same order total. The model holds the data and does the one calculation that matters, the views only display it, and the controller takes the input and picks a view, like one reporter&#x27;s facts printed in the paper and on the website. We watch one view work out the total for itself and explain why that is a structural bug, not a typo. We compare classic MVC with the web MVC you have probably used, touch on MVP and MVVM, write the rule as a test and count the bill. Two views cannot disagree about a number neither of them is allowed to calculate.</p></blockquote>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

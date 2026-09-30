@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Producer-Consumer Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Producer-Consumer Pattern — Video Narration Script</h1>
+<h2>1. Producer-Consumer</h2>
+<p>Hello, and welcome. This video explains the Producer Consumer pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A queue with a size limit sits between the code that produces work and the code that consumes it. Each side works at its own pace. And the limit is chosen on purpose, not discovered by accident. Think of a conveyor belt between a bakery&#x27;s oven and its packing table. The oven puts loaves on, the packers take them off. And the belt only holds so many. In our online store, checkout accepts orders, and a packing step wraps each one for the courier. But packing is slower than orders arrive. By the end, you will know why a queue with no limit is not a safer fix. And you will hear, in real numbers, what it costs to give every order its own thread. Every failure in this video is forced to happen, on every run, with no guessing about timing.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario, and it stays the same for the whole video. Checkout accepts an order. A packing step wraps it, labels it, and hands it to the courier. And packing takes longer than an order takes to arrive. That gap, between how fast orders arrive and how fast they are packed, is the whole subject. Every version of the code answers the same question differently. Who is holding a thread, and for how long, while that gap is absorbed?</p>
+<h2>3. Naive One — The Checkout Thread Packs Itself</h2>
+<p>First version: no queue at all. The checkout thread packs the order itself, before replying to the customer. Each checkout takes about fifty milliseconds. Not because checkout is slow, but because the whole packing job happens inside that one call. The shopper pays that cost directly. Every customer behind order one waits for a warehouse job they have never heard of.</p>
+<h2>4. Naive Two — A Thread Per Order</h2>
+<p>The obvious fix: hand each order to a brand new thread, and reply at once. It works. The shopper is never held up. So let&#x27;s measure the real cost. Two thousand real threads are created in under a hundred milliseconds, about forty-eight microseconds each. On a busy day of one hundred thousand orders, that is almost five seconds, just creating threads, before any packing happens. And every thread holds its own memory, whether it is busy or not. That is where the famous error comes from: out of memory, unable to create a new thread. The demo does not trigger it on purpose, but the numbers point straight at it.</p>
+<h2>5. The Pattern: A Bound, Chosen On Purpose</h2>
+<p>So here is the fix, in one sentence. A queue sits between checkout and packing, and each side works at its own pace, up to a limit. That limit is not a detail you can skip. It is the whole point of the pattern. A queue with no limit is not safer. It is the thread-per-order problem again, with a nicer name. Nothing ever says no. It just fails later, and more expensively.</p>
+<h2>6. The Queue At Capacity, Forced Rather Than Hoped For</h2>
+<p>Third demo: the queue, full, and on purpose. The packer thread takes one order, and is deliberately held at a gate. Not guessed at with a sleep. Only when a latch confirms the packer is really stuck, are three more orders added. That fills the queue to its limit of three. Then a fourth order is offered, with a patience of one hundred and fifty milliseconds. Nothing frees a place in that time, because the packer is still held. So the fourth order is refused. On every single run.</p>
+<h2>7. Two Shutdowns, And They Are Not The Same Event</h2>
+<p>There are two ways to stop this system, and they are not the same. A clean shutdown puts a special stop order, called a poison pill, into the queue, like any other order. Because it waits in the same queue, everything ahead of it is still packed first. An abrupt shutdown interrupts the packer thread directly. Anything still waiting in the queue is simply never reached. Mixing these up is a real, common bug. Stopping a service with a raw interrupt quietly drops all the work that was queued.</p>
+<h2>8. Clean Shutdown</h2>
+<p>Fourth demo: a clean shutdown. Four real orders are queued. Then the poison pill is queued behind them. The packer takes and packs all four, in order. Only then does it take the pill, and stop. Four out of four, every time.</p>
+<h2>9. Abrupt Shutdown</h2>
+<p>Fifth demo: an abrupt shutdown. One order is held in the middle of packing. Four more orders wait in the queue behind it. This time, instead of a poison pill, the packer thread is interrupted. Four orders are still in the queue. Never taken. The packer is gone, and those orders are lost.</p>
+<h2>10. Why Nothing In This Project Sleeps</h2>
+<p>Every timing in this video was forced, not guessed. Here is why that matters. The easy way to test a full queue is to sleep for a moment, and hope the packer has reached the gate by then. That usually works, on the machine that wrote it. But usually is not good enough. A test that passes most of the time will fail one day, on a slower or busier machine. Gates, latches, and barriers do not hope. They wait for certainty, and only carry on once it exists.</p>
+<h2>11. The Harness&#x27;s Own Proof</h2>
+<p>Here is that technique in its smallest form. Two threads run the same code. Each reads a shared value, ten, into its own variable. Then both meet at a meeting point, which releases neither until both have arrived. Only then does each write back its value, minus one. Run it twenty times, and the result is nine, twenty times. Not eight, which two honest subtractions should give. Because both read ten before either wrote, one subtraction is lost, every single run. The same meeting point held the packer in place in the earlier demos.</p>
+<h2>12. What The Scheduler Really Does</h2>
+<p>A quick, honest note, needed in every concurrency video. Every repeatable result here was made repeatable on purpose, with a gate or a latch. Outside these tests, the operating system runs threads in whatever order it likes, on any machine, on any day. So a passing test here proves one thing. The one forced timing produces exactly the result you heard. It does not prove the design is safe under every possible timing.</p>
+<h2>13. The Bill</h2>
+<p>Every pattern has a cost, so here is this one&#x27;s. First, order is only guaranteed with one producer and one consumer. Add a second producer, and two orders can be taken in either order. Second, if a full queue makes checkout wait, checkout becomes slow again when the queue fills. The original problem is back, one step removed, and only under heavy load. Third, choosing the limit has no free answer. Too small, and normal bursts get refused. Too large, and you have quietly rebuilt the unlimited queue.</p>
+<h2>14. When This Is Too Much</h2>
+<p>So, when is this pattern worth it? When producing and consuming really do happen at different speeds. That describes most real systems that read or write anything. It is not worth it between two pieces of code that always run in step. A queue between them is ceremony, with no real decision behind it.</p>
+<h2>15. Thanks for Watching</h2>
+<p>That&#x27;s the Producer Consumer pattern. If you remember one sentence, make it this one. A queue with no limit is not safer, it is the thread-per-order failure with a nicer name. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Replace a latch in one of the tests with a sleep. Then run the test fifty times, and count how many runs it takes to fail. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

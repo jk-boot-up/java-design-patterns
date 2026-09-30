@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The State Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The State Pattern, Explained</h1>
+<blockquote><p><strong>Intent (GoF).</strong> Allow an object to alter its behaviour when its internal state changes. The object will appear to change its class.</p></blockquote>
+<p>That last sentence is the one to hold on to. Not &quot;the object has a status field&quot; — <em>the object appears to change its class</em>. A <code>SHIPPED</code> order and a <code>PLACED</code> order are the same <code>Order</code> instance, but they accept different messages and do different work with them, which is exactly what having a different class would mean.</p>
+<h2>The Thing A Status Field Cannot Do</h2>
+<p>A status field spreads one lifecycle across every method that reads it. Six methods, six chains of conditionals, each phrased in whichever direction its author found natural:</p>
+<pre><code>public void cancel(String reason) {
+    if (status == Status.DELIVERED || status == Status.CANCELLED
+            || status == Status.REFUNDED) { ... refuse ... }
+    ...
+}
+
+public void refund(String reason) {
+    if (status != Status.DELIVERED &amp;&amp; status != Status.CANCELLED) { ... refuse ... }
+    ...
+}</code></pre>
+<p>One is a blocklist, the other an allowlist. Both are correct on the day they are written. Neither tells you what a <code>SHIPPED</code> order can do, because the answer to that question is scattered across six methods and can only be recovered by reading all of them and doing the boolean algebra in your head.</p>
+<p>So the copies drift. <code>cancel</code> quietly lets a parcel that is on a van be refunded; <code>refund</code> was widened to include <code>CANCELLED</code> and now pays the customer twice; and a third copy, written for the screen, is right and disagrees with both. The demo&#x27;s section 1 runs all three.</p>
+<p>The pattern&#x27;s move is to invert the axis. Instead of <em>one method, all states</em>, write <em>one state, all methods</em>.</p>
+<h2>Everyday Analogy: The Vending Machine</h2>
+<p>A vending machine with no coins in it and a vending machine holding £1.50 are the same machine, and pressing the same button does something different. You would not describe the machine as having &quot;a mode integer&quot;. You would say it is <em>waiting for money</em> or <em>ready to dispense</em>, and the buttons that do nothing in one condition are the ones that work in the other.</p>
+<p>Nobody chooses the machine&#x27;s condition from outside. It arrives there because of what it just did — a coin went in, a can came out. That is the difference between this and Strategy, and it is worth having the image in mind before the code.</p>
+<h2>Participants</h2>
+<table><thead><tr><th>Role</th><th>Here</th><th>Job</th></tr></thead><tbody><tr><td><strong>Context</strong></td><td><code>Order</code></td><td>Holds the current state, forwards every request to it, and offers <code>transitionTo</code> for the states to use</td></tr><tr><td><strong>State</strong></td><td><code>OrderState</code></td><td>Declares the six requests, and refuses all of them by default</td></tr><tr><td><strong>Concrete states</strong></td><td><code>PlacedState</code>, <code>PaidState</code>, <code>PackedState</code>, <code>ShippedState</code>, <code>DeliveredState</code>, <code>CancelledState</code>, <code>RefundedState</code></td><td>Override the requests that state accepts; do the work; name the successor</td></tr><tr><td><strong>Supporting cast</strong></td><td><code>Ledger</code>, <code>OrderEvent</code>, <code>IllegalTransitionException</code></td><td>Where the money, the audit trail and the refusals go</td></tr><tr><td><strong>The trap</strong></td><td><code>NaiveOrder</code></td><td>The same lifecycle as an enum and three chains, drifted</td></tr></tbody></table>
+<h2>The Design in Three Decisions</h2>
+<h3>1. Every request has a refusing default</h3>
+<pre><code>public interface OrderState {
+    String name();
+    List&lt;String&gt; allowedActions();
+
+    default void pay(Order order)     { throw refuse(&quot;pay&quot;); }
+    default void pack(Order order)    { throw refuse(&quot;pack&quot;); }
+    default void ship(Order order)    { throw refuse(&quot;ship&quot;); }
+    default void deliver(Order order) { throw refuse(&quot;deliver&quot;); }
+    default void cancel(Order order, String reason) { throw refuse(&quot;cancel&quot;); }
+    default void refund(Order order, String reason) { throw refuse(&quot;refund&quot;); }
+}</code></pre>
+<p>This is the single most important line of design in the project. A state does not list what it forbids; it lists what it allows, by overriding. Everything else refuses automatically.</p>
+<p>The consequence: <strong>a rule nobody wrote is a refusal, not an accident.</strong> In the enum version, forgetting to add a state to a guard <em>opens</em> a transition — which is precisely how <code>SHIPPED</code> became cancellable. Here, forgetting to override <em>closes</em> one. The failure mode points the safe way.</p>
+<p><code>refuse</code> builds its own message out of <code>allowedActions()</code>, so the explanation cannot go stale:</p>
+<pre><code>cannot refund a SHIPPED order: the only thing it will accept is deliver
+cannot refund a CANCELLED order: it is final, and nothing more can happen to it</code></pre>
+<h3>2. The context has no conditionals at all</h3>
+<p>Every public method on <code>Order</code> is one line:</p>
+<pre><code>public void ship() { attempt(&quot;ship&quot;, state -&gt; state.ship(this)); }
+
+private void attempt(String action, Consumer&lt;OrderState&gt; request) {
+    String from = state.name();
+    try {
+        request.accept(state);
+    } catch (IllegalTransitionException e) {
+        history.add(OrderEvent.refused(action, from, e.reason()));
+        throw e;
+    }
+}</code></pre>
+<p><code>Order</code> does not know there are seven states, does not know their order, and contains no <code>if</code> that mentions a status. What it <em>does</em> own is the audit trail: a refusal is recorded on the way past and then rethrown, so &quot;somebody tried to cancel this after it shipped&quot; is in the history whether or not it succeeded.</p>
+<h3>3. States name their successors</h3>
+<pre><code>// PackedState
+public void ship(Order order) {
+    String consignment = &quot;CON-&quot; + order.id();
+    order.recordConsignment(consignment);
+    order.transitionTo(ShippedState.INSTANCE, &quot;ship&quot;,
+            &quot;courier collected, consignment &quot; + consignment);
+}</code></pre>
+<p>The transition is the last thing the method does, after the work. The order becomes shipped <em>because</em> a courier collected it — the state change is a consequence, not a setting.</p>
+<p><code>transitionTo</code> is package-private. From outside, an order&#x27;s state changes only as the result of asking it to do something.</p>
+<h2>Behaviour, Not Just Permission</h2>
+<p>If the states differed only in which calls they allowed, this would be an over-engineered enum. Look at <code>cancel</code> in three of them:</p>
+<pre><code>// PlacedState — nothing was ever taken
+order.transitionTo(CancelledState.INSTANCE, &quot;cancel&quot;,
+        reason + &quot; — nothing had been charged&quot;);
+
+// PaidState — give the money back
+Money back = order.ledger().charged().minus(order.ledger().refunded());
+order.ledger().refund(back);
+order.transitionTo(CancelledState.INSTANCE, &quot;cancel&quot;,
+        reason + &quot; — refunded &quot; + back + &quot;, nothing had shipped&quot;);
+
+// PackedState — give the money back and undo the packing
+order.ledger().refund(back);
+order.transitionTo(CancelledState.INSTANCE, &quot;cancel&quot;,
+        reason + &quot; — refunded &quot; + back + &quot;, box opened and stock returned&quot;);</code></pre>
+<p>Three different bodies for one verb. In the enum version these are three branches of one method that were, at some point, one branch — and the day somebody merges them again &quot;because they are nearly the same&quot;, the stock stops going back on the shelf.</p>
+<p><code>ShippedState</code> then refuses <code>cancel</code> outright, with a reason a support agent can read:</p>
+<pre><code>@Override
+public void cancel(Order order, String reason) {
+    throw refuse(&quot;cancel&quot;, &quot;it is already with the courier — the customer &quot;
+            + &quot;must refuse delivery or return it&quot;);
+}</code></pre>
+<p>Note that this one <em>is</em> an explicit override. The default refusal would have said &quot;the only thing it will accept is deliver&quot;, which is true but unhelpful. When a refusal has a reason worth telling a human, write it down.</p>
+<h2>The Screen and the Endpoint Agree</h2>
+<p><code>allowedActions()</code> is on the state, next to the methods it describes:</p>
+<pre><code>// PackedState
+public List&lt;String&gt; allowedActions() { return List.of(&quot;ship&quot;, &quot;cancel&quot;); }</code></pre>
+<pre><code>PLACED     [pay, cancel]
+PAID       [pack, cancel]
+PACKED     [ship, cancel]
+SHIPPED    [deliver]
+DELIVERED  [refund]
+REFUNDED   []</code></pre>
+<p>In the naive version this list is a <em>third copy</em> of the rules, and it is the copy that disagrees: it correctly says a shipped order can only be delivered, while <code>cancel()</code> accepts the call. The button is not drawn and the endpoint takes it anyway.</p>
+<p>Here they cannot disagree, and <code>OrderLifecycleTest</code> proves it rather than asserting it — it walks all seven states and all six actions, and checks that <code>canDo(action)</code> predicts whether the call throws, forty-two times:</p>
+<pre><code>boolean offered  = order.canDo(action);
+boolean accepted = accepts(order, action);
+assertEquals(offered, accepted,
+        state.name() + &quot; offers &quot; + action + &quot;=&quot; + offered + &quot; but accepts=&quot; + accepted);</code></pre>
+<h2>The Eighth State</h2>
+<p>The demo declares a state that does not exist in <code>src/main</code>:</p>
+<pre><code>OrderState awaitingCollection = new OrderState() {
+    public String name() { return &quot;AT-LOCKER&quot;; }
+    public List&lt;String&gt; allowedActions() { return List.of(&quot;deliver&quot;); }
+    public void deliver(Order order) {
+        order.transitionTo(DeliveredState.INSTANCE, &quot;deliver&quot;,
+                &quot;collected from the Bristol locker&quot;);
+    }
+};</code></pre>
+<p>It refuses <code>pay</code>, <code>pack</code>, <code>ship</code>, <code>cancel</code> and <code>refund</code> without a line of code saying so, and <code>Order</code> — compiled before it existed — accepts it. That is the open/closed argument, made concretely.</p>
+<p>Read the cost in the same breath, though: adding a real <code>AT-LOCKER</code> means editing whichever state hands over to it. New states are cheap; new <em>arrows</em> are not.</p>
+<h2>Why the Tests Are the Proof</h2>
+<p><code>NaiveOrderTest</code> is the unusual one. Its tests <strong>pass</strong>, and what they assert is the bug:</p>
+<pre><code>@Test
+void andTheShopPaysTheCustomerTwice() {
+    NaiveOrder order = order();
+    order.pay();
+    order.cancel(&quot;out of stock&quot;);
+
+    order.refund(&quot;support ticket 4471&quot;);
+
+    assertEquals(2, order.ledger().refundCount());
+    assertEquals(TOTAL.times(2), order.ledger().refunded());
+}</code></pre>
+<p>Each such test is paired with the same scenario run through <code>Order</code>:</p>
+<pre><code>@Test
+void theSameScenarioIsRefusedByTheStateVersion() {
+    order.pay();
+    order.cancel(&quot;out of stock&quot;);
+
+    assertThrows(IllegalTransitionException.class,
+            () -&gt; order.refund(&quot;support ticket 4471&quot;));
+    assertEquals(1, order.ledger().refundCount());
+}</code></pre>
+<p>Two tests, same story, different endings. That pairing is the argument for the pattern, and it is executable.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>One place per state.</strong> Everything true about <code>PACKED</code> is in one file.</li><li><strong>Refusal by default.</strong> The rule you forgot to write is the safe one.</li><li><strong>Behaviour, not just guards.</strong> Different states can do genuinely different work for the same verb, and that is visible rather than buried in a branch.</li><li><strong>One answer for the screen and the endpoint.</strong></li><li><strong>A new state without touching the context.</strong></li><li><strong>Refusals that explain themselves</strong>, built from the state&#x27;s own data.</li></ul>
+<h2>What to Watch Out For</h2>
+<ul><li><strong>The transition table is gone.</strong> In the enum version you could read the whole lifecycle in one screen. Here it is distributed across seven files, one arrow at a time. If your machine is small and stable, that is a real loss and the enum may simply be better. This project says so in its own demo.</li><li><strong>States that need data.</strong> These are stateless, hence one shared <code>INSTANCE</code> each. The moment a state needs a field, that goes away and you are allocating a state per order — check that it is worth it.</li><li><strong>Persistence.</strong> You store <code>&quot;PACKED&quot;</code>, not an object. Something has to map the stored name back to a state, and that mapping is a place where a new state can be forgotten.</li><li><strong>Class explosion.</strong> Seven classes for seven states is honest here because the behaviour differs. Seven classes that each override one method identically is not.</li><li><strong>States knowing too much about each other.</strong> Every state referencing every other is a fully connected graph. Keep each one pointing only at where it can actually go.</li></ul>
+<h2>State vs. Strategy vs. Command</h2>
+<table><thead><tr><th></th><th>State</th><th>Strategy</th><th>Command</th></tr></thead><tbody><tr><td>What varies</td><td>What the object will accept, and what it does</td><td>How one job is done</td><td>Which request is made</td></tr><tr><td>Who chooses</td><td>The object, as a consequence</td><td>The caller</td><td>The caller</td></tr><tr><td>Changes over time</td><td>Yes, that is the point</td><td>Rarely</td><td>Each call is a new object</td></tr><tr><td>Implementations reference each other</td><td>Yes</td><td>No</td><td>No</td></tr></tbody></table>
+<p>State and Strategy have <strong>the same class diagram</strong>. Any explanation that distinguishes them by structure is wrong, because there is no structural difference to find. The difference is intent and control: a Strategy is chosen by the caller and does not change itself; a State is entered as a consequence of what the object did, and states hand control to one another.</p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><code>java.lang.Thread.State</code> is the enum version of exactly this problem, and the JDK&#x27;s thread implementation is the class version of it.</li><li><code>Matcher</code> behaves differently before and after <code>find()</code>.</li><li>HTTP client builders that refuse <code>body()</code> on a <code>GET</code>.</li><li>Any workflow engine, order management system or payment gateway — the lifecycle above is not a teaching example, it is the actual shape of the domain.</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li>Add a <code>RETURN_REQUESTED</code> state between <code>DELIVERED</code> and <code>REFUNDED</code>. Notice what you have to edit: the new class, and <code>DeliveredState</code>. Nothing else.</li><li>Give <code>ShippedState</code> a <code>lose()</code> transition to a new <code>LOST</code> state that refunds. Then find every place the enum version would have needed a branch.</li><li>Delete the <code>default</code> bodies from <code>OrderState</code> and make the methods abstract. Count how many methods you now have to write, and decide whether the compiler&#x27;s help was worth it.</li><li>Persist an order: write <code>String</code> out, read it back, and see where the name-to-state mapping wants to live.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html">Problem statement</a> — the drift, with the ledger</li><li><a href="prerequisites.html">Prerequisites</a> — including the State/Strategy table</li><li><a href="class-diagram.html">Class diagram</a> and <a href="uml-diagram.html">sequence diagram</a></li><li><a href="../../strategy-pattern/README.html">Strategy pattern</a> — same picture, other intent</li></ul>
+</main>
+<footer>
+Generated from <code>state-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

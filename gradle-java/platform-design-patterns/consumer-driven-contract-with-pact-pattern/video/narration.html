@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consumer-Driven Contract with Pact Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Consumer-Driven Contract with Pact Pattern — Video Narration Script</h1>
+<h2>1. Consumer-Driven Contract with Pact</h2>
+<p>Hello, and welcome. This video explains the Consumer-Driven Contract pattern with Pact, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the Consumer-Driven Contract video. That one let each consumer write its contract as data, and let the provider check its real answer against every contract, naming the consumer and the field. It also showed that a contract cannot see a change of meaning. This one shows the same idea inside Pact. The plain definition, in short: with Pact, a consumer&#x27;s test writes a pact file. The provider&#x27;s build replays that file against the real service, and fails on any difference. By the end you will see a rename break checkout in production, see two consumers write real pact files, see the provider replay them over real HTTP and pass, see a rename caught before release with a name attached, see that adding a field is safe, and see what a pact cannot catch.</p>
+<h2>2. The Partner Project</h2>
+<p>This video assumes the Consumer-Driven Contract video. If you have not seen it, start there. It writes each consumer&#x27;s contract as data, and shows a verifier that names the consumer and the field when a release breaks one. This one uses the same example. It does not teach the pattern again. It shows what Pact does with it.</p>
+<h2>3. Before The First Line</h2>
+<p>Before the first line of code, what Pact is. Pact is a library for contract testing. A consumer test uses it to write down what the consumer needs, into a pact file. The provider&#x27;s build uses it to replay the file against the real service, and fail if the answer differs. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.</p>
+<h2>4. Nobody Told The Consumer</h2>
+<p>First, nobody told the consumer. The catalog renamed price cents to price, and released. Checkout, two mugs: the order failed. It was found in production, by a customer.</p>
+<h2>5. The Consumer Writes A Pact</h2>
+<p>Second, the consumer writes a pact. Each consumer&#x27;s own client is run against Pact&#x27;s mock of the catalog, and agrees. Two pact files are written. Checkout&#x27;s pact: price cents, an integer, and sku, a string. Reports&#x27; pact: sku, a string.</p>
+<h2>6. The Provider Replays The Pacts</h2>
+<p>Third, the provider replays the pacts. Pact replays each pact against the real catalog, over HTTP. Two interactions checked, no problems. Safe to release.</p>
+<h2>7. The Rename Is Caught</h2>
+<p>Fourth, the rename is caught. On the renamed release: two interactions checked, one failed. Checkout: the actual map is missing the following keys: price cents. The build fails, and Pact names the consumer and the field. Reports&#x27; pact still passes.</p>
+<h2>8. Adding Is Safe</h2>
+<p>Fifth, adding is safe. A release that adds a stock field: two interactions checked, no problems. Adding a field breaks nobody.</p>
+<h2>9. The Bill</h2>
+<p>Last, the bill. A release that now sends pounds, not pence, in the same field: no problems. It passes. Checkout, two mugs: total thirty two, where it should be thirty two hundred. A pact checks the shape, and not the meaning. And every consumer must keep its pact up to date, or the check protects nobody.</p>
+<h2>10. The Verdict</h2>
+<p>My verdict, plainly. Let each consumer write a pact for what it reads, and only that. Run the provider&#x27;s verification in its build, against the real service. Keep pact files where the provider&#x27;s build can find them, or in a broker. And add tests for meaning, since a pact checks only shape.</p>
+<h2>11. How To Recognise It</h2>
+<p>How do you recognise this in code you did not write? A @Pact method or ConsumerPactBuilder in a consumer&#x27;s tests. @Provider and @PactFolder or @PactBroker in a provider&#x27;s tests. A pacts folder of JSON files.</p>
+<h2>12. Where You Have Met This</h2>
+<p>You have met this in many microservice teams, and pact broker or pactflow in their pipelines.</p>
+<h2>13. What Was Used</h2>
+<p>For the record. Pact JVM, 4.7.5. JUnit, 5.10.2. Java, 21.</p>
+<h2>14. What Is Real Here</h2>
+<p>The same honest admission as everywhere in this course. Everything is real: real pact files, Pact&#x27;s own mock, and a real HTTP server for the provider. The consumers and the catalog are small, and made for the demo.</p>
+<h2>15. When This Is Too Much</h2>
+<p>So when is it too much? If provider and consumer are one team with one release, an ordinary test is enough. Pact pays off across teams that release apart.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s Consumer-Driven Contract with Pact. If you take one sentence away, take this one: Pact lets a provider learn who a change breaks before it ships, and it still cannot tell a change of meaning. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, add a third consumer that reads the currency, and see its pact pass. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

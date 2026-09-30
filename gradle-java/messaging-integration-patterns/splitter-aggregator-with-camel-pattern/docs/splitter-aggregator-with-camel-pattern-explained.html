@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Splitter and Aggregator with Camel, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Splitter and Aggregator with Camel, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>A splitter turns one message into several, each carrying the identifier of the thing it came from and its own place in it, and an aggregator holds those pieces until a completion condition says the answer is ready, then sends out one message.</p>
+<h2>The analogy, before any of the framework&#x27;s words</h2>
+<p>Think of a kitchen. One ticket comes in for a table of three. The head chef tears it into three slips and hands one to the grill, one to the fryer and one to the salad station. Each slip has the table number on it, and says which of the three courses it is. The stations finish in whatever order they finish. The pass gathers the plates by table number and holds them until all three are there, then sends the table&#x27;s food out together.</p>
+<p>Now the useful question. What does the pass do when the fryer never sends anything? It cannot wait for ever, because the other two plates are going cold and the table is waiting. So the pass has a rule: after so long, send out what you have and tell the floor what is missing. That rule — how long, and what counts as ready — is the whole of this project.</p>
+<h2>What Camel calls these things</h2>
+<p>A <strong>route</strong> is the path a message takes, written down: where it starts, what happens to it, where it goes. A <strong>split</strong> is a step that sends out one message for each piece of the message that came in. An <strong>aggregate</strong> is a step that holds messages and sends out one when they are done.</p>
+<p>A <strong>correlation expression</strong> is the rule for reading, off each message, the identifier that says which group it belongs to. Here it is the order number.</p>
+<p>A <strong>completion condition</strong> is the rule that decides when the aggregate step has waited long enough. Camel offers several and you may set more than one. Two are used here: completion by <strong>size</strong>, which is a count of messages, and completion by <strong>timeout</strong>, which is a deadline in milliseconds. Camel records which one actually fired, and the demo prints Camel&#x27;s own word for it.</p>
+<h2>The six acts</h2>
+<h3>One Picker, One Order</h3>
+<p>The basket has three lines, held in Leeds, Reading and Glasgow. One worker walks all three, one after the other: three steps of work on one thread, and the basket comes to £283.42. While that worker walks, the other two warehouses do nothing.</p>
+<pre><code>  order ORD-4471 has 3 lines, held in 3 warehouses: Leeds, Reading, Glasgow.
+  one picker walks all of them, one line after another: 3 steps of work on 1 thread, and the basket comes to £283.42.
+  while that picker walks, the other warehouses stand idle.</code></pre>
+<h3>Camel Splits The Order</h3>
+<p>The split step sends out one message per line. Camel numbers the pieces itself, from zero, and the demo adds one so a person can read them. Camel also copies the original message&#x27;s headers onto every piece, so the order number travels with each one without anybody arranging it.</p>
+<pre><code>  ORD-4471 shipment 1 of 3 to Leeds: 2 x MUG-BLUE, £15.98
+  ORD-4471 shipment 2 of 3 to Reading: 1 x ESP-001, £249.99
+  ORD-4471 shipment 3 of 3 to Glasgow: 5 x TEA-050, £17.45
+  Camel numbered the pieces and copied the order number onto every one of them. that number is what puts them back.</code></pre>
+<h3>They Come Back In Any Order</h3>
+<p>The warehouses answer third, first, second. The aggregator does not care. It keys each arrival on the order number and files it under the place it says it is, so the finished answer comes out in the customer&#x27;s own line order, totalling the same £283.42 the single worker reached. Camel says the reason it finished was <code>size</code>: three messages had arrived, and three were expected.</p>
+<pre><code>  the warehouses answered in the order: 3 1 2.
+  the aggregator finished, completed by: size. 3 of 3 shipments: [2 x MUG-BLUE from Leeds, 1 x ESP-001 from Reading, 5 x TEA-050 from Glasgow], total £283.42.
+  the pieces arrived jumbled and the answer came out in the customer&#x27;s line order.</code></pre>
+<h3>The Completion Condition Decides Everything</h3>
+<p>Now the Glasgow warehouse is closed. Its message reaches the warehouse step and stops there, and nothing downstream is told. Two shipments come back to an aggregator whose only completion condition is a count of three. Two is not three. No answer comes out, one order sits open, and nothing will ever change that.</p>
+<p>This is the part the hand-built project never had to face, because its completion test was written into the method that accepted a piece and could not be left out.</p>
+<pre><code>  ORD-4472: Glasgow is closed and never answers. shipments back: 2 of 3. answers out of the aggregator: 0. orders still open: 1.
+  the only condition on this aggregator is a count, and 2 is not 3. nothing comes out, and nothing ever will.</code></pre>
+<h3>A Deadline, Which The Simulation Got For Free</h3>
+<p>The same thing happens to a different aggregator, and this one has a second completion condition: a deadline of six hundred milliseconds, looked at every hundred. Camel runs a background checker that watches every waiting order against the clock. When the deadline passes, the aggregator sends out what it has, on its own, with no prompting from the demo. Camel says the reason was <code>timeout</code>, not <code>size</code>, and the answer carries two of three shipments, names Glasgow as the one that never answered, and comes to £265.97 — the basket minus the Glasgow line.</p>
+<p>The hand-built project had a clock the demo could push forward by thirty minutes in one line. That is a comfortable lie: a real deadline needs something running.</p>
+<pre><code>  ORD-4473: Glasgow is closed again, but this aggregator also has a deadline of 600 milliseconds, looked at every 100.
+  the aggregator gave up on its own. completed by: timeout. 2 of 3 shipments, missing [Glasgow], complete: false, gathered so far £265.97.
+  orders still open in that aggregator: 0. the wait ended without anybody asking it to.</code></pre>
+<h3>The Bill</h3>
+<p>A thousand orders each short of one shipment means a thousand orders held in the aggregator&#x27;s memory, and Camel&#x27;s default store for them is memory, so a restart throws every one of them away. That is why production systems move that store to a database.</p>
+<p>Then the surprise. Completion by size counts <strong>messages</strong>, not distinct pieces. Deliver the Reading shipment twice and three messages have arrived, so Camel declares the order finished — with only two of the three lines in it. The duplicate check is yours to write, and the difference it makes is the difference between charging £265.97 and charging £515.96.</p>
+<p>And the order number has to be unique, because it is all the aggregator has. Two orders sharing one number are gathered into a single answer.</p>
+<pre><code>  1000 orders each missing one shipment: 1000 orders held in the aggregator&#x27;s memory, and a restart loses every one of them.
+  a shipment delivered twice: Camel counts messages, not distinct pieces, so ORD-9001 completed by: size at 2 of 3 lines, with 1 duplicate noted.
+  the fold has to check for itself: £265.97 with the check, £515.96 without it.
+  and the order number has to be unique. two orders sharing one number are gathered into a single answer, because that number is all the aggregator has.</code></pre>
+<h2>The verdict</h2>
+<p>Split when the pieces can be worked on separately and the work is slow enough that doing several at once pays. Give every piece the identifier of the thing it came from and its own place in it. Then, on the aggregator, say two things out loud: when it is done, and when it has waited long enough. Never set only the first. And write the duplicate check yourself, because the framework counts messages and you care about pieces.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>A Camel route with <code>.split(...)</code> in one place and <code>.aggregate(...)</code> in another, joined only by an identifier.</li><li>A <code>completionSize</code> with no <code>completionTimeout</code> beside it, which is a queue of orders that will never come out.</li><li>A completion condition read from a header, so the splitter tells the aggregator how many to expect.</li><li>An aggregation repository configured to a database rather than left in memory.</li><li>Spring Integration&#x27;s <code>splitter</code> and <code>aggregator</code>, with <code>MessageGroupStore</code> and <code>group-timeout</code>.</li></ul>
+<h2>Where you have already met this</h2>
+<p>An order sent to several suppliers and quoted back as one price. A batch file broken into records and reported as one summary. A search query fanned out to several indexes. Any place a single request becomes several and has to become one again.</p>
+<h2>When this is too much</h2>
+<p>If the pieces are quick, or each piece needs the answer to the one before it, splitting costs more than it saves. If nothing can go missing, the hand-built partner project is smaller and clearer. And a framework has to be learned before a route can be trusted.</p>
+</main>
+<footer>
+Generated from <code>splitter-aggregator-with-camel-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

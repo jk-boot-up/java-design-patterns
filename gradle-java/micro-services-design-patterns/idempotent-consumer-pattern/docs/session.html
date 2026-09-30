@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Idempotent Consumer</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Idempotent Consumer</h1>
+<p>A one-hour session. The mechanism takes five minutes: write the handled id in the same transaction as the effect. Everything worth the hour is on either side of it — the two ways a <code>HashSet</code> loses, and the question of whether you needed a dedupe store at all.</p>
+<p>Protect the last fifteen minutes. A room that leaves reaching for a dedupe table on every consumer has learned the mechanism and missed the lesson.</p>
+<p><strong>Audience:</strong> developers who know Java and have used a database transaction. No broker experience assumed.</p>
+<p><strong>Format:</strong> laptops open. Everything runs offline with a JDK. There is no broker and no database to install, which is worth saying at the start because people will ask.</p>
+<h2>Learning Objectives</h2>
+<p>By the end, a participant can:</p>
+<ol><li>Say why a broker delivers the same message twice, and why that is a contract rather than a bug.</li><li>Give the two reasons a set of seen ids in memory does not work.</li><li>Write the handled-id record into the same transaction as the effect, and say why that single commit is the whole pattern.</li><li>Recognise a naturally idempotent handler, and rewrite an &quot;add&quot; into a &quot;set&quot;.</li><li>State the two costs: a table somebody operates, and an expiry window that is a guess.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td></tr><tr><td>0:05–0:15</td><td>The duplicate, and the obvious fix</td></tr><tr><td>0:15–0:25</td><td>Acts two and three: the two ways it loses</td></tr><tr><td>0:25–0:35</td><td>Act four: one commit</td></tr><tr><td>0:35–0:50</td><td>Act five: did you need any of this?</td></tr><tr><td>0:50–1:00</td><td>Exercises and wrap-up</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<pre><code>cd micro-services-design-patterns/idempotent-consumer-pattern
+./gradlew test</code></pre>
+<p>All green, in about a second.</p>
+<h2>0:05–0:15 — The Duplicate</h2>
+<p>Start with the broker, not the consumer. Ask the room: the broker sends a message and gets no acknowledgement back. What should it do?</p>
+<p>Let them argue. The answer is that it sends it again, because sending twice is recoverable and losing a message is not. That is at-least-once delivery, and it is what they are running in production whether or not anybody told them.</p>
+<p>Then run act one:</p>
+<pre><code>     10ms -&gt;    10ms  Broker         REDELIVERY msg-1 -- the acknowledgement was lost
+     15ms -&gt;    15ms  Notifications  SKIPPED    msg-1 -- already seen
+  confirmations queued: 1</code></pre>
+<p>A <code>HashSet</code> of ids caught it. The test passes. Ask whether anybody would merge this — most will say yes, and they are right to, because it is correct about <em>what</em> to do.</p>
+<h2>0:15–0:25 — The Two Ways It Loses</h2>
+<p>Run act two, and read the one line that matters out loud:</p>
+<pre><code>  the database survived the deploy. The HashSet did not.</code></pre>
+<p>Then the sentence people miss: a restart is frequently <em>why</em> the acknowledgement went missing. The redelivery and the wiped memory are a pair, not a coincidence.</p>
+<p>Then act three, with no restart at all:</p>
+<pre><code>      5ms -&gt;     5ms  NotifDb        COMMIT  a confirmation on its own
+      5ms -&gt;     5ms  Notifications  DIED    after queueing the email, before remembering the id
+  confirmations queued: 2</code></pre>
+<p>Ask what these two failures have in common. Push until somebody says it: <strong>the memory is not in the same place, or the same moment, as the work.</strong></p>
+<p>Then land the stakes:</p>
+<blockquote><p>Two emails is embarrassing. If this consumer had been Payments, it would have been two charges.</p></blockquote>
+<h2>0:25–0:35 — One Commit</h2>
+<p>Put it on the screen and let it be anticlimactic:</p>
+<pre><code>database.begin()
+        .queueConfirmation(confirmationFor(message))
+        .recordHandled(message.messageId())
+        .commit();</code></pre>
+<p>Then run act four and read the three consequences:</p>
+<pre><code>    after a restart, confirmations queued: 1
+    the process died before the commit, and nothing at all was written: 0 confirmation(s), 0 id(s)
+    after the redelivery, confirmations queued: 1</code></pre>
+<p>The restart does not matter because the memory is in the database. The crash does not matter because a crash before the commit leaves nothing, so the redelivery does the work cleanly for the first time.</p>
+<p>Put the sentence on the board:</p>
+<blockquote><p><strong>Exactly once, out of a broker that only promises at least once — and the exactly-once lives in one ordinary database transaction.</strong></p></blockquote>
+<h2>0:35–0:50 — Did You Need Any Of This?</h2>
+<p>Run act five. Three things, in order.</p>
+<p><strong>The handler that needed nothing.</strong> Setting a status to <code>SHIPPED</code> twice sets it to <code>SHIPPED</code>. No store, no transaction, no expiry policy.</p>
+<p><strong>The handler that could be rewritten.</strong></p>
+<pre><code>  &quot;add 70 loyalty points&quot; twice  -&gt;  running total: 140
+  &quot;set the points for this order to 70&quot;  -&gt;  points awarded: 70 after handling it twice</code></pre>
+<p>Same business outcome; the second cannot be got wrong by a duplicate. Ask the room to name a handler in their own system that could be rewritten this way. Most rooms find one inside two minutes.</p>
+<p><strong>The cost of the store, which is a guess.</strong></p>
+<pre><code>    a minute later, with a thirty second memory, the same message arrives again: 2 confirmation(s)</code></pre>
+<p>Ask what window they would pick, and then ask them to defend it. Too short and a duplicate after a long broker outage looks new. Too long and it is a large table somebody operates. There is no derived answer.</p>
+<h2>0:50–1:00 — Exercises And Wrap-Up</h2>
+<h3>Exercise 1 — Break the commit (everyone)</h3>
+<p>Split the transaction in <code>IdempotentNotificationConsumer</code> into two separate writes, then run act three. Watch act three&#x27;s failure come straight back.</p>
+<h3>Exercise 2 — Rewrite a handler (everyone)</h3>
+<p>Take <code>LoyaltyPointsConsumer.handle</code> and make it idempotent without touching the dedupe store. Compare your version to <code>awardForOrder</code>.</p>
+<h3>Exercise 3 — Discussion: where does the effect live?</h3>
+<p>If handling the message sent a real email through a third party rather than queueing a row, the effect and the record could not share a transaction. What would you do instead, and what would &quot;handled&quot; even mean?</p>
+<h3>Wrap-up: four sentences</h3>
+<ol><li>Brokers deliver at-least-once, so duplicates are the contract.</li><li>A set of seen ids in memory loses to a deploy, and loses to a crash.</li><li>Write the handled id in the same transaction as the effect. Both, or neither.</li><li>Ask first whether the handler is already idempotent, or can be rewritten to be — that is always the cheaper answer.</li></ol>
+<h2>Facilitator Notes</h2>
+<ul><li><strong>Start with the broker, not the consumer.</strong> If the room does not accept that duplicates are guaranteed, the rest of the hour is a solution to a problem they think they do not have.</li><li><strong>Do not mock the <code>HashSet</code>.</strong> It is a good instinct, wrong only about storage. Rooms defend it better and learn more if it is taken seriously.</li><li><strong>&quot;Can&#x27;t we just use exactly-once delivery?&quot;</strong> This comes up every time. The exactly-once the room has heard of is built the same way — a dedupe store on the receiving side — just somebody else&#x27;s.</li><li><strong>Do not let act five get cut for time.</strong> A room that leaves adding a dedupe table to every consumer has been made worse at this, not better.</li><li><strong>The expiry window is the honest ending.</strong> Resist the urge to give a recommended number. The lesson is that it is a decision with consequences in both directions.</li><li><strong>Timings assume a group that argues.</strong> The mechanism section compresses. Act five does not.</li></ul>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>JDK 21 installed, <code>./gradlew test</code> run once beforehand so nothing downloads live</li><li>A terminal with a font big enough to read act four&#x27;s timeline from the back</li><li><a href="animation.html"><code>animation.html</code></a> open in a browser tab for the redelivery</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> open for the five acts as sequences</li><li>A whiteboard, for &quot;exactly once out of at least once&quot; and the two loyalty-points lines</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

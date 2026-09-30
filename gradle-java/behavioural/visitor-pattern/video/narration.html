@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visitor Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Visitor Pattern — Video Narration Script</h1>
+<h2>1. Visitor</h2>
+<p>Hello, and welcome. This video explains the Visitor pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. The Visitor pattern lets you add a new operation to a set of objects, without changing those objects. You write the operation as its own class, called a visitor. You hand it to each object in turn. And each object calls back the one method on the visitor that fits its own type. Think of inspectors visiting a building. A fire officer, a valuer, and a census taker each walk the same rooms. But each one does a completely different job. In this video, an online shop&#x27;s catalog is a tree of categories, products, and bundles. The business keeps asking new questions about it. Each question becomes a visitor. By the end, you will know what double dispatch means. And, more usefully, when this pattern is the wrong answer.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario: the shop&#x27;s catalog. It is a tree. Categories hold products, and other categories. And it has looked like that since the shop opened. What changes is not the tree. It is the questions the business asks about it. Finance wants the value of the stock, and a spreadsheet every Monday. Merchandising wants a count of items in each category. Shipping wants to know which items cannot simply be boxed and posted. Four questions, one structure. And next month there will be a fifth. That shape is the only situation where this pattern is worth its cost.</p>
+<h2>3. Two Kinds of Node, and They Are Not Alike</h2>
+<p>Before the design, let&#x27;s compare two kinds of item, because everything depends on their difference. A product is one item on the shelf. It has a price, a stock level, and maybe a restriction. For example, a lithium battery needs a dangerous goods declaration if it flies. A bundle is a kit sold as one thing. The starter kit is a phone, a case, and a spare battery, for six hundred and thirty-nine pounds. Now ask both of them two questions. First: what are you worth? A product is its price times its stock. A bundle is its kit price times its stock, not the sum of its parts. Second: are you restricted? A product either is, or is not. A bundle has no restriction of its own. It is restricted by what is inside the box.</p>
+<h2>4. The Naive Approach — A Method Per Report</h2>
+<p>The obvious approach is to add each report as a method on the catalog items. After four reports, the shared interface has methods for value, counting, spreadsheet export, and the compliance audit. Is spreadsheet export really about a product? No. It is a rule from a file format. A field containing a comma must be wrapped in quotes. Yet that rule now lives inside a class that describes a thing on a shelf. To be fair, this design is not foolish. Each method is the shortest correct answer to its question. And the naive stock value matches the visitor version, to the penny. The trouble arrives with the fourth report, in the third year.</p>
+<h2>5. Why That Hurts</h2>
+<p>Here is what goes wrong, in order. One. Every new report changes the catalog classes themselves. The quoting rule now lives in two item classes. Two. Knowing something twice is how it comes to be known differently. The bundle class was written later, by copying the product class, and the copy dropped the quoting. Then marketing renamed the kit to, Starter Kit, comma, three items. And one row of the finance spreadsheet quietly gained an extra column. Three, and this one really matters. The compliance check was copied too. The bundle version reads the bundle&#x27;s own restriction, which is never set. So the starter kit, with a lithium battery inside, is missing from the dangerous goods report. And a shipment goes out marked as safe for air freight. Nobody wrote that bug on purpose. And every new report means another method, in every item class.</p>
+<h2>6. The Visitor Pattern</h2>
+<p>Here is the pattern&#x27;s definition, from the famous Gang of Four book. Represent an operation to be performed on the elements of an object structure. Visitor lets you define a new operation, without changing the classes of the elements it works on. That second sentence is a promise about change. This is not a way of walking a tree. It is a way of choosing which kind of change will be cheap. And notice what the definition does not say. It says nothing about adding new kinds of element. That silence is the whole cost of the pattern.</p>
+<h2>7. An Analogy</h2>
+<p>Here is an analogy: a building, and the people who inspect it. The fire officer checks the exits. The valuer estimates what it is worth. The census taker counts the people. Three completely different jobs. The caretaker walks each inspector along the same route, through the same doors, in the same order. The caretaker does not care what they are looking for. And the inspectors do not need to know the layout. Now a new kind of inspector arrives, an accessibility auditor. They join the walk, and nothing in the building changes. That is the benefit. But add a new kind of room, like a server room. Now every single inspector must be told what to do in it. That is the cost, and it arrives every time the building changes shape.</p>
+<h2>8. The Roles</h2>
+<p>Here are the pieces, and the shape to remember is two families side by side. On one side, the catalog, with three item types: product, bundle, and category. That family is finished, and has been for years. On the other side, the reports. A Catalog Visitor interface, and six visitors below it. Stock value, category count, spreadsheet export, compliance audit, a trace, and a low stock report. That family grows every month. The catalog only depends on the visitor interface. No item knows that any particular report exists. Count them: three item types, six visitors. Adding a visitor is free. Adding an item type means editing all six visitors. Those two numbers are the whole argument, for and against this pattern.</p>
+<h2>9. The Element and the Visitor</h2>
+<p>Here is the whole pattern, and it is smaller than its reputation. Every catalog item has a method called accept, which receives a visitor. That is the last method the item interface will ever need. The visitor interface has one visit method for each item type. Visit a product, visit a bundle, and visit a category. They share the same name, and differ only by the type they receive. There is also a leave method, called on the way back out of a category. So a report can keep track of which category it is in. And inside each item class, accept is just one line. It calls the visitor&#x27;s visit method, passing itself. The same line, in all three classes. So why not write it once, in one place? That is the next question, and the only truly hard idea here.</p>
+<h2>10. Why accept Has To Exist</h2>
+<p>Imagine you have a catalog item, but your variable only says it is a catalog component. Try calling the visitor&#x27;s visit method with it directly. It will not compile. Java chooses between same-named methods using the type the compiler can see, at that line. All it can see is a catalog component. And there is no visit method for that. It does not matter that the object really is a product. Now move the same call inside the product class. There, the compiler knows it is a product. So it picks visit product. So there are two hops. The first hop, calling accept, finds which item we are on, at run time. The second hop, calling visit, picks which report method runs. Together, they choose a method based on two types at once. That is called double dispatch. Is it awkward to read? Yes. That is a fact about Java&#x27;s rules, not about catalogs.</p>
+<h2>11. The Walk, and Two Reports</h2>
+<p>Now three pieces of real code. First, the walk, inside the category class. The category visits itself, then passes the visitor to each child, and then says it is leaving. Always in the same order, so today&#x27;s spreadsheet can be compared with yesterday&#x27;s. That walk is written once, and every report gets it for free. Second, the stock value report. A product is worth its price times its stock. A bundle is worth its kit price times its stock. Two plain rules, with no if statements, and no type checks. Third, the compliance rule the naive version lost. A bundle is restricted by what is inside it. So the visitor loops over the bundle&#x27;s contents. And that loop lives in the one report that needs it.</p>
+<h2>12. The Tests — Asserting What Only Visitor Gives You</h2>
+<p>Two tests are worth describing. A test that checks the stock total proves nothing about the pattern, because the naive version passes it too. The first test proves the pattern&#x27;s promise. A brand new report is written inside the test file. It walks a catalog whose classes were written long before it existed. No catalog file was opened, and it works. The second test deliberately shows a cost. A report that only cares about accessories is offered seven items, and only wants five. It cannot skip the rest. The walk belongs to the catalog, so the report must filter, and still do the whole tour.</p>
+<h2>13. Running It</h2>
+<p>Let&#x27;s run the demo. First, the naive design. The bundle&#x27;s spreadsheet row has eight fields, where every other row has seven. And the compliance report has two findings, but the starter kit is not one of them. Now the same catalog and the same four questions, as visitors. The bundle&#x27;s name is quoted correctly, because one quoting rule, in one class, handles every item. And the audit now has three findings. The starter kit is on the list, because of the spare battery in the box. It is no longer marked safe for air freight. Finally, the part not to skip. Add one new item type, such as a gift card. Every one of the six visitors stops compiling, until a method is written for it. The naive design would have needed only one new class.</p>
+<h2>14. What to Remember</h2>
+<p>So, what should you remember? Accept exists because Java chooses methods by the type the compiler can see. Two hops to reach one method, and it is never obvious to a new reader. The trade is this. A new operation costs one new file, and zero edits. A new item type costs one method, in every visitor you have ever written. So before you choose, count two numbers in your own code. How many item types, and how many operations on them. Which one grew last year? Whichever is growing must be the cheap one. For a shop catalog, operations grow, so Visitor fits. For something still gaining new kinds of item, it is the other way round. And with only two operations, on a tree that never changes? Just write the two methods, on the items.</p>
+<h2>15. Thanks for Watching</h2>
+<p>That&#x27;s the Visitor pattern. If you remember one sentence, make it this one. Visitor makes new operations cheap, and new item types expensive, so use it only when operations are what keep growing. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try, and it is the uncomfortable one. Add a gift card item type. Then fix every visitor the compiler complains about. And count how many needed a real rule, and how many just got an empty method. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

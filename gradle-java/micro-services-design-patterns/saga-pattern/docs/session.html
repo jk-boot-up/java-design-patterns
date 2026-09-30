@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Saga</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Saga</h1>
+<p>A one-hour session. The mechanism takes ten minutes: steps that commit as they go, each paired with an undo, unwound in reverse. Everything worth the hour is what comes after — that compensation is not rollback, that a compensation can itself fail, and that some things cannot be undone at all.</p>
+<p>Protect the last twenty-five minutes. A room that leaves thinking a saga is &quot;rollback for microservices&quot; has learned something worse than nothing.</p>
+<p><strong>Audience:</strong> developers who know Java and have used a database transaction. No distributed-systems experience assumed.</p>
+<p><strong>Format:</strong> laptops open. Everything runs offline with a JDK. There is no broker and no database to install, which is worth saying at the start because people will ask.</p>
+<h2>Learning Objectives</h2>
+<p>By the end, a participant can:</p>
+<ol><li>Say why <code>@Transactional</code> protects nothing across a service boundary, without hedging.</li><li>Describe a saga in one sentence and write the <code>SagaStep</code> interface from memory.</li><li>Explain why compensation runs in reverse.</li><li>State the difference between a rollback and a compensation, using the two-line ledger.</li><li>Name the third outcome and say what it means operationally.</li><li>Order the steps of a flow they own so that irreversible ones come last.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td></tr><tr><td>0:05–0:15</td><td>Act five first: the shop that took the money</td></tr><tr><td>0:15–0:25</td><td>The mechanism, and act one</td></tr><tr><td>0:25–0:35</td><td>Act two, and the two-line ledger</td></tr><tr><td>0:35–0:45</td><td>Act three: when the undo fails too</td></tr><tr><td>0:45–0:55</td><td>Act four, the ordering rule, and exercises</td></tr><tr><td>0:55–1:00</td><td>Wrap-up</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<pre><code>cd micro-services-design-patterns/saga-pattern
+./gradlew test</code></pre>
+<p>All green, in about a second.</p>
+<h2>0:05–0:15 — Act Five, First</h2>
+<p>Start at the end. Open <code>NaiveCheckoutService</code> and read it aloud — four calls in a <code>try</code> block — and ask the room what is wrong with it. Most will say nothing.</p>
+<p>Then run the demo and read act five:</p>
+<pre><code>  returned: null
+  card charged: £70.95
+  kettles still reserved: 1
+  order state: CONFIRMED
+  shipments scheduled: 0</code></pre>
+<p>Read those five lines as one sentence: <strong>the customer has paid for a parcel that will never be sent.</strong> Then say the quiet part: nothing threw, nothing alerted, and the log line gets read three weeks later by somebody investigating a complaint.</p>
+<p>Then show the four tests in <code>NaiveCheckoutServiceTest</code> — <code>theFailureIsSilent</code>, <code>theMoneyStaysTaken</code>, <code>theStockStaysReserved</code>, <code>theOrderStaysConfirmed</code>. They pass. They are passing tests asserting that the shop is broken.</p>
+<p><strong>Somebody will say <code>@Transactional</code>.</strong> Wait for it, and take it seriously, because it is the most important misconception in the session:</p>
+<blockquote><p>It wraps the method in a transaction on <em>this service&#x27;s own database</em>. It has no reach into Stock&#x27;s database, none into Payments, and none over the card network. Rolling back a transaction that never touched the money does not bring the money back.</p></blockquote>
+<p>Then mention two-phase commit, briefly, and why nobody uses it: every participant holds a lock while waiting for the others, so one slow courier API stops the shop.</p>
+<h2>0:15–0:25 — The Mechanism, And Act One</h2>
+<p>The mechanism is small and should feel small. Put <code>SagaStep</code> on the screen:</p>
+<pre><code>String name();
+void execute(SagaContext context);
+void compensate(SagaContext context);
+default boolean canBeCompensated() { return true; }</code></pre>
+<p>Ask whether anyone recognises it. Somebody will say Command — <code>execute</code> and <code>undo</code>. Agree, and then state the one difference that matters: an in-memory <code>undo</code> always works, and a compensation is a network call that can be refused.</p>
+<p>Then <code>SagaOrchestrator.run</code>. Forward, keeping a list. On a failure, backwards through that list. That is all of it.</p>
+<p>Then act one, and point at the last line:</p>
+<pre><code>  no transaction spanned any of that. Each step committed on its own.</code></pre>
+<p><code>everyStepIsAlreadyCommittedWhenTheNextOneStarts</code> is that fact as a test, and it is what makes compensation the only tool available.</p>
+<h2>0:25–0:35 — Act Two, And The Ledger</h2>
+<pre><code>  kettles back on the shelf: 20 of 20
+  money the shop is holding: £0.00
+  order state: CANCELLED</code></pre>
+<p>First, the order of the undo. Ask why it goes order, then payment, then stock rather than the other way. Let them work it out: finance should never see a confirmed order with no money against it.</p>
+<p>Then the part most treatments skip. Put this on the screen and stop:</p>
+<pre><code>    CHARGE £70.95  chg-1
+    REFUND -£70.95  ref-2
+  two lines, not zero. A refund is a new fact, not an erasure.</code></pre>
+<p>Put the sentence on the board and leave it there:</p>
+<blockquote><p><strong>Compensation is not rollback.</strong></p></blockquote>
+<p>The net is zero. The history is not. The customer saw the money leave and come back and may well ring up to ask why, and the card network may keep its fee. <code>aRefundIsANewFactNotAnErasure</code> is the test.</p>
+<h2>0:35–0:45 — Act Three</h2>
+<p>Ask the question before showing the output: <em>what happens if the refund fails?</em></p>
+<p>Let the room sit with it. It is genuinely uncomfortable, and the discomfort is the lesson.</p>
+<pre><code>    300ms -&gt;   300ms  Saga   UNDO-FAILED take payment: Payments did not answer
+    330ms -&gt;   330ms  Saga   NEEDS-HUMAN could not undo [take payment]
+  money the shop is holding that it should not: £70.95</code></pre>
+<p>Two things to land, and insist on both:</p>
+<ol><li><strong>The unwinding carries on.</strong> The stock was still released. A saga that gave up at the first refusal would leave more broken than it had to — <code>unwindingCarriesOn</code>.</li><li><strong>The outcome says so.</strong> <code>SagaOutcome</code> has three values, not two.</li></ol>
+<p>Then ask the room what <code>NEEDS_HUMAN_HELP</code> <em>is</em> in their own system. The answer is a queue, a ticket, a dashboard, a person. If they do not have one, this outcome silently becomes the same as act five.</p>
+<h2>0:45–0:55 — Act Four, The Rule, And Exercises</h2>
+<pre><code>  emails in the customer&#x27;s inbox: 1
+    &quot;your order ord-9004 is confirmed&quot;
+  there is no unsend.</code></pre>
+<p>The email step is moved before shipping, and shipping fails. Everything unwinds, and the customer still has a message saying their order is confirmed.</p>
+<p>Make the rule explicit, and make somebody say it back:</p>
+<blockquote><p><strong>Steps that cannot be undone go last, after everything that might fail.</strong></p></blockquote>
+<p>Then ask for irreversible steps in systems they own. Emails, texts, push notifications, anything that talks to a third party, anything a customer can see. The list is longer than people expect.</p>
+<h3>Exercise 1 — Break the order (everyone)</h3>
+<p>Swap two steps in <code>PlaceOrderSteps.allOf</code> so payment comes before stock. Run act two and read the timeline. Discuss what the customer experiences differently.</p>
+<h3>Exercise 2 — Make a compensation fail (everyone)</h3>
+<p>Call <code>stock.failNextRelease(1)</code> before running act two. Watch the outcome become <code>NEEDS_HUMAN_HELP</code>, and notice which other compensations still ran.</p>
+<h3>Exercise 3 — Add a sixth step (pairs)</h3>
+<p>Add a loyalty-points step with its own compensation. Where in the sequence does it go, and why? If points can be spent immediately, is it even compensatable?</p>
+<h3>Exercise 4 — Discussion: orchestration or choreography</h3>
+<p>For a flow they own: would they rather read it in one file, or have no service know about a coordinator? There is no right answer; the useful part is naming what each costs.</p>
+<h2>0:55–1:00 — Wrap-Up</h2>
+<p>Five sentences:</p>
+<ol><li>You cannot hold a transaction across services, so each step commits and carries its own undo.</li><li><code>@Transactional</code> covers its own database and nothing else.</li><li>Compensation runs in reverse, because later steps depend on earlier ones.</li><li>Compensation is not rollback — a refund is a new fact, and the ledger has two lines.</li><li>There are three outcomes, and the third one needs a person and a queue to put them in.</li></ol>
+<h2>Facilitator Notes</h2>
+<ul><li><strong>Start at act five, not act one.</strong> The pattern is boring until the room has felt the problem. Ten minutes on the broken version is the best investment in the hour.</li><li><strong>Wait for <code>@Transactional</code>.</strong> Do not pre-empt it. Someone saying it out loud and being shown why it fails is worth more than you asserting it first.</li><li><strong>&quot;Isn&#x27;t this just a try/finally?&quot;</strong> will come up. Take it seriously: the differences are that the undo is a network call that can fail, that the order is reversed, and that there is a third outcome. A <code>finally</code> block has none of those.</li><li><strong>&quot;Why not just retry the shipping call?&quot;</strong> — a good instinct, and the answer is that retrying is the <em>previous</em> project and is the right first move. The saga is what happens when retrying has run out.</li><li><strong>The two-line ledger is the emotional centre of the session.</strong> Do not summarise it. Show it, stop, and ask what the customer&#x27;s bank statement looks like.</li><li><strong>Timings assume a group that argues.</strong> The mechanism section compresses. Acts three and four do not.</li></ul>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>JDK 21 installed, <code>./gradlew test</code> run once beforehand so nothing downloads live</li><li>A terminal with a font big enough to read act two&#x27;s timeline from the back</li><li><a href="animation.html"><code>animation.html</code></a> open in a browser tab for the unwinding</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> open for the five acts as sequences</li><li>A whiteboard, for &quot;compensation is not rollback&quot; and the ordering rule</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Strategy Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Strategy Pattern, Explained</h1>
+<blockquote><p>&quot;Define a family of algorithms, encapsulate each one, and make them interchangeable. Strategy lets the algorithm vary independently from clients that use it.&quot; — Gang of Four, <em>Design Patterns</em></p></blockquote>
+<h2>One Interface, Four Rules, No Branches</h2>
+<p><code>CheckoutService</code> needs a delivery charge. It does not need to know how one is arrived at. So the calculation is pulled out into an interface with a single job:</p>
+<pre><code>public interface ShippingCostRule {
+    String name();
+    Money costFor(Shipment shipment);
+}</code></pre>
+<p>Each rule implements it and knows only its own arithmetic:</p>
+<pre><code>public final class WeightBandedRule implements ShippingCostRule {
+    @Override
+    public Money costFor(Shipment shipment) {
+        for (Band band : bands) {                     // lightest band first
+            if (shipment.weightKg() &lt;= band.upToKg()) {
+                return band.cost();
+            }
+        }
+        return overweightCost;
+    }
+}</code></pre>
+<p>And the client holds one, without ever asking which:</p>
+<pre><code>public final class CheckoutService {
+    private final ShippingCostRule shippingRule;
+
+    public Quote quote(Shipment shipment) {
+        Money delivery = shippingRule.costFor(shipment);   // the only line that matters
+        return new Quote(shippingRule.name(), shipment.orderSubtotal(), delivery);
+    }
+}</code></pre>
+<p>That is the whole pattern. The <code>switch</code> did not move somewhere else and it did not get smaller — it is <em>gone</em>, replaced by a method call on an object that was chosen earlier by somebody else.</p>
+<h2>Everyday Analogy: Getting Across Town</h2>
+<p>You want to get from the office to the station. You can walk, take a bus, cycle, or get a taxi. <em>You</em> do not change: the same person, the same starting point, the same destination. What changes is the method, and each method has its own rules — a bus has a timetable, a taxi has a meter, a bike needs somewhere to lock up.</p>
+<p>The decision &quot;which one today?&quot; is made once, in the morning, based on the weather and how late you are. It is not re-made at every street corner. That separation — pick the approach once, then just <em>use</em> it — is Strategy.</p>
+<h2>Participants</h2>
+<table><thead><tr><th>Role</th><th>In This Project</th></tr></thead><tbody><tr><td><strong>Strategy</strong></td><td><code>ShippingCostRule</code> — the interface every pricing rule implements.</td></tr><tr><td><strong>Concrete Strategies</strong></td><td><code>FlatRateRule</code>, <code>WeightBandedRule</code>, <code>DistanceBasedRule</code>, <code>FreeOverThresholdRule</code> — one algorithm each.</td></tr><tr><td><strong>Context</strong></td><td><code>CheckoutService</code> — holds one rule, calls it, and never inspects it.</td></tr><tr><td><strong>Data passed to the strategy</strong></td><td><code>Shipment</code> — everything any rule might need, so the interface never has to change.</td></tr><tr><td><strong>Selection</strong></td><td><code>ShippingRules</code> — maps a configuration name onto the rule it selects.</td></tr><tr><td><strong>The trap</strong></td><td><code>NaiveCheckoutService</code> + <code>ShippingMethod</code> — one method branching on an enum.</td></tr></tbody></table>
+<h2>Code Walkthrough</h2>
+<p><strong>The strategy interface</strong> — deliberately tiny. Two methods, no state:</p>
+<pre><code>public interface ShippingCostRule {
+    String name();
+    Money costFor(Shipment shipment);
+}</code></pre>
+<p><code>name()</code> is there so the receipt can say which rule priced it. A strategy that can describe itself saves the client from a lookup table of display names, which would be the branch coming back in disguise.</p>
+<p><strong>The parameter object</strong> — one type carrying everything any rule could want:</p>
+<pre><code>public record Shipment(String destination, double weightKg,
+                       int distanceMiles, Money orderSubtotal) { }</code></pre>
+<p><code>FlatRateRule</code> reads none of these fields. <code>FreeOverThresholdRule</code> reads only <code>orderSubtotal</code>. That is intentional: if <code>costFor</code> took just a weight, the distance rule could not exist, and adding it would change the interface and therefore every rule. Passing a whole <code>Shipment</code> is what makes new rules cost one class.</p>
+<p><strong>A rule that ignores everything</strong> — the simplest possible strategy, and worth keeping for exactly that reason:</p>
+<pre><code>public final class FlatRateRule implements ShippingCostRule {
+    private final Money fee;
+
+    @Override
+    public Money costFor(Shipment shipment) {
+        return fee;                                   // reads nothing
+    }
+}</code></pre>
+<p><strong>The context</strong> — note what is <em>not</em> here:</p>
+<pre><code>public Quote quote(Shipment shipment) {
+    Objects.requireNonNull(shipment, &quot;shipment&quot;);
+    Money delivery = shippingRule.costFor(shipment);
+    return new Quote(shippingRule.name(), shipment.orderSubtotal(), delivery);
+}</code></pre>
+<p>No <code>if</code>. No <code>instanceof</code>. No enum. <code>CheckoutService</code> cannot behave differently depending on which rule it holds, because it has no way to find out.</p>
+<h2>Where the Branch Actually Went</h2>
+<p>The honest version of the story: something still has to turn a configuration value into an object. In this project that is <code>ShippingRules</code>:</p>
+<pre><code>BY_NAME.put(&quot;flat&quot;, new FlatRateRule(Money.pounds(4.99)));
+BY_NAME.put(&quot;weight&quot;, WeightBandedRule.standard());</code></pre>
+<p>At a glance this looks like the <code>switch</code> we just deleted. The difference is what it does and how often:</p>
+<ul><li>The naive <code>switch</code> ran <strong>inside the pricing logic, on every quote</strong>, and tangled the decision with the arithmetic so neither could be tested alone.</li><li>The registry runs <strong>once, at the edge</strong>, and answers a different question: which rule is configured today. Nothing downstream branches again.</li></ul>
+<p>In a real store this lookup is a database table or a feature flag, which is the same point made more plainly: the mapping is <em>data</em>, and the pricing code never sees it.</p>
+<h2>Why the Tests Are the Proof</h2>
+<p>Any test of the form &quot;a 6.5 kg parcel costs £12.00&quot; passes against the naive design too. It says nothing about whether the pattern was applied. The tests that would actually fail if somebody put the <code>switch</code> back are the interaction tests:</p>
+<pre><code>@Test
+void acceptsARuleDefinedEntirelyInThisTest() {
+    ShippingCostRule pricePerKilo = new ShippingCostRule() {
+        public String name() { return &quot;Per kilo&quot;; }
+        public Money costFor(Shipment s) { return Money.pounds(s.weightKg()); }
+    };
+
+    assertEquals(Money.pounds(6.50), new CheckoutService(pricePerKilo).quote(PARCEL).delivery());
+}</code></pre>
+<p>Nothing in <code>src/main</code> knows this rule exists. That it works unchanged is the property the pattern buys, and it is not something arithmetic tests can demonstrate.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>A new rule is one new class.</strong> No existing file is edited, so nothing that already works can be broken by adding to the family.</li><li><strong>Each algorithm is separately testable.</strong> <code>DistanceBasedRule</code>&#x27;s round-up-to-the-next-hundred-miles rule gets its own named test, instead of being an unexplained <code>+ 99</code> in a shared method.</li><li><strong>Rules can come from outside.</strong> A test, a region module or a partner integration can supply a rule the core code has never heard of.</li><li><strong>The choice is a runtime value.</strong> Swapping the campaign rule in and out is a configuration change, not a deployment of new branching logic.</li><li><strong>There is no <code>default</code> to fall off.</strong> The naive version&#x27;s <code>default</code> charged nothing; here, an unrecognised rule name is rejected loudly by the registry before any pricing happens.</li></ul>
+<h2>What to Watch Out For</h2>
+<ul><li><strong>Strategies must be stateless with respect to a single call.</strong> A rule that remembers the last shipment it priced cannot be shared between concurrent checkouts. <code>ShippingCostRule</code>&#x27;s contract says so explicitly, and the registry hands out shared instances on that basis.</li><li><strong>Do not let the client ask what it is holding.</strong> The moment somebody writes <code>if (rule instanceof FreeOverThresholdRule)</code>, the branch is back and the pattern is decoration.</li><li><strong>The interface should not grow per rule.</strong> If a new rule needs a field no other rule has, add it to <code>Shipment</code>, not to <code>ShippingCostRule</code> — a method that only one implementation meaningfully implements is a sign the family has stopped being a family.</li><li><strong>Four classes instead of one method is a real cost.</strong> For two rules that will never change, the <code>switch</code> is the better answer. Strategy pays for itself when the family is open-ended, which delivery pricing genuinely is.</li><li><strong>In modern Java a strategy is often a lambda.</strong> <code>ShippingCostRule</code> has two methods here so rules can name themselves; a single-method strategy would be a <code>Function&lt;Shipment, Money&gt;</code> and needs no classes at all. That is still the pattern.</li></ul>
+<h2>Strategy vs. State vs. Template Method vs. Simple Factory</h2>
+<table><thead><tr><th>Pattern</th><th>Purpose</th><th>Tell</th></tr></thead><tbody><tr><td><strong>Strategy</strong></td><td>Interchangeable algorithms for one job, chosen from outside.</td><td>The client is handed the strategy and never changes it on its own.</td></tr><tr><td><strong>State</strong></td><td>Behaviour that changes as an object moves through a lifecycle.</td><td>The objects <em>replace each other</em>, and they decide the successor.</td></tr><tr><td><strong>Template Method</strong></td><td>One fixed sequence of steps with some steps overridden.</td><td>Inheritance, and the skeleton is in the base class.</td></tr><tr><td><strong>Simple Factory</strong></td><td>Choosing which object to build.</td><td>It returns an object; it does not do the work.</td></tr></tbody></table>
+<p>Strategy and State are the same <em>shape</em> — an interface, several implementations, a context holding one. The distinction is who chooses and how often: with Strategy the choice comes from outside and stays put; with State the object swaps itself for another as events arrive. That comparison is worked through properly in the State project.</p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><strong><code>Comparator</code></strong> — the archetype. <code>List.sort(comparator)</code> is a context taking an ordering algorithm it knows nothing about.</li><li><strong><code>java.util.concurrent.RejectedExecutionHandler</code></strong> — what a thread pool should do when its queue is full, supplied as an object.</li><li><strong>Spring&#x27;s <code>PasswordEncoder</code></strong> — BCrypt, Argon2 or PBKDF2, chosen by configuration, behind one interface.</li><li><strong><code>javax.servlet.Filter</code> ordering, layout managers, cache eviction policies (LRU, LFU, FIFO)</strong> — all the same move.</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li>Add a <code>LockerCollectionRule</code> that charges nothing when the destination is a locker and £3.00 otherwise. Register it under <code>&quot;locker&quot;</code>. Notice that no existing file changes except the registry.</li><li>Now do the same thing to <code>NaiveCheckoutService</code> and count the files you had to open.</li><li>Write a rule that combines two others — a weight-banded charge capped at the flat rate. Ask yourself whether it is still a strategy, and where the line is between this and a decorator.</li><li>Replace <code>FlatRateRule</code> with a lambda at the call site. Work out what you lost by doing so (hint: read the output of <code>checkout.ruleName()</code>).</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the naive code this pattern replaces.</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> and <a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the static and dynamic views.</li><li><a href="session.html"><code>session.md</code></a> — a guided 60-minute walkthrough.</li></ul>
+</main>
+<footer>
+Generated from <code>strategy-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Circuit Breaker Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Circuit Breaker Pattern, Explained</h1>
+<h2>In One Sentence</h2>
+<p>Count the failures; once a service has failed enough times in a row, stop calling it altogether for a while and fail instantly instead — then let one call through later to find out whether it has recovered.</p>
+<h2>Everyday Analogy: The Fuse Box</h2>
+<p>There is a fuse box somewhere in your house, and it is where this pattern gets both its name and its three states.</p>
+<p>When something goes badly wrong with the wiring, the fuse trips. And here is the part worth noticing: it <em>stays</em> tripped. It does not flick itself back on hopefully every few seconds to see whether the fault has gone away. The point of tripping is not to punish the toaster. It is to stop the fault setting the house on fire.</p>
+<p>Later, somebody walks over and flips the switch back on — once — to see what happens. If the fault has gone, everything runs and life carries on. If it has not, the fuse trips again immediately, and nothing was harmed by finding out.</p>
+<p>That is the entire pattern. A counter, a decision to stop, and one careful test afterwards.</p>
+<h2>The Vocabulary, Which Reads Backwards</h2>
+<p>One piece of jargon, and it trips up almost everybody the first time.</p>
+<p><strong>Closed is the healthy state.</strong> A closed circuit is one where current flows, so calls go through. An <strong>open</strong> circuit is a broken one, so calls do not.</p>
+<p>So when someone says &quot;the breaker is open&quot;, they mean the bad thing has happened and calls are being refused. If that feels the wrong way round, you are thinking of a door rather than a wire. Think of the wire.</p>
+<p>There is a third state, <strong>half-open</strong>, which is the moment somebody is standing at the fuse box with a finger on the switch: exactly one call is allowed through, to see.</p>
+<h2>Retry Is A Different Question</h2>
+<p>This project sits next to the Retry pattern, and confusing the two is the most common mistake in this area, so it is worth being precise about the difference.</p>
+<p>Retry asks: <em>did that call fail?</em></p>
+<p>A breaker asks: <strong>is the next attempt plausibly going to work?</strong></p>
+<p>For a dropped connection, or a router that reset, the answer is yes — the next attempt very well might work, so retry. For a service that has failed the last twenty calls in a row, the answer is no. Calling it again is not optimism; it is three more seconds gone, one more thread held open, and one more call aimed at something that is already struggling.</p>
+<p>Applied to a real outage, retry makes everything worse, and the demo&#x27;s first act measures exactly how much worse:</p>
+<pre><code>  the shopper waited 9000ms for a page with nothing extra on it,
+  and a service that is already down received 3 more calls.</code></pre>
+<h2>The Pattern</h2>
+<p>The whole rule fits in one breath. While the breaker is <strong>closed</strong>, every call goes through and consecutive failures are counted. When the count reaches the threshold, the breaker <strong>opens</strong>. While it is open, no call is made at all — the caller is refused instantly. After the reset wait has passed, one single call is allowed through: if it works, the breaker closes and the count goes back to zero; if it fails, the breaker opens again for another full wait.</p>
+<pre><code>public &lt;T&gt; T call(Supplier&lt;T&gt; action) {
+    if (state == BreakerState.OPEN) {
+        if (clock.millis() - openedAt &lt; resetAfterMillis) {
+            callsRefused++;
+            log.note(serviceName, &quot;REFUSED&quot;, &quot;circuit open, no call made&quot;);
+            throw new CircuitOpenException(serviceName);
+        }
+        // The wait is over. Let exactly one call through and see.
+        state = BreakerState.HALF_OPEN;
+        log.note(serviceName, &quot;HALF-OPEN&quot;, &quot;letting one call through to test&quot;);
+    }
+
+    try {
+        callsMade++;
+        T answer = action.get();
+        onSuccess();
+        return answer;
+    } catch (RuntimeException failure) {
+        onFailure(failure);
+        throw failure;
+    }
+}</code></pre>
+<p>Note the word <strong>consecutive</strong>. One success resets the count to zero. A service that answers three times and fails once is not down — it is a service having a bad moment, and that is the retry pattern&#x27;s job, not this one&#x27;s.</p>
+<h2>What It Buys: Read The Timestamps</h2>
+<p>The second act serves six product pages during the outage.</p>
+<pre><code>      0ms -&gt;  3000ms  Recommendations  TIMEOUT   no answer in 3000ms
+   3000ms -&gt;  6000ms  Recommendations  TIMEOUT   no answer in 3000ms
+   6000ms -&gt;  9000ms  Recommendations  TIMEOUT   no answer in 3000ms
+   9000ms -&gt;  9000ms  Recommendations  OPENED    3 failures in a row, not calling for 5000ms
+   9000ms -&gt;  9000ms  Recommendations  REFUSED   circuit open, no call made
+   9000ms -&gt;  9000ms  ProductPage      DEGRADED  page served without suggestions, no call made
+  6 pages served, every one of them buyable, none with suggestions
+  3 calls reached Recommendations, 3 were refused without a call
+  total time 9000ms</code></pre>
+<p>The thing to look at is the left-hand column, and specifically the fact that it stops moving. Nine thousand, nine thousand, nine thousand. Once the breaker is open a page costs <em>nothing</em> to serve.</p>
+<p>Say that in plain terms: the first three shoppers paid for the outage, and everybody after them got their page instantly. That is the trade the pattern makes. It does not make the outage disappear — three people still waited three seconds each — it stops the outage being rediscovered, at full price, by every single shopper for as long as it lasts.</p>
+<p>There is a test that takes this further: twenty more pages after the trip, and the clock does not advance by a single millisecond.</p>
+<h2>It Lets Itself Back In</h2>
+<p>The third act is the one people find slightly magical, and it is worth being clear that there is no magic in it.</p>
+<pre><code>   9000ms -&gt;  9000ms  Recommendations  REFUSED   circuit open, no call made
+  14000ms -&gt; 14000ms  Recommendations  HALF-OPEN letting one call through to test
+  14000ms -&gt; 14020ms  Recommendations  OK        [SKU-2001, SKU-2002]
+  14020ms -&gt; 14020ms  Recommendations  CLOSED    the probe worked, calls resume
+  page: Barista Pro Espresso Machine, 2 suggestion(s)
+  state: CLOSED -- nobody deployed anything to make that happen.</code></pre>
+<p>Five seconds after it opened, the breaker lets exactly one call through. That call succeeds, so the breaker closes and normal service resumes — and nobody was paged, nobody logged in, nobody deployed anything.</p>
+<p>Note how cheap the probe is. It is <em>one</em> call. If Recommendations were still down, that one shopper would wait three seconds, the breaker would open again for another full five, and everybody else would carry on being served instantly. Recovery is tested with a single volunteer rather than by throwing the whole queue at the door.</p>
+<h2>The Half That Gets Left Out</h2>
+<p>Almost every tutorial on this pattern ends where the section above ends: breaker, fallback, happy shopper. That is the easy half, and it is easy because of something specific about the product page which nobody says out loud.</p>
+<p><strong>A breaker does not make failures disappear. It makes them fail quickly.</strong> What the speed buys you depends entirely on what you are calling.</p>
+<p>On the product page, speed buys a fallback. Suggestions are optional, so an empty row of suggestions is a <em>true</em> statement — the shop genuinely has no suggestions to show right now — and the shopper can still buy the espresso machine, which is the only thing the shop needed from that page.</p>
+<p>At checkout, there is nothing to fall back to. There is no substitute for taking the money.</p>
+<pre><code>public String pay(String orderId, Money amount) {
+    try {
+        return breaker.call(() -&gt; payments.charge(orderId, amount));
+    } catch (CircuitOpenException refused) {
+        log.note(&quot;Checkout&quot;, &quot;HONEST-NO&quot;, &quot;told the shopper at once, card untouched&quot;);
+        throw new CheckoutUnavailableException(
+                &quot;We cannot take payment at the moment. Your basket is saved.&quot;);
+    } catch (ServiceUnavailableException failed) {
+        log.note(&quot;Checkout&quot;, &quot;HONEST-NO&quot;, &quot;told the shopper after a timeout&quot;);
+        throw new CheckoutUnavailableException(
+                &quot;We cannot take payment at the moment. Your basket is saved.&quot;);
+    }
+}</code></pre>
+<p>So is the breaker worthless here? No — and this is the sentence worth taking away. What it buys at checkout is <strong>a fast, honest &quot;no&quot; instead of a spinner.</strong> Five shoppers were told plainly that the shop cannot take payment right now, their baskets were saved, and no card was touched. It also stops a thousand shoppers each spending three seconds discovering the same outage, and stops their thousand waiting threads from taking down the parts of the shop that still work.</p>
+<p>Telling somebody &quot;not right now, your basket is safe&quot; in a hundredth of a second is a genuinely better product than three seconds of spinner followed by the same answer.</p>
+<h2>The Fallback That Lies</h2>
+<p>And then there is the fifth act, which exists because &quot;add a fallback&quot; is the advice that comes attached to this pattern, and it is only good advice when there is something <em>true</em> to fall back to.</p>
+<pre><code>/** Always succeeds. That is the bug. */
+public String pay(String orderId, Money amount) {
+    try {
+        return breaker.call(() -&gt; payments.charge(orderId, amount));
+    } catch (RuntimeException anything) {
+        log.note(&quot;Checkout&quot;, &quot;PRETENDED&quot;, &quot;returned a receipt for money that never moved&quot;);
+        return &quot;chg-assumed-ok&quot;;
+    }
+}</code></pre>
+<p>Run it and every dashboard goes green:</p>
+<pre><code>  the shopper was shown receipt chg-assumed-ok and thanked
+  cards actually charged: 0
+  nothing threw, no alert fired, and the warehouse will ship an
+  espresso machine nobody paid for.</code></pre>
+<p>Nothing was thrown. Nothing was logged as an error. The shopper was thanked for their order. And the warehouse will ship an espresso machine that nobody paid for.</p>
+<p>The distinction is exactly this: an empty list of suggestions is <strong>true</strong>. A receipt for money that never moved is <strong>not true</strong>. A fallback that hides a real failure is worse than the error it replaced, because the error would have been noticed in seconds and this will be noticed at the end of the month.</p>
+<h2>What It Costs</h2>
+<p><strong>Some shoppers still pay full price.</strong> Three of them, in this demo. A breaker never protects the people who discover the outage; it protects everybody after them.</p>
+<p><strong>Tuning is a real decision, and both directions hurt.</strong> Set the threshold too low and a brief wobble trips a healthy service out of use. Set the reset wait too long and the shop stays degraded for minutes after the dependency recovered. There is no universally right pair of numbers, only numbers that suit a particular dependency.</p>
+<p><strong>The breaker knows nothing about what to do instead.</strong> <code>CircuitBreaker</code> holds no fallback and has never heard of product pages or payments, which is what makes it reusable — and also means it cannot stop you inventing a fallback that lies.</p>
+<p><strong>One breaker per dependency, not one per application.</strong> A breaker that mixes Recommendations and Payments would let an outage in the optional feature refuse calls to the one that takes money, which is the exact failure the pattern exists to prevent.</p>
+<h2>When Not To Use It</h2>
+<ul><li><strong>When failures are isolated rather than sustained.</strong> One dropped connection is a retry, not a trip. That is what <em>consecutive</em> is guarding against.</li><li><strong>When the call is already instant.</strong> The value here is the timeout you stop paying. Against something that fails in a millisecond there is very little to save.</li><li><strong>When there is no acceptable behaviour on refusal.</strong> Not a reason to skip the breaker, but a reason to think hard before adding a fallback — see act five.</li><li><strong>When you have one process and one dependency and no threads to protect.</strong> The pattern is about containing a failure so it does not spread; with nothing to spread to, it is ceremony.</li></ul>
+<h2>What To Remember</h2>
+<ol><li>Closed means healthy and calls flow. Open means tripped and calls are refused. Half-open means one call is being let through to see.</li><li>Retry asks &quot;did that fail?&quot;; a breaker asks &quot;is the next attempt plausibly going to work?&quot;</li><li>Retry against a real outage is nine seconds of waiting and triple the traffic aimed at something already struggling.</li><li><em>Consecutive</em> failures. One success resets the count, because a bad moment is not an outage.</li><li>Once open, calls cost nothing — read the timestamps and watch them stop moving.</li><li>It closes itself, with one cheap probe, and nobody deploys anything.</li><li>A breaker does not make failures disappear. It makes them fail fast. What that speed buys depends on what you are calling.</li><li>An empty list of suggestions is true. A receipt for money that never moved is not. A fallback that hides a real failure is worse than the error it replaced.</li></ol>
+</main>
+<footer>
+Generated from <code>circuit-breaker-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

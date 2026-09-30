@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Rate Limiter with Redis Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Rate Limiter with Redis Pattern</h1>
+<p>A 60-minute session built around one question: once the bucket lives in Redis and every copy of the service shares it, what does Redis do for you, and what is still up to the servers?</p>
+<h2>Learning Objectives</h2>
+<ol><li>Say, in plain words, what Redis, a key, a time to live, a script, a proxy manager and compare-and-swap are.</li><li>Show that a bucket per server multiplies the limit by the number of servers, and that a bucket in Redis does not.</li><li>Explain why a count read and written in two steps lets two servers spend the same last token, and how a conditional write stops it.</li><li>Explain why a server with a wrong clock can refill a shared bucket for everyone.</li><li>Say what the limiter should answer when Redis cannot be reached, and why that is the shop&#x27;s decision.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:08</td><td>The nightclub with three doors, and the twin project recapped in two minutes</td></tr><tr><td>0:08–0:18</td><td>Acts one and two: a bucket in each server, then one bucket in Redis</td></tr><tr><td>0:18–0:30</td><td>Acts three and four: all at once, and the plain number</td></tr><tr><td>0:30–0:42</td><td>Act five: whose clock?</td></tr><tr><td>0:42–0:50</td><td>Act six: the bill</td></tr><tr><td>0:50–0:55</td><td>The verdict</td></tr><tr><td>0:55–1:00</td><td>Exercises</td></tr></tbody></table>
+<h2>Walkthrough</h2>
+<p>Start Docker Desktop, or another container runtime, first.</p>
+<pre><code>cd micro-services-design-patterns/rate-limiter-with-redis-pattern
+./gradlew -q run</code></pre>
+<p>Act one: why 30, and why 60 on six servers? Act two: why did the restarted server refuse, when its memory was empty? Act three: 90 threads at once, and still 10 — what stopped the eleventh? Act four: after two searches were served from one token, what did Redis say, and why is that the dangerous part? Act five: which program did the refill sum, and which clock did it use? Act six: when Redis was stopped, should those 5 searches have been served?</p>
+<p>Then open <code>src/main/java/com/jk/explore/ratelimiterredis/ServerSharingRedis.java</code> and read the constructor aloud. Everything the pattern needs from Bucket4j is in that one builder chain.</p>
+<h2>Discussion</h2>
+<p>Ask the room which is worse for a shop: a search limit that fails open for five minutes while Redis restarts, or a checkout page that shows errors for five minutes. There is no single answer; a limit that protects a costly partner API may need to fail closed, while one that only guards against scrapers can fail open.</p>
+<p>Then ask how the clocks on a real fleet are kept in step, and what an hour&#x27;s drift would mean for every other thing the servers do.</p>
+<h2>Exercises</h2>
+<ol><li>Change <code>SearchLimit</code> to refill 10 every second, run the demo a few times, and find the counts that stop being exact.</li><li>In the fifth act, make the fast server&#x27;s clock run an hour slow instead, predict the count, and run it.</li><li>Change <code>PlainCounter</code> to use Redis&#x27;s own <code>DECR</code> command, and say whether two servers can still spend the same last token.</li><li>Remove <code>expirationAfterWrite</code> from <code>ServerSharingRedis</code>, run the sixth act, and ask Redis how long the keys will live.</li><li>Wrap <code>search</code> so that an error from Redis falls back to a bucket in the server&#x27;s own memory, and say what limit a client really gets while Redis is down.</li></ol>
+<p>Close with the verdict: keep the bucket outside the servers, make the check and the write one step, keep the clocks in step, and decide what an error means.</p>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

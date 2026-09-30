@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Specification — Framework And Real-Infrastructure Versions For The Remaining Patterns</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Specification — Framework And Real-Infrastructure Versions For The Remaining Patterns</h1>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Created</td><td>2026-09-23 19:12:32 IST</td></tr><tr><td>Author</td><td>Jayasekhar Konduru</td></tr><tr><td>Repository state at creation</td><td>152 projects across 11 categories, <code>main</code> at <code>8994c81</code></td></tr><tr><td>Projects this specification adds</td><td>28</td></tr><tr><td>Repository state when finished</td><td>180 projects across 11 categories</td></tr></tbody></table>
+<p>This document specifies a batch of new projects. Each one pairs an existing pattern project, written as a plain-Java simulation, with a second project that teaches the same pattern using the real tool or the real framework that the industry actually reaches for.</p>
+<p>It follows the precedent already set in this repository. Six patterns — Blue-Green and Canary, Service Mesh, Feature Toggle, Consumer-Driven Contract, Event-Driven Architecture and Serverless — were each given a real-infrastructure twin in September 2026, and a further fifteen patterns carry a Spring, Resilience4j, Hibernate, HikariCP or Consul version. The simulations were left exactly as they were in every case, and that rule holds here too.</p>
+<p>Read <a href="../micro-services-design-patterns/docs/ai-build-spec.html"><code>../micro-services-design-patterns/docs/ai-build-spec.md</code></a> before building any project in this batch. It is the toolchain document: the shared generators, the exact shape of every generated file, the audio chain, and the traps that have already cost real time. This document says <em>what</em> to build and <em>why</em>; that one says <em>how</em>.</p>
+<hr>
+<h2>1. Why a second project rather than a rewrite</h2>
+<p>The simulations are not drafts waiting to be replaced. They exist because every demo in this repository prints numbers that its tests assert exactly, and a run that cannot vary is the only way to do that. Real infrastructure brings timing, start-up delay and network behaviour with it, so the same demo prints different numbers on different machines.</p>
+<p>So each pattern ends up with two projects that answer two different questions. The simulation answers &quot;what is the idea, in the smallest code that can hold it&quot;. The real version answers &quot;what does this look like when the tool is doing the work, and what does the tool make you deal with that the simulation quietly skipped&quot;. The second question is the interesting one, and it is the reason this batch exists.</p>
+<p>Every real version keeps a section in its README naming what the simulation got right and what it left out. That is the teaching payload.</p>
+<hr>
+<h2>2. Naming and placement</h2>
+<p>A new project is named <code>&lt;base-slug&gt;-with-&lt;tool&gt;-pattern</code> and sits in the <strong>same category directory as the pattern it pairs with</strong>. This matches every existing pair in the repository: <code>service-mesh-pattern</code> and <code>service-mesh-with-envoy-pattern</code> are siblings, as are <code>retry-pattern</code> and <code>retry-with-resilience4j-pattern</code>.</p>
+<p>The tool name in the slug is the tool, not the vendor and not the protocol — <code>cache-aside-with-redis</code>, not <code>cache-aside-with-in-memory-data-grid</code>.</p>
+<hr>
+<h2>3. Tier 1 — real infrastructure</h2>
+<p>Nineteen projects. Each one runs a real broker, database, proxy, cluster or cloud emulator, almost always in a container brought up and torn down by the demo itself.</p>
+<h3>3.1 Messaging and integration</h3>
+<p>The category has five projects and not one of them has ever touched a real broker, which makes it the weakest category in the repository for a learner who has to work with one.</p>
+<table><thead><tr><th>#</th><th>New project</th><th>Pairs with</th><th>Real tool</th><th>What the real version adds</th></tr></thead><tbody><tr><td>1</td><td><code>message-channel-with-rabbitmq-pattern</code></td><td><code>message-channel-pattern</code></td><td>RabbitMQ</td><td>A channel that outlives the process: durability, acknowledgement, and what happens to a message when nobody is listening yet</td></tr><tr><td>2</td><td><code>dead-letter-channel-with-rabbitmq-pattern</code></td><td><code>dead-letter-channel-pattern</code></td><td>RabbitMQ dead-letter exchange</td><td>The broker decides when a message is dead, not the application, and the reasons it records</td></tr><tr><td>3</td><td><code>content-based-router-with-camel-pattern</code></td><td><code>content-based-router-pattern</code></td><td>Apache Camel over RabbitMQ</td><td>Routing written as a declared route rather than an <code>if</code> chain, and what Camel does with a message no predicate claims</td></tr><tr><td>4</td><td><code>splitter-aggregator-with-camel-pattern</code></td><td><code>splitter-aggregator-pattern</code></td><td>Apache Camel</td><td>A real aggregator&#x27;s completion condition and its timeout — the part the simulation gets for free</td></tr><tr><td>5</td><td><code>event-bus-with-nats-pattern</code></td><td><code>event-bus-pattern</code></td><td>NATS</td><td>An out-of-process bus with no durable log, so a subscriber that is not listening misses the event outright</td></tr></tbody></table>
+<p>NATS is chosen for the event bus deliberately, rather than Kafka, because <code>event-driven-architecture-with-kafka-pattern</code> already teaches the durable-log shape. NATS is the opposite trade — fire-and-forget delivery — and the contrast between the two is worth more to a learner than a second Kafka project.</p>
+<h3>3.2 Microservices</h3>
+<table><thead><tr><th>#</th><th>New project</th><th>Pairs with</th><th>Real tool</th><th>What the real version adds</th></tr></thead><tbody><tr><td>6</td><td><code>transactional-outbox-with-debezium-pattern</code></td><td><code>transactional-outbox-pattern</code></td><td>Postgres, Debezium, Kafka</td><td>The canonical production shape: the outbox row is committed with the order, and change data capture — not the application — publishes it</td></tr><tr><td>7</td><td><code>cache-aside-with-redis-pattern</code></td><td><code>cache-aside-pattern</code></td><td>Redis</td><td>A cache another process can also see, real expiry, and the stampede the simulation cannot produce</td></tr><tr><td>8</td><td><code>database-per-service-with-containers-pattern</code></td><td><code>database-per-service-pattern</code></td><td>Postgres and MongoDB</td><td>Two services on genuinely different engines, and a join that is now impossible rather than merely discouraged</td></tr><tr><td>9</td><td><code>leader-election-with-kubernetes-pattern</code></td><td><code>leader-election-pattern</code></td><td>Kubernetes Lease API, through kind</td><td>Election by lease renewal against a real API server, and what a lost lease does to the loser</td></tr><tr><td>10</td><td><code>competing-consumers-with-rabbitmq-pattern</code></td><td><code>competing-consumers-pattern</code></td><td>RabbitMQ</td><td>Prefetch, and why an unacknowledged message returns to the queue when a consumer dies mid-work</td></tr><tr><td>11</td><td><code>queue-based-load-leveling-with-sqs-pattern</code></td><td><code>queue-based-load-leveling-pattern</code></td><td>Amazon SQS, through LocalStack</td><td>A real visibility timeout, and the queue depth that a burst actually builds</td></tr><tr><td>12</td><td><code>publisher-subscriber-with-redis-pattern</code></td><td><code>publisher-subscriber-pattern</code></td><td>Redis Pub/Sub</td><td>Fan-out across processes, and the message a late subscriber never gets</td></tr><tr><td>13</td><td><code>claim-check-with-s3-pattern</code></td><td><code>claim-check-pattern</code></td><td>Amazon S3, through LocalStack</td><td>A payload that genuinely will not fit in a message, stored and fetched by key</td></tr><tr><td>14</td><td><code>rate-limiter-with-redis-pattern</code></td><td><code>rate-limiter-pattern</code></td><td>Redis and Bucket4j</td><td>A limit shared by every instance, which is the only kind that holds when the service is scaled out</td></tr><tr><td>15</td><td><code>idempotent-consumer-with-kafka-pattern</code></td><td><code>idempotent-consumer-pattern</code></td><td>Kafka and Postgres</td><td>Real at-least-once redelivery, and a deduplication table that has to survive a restart</td></tr></tbody></table>
+<h3>3.3 Platform</h3>
+<table><thead><tr><th>#</th><th>New project</th><th>Pairs with</th><th>Real tool</th><th>What the real version adds</th></tr></thead><tbody><tr><td>16</td><td><code>distributed-tracing-with-jaeger-pattern</code></td><td><code>distributed-tracing-pattern</code></td><td>OpenTelemetry and Jaeger</td><td>Context propagated across a real HTTP hop, and a trace assembled by a collector rather than by the demo</td></tr><tr><td>17</td><td><code>externalised-configuration-with-spring-cloud-config-pattern</code></td><td><code>externalised-configuration-pattern</code></td><td>Spring Cloud Config Server</td><td>Configuration served over HTTP from outside the application, and a refresh that takes effect without a restart</td></tr><tr><td>18</td><td><code>event-sourcing-with-eventstoredb-pattern</code></td><td><code>event-sourcing-pattern</code></td><td>EventStoreDB</td><td>Append-only streams with real optimistic concurrency on the expected version</td></tr><tr><td>19</td><td><code>strangler-fig-with-nginx-pattern</code></td><td><code>strangler-fig-pattern</code></td><td>NGINX</td><td>A real reverse proxy moving one route at a time from the old service to the new, with the old one still serving the rest</td></tr></tbody></table>
+<hr>
+<h2>4. Tier 2 — framework versions</h2>
+<p>Nine projects. No container in most of them; the point is that a framework in wide use <em>embodies</em> the pattern, and seeing the pattern&#x27;s own vocabulary in that framework&#x27;s API is what makes it stick.</p>
+<table><thead><tr><th>#</th><th>New project</th><th>Pairs with</th><th>Framework</th><th>Why this pairing</th></tr></thead><tbody><tr><td>20</td><td><code>front-controller-with-spring-mvc-pattern</code></td><td><code>front-controller-pattern</code></td><td>Spring MVC</td><td><code>DispatcherServlet</code> is this pattern, unmodified, in the framework most Java web work uses</td></tr><tr><td>21</td><td><code>service-layer-with-spring-pattern</code></td><td><code>service-layer-pattern</code></td><td>Spring</td><td><code>@Service</code> and <code>@Transactional</code> are the boundary the pattern describes, declared rather than hand-written</td></tr><tr><td>22</td><td><code>specification-with-spring-data-jpa-pattern</code></td><td><code>specification-pattern</code></td><td>Spring Data JPA</td><td>The <code>Specification</code> API is the pattern by name, and it composes into SQL rather than filtering in memory</td></tr><tr><td>23</td><td><code>domain-event-with-spring-pattern</code></td><td><code>domain-event-pattern</code></td><td>Spring</td><td><code>ApplicationEventPublisher</code> and <code>@TransactionalEventListener</code>, which fixes the ordering problem the simulation has to hand-roll</td></tr><tr><td>24</td><td><code>optimistic-offline-lock-with-jpa-pattern</code></td><td><code>optimistic-offline-lock-pattern</code></td><td>JPA <code>@Version</code>, Postgres</td><td>A real lost update, detected by the database and surfaced as <code>OptimisticLockException</code></td></tr><tr><td>25</td><td><code>active-record-with-spring-data-jpa-pattern</code></td><td><code>active-record-pattern</code></td><td>Spring Data JPA, Postgres</td><td>A row that really is a live object, against a real table</td></tr><tr><td>26</td><td><code>onion-architecture-with-spring-boot-pattern</code></td><td><code>onion-architecture-pattern</code></td><td>Spring Boot</td><td>The remaining gap: Layered, Hexagonal and Clean all already have a Spring Boot version</td></tr><tr><td>27</td><td><code>actor-with-pekko-pattern</code></td><td><code>actor-pattern</code></td><td>Apache Pekko</td><td>The mainstream JVM actor runtime — mailboxes, supervision and a real message loop</td></tr><tr><td>28</td><td><code>cqrs-with-axon-pattern</code></td><td><code>cqrs-pattern</code></td><td>Axon Framework</td><td>Command and query sides wired by the framework built for exactly this split</td></tr></tbody></table>
+<p>Apache Pekko is named rather than Akka because Pekko is the open-source continuation and Akka&#x27;s licence no longer suits a teaching repository.</p>
+<hr>
+<h2>5. What every project in this batch must do</h2>
+<p>Everything in the existing standing conventions applies unchanged. The items below are the ones this batch makes harder, so they are written out.</p>
+<h3>5.1 The e-commerce domain</h3>
+<p>Every worked example is the same online store carried across all 180 projects. The real tool changes how the example runs, never what it is about. A Kafka topic carries orders, not <code>test-topic-1</code>. A Redis key holds a product&#x27;s price, not <code>foo</code>.</p>
+<p>Analogies used to <em>explain</em> a pattern may come from any domain and often should. The code may not.</p>
+<h3>5.2 Every explanation works with the listener&#x27;s eyes closed</h3>
+<p>A large share of the audience listens rather than watches. No sentence may say &quot;as you can see here&quot;, and none may depend on a diagram, a class name on a slide or a line of code being visible. The words alone name the actors, say what each decides, and give the order things happen in. The audience is beginners: short sentences, plain language, one idea at a time.</p>
+<p>This is harder in this batch than in any previous one, because a real tool brings vocabulary with it. Every term a tool introduces — exchange, lease, visibility timeout, offset, prefetch — is said in plain words the first time it appears, before the tool&#x27;s name for it is used.</p>
+<h3>5.3 Determinism, with real infrastructure in the way</h3>
+<p>The repository&#x27;s rule is that every demo reproduces its failure on every run and that no test contains <code>Thread.sleep</code>. The six existing real-infrastructure projects worked out how to keep that rule, and this batch follows them:</p>
+<ul><li><strong>Counts that cannot vary stay exact.</strong> A Kafka group&#x27;s lag after three events is three, on every machine, and the test asserts three.</li><li><strong>Counts that depend on the tool&#x27;s own scheduling are asserted as a range</strong> and printed as a description rather than as a number. The spread of a canary is the existing example; the spread of RabbitMQ&#x27;s prefetch across two consumers is the new one.</li><li><strong>Every wait is a bounded poll on a real condition.</strong> Never a fixed sleep. Poll until the consumer group reports caught up, until the lease holder changes, until the trace appears in the collector — with a timeout that fails the test rather than hanging it.</li><li><strong>Numbers in documents come from a real run.</strong> Every figure quoted in a README, a slide or a narration line is the actual output of <code>./gradlew run</code> for that project. Nothing is rounded and nothing is invented.</li></ul>
+<h3>5.4 Versions</h3>
+<p>Pin the newest generally available version of each tool at the time the project is built, not an older major line. Record the exact version in the project&#x27;s README and in its <code>prerequisites.md</code>. Where a version has to be held back, say so and say why — the way the Serverless project pins LocalStack 4.14.0 because later images refuse to start without an account.</p>
+<h3>5.5 What a learner needs installed</h3>
+<p>Every Tier 1 project states its prerequisite plainly in <code>docs/prerequisites.md</code> and in the README: a container runtime, and for the Kubernetes project, kind. A project that cannot run without a daemon says so in its first paragraph rather than failing confusingly at run time.</p>
+<h3>5.5a Every project is self-contained</h3>
+<p>Added at the owner&#x27;s instruction on 2026-09-24, for projects built from then on; projects committed before that date are left as they are. A project depends on no other project. It copies what it needs from a reference rather than pointing at it, contains no relative link or path into a sibling project&#x27;s directory, names its plain-Java twin in words rather than linking to it, and explains its own tooling — the audio pipeline included — in its own files. The one shared place is <code>gradle-java/docs</code>, whose generators and registration tables serve every project.</p>
+<h3>5.6 The git surface</h3>
+<p>Source and documentation are committed. Rendered output never is — no mp4, m4a, srt, wav or log, nothing under <code>video/build/</code>, nothing under <code>docs/audio/</code>. <code>animation.html</code>, <code>video/poster.png</code>, <code>docs/thumbnail.png</code> and the rendered diagrams under <code>docs/images/</code> are committed, because nothing rebuilds those on GitHub.</p>
+<p>Commit messages carry a subject and a body and stop there. No <code>Co-Authored-By</code> trailer and no mention of any assistant, in a commit message or in a pull request description. This repository is published under its author&#x27;s name and the history shows him as sole author.</p>
+<hr>
+<h2>6. Definition of done, per project</h2>
+<p>A project is finished when all of the following hold. This is the checklist from <code>ai-build-spec.md</code> §10 with the three items this batch adds marked.</p>
+<ul class="task"><li>Twenty-two committed files plus source, in the shape every other project has.</li><li>Registered by hand in <code>docs/make_specs.py</code>, <code>docs/make_thumbnails.py</code> and <code>docs/make_youtube_docs.py</code>. A project missing from those tables is silently skipped.</li><li><code>./gradlew test</code> passes; no <code>Thread.sleep</code> anywhere under <code>src/test</code>.</li><li><strong>The container or cluster is started and stopped by the demo itself</strong>, and a second run immediately after the first produces the same result.</li><li><strong>A run with no container runtime available fails with a sentence a beginner can act on</strong>, not a stack trace.</li><li><code>./gradlew run</code> prints a timeline showing both the failure and the pattern&#x27;s answer.</li><li>Every number in every document, slide and narration line matches that output.</li><li><strong>The README names what the simulation twin got right and what it left out.</strong></li><li><code>scenes.py</code> uses <code>title=</code> keyword form; 14 to 16 scenes; no slide overflows the 12-line, 62-character or 52-character limits.</li><li><code>make_slides.py</code> docstring, footer, poster and diagram name <em>this</em> pattern; the poster strikes nothing out.</li><li><code>build_video.sh</code> and <code>make_subtitles.py</code> name <em>this</em> project&#x27;s output file.</li><li>Scene 1 narration follows the required order: what the video is, credit to Jayasekhar Konduru, the pattern in plain general words, then the same thing in e-commerce terms.</li><li>The outro names no other pattern, because publishing order is not fixed.</li><li>The build printed <code>audio timeline continuous</code>; loudness within 0.02 LU of −16 LUFS.</li><li><code>animation.html</code> passes all four validation checks in <code>ai-build-spec.md</code> §6.</li><li>Both diagrams rendered; poster and thumbnail looked at, not merely generated.</li><li>Spec regenerated <strong>after</strong> the video existed, and the line it printed checked.</li><li><code>git status</code> clean of mp4, m4a, srt, wav, log, <code>docs/audio/</code> and <code>video/build/</code>.</li><li><strong>No relative link or path into any sibling project</strong> (§5.5a); <code>gradle-java/docs</code> is the only shared dependency.</li></ul>
+<hr>
+<h2>7. Build order</h2>
+<p>Projects are built in waves. Within a wave they are independent and can be built in parallel; between waves the order matters only because a wave&#x27;s first project settles the shape the rest of that wave copies.</p>
+<table><thead><tr><th>Wave</th><th>Projects</th><th>Why grouped</th></tr></thead><tbody><tr><td>1</td><td>1–5, messaging and integration</td><td>Smallest coherent category, and two brokers between them; settles the container-in-a-demo shape for everything after</td></tr><tr><td>2</td><td>6–15, microservices</td><td>The largest wave; Redis and RabbitMQ shapes are already settled by wave 1</td></tr><tr><td>3</td><td>16–19, platform</td><td>Each uses a different tool, so nothing is shared and they are fully independent</td></tr><tr><td>4</td><td>20–28, framework versions</td><td>No containers in most; a different and lighter shape</td></tr></tbody></table>
+<p>Two constraints on parallel work:</p>
+<p><strong>The three registration tables are shared files.</strong> <code>make_specs.py</code>, <code>make_thumbnails.py</code> and <code>make_youtube_docs.py</code> are edited by every project in a wave. Registration is done once, centrally, after a wave&#x27;s projects exist — not by each build in parallel, which only produces conflicts.</p>
+<p><strong>A video render takes eight to ten minutes and is run in the background.</strong> Wait on the output file rather than blocking, and delete <code>video/.build.log</code> afterwards; it is not covered by <code>.gitignore</code>.</p>
+<hr>
+<h2>8. Out of scope</h2>
+<p>The remaining unpaired patterns get no framework or infrastructure version, and this is a decision rather than an omission. They are the classic structural, creational, behavioural and concurrency patterns — Builder, Decorator, Composite, Visitor, Memento, Read-Write Lock and their neighbours — together with the patterns whose real-world form another project in this batch already covers, such as Saga, which <code>event-driven-architecture-with-kafka-pattern</code> already shows running on a real broker.</p>
+<p>For those patterns there is no tool or framework that embodies them better than plain Java already does, and pairing them for the sake of symmetry would add a project without adding a lesson. If a pairing for one of them is proposed later, it is a change to this document first, not a build.</p>
+<hr>
+<h2>9. Batch 3 — versions for the phase-2 patterns (added 2026-09-29)</h2>
+<p>Added at the owner&#x27;s request after the sixty phase-2 catalogue patterns were built in plain Java: every one of them that a real framework or piece of infrastructure genuinely teaches something more about gets a sibling <code>&lt;base&gt;-with-&lt;tool&gt;-pattern</code> project. The plain-Java projects are unchanged. Status is kept, generated from disk, in <code>docs/new-patterns-plan.md</code> (Phase 3); the list itself is <code>FRAMEWORK</code> in <code>tools/patternkit/patternkit/__main__.py</code>.</p>
+<table><thead><tr><th>#</th><th>New project</th><th>Real tool</th><th>Needs Docker</th><th>What the real version adds</th></tr></thead><tbody><tr><td>1–7</td><td>message-translator, message-filter, recipient-list, wire-tap, resequencer, routing-slip, process-manager <code>-with-camel</code></td><td>Apache Camel 4.22.1</td><td>no</td><td>Each EIP as Camel&#x27;s own step; wireTap&#x27;s shared-object trap, resequencer&#x27;s first-message delay, dynamicRouter, and the Saga EIP with compensations</td></tr><tr><td>8–11</td><td>guaranteed-delivery, request-reply, polling-consumer, priority-queue <code>-with-rabbitmq</code></td><td>RabbitMQ 4.3.6</td><td>yes</td><td>Persistence vs durability, confirms, redelivery; replyTo, direct reply-to and expiry; basicGet vs prefetch; priority only for waiting messages</td></tr><tr><td>12</td><td>event-carried-state-transfer-with-kafka</td><td>Apache Kafka 4.3.1</td><td>yes</td><td>Compacted keyed topic as the copy&#x27;s history, order per partition, tombstones</td></tr><tr><td>13</td><td>write-through-cache-with-redis</td><td>Redis 8.10.2, PostgreSQL 18.6</td><td>yes</td><td>A shared cache, Redis&#x27;s own hit counter, and two systems no transaction spans</td></tr><tr><td>14</td><td>space-based-with-hazelcast</td><td>Hazelcast 5.7.0 (embedded)</td><td>no</td><td>One owner per key, entry processors, backups surviving a crash, write-behind</td></tr><tr><td>15</td><td>sharding-with-postgresql</td><td>PostgreSQL 18.6 ×3</td><td>yes</td><td>Per-shard UNIQUE constraints, merged queries, modulo vs jump consistent hashing</td></tr><tr><td>16</td><td>backpressure-with-reactor</td><td>Project Reactor 3.8.7</td><td>no</td><td>OverflowException, limitRate&#x27;s top-ups, onBackpressureLatest</td></tr><tr><td>17</td><td>reactor-with-netty</td><td>Netty 4.2.18</td><td>no</td><td>Event loops, a framing pipeline, multi-reactor, executor groups</td></tr><tr><td>18</td><td>hedged-requests-with-grpc</td><td>gRPC Java 1.84.0</td><td>no</td><td>Hedging as a service-config policy, server-side cancellation</td></tr><tr><td>19</td><td>valet-key-with-s3</td><td>AWS SDK 2.55.7, LocalStack 4.14.0</td><td>yes</td><td>Real S3 presigned URLs signed with SigV4</td></tr><tr><td>20</td><td>secrets-manager-with-openbao</td><td>OpenBao 2.7.0</td><td>yes</td><td>Policies, per-service tokens, versioned secrets, revocation</td></tr><tr><td>21–22</td><td>token-authentication, authorization-policy <code>-with-spring-security</code></td><td>Spring Boot 4.1.1 / Spring Security 7</td><td>no</td><td>JWT resource server and custom validators; URL and @PreAuthorize rules, denyAll, authorization events</td></tr><tr><td>23</td><td>gateway-offloading-with-spring-cloud-gateway</td><td>Spring Cloud 2025.1.3</td><td>no</td><td>A GlobalFilter doing the chores, compression by configuration</td></tr><tr><td>24</td><td>secure-gateway-with-nginx</td><td>NGINX 1.31.6</td><td>yes</td><td>The whole policy as an nginx.conf allow-list</td></tr><tr><td>25</td><td>contract-stub-with-wiremock</td><td>WireMock 3.13.2</td><td>no</td><td>A real stub server built from a shared contract file</td></tr><tr><td>26</td><td>page-object-with-selenium</td><td>Selenium 4.49.0, Chromium 152</td><td>yes</td><td>A real browser, real timing, WebDriverWait</td></tr><tr><td>27</td><td>single-table-inheritance-with-jpa</td><td>Hibernate via Spring Boot 4.1.1, H2</td><td>no</td><td>The SQL behind @Inheritance, and a NOT NULL the table cannot keep</td></tr><tr><td>28</td><td>table-data-gateway-with-jdbc-template</td><td>Spring JDBC, HikariCP, H2</td><td>no</td><td>No leaked connections, translated exceptions</td></tr><tr><td>29–30</td><td>page-controller, remote-facade <code>-with-spring-mvc</code></td><td>Spring Boot 4.1.1</td><td>no</td><td>Controllers found by annotation, interceptors; JSON records and ProblemDetail</td></tr><tr><td>31</td><td>railway-oriented-with-vavr</td><td>Vavr 1.0.1</td><td>no</td><td>Either, Try, and Validation collecting every error</td></tr></tbody></table>
+<p>Three tools differ from the first plan, each for a stated reason:</p>
+<ul><li><strong>OpenBao instead of HashiCorp Vault.</strong> Vault moved to the Business Source License in 2023, which is not an open-source licence. OpenBao is the Linux Foundation&#x27;s open-source fork with the same API, so everything taught applies to Vault too.</li><li><strong>LocalStack&#x27;s S3 instead of MinIO.</strong> MinIO no longer publishes community container images on Docker Hub or quay.io, so a beginner cannot pull it. The project uses the AWS SDK&#x27;s own presigner against LocalStack 4.14.0, already pinned in this repository, with signature checking switched on; the README says honestly that LocalStack does not enforce bucket permissions.</li><li><strong>WireMock instead of Spring Cloud Contract.</strong> Spring Cloud Contract generates stubs and provider tests at build time, which a runnable demo cannot show step by step. The project uses WireMock, the stub server Spring Cloud Contract generates for, built from a shared contract file, and names Spring Cloud Contract as the tool that automates the same flow.</li></ul>
+</main>
+<footer>
+Generated from <code>framework-and-infra-versions-spec.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

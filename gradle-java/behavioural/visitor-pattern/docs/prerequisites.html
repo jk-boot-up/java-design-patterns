@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites — Visitor</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites — Visitor</h1>
+<p>What you need before starting, and the two comparisons that cause the most trouble.</p>
+<h2>Tools</h2>
+<table><thead><tr><th>Tool</th><th>Version</th><th>Check</th></tr></thead><tbody><tr><td>JDK</td><td>21</td><td><code>java -version</code></td></tr><tr><td>Gradle</td><td>wrapper, no install needed</td><td><code>./gradlew --version</code></td></tr></tbody></table>
+<p>Everything else — JUnit 5, the test runner — is fetched by the wrapper on the first build.</p>
+<pre><code>./gradlew run     # the walkthrough
+./gradlew test    # 70 tests</code></pre>
+<h2>Do Composite First</h2>
+<p>This project reuses the catalog tree from <a href="../../../structural/composite-pattern"><code>structural/composite-pattern</code></a>: the same Electronics root, the same Accessories and Cables branches, the same phone, case, charger and cable at the same prices. Three things are added — stock levels, a restriction flag, and a <code>Bundle</code> node — and nothing is taken away.</p>
+<p>That is deliberate. If the structure is already familiar, the whole of your attention goes on the traversal, which is the only new idea here. If tree recursion over a <code>Component</code> interface is new to you, read Composite first; this project takes it as given.</p>
+<h2>Java You Should Recognise</h2>
+<table><thead><tr><th>Feature</th><th>Where it appears</th><th>Why it is there</th></tr></thead><tbody><tr><td>overloading</td><td><code>visit(Product)</code>, <code>visit(Bundle)</code>, <code>visit(Category)</code></td><td>three methods with one name, picked by the compiler — the mechanism the pattern runs on</td></tr><tr><td><code>default</code> method</td><td><code>CatalogVisitor.leave</code></td><td>most reports do not care about leaving a category, and an empty method that must be written is a place for a mistake to hide</td></tr><tr><td><code>Deque</code> as a stack</td><td><code>CategoryPathVisitor</code></td><td>push on the way in, pop on the way out</td></tr><tr><td><code>LinkedHashMap</code></td><td><code>CategoryCountVisitor</code></td><td>a report in tree order, so it can be diffed between runs</td></tr><tr><td><code>enum</code> with fields</td><td><code>Restriction</code></td><td>the label and the obligation belong to the value</td></tr><tr><td>local and nested classes</td><td>the demo&#x27;s <code>LowStockVisitor</code>, the tests&#x27; visitors</td><td>a report written in the file that needs it, proving the model was not touched</td></tr><tr><td>reflection in tests</td><td><code>CatalogVisitorTest</code>, <code>NaiveCatalogTest</code></td><td>&quot;the model has no report methods&quot; is a claim about shape, so it is asserted as one</td></tr></tbody></table>
+<h2>The One Thing To Understand First: Overload Resolution</h2>
+<p>Java picks between overloaded methods using the <strong>static</strong> type of the argument — what the compiler can see — not the runtime type. Given:</p>
+<pre><code>CatalogComponent node = new Product(&quot;PHN-900&quot;, &quot;Phone&quot;, Money.pounds(599.99), 74);
+visitor.visit(node);   // does not compile</code></pre>
+<p>there is no <code>visit(CatalogComponent)</code>, and the compiler will not guess. It does not matter that the object really is a <code>Product</code>.</p>
+<p>Now move the call inside <code>Product</code>:</p>
+<pre><code>public void accept(CatalogVisitor visitor) {
+    visitor.visit(this);   // here, `this` is a Product
+}</code></pre>
+<p>and it compiles, because in that file the static type is known. That is the whole trick. <code>accept</code> exists to get the call into a place where the compiler knows the type, and the two hops — <code>node.accept(v)</code> then <code>v.visit(node)</code> — are what &quot;double dispatch&quot; names.</p>
+<p>If that feels like a lot of ceremony to avoid <code>instanceof</code>, hold on to the feeling. It is a fair objection and the explainer answers it directly.</p>
+<h2>Visitor vs Putting The Method On The Composite</h2>
+<p>The comparison that decides whether you should use this pattern at all, and the honest answer is <em>usually not</em>.</p>
+<p><strong>The question to ask yourself:</strong> <em>which axis is growing — the node types, or the operations?</em></p>
+<table><thead><tr><th></th><th>A method on the node</th><th>A visitor</th></tr></thead><tbody><tr><td>New operation costs</td><td>one method × every node class</td><td>one new file</td></tr><tr><td>New node type costs</td><td>one new class</td><td>one method on the interface × every visitor</td></tr><tr><td>Where an operation&#x27;s logic lives</td><td>spread across the node classes</td><td>in one class, readable end to end</td></tr><tr><td>Where a node&#x27;s logic lives</td><td>in one class, readable end to end</td><td>spread across the visitors</td></tr><tr><td>Traversal</td><td>written once per operation</td><td>written once, in the structure</td></tr></tbody></table>
+<p>The table is symmetrical on purpose. Neither column is better; they are the same trade seen from two ends, and the only thing that breaks the tie is which axis your codebase is actually growing along.</p>
+<p>For a catalog, the answer is clear: the node types have been products and categories since the shop opened, and finance asks for a new report every month. For an AST in a language that is still gaining syntax, or a UI toolkit still gaining widget types, the answer is the other way and Visitor will cost you a sprint every time you add one.</p>
+<h2>Visitor vs <code>instanceof</code> And A Switch</h2>
+<p>Modern Java has pattern-matching switches, and the obvious question is whether they make Visitor obsolete:</p>
+<pre><code>String describe(CatalogComponent node) {
+    return switch (node) {
+        case Product p  -&gt; p.name();
+        case Bundle b   -&gt; b.name() + &quot; (kit)&quot;;
+        case Category c -&gt; c.name() + &quot;/&quot;;
+    };
+}</code></pre>
+<p>That is a real and reasonable answer, and for a one-off report it is the better one — it is shorter, it needs no <code>accept</code> method, and if the node types are <code>sealed</code> the compiler will still tell you when you have missed one.</p>
+<p>What it does not give you is the traversal. Every report written this way walks the tree itself, which is the fourth problem in <a href="problem-statement.html"><code>problem-statement.md</code></a> with a nicer syntax. And without <code>sealed</code>, the exhaustiveness check goes away and a missed node type becomes a runtime default rather than a compile error.</p>
+<p>Reach for the switch when the operation is small and local. Reach for Visitor when there are many operations, they need shared traversal and shared state across the walk, and you want the compiler to enumerate every one of them the day a node type is added.</p>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the four reports, and the two copies that drifted</li><li><code>NaiveBundle.java</code> — read its <code>appendCsvTo</code> and <code>auditInto</code> against <code>NaiveProduct</code>&#x27;s</li><li><code>CatalogVisitor.java</code> — the interface, and the paragraph on what it costs</li><li><code>Product.java</code> and <code>Category.java</code> — one line each, and it is the same line</li><li><a href="visitor-pattern-explained.html"><code>visitor-pattern-explained.md</code></a></li><li><code>./gradlew run</code>, with <a href="class-diagram.html"><code>class-diagram.md</code></a> open — section 3 prints the dispatch</li><li><a href="animation.html"><code>animation.html</code></a> — the walk, step by step</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

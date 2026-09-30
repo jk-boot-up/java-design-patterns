@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thread-Local Storage Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Thread-Local Storage Pattern — Video Narration Script</h1>
+<h2>1. Thread-Local Storage</h2>
+<p>Hello, and welcome. This video explains the Thread-Local Storage pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. Thread-local storage gives each thread its own private copy of a variable. Code anywhere on that thread can read it, without it being passed down. And other threads never see it. Think of a name badge at a conference. Anyone you meet can read your name from your badge. You do not have to repeat it in every conversation. In our online store, every layer of a request needs to know which customer it is for, but few of them care. In this video, we pass the customer through three methods that do not need it. Then keep it in the thread instead. We will hear a reused thread leak one request into the next, and a value that fails to reach another thread. And then the cost.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. A checkout request passes through three steps: checkout, pricing, and stock. At the very bottom, an audit log must record which customer did it. But only the entry point of the request knows who the customer is. So here is the question. How does the log find out?</p>
+<h2>3. Hand It Down</h2>
+<p>First, the simple way: hand it down. Three methods each take a customer parameter, which they never use. They only pass it on, so the last one can log it. Every new layer, and every new caller, must pass it on too. The parameter clutters every method. And if one method forgets it, the log breaks.</p>
+<h2>4. The Pattern</h2>
+<p>Now, the pattern. Each thread has its own copy of a variable. Set it once, at the entry point of the request. Read it anywhere below, with no parameter. And clear it when the request is finished.</p>
+<h2>5. A Value That Belongs To The Thread</h2>
+<p>Second demo: a value that belongs to the thread. The customer, Ada, is set once, at the entry point. Checkout, pricing, and stock take no customer parameter at all. And the log still says Ada. When the request finishes, the value is cleared.</p>
+<h2>6. Each Thread Has Its Own</h2>
+<p>Third demo: each thread has its own copy. Two customers are served at the same moment. Both values are set before either is read. The log says Ada for one request, and Ben for the other. They run the same code, and use the same static field. But they do not share the value.</p>
+<h2>7. A Thread That Is Reused</h2>
+<p>Fourth demo: a thread that is reused. Request A sets the customer to Ada, and forgets to clear it. Then request B, from an anonymous visitor, runs next, on the same pool thread. Request B is logged as Ada. A thread pool reuses its threads. So whatever one request leaves behind, the next one finds. With the clear placed in a finally block, request B is logged as nobody, which is correct. This is the classic thread-local bug.</p>
+<h2>8. A New Thread Starts Empty</h2>
+<p>Fifth demo: a new thread starts empty. Ada&#x27;s request hands some work to another thread. And that thread&#x27;s log says: nobody. A thread created directly by Ada&#x27;s thread can inherit a copy. But a pool thread was created long ago, and reused. It holds whatever was there when it was made, not the current request&#x27;s value. So handing work to another thread means handing the value over too, on purpose.</p>
+<h2>9. The Bill</h2>
+<p>Finally, the cost. A method that reads the thread-local value has a hidden dependency. Its parameters do not show it. If nobody set the value, it logs nothing. Every test of the lower layers must set the value first, and clear it after. And a long-lived pool thread keeps whatever is left in it, for as long as the thread lives.</p>
+<h2>10. How To Recognise It</h2>
+<p>How can you spot this in code someone else wrote? Look for a private static final Thread Local field. Look for Spring&#x27;s Security Context Holder, or the logging context, called M D C. Look for a try block that sets a value, with a finally block that removes it. And look for a Task Decorator that copies the value to another thread.</p>
+<h2>11. The Verdict</h2>
+<p>So, here is the verdict. Use thread-local storage for details that truly belong to one request, and cross many layers. Such as a trace I D, the logged-in user, or a transaction. Set it in one place. Clear it in a finally block, in that same place. Pass it on by hand when work moves to another thread. And keep the values small. And if passing a parameter is easy, just pass the parameter.</p>
+<h2>12. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything is plain Java. Every result you heard comes from the program&#x27;s own output. And nothing depends on the clock, so every run gives the same result.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, when is this too much? If a value is used in only one or two places, pass it as a parameter. There, it can be seen, and tested. Thread-local data is really global data, with a thread&#x27;s name on it.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s Thread-Local Storage. If you remember one sentence, make it this one. Thread-local storage saves passing a value down, and its price is a dependency you cannot see, and a clear you must never forget. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Write a decorator that copies the customer to a pool thread for one task. And clears it again afterwards. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

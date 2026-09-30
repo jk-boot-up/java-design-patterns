@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fluent Interface, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Fluent Interface, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>A fluent interface lets calls be chained so that code reads like a sentence, each call returning something to call the next on.</p>
+<h2>The six acts</h2>
+<h3>A Long List Of Arguments</h3>
+<p>The find call with mugs, twenty five hundred, true, true and ten gives the blue mug and the big mug. With the two booleans the other way round, it gives three mugs, including one that is not in stock. Both compile. Which is in stock, and which is the sort? You must count the arguments to know.</p>
+<pre><code>  find(&quot;mugs&quot;, 2500, true, true, 10): [Blue Mug, Big Mug].
+  find(&quot;mugs&quot;, 2500, false, true, 10) has the two booleans the other way round: [Blue Mug, Gift Mug, Big Mug].
+  both compile. which is in stock, and which is the sort? you must count the arguments to know.</code></pre>
+<h3>A Sentence</h3>
+<p>Search, category mugs, under twenty five hundred, in stock, cheapest first, first ten. The same answer as the long call, and every part names itself.</p>
+<pre><code>  search().category(&quot;mugs&quot;).under(2500).inStock().cheapestFirst().first(10): [Blue Mug, Big Mug].
+  the same answer as the long call, and every part names itself.</code></pre>
+<h3>Leave Out What You Do Not Need</h3>
+<p>Category only: green tea. Under a thousand, any category: the blue mug, and green tea. And the order of the optional parts does not matter.</p>
+<pre><code>  category only: [Green Tea].
+  under 1000, any category: [Blue Mug, Green Tea].
+  the order of the optional parts does not matter: [Blue Mug, Big Mug].</code></pre>
+<h3>Does A Call Change The Query?</h3>
+<p>A query that never changes: cheap gives the blue mug, dear gives three mugs, and the base still gives four. A query that changes itself: cheap and dear give the same three mugs. They are the same object. The cheap query was spoiled by the dear one.</p>
+<pre><code>  never changing: cheap [Blue Mug], dear [Blue Mug, Big Mug, Gift Mug], the base still [Blue Mug, Big Mug, Gift Mug, Travel Mug].
+  changing itself: cheap [Blue Mug, Big Mug, Gift Mug], dear [Blue Mug, Big Mug, Gift Mug]. they are the same object: true. the cheap query was spoiled by the dear one.</code></pre>
+<h3>Guided Steps</h3>
+<p>At the start, the only thing offered is category. Then, under. Then, cheapest first, in stock, or run. A call out of order does not compile.</p>
+<pre><code>  at the start, the only thing offered is: [category].
+  then: [under]. then: [cheapestFirst, inStock, run].
+  [Blue Mug, Big Mug]. a call out of order does not compile.</code></pre>
+<h3>The Bill</h3>
+<p>Under minus five was accepted, and nothing complained. It failed at run, saying the price limit is below zero. The mistake and the report are on different steps of one long line. A debugger cannot stop between the calls of one chain, and a stack trace names the line, not the step. And it is a small language that someone designed: this one has seven methods to learn, and to keep.</p>
+<pre><code>  under(-5) was accepted. nothing complained.
+  it failed at run(): &quot;the price limit is below zero: -5&quot;. the mistake and the report are on different steps of one long line.
+  a debugger cannot stop between the calls of one chain, and a stack trace names the line, not the step.
+  and it is a small language that someone designed: this one has 7 methods to learn, and to keep.</code></pre>
+<h2>The verdict</h2>
+<p>Use a fluent interface where many optional settings make a plain call hard to read. Make each call return a new object, unless the object is a builder used once. Check values in each call, not at the end. Use staged types when order matters. Keep it small, since it is a language you must maintain.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>Java streams: <code>list.stream().filter(...).map(...).toList()</code>.</li><li><code>StringBuilder.append(...).append(...)</code>.</li><li>jOOQ, QueryDSL, AssertJ and Mockito&#x27;s <code>when(...).thenReturn(...)</code>.</li><li>Builders with <code>.name(...).age(...).build()</code>.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Java streams, AssertJ assertions, Spring&#x27;s <code>WebClient</code> and <code>HttpSecurity</code>, and query builders such as jOOQ.</p>
+<h2>When this is too much</h2>
+<p>For two or three obvious arguments, a plain call is shorter. A fluent API costs a class, a design and its upkeep.</p>
+</main>
+<footer>
+Generated from <code>fluent-interface-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

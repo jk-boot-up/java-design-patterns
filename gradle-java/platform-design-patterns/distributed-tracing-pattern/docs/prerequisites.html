@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>This project is written for beginners. If you can read a Java method and follow a <code>for</code> loop, you have enough. Everything else is explained as it arrives.</p>
+<p>There is no network, no Docker, no cloud account and no tracing backend. The whole of Tier 1 runs offline with a JDK and nothing else.</p>
+<hr>
+<h2>Knowledge Prerequisites</h2>
+<h3>Required</h3>
+<ul><li><strong>Java basics</strong> — classes, methods, <code>final</code>, and reading a stack trace.</li><li><strong>Collections</strong> — <code>List</code> and <code>Map</code>, and being comfortable with a <code>for</code> loop over a list.</li><li><strong>The idea that a program can call another program.</strong> Not the mechanics. Just the idea that when you open a web page, the thing that answers you may ask three other things before it answers.</li></ul>
+<h3>Helpful, but explained as we go</h3>
+<ul><li><strong>Records</strong> — Java&#x27;s short syntax for &quot;a value with named fields&quot;. Primer below.</li><li><strong>try-with-resources</strong> — the <code>try (Something x = ...)</code> form. Primer below.</li><li><strong>Streams</strong> — a few methods use <code>.stream().filter(...).toList()</code>. Every one of them could be a <code>for</code> loop and means exactly what it looks like it means.</li><li><strong>Thread-locals</strong> — a variable whose value is private to each thread. Explained where it appears, because its behaviour is the lesson rather than the mechanism.</li></ul>
+<h3>Explicitly NOT required</h3>
+<ul><li>Any experience with Jaeger, Zipkin, OpenTelemetry, Datadog or any other tool.</li><li>Any experience with microservices, Kubernetes, or service meshes.</li><li>Any concurrency knowledge. There is exactly one background thread in the whole project, and the demo waits for it.</li><li>HTTP headers, or knowing what <code>traceparent</code> is. It is mentioned once, as the thing the Tier 2 directory uses.</li></ul>
+<hr>
+<h2>A 60-Second &quot;Record&quot; Primer</h2>
+<p>A <code>record</code> is Java&#x27;s short way of saying &quot;a value made of these named fields&quot;.</p>
+<pre><code>public record Span(String traceId,
+                   String spanId,
+                   String parentSpanId,
+                   String name,
+                   long startMillis,
+                   long durationMillis) { }</code></pre>
+<p>That one line gives you a constructor taking all six values, a getter for each one named after the field — <code>span.name()</code>, not <code>span.getName()</code> — and sensible equality, so two spans with the same six values are equal.</p>
+<p>Records are immutable. There is no <code>setSpan(...)</code>. Once a span is recorded it cannot be edited, which is the right property for a measurement of something that has already happened.</p>
+<p>You will also see a <strong>compact constructor</strong>, which is where a record checks itself:</p>
+<pre><code>public Span {
+    if (durationMillis &lt; 0) {
+        throw new IllegalArgumentException(&quot;a span cannot last negative time&quot;);
+    }
+}</code></pre>
+<p>No parameter list and no assignments — Java fills those in. The body runs before the fields are set, so the object either exists and is valid, or does not exist.</p>
+<hr>
+<h2>A 60-Second &quot;try-with-resources&quot; Primer</h2>
+<p>You have probably seen this form with files:</p>
+<pre><code>try (BufferedReader reader = new BufferedReader(...)) {
+    // read
+}   // reader.close() happens here, even if something is thrown</code></pre>
+<p>Anything implementing <code>AutoCloseable</code> can go in those brackets, and Java guarantees <code>close()</code> is called on the way out — normally or by exception.</p>
+<p>This project uses it for spans:</p>
+<pre><code>try (Tracer.Scope pricing = tracer.start(request, &quot;pricing&quot;)) {
+    clock.advance(180);
+}</code></pre>
+<p>The closing brace is where the span is <strong>recorded</strong>, because that is the moment its duration is known. That makes the brace load-bearing in a way it is not with a file: a span that is started and never closed does not appear in the trace at all.</p>
+<hr>
+<h2>A 60-Second &quot;Span&quot; Primer</h2>
+<p>This is the one piece of vocabulary the project cannot do without, so it is worth thirty seconds even if the word is already familiar.</p>
+<ul><li>A <strong>trace</strong> is everything that happened because of one customer request.</li><li>A <strong>span</strong> is one unit of work inside it — one service call, one database query, one piece of computation.</li><li>A span carries four things: a <strong>name</strong>, a <strong>start</strong>, a <strong>duration</strong>, and the id of the span that <strong>caused</strong> it.</li><li>The one span with no parent is the <strong>root</strong>, and it is the front door.</li></ul>
+<p>The fourth of those is the one that matters. Without it you have timings. With it you have a tree, and a tree can be added up.</p>
+<p>A useful sentence to keep: <em>a log line says when something happened; a span says when it happened and because of what.</em></p>
+<hr>
+<h2>A 60-Second &quot;Self Time&quot; Primer</h2>
+<p>The single piece of arithmetic in the project.</p>
+<p>A span&#x27;s <strong>duration</strong> is how long it lasted. Its <strong>self time</strong> is its duration minus however long its children lasted — in other words, the time it was actually working rather than waiting.</p>
+<p>The product page span lasts nine hundred milliseconds, which is the whole request. Its self time is <strong>zero</strong>, because it did nothing except wait for five other things. That is why &quot;which span lasted longest&quot; never names a culprit and &quot;which span has the most self time&quot; always does.</p>
+<p>If the idea feels slippery, think of a manager whose day is eight hours long and who spent all eight of them in meetings run by other people. Their day is the longest on the team. Their own work is zero.</p>
+<hr>
+<h2>Software Prerequisites</h2>
+<table><thead><tr><th>Need</th><th>Version</th><th>Check</th></tr></thead><tbody><tr><td>JDK</td><td>21 or newer</td><td><code>java -version</code></td></tr><tr><td>Gradle</td><td>none — the wrapper is included</td><td><code>./gradlew --version</code></td></tr></tbody></table>
+<p>Nothing else. No Docker, no network access at build time beyond Gradle fetching JUnit once.</p>
+<h3>Verify Your Setup</h3>
+<pre><code>cd gradle-java/platform-design-patterns/distributed-tracing-pattern
+./gradlew test
+./gradlew run</code></pre>
+<p><code>test</code> should report 82 tests passing. <code>run</code> should print seven acts, ending with <code>kept       10,000</code> and a request that was not.</p>
+<p>If <code>run</code> prints the same thing twice in a row, that is not luck — the clock is scripted precisely so that it does, which is what lets the documents and the video quote exact figures.</p>
+<hr>
+<h2>Troubleshooting</h2>
+<p><strong><code>./gradlew</code> says permission denied.</strong> <code>chmod +x gradlew</code>.</p>
+<p><strong>Gradle downloads things on the first run.</strong> Expected, once, for the wrapper and JUnit. After that the project is offline.</p>
+<p><strong>The waterfall bars look ragged in my terminal.</strong> The drawing assumes a fixed-width font and about eighty columns. Widen the window or reduce the font size; the arithmetic is unaffected.</p>
+<p><strong>The em dashes and <code>£</code> signs show as question marks.</strong> Your terminal is not on UTF-8. <code>export LANG=en_GB.UTF-8</code> usually fixes it.</p>
+<hr>
+<h2>Recommended Reading Order</h2>
+<ol><li><code>docs/problem-statement.md</code> — the nine hundred milliseconds, and why four healthy logs cannot explain them.</li><li><code>./gradlew run</code> — watch all seven acts before reading any source.</li><li><code>docs/distributed-tracing-pattern-explained.md</code> — the pattern, then the bill.</li><li><code>docs/animation.html</code> — the waterfall assembling itself, span by span.</li><li><code>docs/class-diagram.md</code> and <code>docs/uml-diagram.md</code> — the structure and the sequences, including both sides of the thread boundary.</li><li>The source, in this order: <code>TraceContext</code>, <code>Span</code>, <code>Tracer</code>, <code>Trace</code>, <code>Waterfall</code>, then the three bill classes.</li><li><code>docs/session.md</code> if you are running this for a group.</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

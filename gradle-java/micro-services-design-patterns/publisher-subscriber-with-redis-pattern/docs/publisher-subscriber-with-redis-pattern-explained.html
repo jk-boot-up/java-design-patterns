@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Publisher-Subscriber with Redis, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Publisher-Subscriber with Redis, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>One part of a system announces that something happened, once, to a named place, and any number of other parts listen there — without the one announcing ever knowing who they are.</p>
+<h2>The analogy, before any of Redis&#x27;s words</h2>
+<p>Think of a live radio station. The presenter speaks once, and every radio tuned in at that moment hears it. The presenter does not know who is listening, and does not need to.</p>
+<p>Now three things a radio station makes you face, which the partner project never had to. If your radio was off, there is no recording: you missed it. The station can know roughly how many radios were tuned in, but not whose they were, or whether anybody wrote anything down. And a radio that stops playing does not slow the station down. In Redis there is one more twist, best told with a kitchen: plates a table has not collected pile up on a shelf by the door, one shelf per table, and when a shelf overflows, the kitchen stops serving that table altogether.</p>
+<h2>What Redis calls these things</h2>
+<p><strong>Redis</strong> is a server that keeps data in memory and answers over the network. This project uses only its live-announcement feature, running in a container the demo starts and stops.</p>
+<p><strong>Publishing</strong> is speaking once: handing Redis one message under a name. Redis answers with a number — how many listeners it handed the message to, at that instant.</p>
+<p>A <strong>channel</strong> is the name the message goes out under, like a radio frequency. Here the names are <code>orders.placed</code> and <code>orders.cancelled</code>. A channel is not stored anywhere; it exists only while somebody is listening on it.</p>
+<p><strong>Subscribing</strong> is tuning in: asking Redis to send you everything published under a name, from now on. A connection that is subscribed can do nothing else, so every subscriber in this project has its own connection.</p>
+<p>A <strong>pattern subscription</strong> is tuning in by a shape rather than an exact name: <code>orders.*</code> hears every channel whose name starts with <code>orders.</code>.</p>
+<p>The <strong>client output buffer</strong> is the shelf by the kitchen door: the pile of messages Redis has sent a listener but the listener has not read yet. Redis keeps one per connection, and it has a limit. For a subscriber, out of the box, the limit is 32mb, or 8mb if that lasts for 60 seconds. Past it, Redis closes the connection.</p>
+<h2>The six acts</h2>
+<h3>The Order Service Calls Each One</h3>
+<p>The order service calls inventory, email and analytics, by name, and each handles order ORD-1. It works, but the order service knows three services by name, and a fourth — loyalty points — means editing it.</p>
+<pre><code>  inventory [ORD-1], email [ORD-1], analytics [ORD-1].
+  the order service knows 3 services by name. a fourth, loyalty points, means editing it.</code></pre>
+<h3>Publish Once, And Redis Fans It Out</h3>
+<p>Redis is running in a container. Inventory, email and analytics each open a connection and subscribe to <code>orders.placed</code>. The order service publishes ORD-1 once, and Redis answers: 3 receivers. Each gets ORD-1.</p>
+<p>Then loyalty points starts — not as another object, but as a second Java program with its own memory, sharing nothing with the order service except Redis&#x27;s address. ORD-2 is published, Redis answers 4, and the loyalty program prints ORD-2 and exits cleanly. The order service was not changed.</p>
+<pre><code>  the order service published OrderPlaced ORD-1 once. Redis answered: 3 receivers.
+  inventory [ORD-1], email [ORD-1], analytics [ORD-1]. each on a connection of its own.
+  loyalty points starts as a separate Java process. ORD-2 is published: 4 receivers.
+  the loyalty process printed [ORD-2] and exited with code 0. the order service was not changed.</code></pre>
+<h3>A Subscriber That Arrives Late</h3>
+<p>Only email is listening, and three orders are published: Redis answers 1, 1 and 1. Loyalty starts listening, and ORD-4 is published to 2 receivers. Email saw all four; loyalty saw only ORD-4. There is no reading from the start, because Redis stored none of the orders: the database holds 0 keys.</p>
+<pre><code>  3 orders published while only email listened. Redis answered: [1, 1, 1].
+  loyalty starts listening, and ORD-4 is published: 2 receivers.
+  email saw [ORD-1, ORD-2, ORD-3, ORD-4]. loyalty saw [ORD-4].
+  there is no reading from the start. Redis stored none of the 4 orders: keys in the database: 0.</code></pre>
+<h3>Each Takes What It Wants</h3>
+<p>Email subscribes to the exact name <code>orders.placed</code>. Analytics subscribes to the pattern <code>orders.*</code>. A placed order reaches 2 receivers; a cancelled order reaches 1. Email heard only the placed order; analytics heard both.</p>
+<pre><code>  OrderPlaced ORD-1 reached 2 receivers. OrderCancelled ORD-1 reached 1.
+  email listened to orders.placed: [OrderPlaced ORD-1].
+  analytics listened to orders.*: [OrderPlaced ORD-1, OrderCancelled ORD-1].</code></pre>
+<h3>A Subscriber That Cannot Keep Up</h3>
+<p>This is the headline of the project. The demo lowers the output buffer limit from Redis&#x27;s 32mb to 1mb, so the point arrives in seconds rather than minutes. Email and analytics both subscribe. Then analytics stops reading — its handler simply does not return, as a service stuck on a slow call would behave. The order service publishes a flash sale, in rounds of 1000 orders, until Redis acts.</p>
+<p>Redis does not wait for analytics, and does not slow the publisher. The orders analytics has not read first fill the network between Redis and the demo, then pile up in Redis&#x27;s buffer for analytics. When that pile passes 1mb, Redis closes analytics&#x27; connection. Its own counter of listeners cut off for falling behind reads 1, and the answer to the next publish drops from 2 receivers to 1. Email kept reading and received every order. When analytics starts reading again it gets some of the orders — whatever was already on its way through the network — and then the connection ends. Everything in the pile was thrown away with it.</p>
+<p>How many orders it takes, and how many analytics still receives, depend on how much the network between the demo and the container holds, so the demo describes them rather than printing them. The outcome does not vary.</p>
+<pre><code>  Redis keeps a pile of unsent messages for each listener, with a limit. out of the box: 32mb, or 8mb for 60 seconds.
+  this demo lowers it to 1mb. analytics stops reading, and orders are published in rounds of 1000 until Redis acts.
+  more than 10,000 orders later, Redis cut analytics off. listeners cut off for falling behind: 1.
+  the first order reached 2 receivers, the last reached 1. email kept up and received every one.
+  analytics started reading again and got some of them, not all, then its connection ended.
+  the publisher was never slowed down, and never told. the orders analytics missed are gone.</code></pre>
+<p>Why would Redis do this? The alternatives are worse. Waiting for the slow listener would let one stuck service slow down every publisher. Piling up without a limit would eventually run Redis itself out of memory, and then every listener loses. Cutting off the one that fell behind keeps everyone else going.</p>
+<h3>The Bill</h3>
+<p>Email is down when ORD-1 is placed. Redis tells the order service: 0 receivers. When email comes back it gets nothing, because there is nothing to catch up from. The count is honest, but it is only a count of connections: not which ones, and not whether any of them finished the work. And Redis is a separate program to run and watch — this demo needed one container and two Java processes.</p>
+<pre><code>  email was down when ORD-1 was placed. Redis told the order service: 0 receivers.
+  email came back and got: []. there is nothing to catch up from.
+  the count says how many connections were listening. not which ones, and not whether any finished the work.
+  and Redis is a separate program to run and watch: this demo needed 1 container and 2 Java processes.</code></pre>
+<h2>The verdict</h2>
+<p>Use Redis publish-and-subscribe for news that is worth nothing if it arrives late: a live price, a &quot;someone is viewing this&quot; count, a signal to clear a cache. Then keep three rules. Subscribe before you need it, because nothing is kept for a latecomer. Keep every listener reading — hand slow work to a queue of its own — and watch Redis&#x27;s counter of listeners cut off. And if a missed order would matter, use a tool that keeps a log.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>A <code>publish</code> call whose return value is thrown away. Somebody could have learned that nobody was listening.</li><li>A <code>subscribe</code> handler that does real work — a database write, an email send — directly on the listening thread. That is the listener that falls behind in a flash sale.</li><li>A <code>client-output-buffer-limit</code> line for <code>pubsub</code> in the Redis configuration, or its absence, which means 32mb.</li><li>Code that publishes at start-up, before its subscribers have had a chance to connect.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Live notifications that are worthless when late, and cache invalidation signals across a fleet of servers. Redis publish-and-subscribe is common for these because Redis is often already there.</p>
+<h2>When this is too much</h2>
+<p>If every subscriber lives in one program, a topic in memory costs nothing to run. And if a lost order matters, this is too little rather than too much: it keeps nothing and waits for nobody.</p>
+</main>
+<footer>
+Generated from <code>publisher-subscriber-with-redis-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

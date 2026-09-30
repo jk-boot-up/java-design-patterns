@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Factory Method Pattern Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Factory Method Pattern Pattern — Video Narration Script</h1>
+<h2>1. The Factory Method Pattern</h2>
+<p>Hello, and welcome. This video explains the Factory Method pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. The Factory Method pattern moves the creation of an object into a method that subclasses override. A base class writes the steps that never change. Wherever it needs a new object, it calls that method. So each subclass decides which class gets created, and the surrounding code never changes. Think of a coffee chain&#x27;s recipe card. Head office writes every step, but leaves, make the drink, blank. Each branch fills in its own drink. In this video, we build the delivery step of an online store. By the end, you will know what a factory method is, why it exists, and how to write one yourself.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. A customer checks out, and picks a delivery option. Standard delivery goes by post, and takes five days. Express flies overnight, and takes two days. Same day goes out on a bike. And international crosses a border, and takes nine days. Four different carriers, with different prices, and different delivery dates. But here is the important detail. Every one of them runs the same shipping steps around its carrier.</p>
+<h2>3. The Workflow Is Always the Same</h2>
+<p>Let&#x27;s list what shipping involves. Step one: check the order really has some weight. Step two: log that we are preparing the parcel. Step three: hand it to the carrier. Step four: log the tracking number, and the promised date. Steps one, two, and four are identical for every delivery option. Only step three, the hand-over, is different. Remember that, because it is the whole reason this pattern exists.</p>
+<h2>4. The Problem — One Class Doing Both Jobs</h2>
+<p>Here is the naive version, and it is what most of us would write first. One shipping method, with a chain of if statements in the middle, choosing the carrier by name. The shared steps are in there. The choosing is in there. They are tangled together, and you cannot read one without the other.</p>
+<h2>5. Why That Hurts</h2>
+<p>Now, drone delivery launches on Monday. Which file do you open? This one. The one that already ships real parcels, for four delivery options, today. And every edit to working code is a chance to break something. It gets worse. If international also needs a customs check, you need a second if chain, on the same name. And the two chains must always stay in step. A partner team cannot add a delivery option at all. And you cannot test the shared steps without the choosing, because they are one method.</p>
+<h2>6. The Factory Method</h2>
+<p>The Factory Method fixes exactly this. Here is its definition, from the famous Gang of Four book. Define an interface for creating an object, but let subclasses decide which class to create. That is precise, but it confuses many people. So here it is in plain words. Write the steps once, and leave a gap in the middle. Then let a subclass fill in that gap. That is the whole pattern.</p>
+<h2>7. Remember It With a Coffee Chain</h2>
+<p>Here is an easy way to remember it: a coffee shop chain. Head office writes the recipe card for serving a hot drink. Step one: greet the customer. Step two: make the drink. Step three: put a lid on, call out the name, and hand it over. Steps one and three are the same in every branch in the world. Step two is left blank, on purpose. The Tokyo branch makes matcha. The Rome branch makes espresso. And head office never needs to know what matcha is. It only knows that whatever comes back can have a lid put on it.</p>
+<h2>8. The Four Roles</h2>
+<p>Every factory method has four roles. First, the product: our Courier interface. Second, the concrete products: the four carrier classes. Third, the creator: an abstract class called Delivery Service. It owns the shared steps, and declares the factory method. Fourth, the concrete creators: the four delivery options. Each one answers a single question: which courier? And here is the most important idea in the video. The parent class makes the call. The child class decides what comes back.</p>
+<h2>9. A Product — Small, Focused, Unaware</h2>
+<p>Let&#x27;s look at one product: the air courier. Notice how small, and ordinary, it is. It knows its own name, SkyLink Air. Its own tracking prefix, its own speed of two days, and its own pricing. And it has no idea that delivery options exist, or that three other carriers exist. That is deliberate. The other three carriers follow exactly the same shape.</p>
+<h2>10. The Creator — A Workflow With a Hole in It</h2>
+<p>And this is the heart of it: the Delivery Service class. Go through its ship method, step by step, and label each step shared, or varying. The weight check is shared. The two log lines are shared. Exactly one line varies: the call to create courier. And create courier is abstract. It has no body. So the parent class makes a call that it cannot answer itself. Notice too that the ship method is marked final. A subclass may change which courier is used, and nothing else. Not the check, not the logging, and not the order of the steps.</p>
+<h2>11. A Concrete Creator — Six Lines</h2>
+<p>Here is an entire delivery option: Express Delivery. It is six lines long. Its create courier method returns a new air courier. And it names itself, Express. That is all it does. All four delivery options look exactly like this. Search the whole project for a switch statement. There is none. Search for an if statement that tests a delivery name. There is none of those either. The decision that used to be a branch is now a class. And choosing a class is something Java already does for us, for free.</p>
+<h2>12. What You Gain</h2>
+<p>So what did that buy us? Monday&#x27;s drone delivery is now one new file. No existing class is touched. That is the Open Closed Principle, really working. The weight check is written once, and it protects every delivery option that will ever exist. Another team can add a delivery option in their own library. And if a subclass forgets to provide a courier, it will not even compile. Compare that with its simpler cousin. A simple factory moves the switch statement into one file. A factory method removes the switch statement entirely.</p>
+<h2>13. Running It</h2>
+<p>Let&#x27;s run the demo. Two of the delivery options ship the very same order, to Edinburgh. Each begins with the same line: preparing the order. And each ends with the same line: booked, with a tracking number and a delivery date. Only the middle line is different, printed by the carrier itself. Royal Post drops it into the postal network. SkyLink Air books it onto tonight&#x27;s flight. One shared set of steps, running completely different carriers.</p>
+<h2>14. Wrap Up</h2>
+<p>So, to recap. Use a factory method when you have shared steps, with one step that varies, and that step creates an object. Keep the method&#x27;s return type abstract. The moment it promises a specific carrier class, the coupling comes straight back. Never call the factory method from a constructor. The subclass is not fully ready at that point. And be honest with yourself. If the only difference between subclasses is one new object, simply passing in a supplier may be enough. Do not build a class hierarchy just to avoid a two-line switch. And one sentence to remember. A simple factory chooses with a switch. A factory method chooses with inheritance.</p>
+<h2>15. Thanks for Watching</h2>
+<p>That&#x27;s the Factory Method pattern. If you remember one sentence, make it this one. Write the shared steps once, leave a gap, and let each subclass fill it. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. If there is a pattern you would like to see covered, suggest it in the comments. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

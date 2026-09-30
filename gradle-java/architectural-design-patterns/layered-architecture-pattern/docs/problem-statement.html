@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Problem Statement</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Problem Statement</h1>
+<h2>The feature</h2>
+<p>A customer places an order for three products. Stock is checked. Payment is taken. A confirmation is sent.</p>
+<p>That is the whole feature, deliberately small, and it is the same feature every project in this category builds — layered, MVC, hexagonal and clean architecture all place the same order, so a reader can compare the shape of the code across the four without the scenario changing underneath them.</p>
+<p><strong>The catalogue.</strong></p>
+<table><thead><tr><th>SKU</th><th>Name</th><th>Price</th><th>Stock</th></tr></thead><tbody><tr><td><code>ESP-001</code></td><td>Espresso Machine</td><td>£249.00</td><td>4</td></tr><tr><td><code>GRD-014</code></td><td>Burr Grinder</td><td>£89.50</td><td>2</td></tr><tr><td><code>BNS-220</code></td><td>Coffee Beans, 1kg</td><td>£22.00</td><td>40</td></tr></tbody></table>
+<p><strong>The order.</strong> Ada Okafor, <code>cust-8801</code>, buys one espresso machine, one grinder, and two bags of beans: <strong>£382.50</strong>.</p>
+<h2>The naive version, in two parts</h2>
+<h3>Part one: no layers at all</h3>
+<p>The first naive version, <code>EverythingOrderService</code>, is one class that validates the request, holds the catalogue, does the pricing arithmetic, charges the card, stores the order and sends the email. Seventy-four lines, every one of them easy to read in isolation.</p>
+<p>It has one property that no amount of tidying removes: <strong>you cannot test the pricing without the storage.</strong> To assert that three lines come to £382.50 you must construct the whole class, which means constructing its catalogue map, its order map and its list of sent email, because they are fields of the same object. There is no seam between &quot;work out the total&quot; and &quot;remember it happened&quot;.</p>
+<h3>Part two: layers that exist and are skipped anyway</h3>
+<p>The second naive version is the one that matters more, because it is what most codebases that call themselves &quot;layered&quot; actually are. The four packages exist — <code>presentation</code>, <code>application</code>, <code>domain</code>, <code>infrastructure</code> — with the right names, and a diagram of them on a wall somewhere.</p>
+<p>Then somebody needs a screen listing a customer&#x27;s past orders. The application layer has no method for it, and adding one means a request object, a result object and a service method — three files to return rows that are sitting right there in the order table. So <code>OrderHistoryScreen</code> takes the storage class directly. Ten minutes instead of an afternoon. It compiles. The tests pass. It ships.</p>
+<p><strong>Nothing in the build objects to it.</strong> That sentence is the whole problem with layering as it is usually practised: it is a convention, and a convention that nothing checks decays — not all at once, but one reasonable Tuesday at a time.</p>
+<h2>What it costs later</h2>
+<p>Six months on, the storage layer needs to change — a real example follows in this project: a map keyed by order id is replaced by an append-only log. Every class that reached the store through the application layer needs nothing done to it. <code>OrderHistoryScreen</code> does not compile, because it imported the concrete storage class directly and that class no longer exists in the same shape. The bill for the ten minutes arrives, with interest, on a day nobody remembers the ten minutes.</p>
+<h2>What the pattern must deliver</h2>
+<p>Four layers — presentation, application, domain, infrastructure — where each one depends only on the layer directly beneath it, <strong>and where that rule is not a diagram but a test.</strong> A class that reaches past its neighbour into a layer it should not touch must fail a build, automatically, naming the class and the layer it reached into — not wait to be noticed in a code review that might not happen.</p>
+<p>The pattern is judged, in this project, by one forced change: swap the entire storage layer for a different implementation, and count what had to be touched. The number — not the adjective &quot;decoupled&quot; — is the argument.</p>
+</main>
+<footer>
+Generated from <code>problem-statement.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

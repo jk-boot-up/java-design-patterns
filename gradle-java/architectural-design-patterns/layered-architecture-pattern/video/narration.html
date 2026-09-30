@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layered Architecture Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Layered Architecture Pattern — Video Narration Script</h1>
+<h2>1. Layered Architecture</h2>
+<p>Hello, and welcome. This video explains the Layered Architecture pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A layered architecture splits a program into stacked groups of classes, called layers. Each layer may only depend on the layer directly beneath it. The promise is that changing one layer should not force changes in the layers above it. Think of a restaurant. The customer talks to the waiter. The waiter talks to the chef. The chef takes food from the store room. The customer never walks into the store room. But here is what people rarely say. Drawing four boxes on a whiteboard costs nothing. And nothing stops a busy developer adding one import that skips a box. So in this video, we build a real online shop with four layers. We watch someone take a shortcut, and see that nothing complains. Then we write the rule as a test, and watch it catch the shortcut. And finally, we make a real change, and count exactly what it touched.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the job, and it stays the same for the whole video. A customer called Ada Okafor orders three things from an online shop. One espresso machine, for two hundred and forty-nine pounds. One coffee grinder, for eighty-nine pounds fifty. And two bags of coffee beans, at twenty-two pounds each. The total is three hundred and eighty-two pounds fifty. Placing that order takes four steps, in order. Check the stock, so nobody buys the last grinder twice. Take the payment. Reduce the stock and save the order. And send a confirmation email. Every version of the code in this video places exactly this order. So you can compare them fairly.</p>
+<h2>3. Version One — No Layers At All</h2>
+<p>We start with no layers at all. Just one class. It keeps the prices, the stock levels, the orders, and the sent emails, all as fields. And one method does the whole checkout. It works out the total, checks stock, takes the money, reduces stock, saves the order, and sends the email. Seventy-four lines, and each line is easy to read. But here is the problem. Try to test just the arithmetic, that the three items really add up to three hundred and eighty-two pounds fifty. You can&#x27;t do it on its own. To create this class, you must also create its stock, its orders, and its email list. Pricing and storage are welded together, with no seam to pull them apart.</p>
+<h2>4. Four Layers, Stacked</h2>
+<p>So we split it into four layers. The names matter less than what each layer is not allowed to know. Layer one, at the top: presentation. It turns what the customer typed into one call. And it turns the answer back into words. Layer two: application. It runs the checkout as a fixed list of steps. Check stock, charge the card, reduce stock, save the order, send the confirmation. Layer three: domain. These are the business nouns, like an order, a price, and a product. They know nothing about the layers above or below them. Layer four, at the bottom: infrastructure. This is where orders, products, card payments and emails really live. And the rule that makes this an architecture. Each layer depends only on the layer directly beneath it. Nothing reaches back up. And nothing skips past its neighbour.</p>
+<h2>5. The One Call That Ruins Them</h2>
+<p>Now for the moment this whole video is about. Someone needs a new screen that lists a customer&#x27;s past orders. The application layer has no method for that yet. Adding one properly means three new files. So the new screen talks to the order storage directly. Ten minutes, instead of an afternoon. It compiles. It looks tidy. The reviewer approves it. The tests pass. It ships. And here is the lesson. Nothing in the build objected. The four layers still exist, and the folder names are still right. But one screen has quietly skipped a layer, and no tool told anyone. A rule that nothing checks does not break all at once. It decays, one reasonable shortcut at a time.</p>
+<h2>6. Why This Keeps Happening</h2>
+<p>Why does this keep happening? Not because people are careless. Architecture is usually taught with diagrams, and with words like decoupled, maintainable, and clean. They sound like facts about the code. But a build cannot check any of them. A dependency rule is different. Presentation may not touch infrastructure. That is a sentence about imports. And a program can check imports, every single time it builds. A diagram cannot fail. A test can.</p>
+<h2>7. The Rule, Written Where A Build Can Read It</h2>
+<p>So here is the architecture, written as a test. It uses a small open-source library called ArchUnit. And it reads almost like English. No classes in the presentation package should depend on classes in the infrastructure package. That is one test method. It runs every time the other tests run. And it costs about thirty lines. The rule also carries a reason, written in plain words. It says that a screen reading storage directly must be changed every time storage changes, and nothing warns you. Whoever sees the failure later reads that reason too.</p>
+<h2>8. Watching It Go Red</h2>
+<p>Let&#x27;s watch the rule catch the shortcut. A second test points the same rule at the shortcut screen from earlier. And it expects the rule to fail. Here is what the build reports. An architecture violation, found once. It names the class, Order History Screen. It names what that class reached for, the In Memory Order Table. And it even gives the line number. So a promise made at a whiteboard has become a check that fails the build, by name, in under a second. And because we have seen it fail, we can trust it when it passes.</p>
+<h2>9. The Forced Change</h2>
+<p>An architecture claims that some future change will be cheap. So let&#x27;s make that change, and count the cost. The change: orders stop living in a simple map, looked up by order I D. Instead, they live in an append-only log, read backwards to find the latest version of each order. That is a very different way to store data. Here is the bill, counted from the real files. One file added. One file modified: the setup code, which is the only place allowed to create the storage class. And one line changed. The four layers contain seventeen classes. Sixteen of them were never opened. Not the word decoupled. A number.</p>
+<h2>10. And The One That Took The Shortcut</h2>
+<p>And what about the shortcut screen? Remember, it used the in-memory storage class directly. The concrete class, not the interface. So when the storage is replaced, that screen no longer compiles. It cannot accept the new storage, because it never asked for the interface. Every screen that went through the application layer was untouched. The one that took the shortcut is broken, by a change it had nothing to do with. That is the real bill for those ten minutes. And it arrives much later, on some unrelated day, when nobody remembers the shortcut was ever taken.</p>
+<h2>11. What This Project Does Not Fix</h2>
+<p>Now, one honest admission. This project does not solve everything. Think about what the application layer imports. The storage interface, the card payment interface, and the email interface. All three are defined down in the infrastructure layer. The rule allows that, because application sits directly above infrastructure. But it means the application layer still reaches down into infrastructure, just to know those names. The interface for storing orders lives down there, next to its implementation. Not up here, next to the code that uses it. Hexagonal Architecture, which has its own video, changes exactly this. It moves that interface up into the core, so the dependency points the other way. This project is one deliberate step before that.</p>
+<h2>12. An Order That Is Not Obvious</h2>
+<p>One more detail inside the application layer, because it is easy to miss. The card is charged first. Before the stock is reduced, and before the order is saved. Why? Imagine the other way round. Save the order, reduce the stock, and then charge the card. If the card is declined, you are left with a saved order, and missing stock, that should never have happened. Charging first means a declined card stops everything, before anything has changed. This is exactly the kind of decision the application layer exists to own. Once, in one place, instead of repeated on every screen that needs a checkout.</p>
+<h2>13. The Bill</h2>
+<p>Every pattern has a cost, so let&#x27;s be honest about this one. First, indirection. Add one field to the checkout form, and it may touch three or four places. One small idea for the customer becomes several edits for you. Second, pass-through layers. Some methods in the application layer only pass a call along. That is real, and it is tedious. Third, the problem we just heard about. The application layer still has to name the storage package to compile. Layers organise the code. On their own, they do not reverse which way a dependency points.</p>
+<h2>14. When This Is Too Much</h2>
+<p>So when is this too much? Four layers and an architecture test are worth it when more than one caller uses the same business logic. Or when the code will outlive its first choice of storage. They are not worth it for a small script that reads a file, does one calculation, and prints the result. Four packages around fifteen lines of logic is not layering. It is just packaging. Here is a simple test. If adding the extra layer files for a new screen takes longer than the screen is worth, the layers have stopped paying for themselves.</p>
+<h2>15. Thanks for Watching</h2>
+<p>That&#x27;s Layered Architecture. If you remember one sentence, make it this one. A layered architecture is not the four folders, it is the test that fails when someone skips one. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Widen the architecture test, so it also checks the shortcut package. Run it, and read every violation the build finds. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

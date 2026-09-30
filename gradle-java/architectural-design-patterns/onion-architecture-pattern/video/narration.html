@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Onion Architecture Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Onion Architecture Pattern — Video Narration Script</h1>
+<h2>1. Onion Architecture</h2>
+<p>Hello, and welcome. This video explains the Onion Architecture pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. Onion Architecture arranges code in rings, like the layers of an onion. The business rules sit at the centre. And every ring may depend only on rings further in, never on rings further out. Think of a tree. The trunk does not depend on the leaves. The leaves depend on the trunk. You can lose every leaf in autumn, and the tree is still the same tree. In our online store, the order class saves itself to a database. So you cannot change the storage without editing the order. In this video, we arrange the code in rings, and write the rule as a check. We will swap the storage without touching the centre, test the rules with no storage at all, and then look at the cost.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. An order is placed, priced, and saved. The pricing rule gives ten percent off any order of one hundred pounds or more. And the storage may change over time. First memory, then a file, then a database. So here is the question. What should sit at the centre?</p>
+<h2>3. The Core Reaches Outward</h2>
+<p>First, the old way: the core reaches outward. The order class saves itself, by writing a database command. So to change the storage, you must edit the order class. And the order class sits right at the centre of the program.</p>
+<h2>4. The Pattern</h2>
+<p>Now, the pattern. Arrange the code in rings, with the business rules at the centre. Storage and screens go on the outside. And one rule. A class may refer to its own ring, or to a ring further in. Never to a ring further out.</p>
+<h2>5. Rings, And One Rule</h2>
+<p>Second demo: the rings, and the one rule. Ring zero, at the centre, holds the order, its lines, and the idea of a repository, a place to keep orders. Ring one holds the pricing rules. Ring two holds the use cases, like placing an order. Ring three, on the outside, holds storage and screens. The onion has eight classes. How many break the rule? None.</p>
+<h2>6. Checking The Rule</h2>
+<p>Third demo: checking the rule. A checker is pointed at the old, naive order class. It reports a problem. The naive order, in ring zero, refers to the database, in ring three. The checker reads every field, constructor and method of each class. So the rule is tested, not just hoped for.</p>
+<h2>7. Swap The Outside</h2>
+<p>Fourth demo: swap the outside. First, orders are stored in memory. The total is one hundred and eight pounds. Then, orders are stored as a line of text instead. The total is the same, one hundred and eight pounds. The text line holds the order I D, two mugs at sixty pounds, and a discount of twelve pounds. And the use case, the rules, and the order were not touched at all.</p>
+<h2>8. The Inside, On Its Own</h2>
+<p>Fifth demo: the inside, all on its own. A small order costs nine pounds fifty, with no discount. A big order of one hundred and twenty pounds gets ten percent off, and costs one hundred and eight pounds. No storage, no screen, and no framework was needed to check these rules. And when the same order goes through the outer rings, it gives exactly the same total.</p>
+<h2>9. The Bill</h2>
+<p>Finally, the cost. Saving one order, and reading it back, needed two conversions. Each time data crosses a ring, it may be copied into a different shape. To place one order, we used four classes in three rings, plus the repository idea. For a small program, that is a lot of ceremony. And one more thing. The repository idea lives at the centre. So the centre knows that storage exists, even though it does not know how it works.</p>
+<h2>10. How To Recognise It</h2>
+<p>How can you spot this pattern in code someone else wrote? Look for packages named domain, application, and infrastructure. Look for an interface in the domain package, implemented in the infrastructure package. Look for business classes with no framework annotations, and a use case that is handed its repository. And look for an ArchUnit test that fails when domain code imports infrastructure.</p>
+<h2>11. The Verdict</h2>
+<p>So, here is the verdict. Put the business rules at the centre, and let everything else depend on them. Let the centre own the ideas it needs, such as a repository. And let the outside provide them. Check the rule with a test, not a diagram. And do not use it for a program too small to have an outside worth swapping.</p>
+<h2>12. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything is plain Java. Every number you heard comes from the program&#x27;s own output. And nothing depends on the clock, so every run gives the same result.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, when is this too much? For a small tool with one fixed kind of storage, and only a few rules, rings are heavier than the problem. They pay off when the rules are rich, and the outside keeps changing.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s Onion Architecture. If you remember one sentence, make it this one. Onion Architecture puts the rules at the centre, and points every dependency inward, and the price is the copying and the extra classes the rings need. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a third kind of storage, which keeps orders in a sorted list. Then check that the checker still finds no violations. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

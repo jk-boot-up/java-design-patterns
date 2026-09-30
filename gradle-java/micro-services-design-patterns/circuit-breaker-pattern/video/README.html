@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video — Circuit Breaker</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Video — Circuit Breaker</h1>
+<p>Everything needed to rebuild the narrated teaching video for this project. The rendered video, its audio-only version and the subtitle file are deliberately not committed; run <code>./build_video.sh</code> and they appear here in about ten minutes.</p>
+<h2>Building it</h2>
+<pre><code>cd video
+./build_video.sh</code></pre>
+<p>Requirements are macOS (for the <code>say</code> voice), <code>ffmpeg</code>, and Python with Pillow. Nothing else, and no network.</p>
+<p>Outputs:</p>
+<table><thead><tr><th>File</th><th>What it is</th></tr></thead><tbody><tr><td><code>circuit-breaker-pattern-explained.mp4</code></td><td>1080p H.264 + AAC, ready for YouTube</td></tr><tr><td><code>circuit-breaker-pattern-explained.m4a</code></td><td>audio-only, for listening rather than watching</td></tr><tr><td><code>circuit-breaker-pattern-explained.srt</code></td><td>subtitles, one cue per narrated sentence</td></tr><tr><td><code>poster.png</code></td><td>the first frame, lifted out for use as the thumbnail</td></tr><tr><td><code>build/</code></td><td>one PNG and one clip per scene, kept for inspection</td></tr></tbody></table>
+<p>Runtime is approximately eighteen minutes across sixteen scenes.</p>
+<h2>The files</h2>
+<table><thead><tr><th>File</th><th>What it holds</th></tr></thead><tbody><tr><td><code>scenes.py</code></td><td>the sixteen scenes: title, kind, body and narration</td></tr><tr><td><code>make_slides.py</code></td><td>renders each scene to a 1920×1080 PNG</td></tr><tr><td><code>make_subtitles.py</code></td><td>turns the narration into timed <code>.srt</code> cues</td></tr><tr><td><code>build_video.sh</code></td><td>narrates, renders, concatenates and muxes</td></tr></tbody></table>
+<p>The narration is also lifted out to <a href="narration.html"><code>narration.md</code></a>, which is the readable version — useful for reviewing the wording without opening Python.</p>
+<h2>The scenes</h2>
+<table><thead><tr><th>#</th><th>Scene</th><th>Kind</th><th>What it does</th></tr></thead><tbody><tr><td>1</td><td><code>01-poster</code></td><td>poster</td><td>States what the video is, credits the author, gives the plain definition, then the e-commerce framing</td></tr><tr><td>2</td><td><code>02-scenario</code></td><td>bullets</td><td>Recommendations has stopped answering — not refusing, which would be easy</td></tr><tr><td>3</td><td><code>03-just-retry</code></td><td>code</td><td>The retry loop, presented fairly: no bug, correct page, every test passes</td></tr><tr><td>4</td><td><code>04-act-one</code></td><td>console</td><td>Nine seconds for a page identical to the one you&#x27;d have had immediately</td></tr><tr><td>5</td><td><code>05-three-costs</code></td><td>bullets</td><td>The third cost — idle threads — is the one that stops checkout working</td></tr><tr><td>6</td><td><code>06-fuse-box</code></td><td>quote</td><td>The analogy, in full, before any class name is spoken</td></tr><tr><td>7</td><td><code>07-vocabulary</code></td><td>bullets</td><td>Closed, open, half-open — think of a wire, not a door</td></tr><tr><td>8</td><td><code>08-the-breaker</code></td><td>code</td><td>The three questions inside <code>call</code>, and why a success resets rather than decrements</td></tr><tr><td>9</td><td><code>09-act-two</code></td><td>console</td><td>Six pages, three calls, three refusals — and the clock stops moving</td></tr><tr><td>10</td><td><code>10-roles</code></td><td>diagram</td><td>One breaker class, three states, four callers, and where the decision lives</td></tr><tr><td>11</td><td><code>11-act-three</code></td><td>console</td><td>Five seconds later, one probe, and nobody deployed anything</td></tr><tr><td>12</td><td><code>12-fail-fast</code></td><td>quote</td><td>The hinge: it makes failures fast, not invisible</td></tr><tr><td>13</td><td><code>13-act-four</code></td><td>console</td><td>Checkout has no fallback, so speed buys a fast honest &quot;no&quot;</td></tr><tr><td>14</td><td><code>14-act-five</code></td><td>console</td><td>The same wiring, one different catch block, and a receipt for money that never moved</td></tr><tr><td>15</td><td><code>15-costs</code></td><td>bullets</td><td>What it costs, how it is tuned badly, and when not to bother</td></tr><tr><td>16</td><td><code>16-outro</code></td><td>outro</td><td>The exercise, the question to sit with, and the sign-off</td></tr></tbody></table>
+<h2>Notes on the shape</h2>
+<p>Scenes 3, 8, 13 and 14 are not plain text — they are real source and real demo output. If the project&#x27;s code or its printed output changes, these four slides go stale silently, because nothing in the build checks them against the source. Re-run <code>./gradlew run</code> and compare before rebuilding.</p>
+<p>Scene order is the argument, and it has two halves. The mechanism is shown <em>working</em> in scenes 6 to 11 before the word <em>fallback</em> is used for anything harder than an empty list of suggestions. Only then do scenes 12 to 14 ask what the speed is actually for. Moving the checkout scenes earlier turns the video into a warning rather than an explanation, so scenes 12 and 14 are the ones to be careful with if you ever rearrange it.</p>
+<p>On <code>bullets</code> and <code>quote</code> slides the body starts at y=260 and steps 60 pixels a line, with the footer at y≈1022 — so twelve body lines is the hard maximum, and nothing warns you if you exceed it.</p>
+<p>Suggested description:</p>
+<blockquote><p>Circuit breaker pattern in Java 21, starting from a service that has stopped answering — not refusing, which would be easy, but simply not replying. The retry loop is presented fairly: no bug, the right page, every test passing, and nine seconds spent producing a page you could have had immediately. The third cost is the one that actually breaks the shop: while those threads wait, checkout cannot get one. We use a fuse box as the analogy and then build the breaker as three questions inside one method, with the states named as a wire rather than a door — closed, open, half open — and a success that resets rather than decrements. Six pages, three calls, three refusals, and the clock stops moving. Then the hinge: a breaker makes failures fast, not invisible. Checkout has no fallback, so speed buys it a fast honest no, and the same wiring with one different catch block prints a receipt for money that never moved.</p></blockquote>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

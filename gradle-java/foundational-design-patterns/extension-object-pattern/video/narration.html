@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Extension Object Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Extension Object Pattern — Video Narration Script</h1>
+<h2>1. Extension Object</h2>
+<p>Hello, and welcome. This video explains the Extension Object pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. With an extension object, the core class stays small. Other code attaches extra roles to individual objects. And code that needs a role asks the object whether it has it. Think of a passport. It holds only the basics: your name, and your photo. Other countries add visas to its pages. A border guard asks one question: is there a visa for here? And no country has to reprint your passport. In this video, the domain is an online shop. It sells e-books that can be downloaded, kettles with a warranty, plain mugs, and later, coffee subscriptions. By the end, you will hear how a product class fills up with empty fields. How attached roles fix it. How a new role needs no change to the core. And what the pattern costs.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The shop sells very different things. E-books need a download link. Kettles need a warranty. Mugs need nothing extra at all. Every one of those features became a field on one product class. And the whole shop depends on that class.</p>
+<h2>3. Act One — One class, every field</h2>
+<p>First demo: one product class, with a field for every feature. A download link, and a download limit, for e-books. A warranty, for electricals. Gift wrap. An age limit. The product class has eight fields. A plain mug leaves five of them empty. Now the shop wants to sell subscriptions. That means a ninth field, in the class that every part of the shop depends on.</p>
+<h2>4. Act Two — A small core, with roles</h2>
+<p>Second demo: a small core product, with extra roles attached. The product class now has three fields. A code, a name, and a price. Extra roles are attached to individual products. The e-book gets a download role. The kettle gets a warranty role. The mug gets nothing. The product class itself knows nothing about downloads, or warranties.</p>
+<h2>5. Act Three — Asking for a role</h2>
+<p>Third demo: checkout asks each product, do you have this role? Like a border guard asking for the right visa. The e-book has a download role. So checkout emails a download link, with a limit of three downloads. The kettle has a warranty role. So checkout registers a two-year warranty. The mug says no to both. Nothing extra happens.</p>
+<h2>6. Act Four — A new role</h2>
+<p>Fourth demo: a new role, added without editing the product class. The subscriptions team writes its own small role. A subscription, with how often to deliver. It is attached to the coffee beans. Checkout schedules a delivery every four weeks. The product class did not change at all.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. Nothing checks that a product has the roles it should. A second e-book is added, without its download role. The compiler does not complain. The e-book sells. After payment, nothing happens. The customer paid, and got nothing. And reading the product class no longer tells you what a product can do.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the pattern. Keep the core class small. Attach extra roles to the individual objects that need them. This e-book can be downloaded. That kettle has a warranty. Code that needs a role asks for it by type. It gets the role, or an answer that says: not supported.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. Product holds a code, a name, a price, and whatever roles are attached to it. Download, warranty, and subscription are the roles. Each is a small record, owned by a different team. Checkout asks each product for the roles it knows about, and acts on the ones it finds. And fat product is the old way, kept for comparison.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met this pattern already. Eclipse asks objects for other roles with a method called get adapter. J D B C and J P A have a method called unwrap, which asks for a more specific role. Games build characters as a bag of components. And shop platforms give each product only the attributes it needs.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use it? When abilities belong to some objects and not others. When new ones keep arriving. And when different teams own them. Check at startup that objects have the roles they must. And keep a list of the roles that exist, so developers can find them. When every object has the same abilities, plain fields are simpler.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Extension Object pattern. If you remember one sentence, make it this one. Keep the core small, and attach roles to the objects that need them. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Write a startup check that every e-book has its download role. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

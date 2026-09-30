@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layered Architecture with Spring Boot, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Layered Architecture with Spring Boot, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>In a Spring Boot application, the layers are controllers, services and repositories, and the layering rule is yours to enforce.</p>
+<h2>What is new here</h2>
+<p>The pattern is <a href="../layered-architecture-pattern">Layered Architecture</a>. This page is only what Spring Boot adds.</p>
+<h3>Four Layers, One Real Request</h3>
+<p>A real request creates an order and takes one machine from stock.</p>
+<pre><code>  POST /orders -&gt; 201 {&quot;orderId&quot;:&quot;ORD-000001&quot;,&quot;totalPence&quot;:30000,&quot;status&quot;:&quot;PAID&quot;}
+  stock of ESP-001 afterwards: 4.
+  controller, service, repository and record: each is one layer, marked by a Spring stereotype.</code></pre>
+<h3>One Transaction</h3>
+<p>The card is declined after the stock was reserved. The service&#x27;s transaction undoes the reservation.</p>
+<pre><code>  the card is declined after the stock was reserved: 402 the card was declined
+  stock of ESP-001 afterwards: 4. the reservation was rolled back.</code></pre>
+<h3>Failures Become Statuses In One Place</h3>
+<p>Too many machines is refused with a 422. The domain names the reason, and one class turns it into a number.</p>
+<pre><code>  ten machines when four are left: 422 not enough ESP-001 in stock
+  the domain named the reason. only the presentation layer knows what number it becomes.</code></pre>
+<h3>The Shortcut Runs</h3>
+<p>A controller that reads the repository directly starts, and answers. Spring wires by type, and does not mind.</p>
+<pre><code>  GET /raw-orders/ORD-000001 -&gt; 200 {&quot;id&quot;:&quot;ORD-000001&quot;,&quot;customer&quot;:&quot;ada&quot;,&quot;sku&quot;:&quot;ESP-001&quot;,&quot;quantity&quot;:1,&quot;totalPence&quot;:30000,&quot;costPence&quot;:21000,&quot;status&quot;:&quot;PAID&quot;}
+  a controller that reads the repository directly. Spring did not object.</code></pre>
+<h3>It Also Leaks</h3>
+<p>The shortcut returns the record as it is, including the cost price. The layered answer returns a response object that has none.</p>
+<pre><code>  the shortcut&#x27;s answer contains the shop&#x27;s cost price: true.
+  the layered answer contains it: false.</code></pre>
+<h3>A Rule The Container Does Not Have</h3>
+<p>An ArchUnit rule says which layer may depend on which. Run over the project, it finds three violations, all in the shortcut.</p>
+<pre><code>  the layering rule, run over every class in the project: 3 violations.
+  every one is in ShortcutController: true. the real four layers have none.
+  Spring wires by type. Only a test can say a layer is not allowed to be there.</code></pre>
+<h2>The verdict</h2>
+<p>Keep the layers as packages, put the transaction in the service, map failures in one place, return response objects and not entities, and run a layering test in the build.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li><code>@RestController</code>, <code>@Service</code> and <code>@Repository</code> in separate packages.</li><li><code>@Transactional</code> on a service method.</li><li>An ArchUnit <code>layeredArchitecture()</code> test.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Most Spring Boot applications you will ever open.</p>
+<h2>When this is too much</h2>
+<p>For a small script with one table, four layers are more ceremony than help.</p>
+</main>
+<footer>
+Generated from <code>layered-architecture-with-spring-boot-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

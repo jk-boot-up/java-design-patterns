@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Singleton with Spring Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Singleton with Spring Pattern — Video Narration Script</h1>
+<h2>1. Singleton with Spring</h2>
+<p>Hello, and welcome. This video explains the Singleton pattern, in Java, using Spring Boot. This video is presented by Jayasekhar Konduru. First, a simple definition. The Singleton pattern makes sure there is exactly one instance of a class, shared by everyone. In Spring, singleton is a scope. The container keeps one instance, and hands it to everyone who asks. Think of a shared office printer. Everyone on the floor sends their pages to the same machine. This is the framework version of the Singleton video, with the same order number generator. We will share the generator as a Spring bean, between three callers. Then we will hear how the guarantee weakens. A plain new, a second container, a changed scope, and a counter that is not thread-safe.</p>
+<h2>2. The Partner Project</h2>
+<p>Before we start, a quick note. This video has a partner: the hand-built Singleton video. That one shares one order number generator between checkout, the admin console, and a retry job. And it closes the reflection and serialization tricks, using an enum. If you are new to the pattern, watch that one first. Here, we ask what Spring Boot does with the same idea.</p>
+<h2>3. Before The First Line</h2>
+<p>One thing is new in this project: Spring Boot. At its heart, Spring is a container that creates your objects, and hands them out. By default, it keeps one instance of each bean, per container. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.</p>
+<h2>4. One Bean, Shared</h2>
+<p>First demo: one bean, shared. Checkout, the admin console, and the retry job are each given a generator by the container. And it is the very same object. The order numbers run one, two, three, across all three callers. Notice what is missing. No private constructor. No static field. Spring did the sharing.</p>
+<h2>5. Nothing Stops new</h2>
+<p>Second demo: nothing stops a plain new. The generator&#x27;s constructor is public, because Spring needs it that way. So anyone can create a second generator. And it starts again at order one. The hand-built enum singleton made this impossible. Here, it is only a convention.</p>
+<h2>6. One Per Container</h2>
+<p>Third demo: singleton means one per container. Start the application twice, inside one program. Each container has its own generator. Container A issues order one. Container B also issues order one. The same order number goes to two customers. An enum could never do that.</p>
+<h2>7. A Scope Change</h2>
+<p>Fourth demo: a scope change. Change one word in the bean definition, from singleton to prototype. Now each caller gets its own generator. Checkout says order one. The admin console also says order one. Nothing fails, and the compiler says nothing. The only sign is duplicate order numbers, in production.</p>
+<h2>8. When Is It Built?</h2>
+<p>Fifth demo: when is the singleton created? By default, at startup, before any caller asks. The count of generators built is one. With lazy creation switched on, the count is zero after startup. And one after the first caller arrives. Eager creation finds a broken constructor at startup. Lazy creation finds it in front of a customer.</p>
+<h2>9. Shared Means Shared By Threads</h2>
+<p>Last demo: shared means shared by threads. A singleton is used by every thread, and Spring does not protect its fields. With a plain number as the counter, two threads both read the same value. So two customers both get order number one. With an Atomic Long, four threads request two thousand five hundred numbers each. And they get ten thousand different numbers. Spring shares the bean. Keeping its data safe is still your job.</p>
+<h2>10. The Verdict</h2>
+<p>So, here is the verdict. Let the container own the single instance. Keep the data inside it thread-safe. Make sure only one container runs. And use the enum singleton when there is no container around.</p>
+<h2>11. How To Recognise It</h2>
+<p>How can you spot this in code someone else wrote? Look for a class with no private constructor, and no get instance method, passed in through a constructor. And a component or service with no scope named. Because the default scope is singleton.</p>
+<h2>12. Where You Have Met This</h2>
+<p>Where have you met this before? In every service and repository class you have written. The default scope is singleton, so most of them already are.</p>
+<h2>13. What Was Used</h2>
+<p>For the record, here are the versions. Spring Boot four point one point one. No web server, no database, and no web library.</p>
+<h2>14. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Spring&#x27;s containers and scopes are real. The thread collision is forced with a gate, so it happens every time.</p>
+<h2>15. When This Is Too Much</h2>
+<p>So, when does this matter? For a class that holds no data, it hardly matters. It bites when the bean holds a counter, a cache, or a connection.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s Singleton with Spring. If you remember one sentence, make it this one. A Spring singleton is one per container, and only as safe as the data inside it. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Make the generator&#x27;s constructor private. Then see what Spring does. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Shared Feature — one order, built five times</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Shared Feature — one order, built five times</h1>
+<p>Every project in this category implements <strong>the same feature</strong>, against <strong>the same seed data</strong>, checked by <strong>the same acceptance assertions</strong>. Only the shape changes.</p>
+<p>That is the whole reason the category can say anything concrete. If each project demonstrated its architecture on a different problem, the comparison between them would be rhetoric — five authors each claiming their arrangement is cleaner, with nothing to check. Holding the feature still means a reader can put project 63 and project 66 side by side and see that the <em>only</em> difference is the direction of the arrows and the number of files.</p>
+<p>This document is written <strong>before any project</strong>, deliberately. Written afterwards it would have to be retrofitted into five codebases, and the temptation to bend the feature to flatter whichever architecture was built first would be irresistible.</p>
+<hr>
+<h2>1. The feature, as a sentence</h2>
+<blockquote><p><strong>A customer places an order for three products. Stock is checked. Payment is taken. A confirmation is sent.</strong></p></blockquote>
+<p>That is it. It is deliberately small, and it is deliberately the same checkout the Service Layer project (§57) implements, the Saga (§35) orchestrates and the Strangler Fig (§47) replaces. A reader arriving here already knows what placing an order involves, so every bit of their attention is free for the shape.</p>
+<p>Four steps is the right size for this category. Three would not have enough structure to arrange; ten would be an application, and an architecture spread across an application cannot be read on a slide or held in the head while listening.</p>
+<hr>
+<h2>2. The seed data</h2>
+<p>Identical in all five projects, so the five demos print recognisably the same run. Anything a project prints that differs from this is a bug in that project, not a property of its architecture.</p>
+<p><strong>The catalogue.</strong> Three products, with a price and a stock level.</p>
+<table><thead><tr><th>SKU</th><th>Name</th><th>Price</th><th>Stock</th></tr></thead><tbody><tr><td><code>ESP-001</code></td><td>Espresso Machine</td><td>£249.00</td><td>4</td></tr><tr><td><code>GRD-014</code></td><td>Burr Grinder</td><td>£89.50</td><td>2</td></tr><tr><td><code>BNS-220</code></td><td>Coffee Beans, 1kg</td><td>£22.00</td><td>40</td></tr></tbody></table>
+<p><strong>The customer.</strong> <code>cust-8801</code>, Ada Okafor, <code>ada@example.com</code>, with a card that has funds.</p>
+<p><strong>The order.</strong> Three lines:</p>
+<table><thead><tr><th>SKU</th><th>Quantity</th><th>Line total</th></tr></thead><tbody><tr><td><code>ESP-001</code></td><td>1</td><td>£249.00</td></tr><tr><td><code>GRD-014</code></td><td>1</td><td>£89.50</td></tr><tr><td><code>BNS-220</code></td><td>2</td><td>£44.00</td></tr><tr><td></td><td></td><td><strong>£382.50</strong></td></tr></tbody></table>
+<p><strong>£382.50 is the number to remember.</strong> It appears in every project&#x27;s demo output, in every project&#x27;s tests, and — in the MVC project — twice, which is where that project&#x27;s bug lives.</p>
+<p>Money is held in pence as a <code>long</code>, never as a <code>double</code>, and formatted once at the edge. A course that taught architecture while quietly losing a penny to binary floating point would be teaching the wrong lesson well.</p>
+<hr>
+<h2>3. The acceptance assertions</h2>
+<p>Six of them. They are phrased as <strong>observable outcomes</strong> rather than as calls on particular classes, because they have to run against five different structures. That phrasing rule is load-bearing: if an assertion cannot be written without naming a class that exists in only one of the five projects, the feature has been specified in terms of a shape, and it needs rewording rather than special-casing.</p>
+<p>Each project writes these in its own package, against its own entry point. The wording below is the contract; the call that satisfies it differs per project and that difference is exactly the thing being taught.</p>
+<h3>A1 — The order is stored, once, as placed</h3>
+<p>After a successful checkout there is exactly one stored order, its status is <code>PLACED</code>, it belongs to <code>cust-8801</code>, and it has three lines.</p>
+<h3>A2 — The total is £382.50</h3>
+<p>The stored order&#x27;s total is 38250 pence. Not &quot;about&quot;, not &quot;as displayed&quot; — the stored number.</p>
+<h3>A3 — Stock falls by exactly what was bought</h3>
+<p><code>ESP-001</code> goes 4 → 3, <code>GRD-014</code> goes 2 → 1, <code>BNS-220</code> goes 40 → 38. No other product moves.</p>
+<h3>A4 — Payment is taken once, for the order total</h3>
+<p>Exactly one charge, of 38250 pence, against <code>cust-8801</code>. Not two, not one of a different amount.</p>
+<h3>A5 — One confirmation is sent, naming the order and the total</h3>
+<p>Exactly one notification goes to <code>ada@example.com</code>, and its text contains the stored order&#x27;s id and the total as <code>£382.50</code>.</p>
+<h3>A6 — The three refusals leave nothing behind</h3>
+<p>Three separate runs, each of which must change nothing:</p>
+<ul><li><strong>Not enough stock.</strong> Ask for three grinders when two exist. No order is stored, no payment is taken, no confirmation is sent, and stock is untouched.</li><li><strong>Unknown product.</strong> Ask for <code>XXX-999</code>. Same: nothing stored, nothing charged, nothing sent.</li><li><strong>Payment declined.</strong> The card refuses. No order is left in <code>PLACED</code>, stock is back where it started, and no confirmation goes out.</li></ul>
+<p>A6 is the assertion that catches architectures which have quietly let the ordering of the four steps drift, and it is the one most likely to fail first when a project is refactored into a new shape. That is why it is here rather than left to each project&#x27;s judgement.</p>
+<hr>
+<h2>4. What is deliberately <em>not</em> in the feature</h2>
+<p><strong>No concurrency.</strong> Two customers racing for the last grinder is a genuine and interesting problem, and it belongs to the concurrency category. Here it would add a lock to every project and teach nothing about shape.</p>
+<p><strong>No persistence beyond a map.</strong> Every project stores orders and stock in memory. The forced changes in this category <em>swap the store</em>, and the swap is only visible if setting up the store is not a distraction. A reader who has to install a database before seeing the point has been failed by the example, not taught by it.</p>
+<p><strong>No network, no HTTP server, no container, in four of the five projects.</strong> The &quot;web&quot; side of these architectures is a plain method call taking a request object and returning a response object. That is what a controller is, underneath; the routing is not the pattern. The fifth project, §67, takes Spring, because Spring — specifically, who assembles the object graph — is that project&#x27;s entire subject.</p>
+<p><strong>No user interface.</strong> MVC&#x27;s two views are a text screen and a plain-text email, both of which are strings a test can assert on. A UI toolkit would add days of setup in exchange for the same lesson.</p>
+<hr>
+<h2>5. The architecture test, settled once</h2>
+<p>Every project in this category ships a test that asserts its own dependency rule, and the rule is asserted with <a href="https://www.archunit.org/">ArchUnit</a> rather than by hand.</p>
+<p>This is the one place in the category where a library is worth taking, and the reason is the category&#x27;s whole thesis. A dependency rule written as an ArchUnit test <em>is</em> the architecture, executably:</p>
+<pre><code>noClasses().that().resideInAPackage(&quot;..domain..&quot;)
+    .should().dependOnClassesThat().resideInAPackage(&quot;..infrastructure..&quot;)</code></pre>
+<p>That reads as English, it runs in <code>./gradlew test</code>, and when it fails it names the offending class and the class it reached for. Hand-rolled package inspection would produce a worse message and would spend the reader&#x27;s attention on reflection instead of on architecture.</p>
+<p><strong>Every project must show the rule failing, not just passing.</strong> A green test that has never been seen red is indistinguishable from a test that asserts nothing. Each project therefore keeps a deliberately non-compliant class in its test sources and a test that asserts the rule <em>catches</em> it — so the red message is itself under test, and the video can show it.</p>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Library</td><td>ArchUnit</td></tr><tr><td>Version</td><td>1.5.0</td></tr><tr><td>Scope</td><td><code>testImplementation</code> only — it never reaches a production classpath</td></tr><tr><td>Artefact</td><td><code>com.tngtech.archunit:archunit-junit5</code></td></tr></tbody></table>
+<hr>
+<h2>6. The forced change, and how its cost is counted</h2>
+<p>Every project makes a change its architecture claims to make cheap, and <strong>prints the cost</strong>. The format is settled here so the five numbers are comparable:</p>
+<pre><code>  FORCED CHANGE: replace the storage layer
+    files added     : 1
+    files modified  : 1
+    files untouched : 9
+    lines changed   : 3</code></pre>
+<p>Counted from the real diff, never estimated. The untouched count is the one that carries the argument, so it is always printed alongside.</p>
+<table><thead><tr><th>Project</th><th>The forced change</th></tr></thead><tbody><tr><td>§63 Layered</td><td>Replace the storage layer</td></tr><tr><td>§64 MVC</td><td>Add a second view over the same model</td></tr><tr><td>§65 Hexagonal</td><td>Swap the store for an in-memory adapter <strong>and</strong> drive the same core from a CLI</td></tr><tr><td>§66 Clean</td><td>Add a new delivery mechanism and a new data source at once</td></tr><tr><td>§67 Clean with Spring</td><td>The same change as §66, to show the count is identical and only the wiring moved</td></tr></tbody></table>
+<hr>
+<h2>7. How to check the five agree</h2>
+<p>The claim &quot;these five projects do the same thing&quot; is checkable, so it gets checked. Run all five demos and compare the block each one prints under the heading <code>ACCEPTANCE</code>:</p>
+<pre><code>ACCEPTANCE
+  order ord-1001 for cust-8801: PLACED, 3 lines, £382.50
+  stock ESP-001 3, GRD-014 1, BNS-220 38
+  charged cust-8801 £382.50 once
+  sent 1 confirmation to ada@example.com
+  refused: not enough stock, unknown product, payment declined</code></pre>
+<p><strong>Those five lines must be byte-identical across all five projects.</strong> If they are not, the comparison the category rests on is not valid, and the project that differs is wrong — no matter how good its architecture looks.</p>
+<p>§66 and §67 must agree exactly, since the only difference between them is who calls the constructors.</p>
+</main>
+<footer>
+Generated from <code>shared-feature.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

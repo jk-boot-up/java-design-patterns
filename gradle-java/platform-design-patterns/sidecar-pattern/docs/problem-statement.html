@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Problem: Four Copies of One Decision, and the Night Three of Them Were Updated</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Problem: Four Copies of One Decision, and the Night Three of Them Were Updated</h1>
+<h2>A shop that charges cards in four places</h2>
+<p>The online store takes money from customers in four different parts of the system, and they have almost nothing to do with each other.</p>
+<p><strong>Checkout</strong> takes the money while a customer is sitting there watching a spinner. If it is slow, the customer notices. If it fails, the customer might not come back.</p>
+<p><strong>Refunds</strong> gives money back when the copper coffee maker comes back in the post. Nobody is watching. It can take a minute and nobody minds, but it absolutely must happen.</p>
+<p><strong>Subscription billing</strong> runs at two in the morning against thousands of saved cards, charging people for their monthly bag of coffee. It runs alone, in the dark, unattended.</p>
+<p><strong>Marketplace payouts</strong> pays the independent sellers who list their own products on the shop. It runs every Friday, it moves large amounts, and the sellers notice immediately if it does not happen.</p>
+<p>Four teams. Four repositories. Four release cadences. One payment provider at the other end of all four.</p>
+<h2>The four decisions nobody wanted to make</h2>
+<p>None of those four teams wanted to become an expert on the payment provider&#x27;s network behaviour. But every one of them had to answer the same four questions before their service could go live, because the provider is on the other side of the internet and the internet is not reliable.</p>
+<p><strong>How many times should a failed attempt be retried?</strong> The provider wobbles. Every few days it declines everything for a fraction of a second and then is perfectly fine again. Nothing is broken and nobody needs paging — the right answer is to wait a moment and ask again. So how many moments, and how long?</p>
+<p><strong>When do you give up altogether?</strong> A customer will not wait forever. There has to be a point at which the whole operation is abandoned and an error is shown, however many attempts are left.</p>
+<p><strong>Which transport security profile do you present?</strong> The provider accepts a particular version of TLS with particular ciphers, and every service has to be configured to speak it.</p>
+<p><strong>What do you count, and what do you call the counters?</strong> Somebody will eventually ask how often payments fail, and the answer has to come from somewhere.</p>
+<p>Four questions, four services, sixteen answers. And this is the important part: <strong>not one of those sixteen answers has anything to do with checkout, refunds, subscriptions or payouts.</strong> They are all facts about a network and a supplier&#x27;s contract. They would be the same if the shop sold bicycles.</p>
+<p>Here is what the program prints:</p>
+<pre><code>    service               attempts  backoff  deadline     tls
+    checkout                     6     10ms    2000ms  TLS1.3
+    refunds                      6     10ms    2000ms  TLS1.3
+    subscription-billing         6     10ms    2000ms  TLS1.3
+    marketplace-payouts          6     10ms    2000ms  TLS1.3
+
+  copies of a cross-cutting decision: 16
+  places to edit to change one:       4</code></pre>
+<p>Four identical rows. Nobody copied anything dishonestly — two competent people reading the same provider documentation write almost the same twenty lines. But once four versions exist, there is no mechanism anywhere in the shop that will ever bring them back together.</p>
+<h2>March: the provider writes to everybody</h2>
+<p>The provider sends a letter to all its merchants. Retrying ten milliseconds after a failure does not help anybody, it says; the failure has not had time to clear, and all you have done is spend capacity that the provider then has to ration. From now on: <strong>at most three attempts per payment, and wait properly between them.</strong></p>
+<p>The shop&#x27;s platform engineer agrees, and does the obvious thing. Opens checkout, changes two lines, opens a pull request, gets it reviewed, ships it. Then refunds. Then marketplace payouts. Three pull requests, three reviews, three releases, all in one afternoon.</p>
+<pre><code>    checkout                     3    200ms    2000ms  TLS1.3
+    refunds                      3    200ms    2000ms  TLS1.3
+    marketplace-payouts          3    200ms    2000ms  TLS1.3
+    subscription-billing         6     10ms    2000ms  TLS1.3</code></pre>
+<p>Look at the fourth row.</p>
+<p>Subscription billing was not updated. Not through carelessness and not through anybody being wrong. It runs overnight, so nobody was looking at it that week. It is owned by the billing team, who were not in the meeting with the provider. It lives in its own repository with its own build. It had no open work that sprint, so nobody opened it at all.</p>
+<p>There was no fourth place to look unless you already knew there was a fourth place to look.</p>
+<p><strong>Nothing throws. Nothing is logged. Every test in all four services still passes</strong> — including subscription billing&#x27;s, because subscription billing tests its own copy of the policy, and its own copy is internally consistent. There is no test anybody could have written, in any of the four repositories, that would have caught this. A test can only check the code it can see.</p>
+<h2>The night it costs money</h2>
+<p>Three weeks later, at two in the morning, the provider has one of its wobbles. Three hundred milliseconds of declining everything, then fine again.</p>
+<p>The provider&#x27;s contract allows the shop twelve attempts across the whole merchant account during an event like this: three per payment, four services that take payments. The thirteenth attempt is not declined — it is <strong>refused</strong>, and so is every attempt after it, for the entire account, not just for the service that asked.</p>
+<p>Subscription billing is already running, because it is always running at two in the morning. It hits the wobble first.</p>
+<pre><code>    subscription-billing  £12.99   6x, 310ms    pay_SUB-90118
+    checkout              £47.99   3x, 600ms    pay_ORD-4417
+    refunds               £22.50   3x, 600ms    pay_REF-3820
+    marketplace-payouts   £186.40  —            NOT PAID
+      429 refused — the account&#x27;s 12-attempt allowance is spent
+
+  What the gateway counted, from its own end:
+    subscription-billing  6 attempts
+    checkout              3 attempts
+    refunds               3 attempts
+    marketplace-payouts   1 attempt
+    total                 13 of 12 allowed, 1 refused</code></pre>
+<p>Read the first column and the last row together, because that is the whole lesson.</p>
+<p>Subscription billing spent six of the shop&#x27;s twelve attempts before checkout had finished its first payment. <strong>And subscription billing succeeded.</strong> It got its money. Its dashboards are green. Its error rate is zero. As far as the billing team will ever know, that night went perfectly.</p>
+<p>Marketplace payouts made one attempt, was refused outright, and did not pay the sellers. There is nothing wrong with the marketplace payouts service. It was updated in March. It did exactly what the provider asked. It happened to arrive fourth.</p>
+<p><strong>The code that misbehaved and the code that suffered are in different repositories, owned by different people, in different rooms.</strong> On Monday morning somebody opens an incident about marketplace payouts, and every line of that service is correct.</p>
+<h2>Why the obvious fixes do not work</h2>
+<p><strong>&quot;Write a shared library.&quot;</strong> This is a real answer and often the right one, and the video says so. But notice what it does not fix. A library is a dependency version. Updating the policy now means publishing a new version and then getting four teams to upgrade to it — which is the same problem with an extra step, because the fourth team still has to open their repository. And a library only works if all four services are written in the same language. The moment the shop&#x27;s search team ships something in Go, the library cannot help them at all.</p>
+<p><strong>&quot;Put a rule in the code review checklist.&quot;</strong> This depends on somebody knowing that a fourth copy exists. That knowledge is what was missing.</p>
+<p><strong>&quot;Write a test.&quot;</strong> A test lives inside one service and can only see that service&#x27;s copy.</p>
+<p><strong>&quot;Put it behind the API gateway.&quot;</strong> The gateway is at the front door — it sees traffic coming <em>into</em> the shop. These four services are making calls <em>out</em> of the shop, to a supplier. A gateway never sees them.</p>
+<h2>What has to change</h2>
+<p>The four decisions are not decisions about the shop&#x27;s business. They are decisions about how anything on this network talks to that supplier. They have ended up inside four services because that is where the code that makes the call lives, and for no other reason.</p>
+<p>So the question this pattern answers is: <strong>can the code that makes the call live somewhere other than inside the service?</strong> Not in a library compiled into it — somewhere genuinely outside it, that can be changed without opening, rebuilding, retesting or redeploying any of the four services at all.</p>
+<p>The answer is yes, and the cost of that yes is the second half of this project.</p>
+</main>
+<footer>
+Generated from <code>problem-statement.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

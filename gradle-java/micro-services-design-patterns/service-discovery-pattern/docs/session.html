@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Service Discovery Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Service Discovery Pattern</h1>
+<p>A one-hour session. It has an unusual shape for a patterns session, because half the time goes on the pattern working and half goes on the pattern being wrong — and the second half is the half people remember.</p>
+<p><strong>Audience:</strong> developers who know Java. No infrastructure experience assumed or required.</p>
+<p><strong>Format:</strong> laptops open. Everything runs offline with a JDK.</p>
+<h2>Learning Objectives</h2>
+<p>By the end, a participant can:</p>
+<ol><li>Say in one sentence what service discovery is, without using the word &quot;discovery&quot;.</li><li>Explain why a hardcoded address is not a coding mistake, and still has to go.</li><li>Explain what a lease is and why registration expires.</li><li>Say why a registry is <em>always</em> wrong for a few seconds, and why no setting fixes that.</li><li>Point at the <code>catch</code> in <code>DiscoveringPricingClient</code> and say why the pattern does not work without it.</li><li>Say honestly what this project does not teach.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check, and what this category is not</td></tr><tr><td>0:05–0:16</td><td>The problem: a deployment takes checkout down</td></tr><tr><td>0:16–0:26</td><td>The pattern, from a taxi rank</td></tr><tr><td>0:26–0:38</td><td>Code walkthrough: register, heartbeat, look up</td></tr><tr><td>0:38–0:46</td><td>The half that is usually skipped: stale entries</td></tr><tr><td>0:46–0:56</td><td>Exercises</td></tr><tr><td>0:56–1:00</td><td>Wrap-up</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check, And An Honest Warning</h2>
+<pre><code>cd micro-services-design-patterns/service-discovery-pattern
+./gradlew test</code></pre>
+<p>19 tests, green, in about a second.</p>
+<p>Then say the honest thing up front, because it changes how people listen:</p>
+<blockquote><p>There is no network in this project. No Docker, no Consul, no Eureka, no Kubernetes. A service instance is a name in a set, a remote call is a method call that costs simulated time, and the clock only moves when we move it. What you will learn is the shape of the pattern — what objects exist, who tells whom what, and where it goes wrong. What you will not learn is how to operate a registry. Both of those are real, and they are different.</p></blockquote>
+<p>Getting this out of the way early stops the question that otherwise derails minute thirty.</p>
+<h2>0:05–0:16 — The Problem</h2>
+<p>Don&#x27;t show the registry. Show the obvious code, and show it sympathetically:</p>
+<pre><code>private static final String PRICING_INSTANCE = &quot;pricing-1&quot;;
+
+public Money price(String sku) {
+    return cluster.endpoint(pinned).invoke(sku);
+}</code></pre>
+<p>Ask the room what is wrong with it. Some will say &quot;hardcoded values are bad&quot;, which is a slogan rather than an answer. Push back: <strong>when the shop had one Pricing instance, this was exactly the right amount of code.</strong> It is fast, it has no dependencies, it cannot be misconfigured, and every test written against it passes.</p>
+<p>Then run act one:</p>
+<pre><code>      0ms -&gt;    10ms  pricing-1        OK        £449.99
+     10ms -&gt;    10ms  Registry         DEREGISTER pricing-1 left cleanly
+  after the deploy:  pricing-1 did not answer</code></pre>
+<p>Say the next sentence slowly, because it is the whole motivation:</p>
+<blockquote><p>Checkout is down. Not slow — down. And <code>pricing-2</code> and <code>pricing-3</code> are up, healthy, idle, in the same rack. The client cannot reach either of them, because a constant is not a question you can ask again later.</p></blockquote>
+<p>Then name the real diagnosis, which is not &quot;hardcoding is bad&quot;:</p>
+<blockquote><p>The set of running instances changes several times a day. The source code of the callers changes once a fortnight. A fast-moving fact has been stored inside a slow-moving artefact.</p></blockquote>
+<p>That framing also kills the first suggestion you will get — &quot;put it in a properties file&quot; — before anyone has to argue about it. A file moves the fact one step, and a human still has to edit it, and that human still has to notice.</p>
+<h2>0:16–0:26 — The Pattern</h2>
+<p>Do the taxi rank out loud, before any code:</p>
+<blockquote><p>One way to get a taxi is to keep Dave&#x27;s mobile number. Works beautifully until the evening Dave is off, and then keeps not working, while eleven other drivers in town would happily take you. The other way is a taxi rank. You know no driver&#x27;s name. Drivers join when they start a shift and leave when they finish, and none of that requires you to learn anything.</p></blockquote>
+<p>Then the three rules, one sentence each: an instance <strong>registers</strong> when it starts, it <strong>heartbeats</strong> while it lives, and it <strong>deregisters</strong> when it shuts down politely. And on the other side, the caller <strong>asks, every time</strong>.</p>
+<p>Now run act two and read the timeline out loud — the lookup count is the story:</p>
+<pre><code>  LOOKUP    3 Pricing instance(s) offered
+  DEREGISTER pricing-1 left cleanly
+  LOOKUP    2 Pricing instance(s) offered
+  REGISTER  pricing-4 (10.0.1.148:8084)
+  LOOKUP    3 Pricing instance(s) offered</code></pre>
+<p>Three, then two, then three. A deployment and a scale-up happened, and the last line of the act is the point: <em>no code changed, no restart, no configuration edit.</em></p>
+<h2>0:26–0:38 — Code Walkthrough</h2>
+<p>Read <code>ServiceRegistry</code> and say plainly that most of it is boring. <code>register</code> is a map put. <code>deregister</code> is a map remove. <code>heartbeat</code> is a map put with a new timestamp. If the class stopped there it would be a phone book.</p>
+<p>Then stop on the one line that makes it a registry:</p>
+<pre><code>if (clock.millis() - lease.lastHeartbeatAt() &gt; LEASE_MILLIS) {</code></pre>
+<p>Ask the room why a registration expires at all. Work towards the answer rather than giving it: <strong>a process that crashes cannot send a message saying it has crashed.</strong> The registry cannot detect death. It can only notice silence, and silence is the one thing a dead process is reliably good at.</p>
+<p>Two details worth naming while you are there:</p>
+<ul><li>Expiry is <strong>lazy</strong> — it happens inside <code>instances(...)</code>, when somebody asks. There is no background thread. Several real registries behave this way too, and it means a dead entry costs nothing until it is looked at.</li><li><code>heartbeat</code> on an unknown id does <strong>nothing</strong>, quietly. There is a test for it. A resurrection-by-heartbeat would let a deregistered instance walk back onto the list.</li></ul>
+<p>Then <code>DiscoveringPricingClient.price</code>, and ask the room to spot the two separate behaviours in one short method. The first is discovery: ask, then call. The second is the loop.</p>
+<h2>0:38–0:46 — The Half That Is Usually Skipped</h2>
+<p>Run act three:</p>
+<pre><code>      0ms -&gt;     0ms  Pricing          CRASHED   pricing-1 died without deregistering
+      0ms -&gt;     0ms  Client           LOOKUP    2 Pricing instance(s) offered
+      5ms -&gt;     5ms  Client           STALE     pricing-1 was on the list but is not answering
+      5ms -&gt;    15ms  pricing-2        OK        £449.99</code></pre>
+<p>Read line two out loud twice. <strong>The registry offered two instances and the first one was a lie.</strong> Then ask the room what it cost: five milliseconds, and a line in a log. Without the loop it would have cost an outage — the same outage act one showed, from the pattern that was supposed to have fixed it.</p>
+<p>This is the sentence to leave on the screen:</p>
+<blockquote><p>A registry without a client that copes with stale entries fails every time an instance dies, which is precisely the situation it was introduced to fix.</p></blockquote>
+<p>Then run act four, which has no client in it at all:</p>
+<pre><code>  immediately after the crash: 2 listed
+  1s later: 2 listed
+  2s later: 2 listed
+  3s later: 2 listed
+  4s later: 1 listed</code></pre>
+<p>Three seconds of a registry confidently naming a dead process. Ask: how do we make that window shorter? (Heartbeat more often.) How do we make it zero? Let the room try. The answer is that you cannot, because the only message that would close it is the one a crashed process cannot send. Every real registry — Eureka, Consul, etcd, the endpoints controller in Kubernetes — has this window.</p>
+<h2>0:46–0:56 — Exercises</h2>
+<h3>Exercise 1 — Delete the loop (everyone)</h3>
+<p>In <code>DiscoveringPricingClient.price</code>, replace the loop with a call to the first candidate only. Run the tests. Note <em>which</em> tests fail and which still pass — the deployment tests are all fine. Only the crash tests break. That is exactly the trap a real system falls into, because deployments are common in testing and crashes are not.</p>
+<h3>Exercise 2 — Make the lease shorter (everyone)</h3>
+<p>Set <code>LEASE_MILLIS</code> to <code>500</code>. One test fails — <code>aLeaseIsStillGoodOnItsLastMillisecond</code> — which is the test telling you the boundary moved, correctly. Then ask what the change would cost in production: heartbeats from every instance six times more often, forever, in exchange for a shorter lie.</p>
+<h3>Exercise 3 — Cache the lookup (discussion, then code)</h3>
+<p>Make the client look up once in the constructor and reuse the list. <code>theRegistryIsConsultedOnEveryCallRatherThanOnce</code> fails. Ask whether the test is being pedantic.</p>
+<p>Expected discussion: a client that caches for the life of the process has reinvented the hardcoded address with extra steps. Real clients <em>do</em> cache — for a second or two, with the loop as the safety net. The design question is not &quot;cache or not&quot; but &quot;for how long, and what happens when the cache is wrong&quot;.</p>
+<h3>Exercise 4 — Stretch</h3>
+<p>Add round-robin: keep an index in the client and start the loop at a different instance each call. Then look at <code>callsTo(...)</code> in <code>PricingCluster</code> and assert the spread. You have just written client-side load balancing, which is the next project in this category.</p>
+<h2>0:56–1:00 — Wrap-Up</h2>
+<p>One sentence: <strong>instances put themselves on a list, the list forgets anyone who goes quiet, callers ask it every time — and callers try the next name, because the list is sometimes wrong.</strong></p>
+<p>Then the honest closer, again: you now know what discovery is and could write a registry. You have not operated one. Point at <a href="service-discovery-pattern-explained.html"><code>service-discovery-pattern-explained.md</code></a> for the long form, including the client-side versus server-side distinction, which this session deliberately skipped.</p>
+<h2>Facilitator Notes</h2>
+<ul><li><strong>Defend the hardcoded client.</strong> If the room writes it off as bad code in minute six, the rest of the session has no tension. It is good code that a changing world made wrong.</li><li><strong>Act three is the emotional core, not act one.</strong> Act one motivates the pattern; act three motivates doing the pattern <em>properly</em>. Budget time accordingly.</li><li><strong>Somebody will suggest health checks — the registry polling the instances.</strong> Good sign. Ask where the registry gets the list of who to poll. That is the original problem, one level up.</li><li><strong>Somebody will say &quot;DNS already does this&quot;.</strong> Also nearly right. DNS is a registry with caching and a TTL, which is a lease with a different name; the difference is that DNS gives you one answer and does not help you try the next.</li><li><strong>Do not let Exercise 3 become a lecture on caching.</strong> The point is the trade, not the implementation.</li></ul>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>JDK 21 on every laptop, verified before the session</li><li><code>./gradlew test</code> and <code>./gradlew run</code> both run once on the presenting machine</li><li>Act one and act three output ready to show side by side</li><li><code>docs/animation.html</code> open in a browser tab</li><li>The <code>LEASE_MILLIS</code> comparison line on a slide of its own</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

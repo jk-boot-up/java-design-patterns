@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video — CQRS</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Video — CQRS</h1>
+<p>Everything needed to rebuild the narrated teaching video for this project. The rendered video, its audio-only version and the subtitle file are deliberately not committed; run <code>./build_video.sh</code> and they appear here in about ten minutes.</p>
+<h2>Building it</h2>
+<pre><code>cd video
+./build_video.sh</code></pre>
+<p>Requirements are macOS (for the <code>say</code> voice), <code>ffmpeg</code>, and Python with Pillow. Nothing else, and no network.</p>
+<p>Outputs:</p>
+<table><thead><tr><th>File</th><th>What it is</th></tr></thead><tbody><tr><td><code>cqrs-pattern-explained.mp4</code></td><td>1080p H.264 + AAC, ready for YouTube</td></tr><tr><td><code>cqrs-pattern-explained.m4a</code></td><td>audio-only, for listening rather than watching</td></tr><tr><td><code>cqrs-pattern-explained.srt</code></td><td>subtitles, one cue per narrated sentence</td></tr><tr><td><code>poster.png</code></td><td>the first frame, lifted out for use as the thumbnail</td></tr><tr><td><code>build/</code></td><td>one PNG and one clip per scene, kept for inspection</td></tr></tbody></table>
+<p>Runtime is approximately eighteen minutes across sixteen scenes.</p>
+<h2>The files</h2>
+<table><thead><tr><th>File</th><th>What it holds</th></tr></thead><tbody><tr><td><code>scenes.py</code></td><td>the sixteen scenes: title, kind, body and narration</td></tr><tr><td><code>make_slides.py</code></td><td>renders each scene to a 1920×1080 PNG</td></tr><tr><td><code>make_subtitles.py</code></td><td>turns the narration into timed <code>.srt</code> cues</td></tr><tr><td><code>build_video.sh</code></td><td>narrates, renders, concatenates and muxes</td></tr></tbody></table>
+<p>The narration is also lifted out to <a href="narration.html"><code>narration.md</code></a>, which is the readable version — useful for reviewing the wording without opening Python.</p>
+<h2>The scenes</h2>
+<table><thead><tr><th>#</th><th>Scene</th><th>Kind</th><th>What it does</th></tr></thead><tbody><tr><td>1</td><td><code>01-poster</code></td><td>poster</td><td>States what the video is, credits the author, gives the plain definition, then the e-commerce framing</td></tr><tr><td>2</td><td><code>02-scenario</code></td><td>bullets</td><td>One page, two services behind it, and the ratio: written once, read a thousand times</td></tr><tr><td>3</td><td><code>03-every-view</code></td><td>code</td><td><code>ComposingOrderHistory</code>, read generously — the catalog call is batched and nobody would object to it</td></tr><tr><td>4</td><td><code>04-act-one</code></td><td>console</td><td>Three identical views, 270ms and six service calls, and the quieter problem: the page needs other services to be up</td></tr><tr><td>5</td><td><code>05-the-obvious-fix</code></td><td>bullets</td><td>So cache it — stated as the good idea it is, and taken seriously before it is taken apart</td></tr><tr><td>6</td><td><code>06-the-cache</code></td><td>code</td><td>The cache in full, and the question it cannot answer: how would it ever find out it is wrong?</td></tr><tr><td>7</td><td><code>07-act-four</code></td><td>console</td><td>A rename. One copy is still saying the old name; the other was corrected by the event that made it wrong</td></tr><tr><td>8</td><td><code>08-cannot-know</code></td><td>quote</td><td>Cache versus read model, stated without the word &quot;fast&quot;, plus why no expiry setting bridges them</td></tr><tr><td>9</td><td><code>09-the-mechanism</code></td><td>code</td><td>Publish what you did, switch over a sealed event type, keep the answer ready. It should feel small</td></tr><tr><td>10</td><td><code>10-act-two</code></td><td>console</td><td>15ms and zero service calls — and the honest line that the work moved to write time rather than vanishing</td></tr><tr><td>11</td><td><code>11-what-it-costs</code></td><td>bullets</td><td>The bill: the ratio, a second copy to keep, and a window where that copy is behind</td></tr><tr><td>12</td><td><code>12-act-three</code></td><td>console</td><td>Placed, paid for, final — and zero rows on the customer&#x27;s page. The window, shown rather than described</td></tr><tr><td>13</td><td><code>13-roles</code></td><td>diagram</td><td>The composing design and the cache on one side; the write side, the bus, the read model and <code>rebuildFrom</code> on the other</td></tr><tr><td>14</td><td><code>14-act-five</code></td><td>console</td><td>The last kettle, the read model saying yes, and the ledger refusing — the rule with a price tag</td></tr><tr><td>15</td><td><code>15-the-rule</code></td><td>quote</td><td>Five sentences to carry away, ending on &quot;show a read model&#x27;s number, never decide with it&quot;</td></tr><tr><td>16</td><td><code>16-outro</code></td><td>outro</td><td>The break-the-rule exercise, the read-to-write ratio question, and the sign-off</td></tr></tbody></table>
+<h2>Notes on the shape</h2>
+<p>Scenes 3, 4, 6, 7, 9, 10, 12 and 14 are not plain text — they are real source and real demo output. If the project&#x27;s code or its printed output changes, those slides go stale silently, because nothing in the build checks them against the source. Re-run <code>./gradlew run</code> and compare before rebuilding.</p>
+<p>Scene order is the argument, and the middle of it is the part that matters. Scenes 5 to 8 exist to give the cache its best case before dismantling it, and they are not padding. A viewer who suspects the cache was a straw man will hear everything after it as marketing — and worse, the audience has to <em>invent</em> this pattern by asking what would have to be true for a copy to know it is wrong.</p>
+<p>Two scenes must not be cut or moved earlier. Scene 12 is the frame where an order is placed, paid for and final while the customer looks at a page with nothing on it; a viewer who leaves believing this pattern is free has learned something worse than nothing. Scene 14 is the rule with a price tag, and the video exists as much for that rule as for the mechanism.</p>
+<p>Every number on these slides is exact and repeatable. Nothing in this project sleeps; <code>SimulatedClock</code> advances thirty milliseconds for an Orders call, sixty for Catalog and five for a read-model lookup, so act one prints 270ms and act two prints 15ms on any machine.</p>
+<p>On <code>bullets</code> and <code>quote</code> slides the body starts at y=260 and steps 60 pixels a line, with the footer at y≈1022 — so twelve body lines is the hard maximum, and nothing warns you if you exceed it.</p>
+<p>Suggested description:</p>
+<blockquote><p>CQRS in Java 21, explained through one order history page: written once, read a thousand times. The composing version is read generously — the catalog call is batched, nobody would object to it — and it costs two hundred and seventy milliseconds, six service calls, and a quieter problem: the page needs other services to be up. So cache it. That is a good idea and it is taken seriously before it is taken apart, because a cache cannot answer one question: how would it ever find out it is wrong? A rename settles it — one copy still says the old name, and the other was corrected by the very event that made it wrong. That is the difference between a cache and a read model, and no expiry setting bridges it. Then the bill, honestly: the work moved to write time rather than vanishing, there is a second copy to keep, and there is a window where that copy is behind — shown rather than described. The rule to carry away is the last line: show a read model&#x27;s number, never decide with it.</p></blockquote>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

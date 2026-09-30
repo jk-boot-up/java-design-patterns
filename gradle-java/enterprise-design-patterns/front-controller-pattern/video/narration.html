@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Front Controller Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Front Controller Pattern — Video Narration Script</h1>
+<h2>1. Front Controller</h2>
+<p>Hello, and welcome. This video explains the Front Controller pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A front controller is a single entry point that every request passes through. The shared work is done once, right there. Logging, checking who is asking, finding the right handler, and dealing with failures. Think of the reception desk in an office building. Every visitor signs in there, and is checked, before being sent to the right floor. In our online store, every visitor&#x27;s web request arrives here first. In this video, handlers that look after themselves forget a security check. Then one front door does that work once. We will hear routing from a single table, logging of refused requests, and a failure hidden safely from the customer. And then the cost.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The online store&#x27;s web application has pages for products, orders, and the customer&#x27;s account. Every request must be logged. And every private page needs the visitor to be signed in. So here is the question. Who does that work?</p>
+<h2>3. Every Handler Looks After Itself</h2>
+<p>First, the naive way: every handler looks after itself. The orders handler was written in a hurry, and has no sign-in check. So a visitor who is not signed in receives Ada&#x27;s orders. The account handler does check, and refuses with four hundred and one, meaning not signed in. But it only logs requests it accepts. So neither request left a log line.</p>
+<h2>4. The Pattern</h2>
+<p>Now, the pattern. One entry point for every request. Filters run first. One logs the request. Another checks who is asking. Then a routing table finds the right handler. And any failure is answered once, in one place. The handlers only do their own work.</p>
+<h2>5. One Entry Point</h2>
+<p>Second demo: one entry point. Through the front controller, the orders page without signing in is refused, with four hundred and one. The orders page, when signed in, is served, with two hundred, meaning OK. The products page is marked as public, so it needs neither. The sign-in check is written once. No handler can forget it, because no handler has it.</p>
+<h2>6. Routes In One Table</h2>
+<p>Third demo: routes in one table. A page that does not exist gets four hundred and four, meaning not found. A request with the wrong method gets four hundred and five, meaning not allowed. Both come from the routing table, in one place. So every unknown request is answered the same way.</p>
+<h2>7. Everything Is Logged</h2>
+<p>Fourth demo: everything is logged. Three requests, and three log lines. A refused request to orders. An accepted request to orders. And a request to a page that does not exist. Logging is a filter that runs first. So it sees everything, including requests that never reach a handler.</p>
+<h2>8. Failures Are Handled Once</h2>
+<p>Fifth demo: failures are handled once. A handler throws an error, and its message happens to include a password. The customer sees a plain five hundred: something went wrong. The full detail goes to the log, and only the log. The password never reaches the customer.</p>
+<h2>9. The Bill: One Door</h2>
+<p>Finally, the cost: one door. One filter has a bug in it. Now the products page, the orders page, and the account page all fail at once, with five hundred. The front controller is the one place everything depends on. Every request passes through it. So a mistake in it is a mistake everywhere.</p>
+<h2>10. How To Recognise It</h2>
+<p>How can you spot this pattern in code someone else wrote? Look for a single servlet, or dispatcher, that receives every path. Look for a chain of filters, or middleware, in front of the handlers. Look for a routing table, or annotations that map paths to methods. In Spring, this is the Dispatcher Servlet. In Node&#x27;s Express, it is app dot use.</p>
+<h2>11. The Verdict</h2>
+<p>So, here is the verdict. Use a front controller for any application with several pages, and shared work. Such as signing in, logging, error handling, and routing. Keep the filters small, in a clear order, and well tested, because everything depends on them. Keep the handlers free of the shared work. Most web frameworks already give you one. So learn the one you have.</p>
+<h2>12. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything is plain Java. Every result you heard comes from the program&#x27;s own output. And nothing depends on the clock, so every run gives the same result.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, when is this too much? For a program with just one endpoint, a front controller is a door in front of a door. And its main risk is being a single point of failure. So keep it simple, and tested.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s the Front Controller pattern. If you remember one sentence, make it this one. A front controller does the shared work of every request once, and becomes the one thing everything depends on. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a filter that limits how many requests a visitor can make. And decide where in the order it should run. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

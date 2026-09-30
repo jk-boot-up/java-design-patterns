@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Event Sourcing Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Event Sourcing Pattern</h1>
+<p>A one-hour taught session for a small group. It assumes everyone has a JDK 21 and has cloned the repository; it does not assume anyone has seen event sourcing before.</p>
+<p>The session is built around one move that has to land: <strong>the balance is not stored</strong>. Everything else follows from that, and if it does not land, nothing else will.</p>
+<h2>Learning Objectives</h2>
+<p>By the end, a participant can:</p>
+<ol><li>State the pattern in one sentence and give the bank-statement analogy unprompted.</li><li>Point at the line in <code>CurrentStateLoyaltyAccounts.award</code> where the order id and the date are thrown away.</li><li>Explain why the repair for the double-award bug touches no events at all.</li><li>Name the four costs — replay time, snapshot staleness, erasure, and event versioning — and say what each one actually breaks.</li><li>Say in one sentence each how CQRS and event sourcing differ.</li><li>Decide, for a system they work on, whether it should use this pattern. The expected answer for most of them is no, and that is a successful outcome.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup, and the warning</td></tr><tr><td>0:05–0:15</td><td>The problem: the row that cannot answer</td></tr><tr><td>0:15–0:25</td><td>The pattern: three moves</td></tr><tr><td>0:25–0:38</td><td>Code walkthrough</td></tr><tr><td>0:38–0:50</td><td>Exercises</td></tr><tr><td>0:50–0:58</td><td>The bill, and CQRS</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup, And The Warning</h2>
+<pre><code>cd gradle-java/platform-design-patterns/event-sourcing-pattern
+./gradlew test    # 31 tests, about a second</code></pre>
+<p>Then say the warning out loud, before anything else:</p>
+<blockquote><p>Most of the systems you work on should not use this pattern. It is the most over-applied pattern in this course. We are going to spend the first half on why it is wonderful and the second half on what it costs, and the second half is the half that will save you.</p></blockquote>
+<p>Saying this at the start rather than the end changes how the room listens.</p>
+<h2>0:05–0:15 — The Problem: The Row That Cannot Answer</h2>
+<p>Run the first two acts.</p>
+<pre><code>./gradlew run</code></pre>
+<p><strong>Act 1.</strong> A customer asks why their balance is 140, and the entire available answer is &quot;the row says 140 points. How it got there was never written down.&quot;</p>
+<p>Now show them <code>CurrentStateLoyaltyAccounts.award</code> and ask the room to read the signature and then the body:</p>
+<pre><code>public void award(String customerId, int amount, String orderId, LocalDate on) {
+    this.points.merge(customerId, amount, Integer::sum);
+}</code></pre>
+<p>Wait for someone to notice that <code>orderId</code> and <code>on</code> are never used. This is the single most valuable ten seconds in the session. The loss is not a bug; it is the design, and it happens on that line.</p>
+<p><strong>Act 2.</strong> The double-awarding release. Three customers, three balances, and the question: which is wrong, and by how much?</p>
+<pre><code>    C-5120 = 100 points
+    C-5122 = 25 points
+    C-5121 = 60 points</code></pre>
+<p>Give the room a minute to try. They cannot do it. A doubled £45 order on top of a £10 one writes 100, and one honest £100 order writes 100. The bug destroyed the evidence of itself.</p>
+<h2>0:15–0:25 — The Pattern: Three Moves</h2>
+<p>On a whiteboard, not in the code.</p>
+<ol><li><strong>Make each change a fact with a name</strong>, in the past tense. Not &quot;add 60 to the balance&quot; but &quot;sixty points were awarded to C-4417 on 1 March for order ORD-8801&quot;.</li><li><strong>Append it to a log, and never touch it again.</strong> One operation: add to the end.</li><li><strong>Derive the state by folding.</strong> Start at zero, walk the events, add them up.</li></ol>
+<p>Then the analogy, and let it run: your bank does not send you the number, it sends you the statement. The number at the bottom is the only thing you could work out from the rest. And nobody edits a statement — a wrong payment gets a reversing line, and both stay on the page forever.</p>
+<p>Ask: <strong>why is that the only design under which last month&#x27;s statement still means what it said last month?</strong></p>
+<h2>0:25–0:38 — Code Walkthrough</h2>
+<p>Four files, in this order, ten minutes.</p>
+<p><strong><code>LoyaltyEvent.java</code></strong> — three points. Past-tense names (a command can be refused, a fact cannot). Self-contained (no reference to an <code>Order</code> object, because the order may have changed since). Sealed (the compiler knows the list is complete).</p>
+<p><strong><code>LoyaltyEventStore.java</code></strong> — show them that <code>append</code> is the whole write side, and then show them what is <em>not</em> in the file. No update. No delete. Note that nothing is validated here either: by the time a fact is in the log it is history, and history does not get vetoed.</p>
+<p><strong><code>EventSourcedLoyaltyAccounts.java</code></strong> — ask the room to find the balance field. Give them long enough to be sure. There isn&#x27;t one.</p>
+<p><strong>Acts 3, 4 and 5.</strong> The three payoffs, in order:</p>
+<ul><li><em>Why is it 140?</em> Four lines with a running total, including the expiry, which is the call support dreads most.</li><li><em>What was it on 3 March?</em> One <code>continue</code> on the date. Nobody planned the question; the answer was already there.</li><li><em>Where did the bug do damage?</em> <code>duplicateAwards</code> was written weeks after the bug shipped, and it works, because the data was already lying there.</li></ul>
+<p>Then the line to stop on:</p>
+<pre><code>  no event was edited and none was deleted. The reading code changed,
+  and every balance is right again.</code></pre>
+<p>Ask the room why the log was not wrong. Keep asking until someone says it: the shop really did award those points twice. That is what happened. What was wrong was the interpretation.</p>
+<h2>0:38–0:50 — Exercises</h2>
+<h3>Exercise 1 — Add an event (everyone)</h3>
+<p>Add <code>PointsAdjusted</code> for a support agent correcting a balance by hand, carrying a reason and the agent&#x27;s name. Notice what the compiler tells you when the sealed interface gains a fourth permitted type.</p>
+<h3>Exercise 2 — Repair the other way (everyone)</h3>
+<p>Fix the double-award bug by appending a correcting event instead of changing the read. Get it working, then discuss: which would you rather explain to an auditor, and which to a developer joining next year? There is a real answer in the javadoc on <code>balanceWithDuplicateAwardsIgnored</code> and it is not the one the demo uses.</p>
+<h3>Exercise 3 — Break the repair (discussion)</h3>
+<p>Suppose a promotion lets one order legitimately award points twice. What happens to <code>balanceWithDuplicateAwardsIgnored</code>? This is the honest limit of the rule the demo uses, and spotting it is the exercise.</p>
+<h3>Exercise 4 — Stretch</h3>
+<p>Add <code>pointsExpiringBefore(customerId, day)</code> answered from the log alone. Then try to add it to <code>CurrentStateLoyaltyAccounts</code>, and stop when you see why you cannot.</p>
+<h2>0:50–0:58 — The Bill, And CQRS</h2>
+<p>Run acts 6, 7 and 8 and take them quickly; the numbers do the arguing.</p>
+<p><strong>Replay cost.</strong> 5,000 events read for one balance. A snapshot brings it to one read for the same answer.</p>
+<p><strong>Snapshot staleness.</strong> But a snapshot is a stored balance, which is the thing the pattern set out to avoid. It records <code>computedBy</code> for a reason: when that code turns out to have had a bug, the snapshot is wrong forever and nothing throws. The cure is <code>discardAll()</code> and a refold, which is cheap only because the log kept everything. <strong>The log is the truth; a snapshot is a cache.</strong></p>
+<p><strong>Erasure.</strong> A customer with a legal right to be forgotten meets a log with no delete. Show what &quot;just delete their events&quot; does: their history is destroyed beyond recovery <em>and</em> a snapshot taken earlier still reports their balance. Ask the room what they would do. Then give the two real answers — encrypt the personal fields and destroy the key, or keep the event&#x27;s shape and blank the identity out of it — and point out that both have to be designed in before the first event is written.</p>
+<p><strong>Versioning.</strong> Somebody added the order id field in 2023. The duplicate hunt finds zero duplicates in a stream that visibly contains two identical awards, and nothing reports a problem. An event is a schema you version and never migrate.</p>
+<p><strong>CQRS.</strong> Act 9, two sentences: CQRS changes where reads come from. Event sourcing changes what the writes store. Point at <code>OrderHistoryReadModel</code>, which is CQRS with no event log anywhere in it, and at <code>EventSourcedLoyaltyAccounts</code>, which is event sourcing with no second model at all.</p>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>Ask each participant to name one system they work on and say whether it should use this pattern. Most answers should be no. The ones that should be yes have a common shape: <strong>the history is the product</strong> — money, loyalty, orders, anything an auditor can ask about.</p>
+<p>Close on the one sentence: store the facts, derive the total.</p>
+<h2>Facilitator Notes</h2>
+<ul><li>The moment to protect is the search for the balance field. Do not shorten it, and do not answer it for them.</li><li>If someone says &quot;this is just an audit log&quot;, the answer is that an audit log is a <em>second</em> copy, and second copies drift out of step with the first. Here there is only one copy, and the balance is derived from it.</li><li>If someone says &quot;this is just Kafka&quot;, separate the pattern from the product. The log here is an <code>ArrayList</code>.</li><li>Watch for the room getting excited and wanting to use it everywhere. That is the failure mode this session is designed to prevent, which is why the warning goes at 0:00 and the bill gets eight full minutes.</li></ul>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>JDK 21 on every machine, <code>./gradlew test</code> green</li><li>A whiteboard for the three moves and the bank statement</li><li><code>docs/animation.html</code> open in a browser for the fold</li><li><code>docs/images/class-diagram.png</code> on screen for the walkthrough</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Factory Method Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Factory Method Pattern</h1>
+<p>A 60-minute guided session for teaching or self-studying the Factory Method pattern using this project.</p>
+<ul><li><strong>Audience:</strong> beginners comfortable with core Java, including inheritance</li><li><strong>Duration:</strong> ~60 minutes</li><li><strong>Format:</strong> live coding + discussion</li><li><strong>Prerequisites:</strong> see <a href="prerequisites.html"><code>prerequisites.md</code></a></li></ul>
+<blockquote><p><strong>Optional pre-work.</strong> Ask participants to watch the ~7.5 minute video (<code>video/factory-method-pattern-explained.mp4</code>) beforehand. If they do, you can compress the problem and pattern segments and spend the extra time on the exercises. If you are teaching a group that has <em>not</em> watched it, run the session exactly as written below. <strong>Even better pre-work:</strong> run the sibling <a href="../../simple-factory-pattern"><code>../../simple-factory-pattern</code></a> session first. Half the value of this session comes from the contrast.</p></blockquote>
+<h2>Learning Objectives</h2>
+<p>By the end of this session a participant should be able to:</p>
+<ol><li>Describe, in one sentence, what problem the Factory Method pattern solves.</li><li>Identify the four roles — product, concrete products, creator, concrete creators — in real code.</li><li>Explain what it means for a parent class to call a method it does not implement.</li><li>Add a new variant to a Factory Method hierarchy without editing any existing class.</li><li>State why Factory Method satisfies the Open/Closed Principle where Simple Factory does not.</li><li>Say honestly when Factory Method is <em>too much</em> machinery for the job.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Segment</th><th>Mode</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td><td>Hands-on</td></tr><tr><td>0:05–0:15</td><td>The problem</td><td>Discussion</td></tr><tr><td>0:15–0:25</td><td>The pattern</td><td>Explanation</td></tr><tr><td>0:25–0:40</td><td>Code walkthrough</td><td>Live coding</td></tr><tr><td>0:40–0:50</td><td>Exercises</td><td>Hands-on</td></tr><tr><td>0:50–0:58</td><td>Pitfalls &amp; comparisons</td><td>Discussion</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td><td>—</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<p>Everyone runs:</p>
+<pre><code>java -version
+./gradlew run</code></pre>
+<p>Anyone whose build fails pairs up with a neighbour. Do not debug installs during the session — that is what the prerequisites doc is for.</p>
+<h2>0:05–0:15 — The Problem</h2>
+<p><strong>Do not show <code>DeliveryService</code> yet.</strong> Start with the pain.</p>
+<p>Put the naive <code>ShippingService</code> from <a href="problem-statement.html"><code>problem-statement.md</code></a> on screen and ask:</p>
+<blockquote><p><em>&quot;We are launching drone delivery on Monday. Which file do you open?&quot;</em></p></blockquote>
+<p>They will answer &quot;this one&quot;. That is the hook. Follow with:</p>
+<blockquote><p><em>&quot;And this class already ships real parcels for four tiers today. How do you feel about editing it?&quot;</em></p></blockquote>
+<p>Guide the group to name the problems themselves:</p>
+<ul><li>The <code>if</code> chain sits <em>inside</em> the workflow it varies.</li><li>Adding a tier means editing code that already works.</li><li>A partner module cannot add a tier at all.</li><li>The workflow and the choosing cannot be tested apart.</li></ul>
+<p><strong>Key question to land:</strong> <em>&quot;The four log lines are the same for every tier. Why are they inside a method that also does the choosing?&quot;</em></p>
+<p>If someone proposes &quot;move the <code>if</code> into a factory class&quot; — excellent, they have just re-invented Simple Factory. Acknowledge it, note that it fixes the duplication but still means editing one central file on Monday, and park it until 0:50.</p>
+<h2>0:15–0:25 — The Pattern</h2>
+<p>Introduce the coffee-shop-chain analogy from <a href="factory-method-pattern-explained.html"><code>factory-method-pattern-explained.md</code></a>: head office owns the recipe card, the branch owns step 2. Let a participant retell it back — if they can, they understand it.</p>
+<p>Show the class diagram (<a href="images/class-diagram.png"><code>images/class-diagram.png</code></a>) and name the four roles. Trace the <code>creates</code> arrows with a finger and say: <em>&quot;four arrows, four different classes. In Simple Factory all four left the same box.&quot;</em> Then show the sequence diagram (<a href="images/uml-diagram.png"><code>images/uml-diagram.png</code></a>) and follow the <code>createCourier()</code> call down into the subclass and back up.</p>
+<p>Optionally open <a href="animation.html"><code>animation.html</code></a> in a browser and play it through once. It has a <strong>Narration</strong> button: leave it off if you want to talk over the animation yourself, or switch it on to let it explain each step in its own voice — useful when participants revisit it alone afterwards.</p>
+<p><strong>The one point that must land:</strong></p>
+<blockquote><p>The parent class calls a method it does not implement. The child decides what comes back.</p></blockquote>
+<p>Expect this to feel strange. It is worth two full minutes at the whiteboard: draw <code>ship()</code> in the parent box, draw the arrow going <em>down</em> to the child, and the returned <code>Courier</code> coming back <em>up</em>.</p>
+<h2>0:25–0:40 — Code Walkthrough</h2>
+<p>Open the files in this order. Resist jumping ahead.</p>
+<p><strong>1. The product interface — <code>Courier.java</code></strong> Two methods, no implementation. Ask: <em>&quot;What does a class holding one of these know about aeroplanes?&quot;</em> Nothing.</p>
+<p>If anyone did the Simple Factory session, ask why this interface is not <code>sealed</code>. Target answer: this pattern exists so new products can arrive from outside; sealing would slam that door.</p>
+<p><strong>2. A concrete product — <code>AirCourier.java</code></strong> Point out how small and unaware it is. Ask: <em>&quot;Does it know what an Express tier is?&quot;</em> No.</p>
+<p>Skim <code>PostalCourier</code>, <code>BikeCourier</code>, <code>GlobalCourier</code> — same shape. Note that <code>GlobalCourier</code> prints two lines: products are free to differ.</p>
+<p><strong>3. The value objects — <code>Order.java</code>, <code>Shipment.java</code></strong> Cover the <code>record</code> primer if needed. One object in, one object out.</p>
+<p><strong>4. The creator — <code>DeliveryService.java</code></strong> This is the heart of the session. Read <code>ship(...)</code> line by line and have the group label each line as <strong>shared</strong> or <strong>varies</strong>. They will find exactly one line that varies: <code>createCourier()</code>.</p>
+<p>Then the three questions worth asking:</p>
+<ul><li><em>&quot;Where is <code>createCourier()</code> implemented?&quot;</em> Nowhere in this file.</li><li><em>&quot;So what happens when this line runs?&quot;</em> It lands in the subclass.</li><li><em>&quot;Why is <code>ship</code> marked <code>final</code>?&quot;</em> So a subclass can change the courier and nothing else.</li></ul>
+<p><strong>5. The concrete creators — <code>ExpressDelivery.java</code> and friends</strong> Six lines each. Show all four in quick succession; the repetition is the point. Then ask the group to search the whole project for <code>switch</code>. There is none. Let that sit for a moment.</p>
+<p><strong>6. The client — <code>FactoryMethodDemo.java</code></strong> One loop, four tiers, four carriers. Ask what the loop body knows about carriers. Nothing.</p>
+<p><strong>7. The tests — <code>DeliveryServiceTest.java</code>, <code>CourierTest.java</code></strong> Show <code>newTierNeedsNoExistingChange</code> — it invents a whole drone tier as an anonymous subclass inside the test, and the shared workflow picks it up for free. Show <code>guardAppliesToEveryTier</code> — one guard, written once, enforced on every tier including ones that do not exist yet.</p>
+<p>Run <code>./gradlew run</code> live. Point out that the tier lines are structurally identical across all four blocks and only the courier lines differ. That visual is worth more than any slide.</p>
+<h2>0:40–0:50 — Exercises</h2>
+<p>Let participants work; circulate and help.</p>
+<h3>Exercise 1 — Add drone delivery (everyone)</h3>
+<p>Write <code>DroneCourier</code> and <code>DroneDelivery</code>, then add one line to the demo&#x27;s list.</p>
+<blockquote><p><strong>The payoff:</strong> ask everyone who finishes <em>&quot;how many existing files did you edit?&quot;</em> The answer is one — the demo, and only because it is a demo. Say this out loud; it is the lesson of the whole session.</p></blockquote>
+<h3>Exercise 2 — Prove the base class is decoupled (everyone)</h3>
+<p>Search <code>DeliveryService.java</code> for any courier class name. There is none. Now search the whole project for <code>switch</code>. Also none. Discuss what replaced it: the JVM&#x27;s own method dispatch.</p>
+<h3>Exercise 3 — Break it on purpose (everyone)</h3>
+<p>Delete the <code>createCourier()</code> override from <code>SameDayDelivery</code>. Compile. Read the error. The compiler is enforcing the pattern for you.</p>
+<p>Then try <code>new DeliveryService()</code> and read that error too.</p>
+<h3>Exercise 4 — Spot the anti-pattern (discussion)</h3>
+<p>Present a <code>DeliveryService</code> subclass that overrides <code>createCourier()</code> <em>and</em> declares its return type as <code>AirCourier</code> <em>and</em> adds a public <code>getAirCourier()</code>. Ask: <em>&quot;What have we lost?&quot;</em> Everything — the creator&#x27;s callers can now depend on a concrete courier again.</p>
+<h3>Exercise 5 — Stretch (for fast finishers)</h3>
+<p>Replace the whole hierarchy with a single <code>DeliveryService</code> class that takes a <code>Supplier&lt;Courier&gt;</code> in its constructor. It works, it is shorter, and it needs no subclasses at all. Ask: <em>when</em> is that better, and when do you actually want the subclass? Target answer: the moment a tier needs to differ in more than one way, or needs a name, or needs its own state.</p>
+<p>There is no universally right answer here — that is the discussion.</p>
+<h2>0:50–0:58 — Pitfalls &amp; Comparisons</h2>
+<p>Cover the &quot;What to Watch Out For&quot; section:</p>
+<ul><li>A class per variant — do not build a hierarchy to avoid a two-line <code>switch</code>.</li><li>Something still has to pick the creator; that decision often becomes a Simple Factory, and that is fine as long as you notice.</li><li>Never call the factory method from a constructor.</li><li>Keep the return type abstract.</li><li>Inheritance is a permanent commitment; Strategy is the composition answer.</li></ul>
+<p>Then the comparison table. The line worth memorising:</p>
+<blockquote><p><strong>Simple Factory chooses with a <code>switch</code>. Factory Method chooses with inheritance. Abstract Factory chooses a whole family at once.</strong></p></blockquote>
+<p>If the group did the Simple Factory session, put both class diagrams side by side on screen. The arrow patterns tell the whole story without words.</p>
+<p>Close with real-world sightings: <code>Collection.iterator()</code>, <code>DocumentBuilderFactory.newDocumentBuilder()</code>, and any framework class that says &quot;extend this and override one method&quot;.</p>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>Ask three people for a one-sentence definition. Then assign follow-up:</p>
+<blockquote><p>Find one place in your own codebase where a method&#x27;s shape is identical across cases but one step differs, and sketch the Factory Method that would replace the branch.</p></blockquote>
+<h2>Facilitator Notes</h2>
+<p><strong>Common misconceptions to correct:</strong></p>
+<table><thead><tr><th>They say</th><th>Correct with</th></tr></thead><tbody><tr><td>&quot;So the factory method is a class?&quot;</td><td>No — it is one method. The class around it is the <em>creator</em></td></tr><tr><td>&quot;Isn&#x27;t this the same as Simple Factory?&quot;</td><td>Simple Factory chooses with a <code>switch</code> in one class; here nothing switches and the choice is a subclass</td></tr><tr><td>&quot;Why not just pass the courier in?&quot;</td><td>You can — that is composition, and it is often right. The subclass earns its place when a tier differs in more than one way</td></tr><tr><td>&quot;The parent calls a method with no body — is that legal?&quot;</td><td>Yes, and it is the entire pattern. Draw it on the board</td></tr><tr><td>&quot;Four subclasses to avoid four <code>if</code> branches?&quot;</td><td>A fair objection. The payoff is Monday&#x27;s fifth tier, and code you do not own</td></tr><tr><td>&quot;Is this the Template Method pattern?&quot;</td><td>Very close cousins — <code>ship(...)</code> <em>is</em> a template method. Factory Method is the special case where the varying step creates an object</td></tr></tbody></table>
+<p><strong>If you are running short on time:</strong> cut Exercise 5 and shorten the pitfalls discussion. Never cut Exercise 1 — it is where the concept actually lands.</p>
+<p><strong>If you have extra time:</strong> open the sibling Simple Factory project and have participants convert it to Factory Method, then argue about which version they would rather maintain. There is a real trade here and the argument is the learning.</p>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>Everyone has JDK 21 and a green <code>./gradlew run</code></li><li>Diagrams open in a tab (<code>images/</code>)</li><li><code>animation.html</code> open in a browser</li><li>Video on hand (<code>../video/factory-method-pattern-explained.mp4</code>) — useful as a recap for anyone who joins late, or to send round afterwards</li><li>Naive <code>ShippingService</code> snippet ready to show first</li><li>Simple Factory class diagram ready for the 0:50 comparison</li><li>IDE font size raised for screen sharing</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

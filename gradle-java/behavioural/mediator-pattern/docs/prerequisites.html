@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>Everything you need before starting the Mediator pattern project. If you have ever written a class that holds a reference to another class, you are most of the way there.</p>
+<h2>Knowledge Prerequisites</h2>
+<h3>Required</h3>
+<ul><li><strong>Java basics</strong> — classes, fields, constructors, methods, <code>new</code>.</li><li><strong>Interfaces</strong> — what <code>implements</code> means, and that a class can pass <code>this</code> as an interface.</li><li><strong>Abstract classes</strong> — <code>FormWidget</code> is one. You need to know that a subclass inherits its fields and can call its <code>protected</code> methods.</li><li><strong>Collections</strong> — <code>List</code>, <code>List.of(...)</code>, <code>List.copyOf(...)</code>.</li><li><strong><code>switch</code> expressions</strong> — <code>case &quot;Express&quot; -&gt; 6;</code>. Java 14 syntax; read it as a lookup table.</li></ul>
+<h3>Helpful, but explained as we go</h3>
+<ul><li><strong>Package-private visibility</strong> — a method with no modifier is callable only from inside its own package. Four of the widget methods are deliberately package-private, and that is load-bearing.</li><li><strong>Reflection, enough to read it</strong> — one test walks a class&#x27;s fields with <code>getDeclaredFields()</code> to prove no widget holds another. You do not have to write reflection.</li><li><strong>Nested classes</strong> — <code>NaiveCheckoutForm</code> puts its five tangled widgets inside one file as <code>static</code> nested classes, so the tangle can be read at a glance.</li><li><strong>Any experience of UI code</strong> — Swing, Android, React, a web form. This is the pattern that lives underneath all of them, but no such experience is required.</li></ul>
+<h3>Explicitly NOT required</h3>
+<ul><li>Any GUI toolkit. There is no window; the &quot;widgets&quot; are plain objects with values, and the demo prints to the console.</li><li>Threads or concurrency.</li><li>Any other design pattern, though <a href="../observer-pattern">Observer</a> makes a useful contrast if you have already met it.</li><li>Any web or HTTP experience.</li></ul>
+<h2>A 60-Second &quot;Mediator&quot; Primer</h2>
+<p>A <strong>mediator</strong> is an object that owns the rules about how a group of other objects affect one another.</p>
+<p>The objects in the group are called <strong>colleagues</strong>. A colleague holds a reference to the mediator, and to no other colleague. When something about a colleague changes, it tells the mediator:</p>
+<pre><code>mediator.changed(this);</code></pre>
+<p>and stops. It does not work out what that change means, because it cannot see far enough to know. The mediator can see everything, so the mediator decides.</p>
+<p>The interface really is that small:</p>
+<pre><code>public interface CheckoutMediator {
+    void changed(FormWidget source);
+}</code></pre>
+<h2>A 60-Second &quot;n² Wiring&quot; Primer</h2>
+<p>The reason this pattern exists is arithmetic.</p>
+<p>If every one of <em>n</em> objects can affect every other, there are up to <em>n</em>(<em>n</em>−1) directed relationships to write and maintain. Five objects is twenty. Ten is ninety.</p>
+<p>If every object talks only to a hub, there are <em>n</em> relationships. Five objects is five. Ten is ten.</p>
+<table><thead><tr><th>Controls on the form</th><th>Wired to each other</th><th>Wired to a mediator</th></tr></thead><tbody><tr><td>3</td><td>up to 6</td><td>3</td></tr><tr><td>5</td><td>up to 20</td><td>5</td></tr><tr><td>10</td><td>up to 90</td><td>10</td></tr></tbody></table>
+<p>The naive form in this project has nine real cross-references on five controls. Nobody sat down and decided to write nine; each one was added on its own, for a good reason, on a different day. That is how forms like this happen, and it is why the growth curve matters more than any single line of code in it.</p>
+<h2>A 60-Second &quot;Push, Don&#x27;t Pull&quot; Primer</h2>
+<p>There are two ways a mediator can update its colleagues, and only one of them keeps the coupling gone.</p>
+<table><thead><tr><th></th><th>What it looks like</th><th>What it costs</th></tr></thead><tbody><tr><td><strong>Push</strong> (used here)</td><td>mediator calls <code>total.show(52)</code></td><td>Colleagues stay dumb; the mediator holds the knowledge</td></tr><tr><td><strong>Pull</strong></td><td>widget calls <code>mediator.getShippingPrice()</code></td><td>The widget is back to knowing about shipping, via one extra hop</td></tr></tbody></table>
+<p>Every method the mediator calls on a widget here is package-private and does not announce anything. That is what stops the form reacting to itself.</p>
+<h2>Software Prerequisites</h2>
+<table><thead><tr><th>Tool</th><th>Version</th><th>Why</th></tr></thead><tbody><tr><td>JDK</td><td>21</td><td>The project is built against Java 21</td></tr><tr><td>Gradle</td><td>none needed</td><td>The wrapper (<code>./gradlew</code>) downloads it</td></tr><tr><td>An IDE</td><td>any</td><td>IntelliJ IDEA, VS Code, Eclipse — all fine</td></tr></tbody></table>
+<h3>Installing JDK 21</h3>
+<p><strong>macOS</strong> (Homebrew):</p>
+<pre><code>brew install openjdk@21</code></pre>
+<p><strong>Linux</strong> (Debian/Ubuntu):</p>
+<pre><code>sudo apt install openjdk-21-jdk</code></pre>
+<p><strong>Windows</strong> — download a build from <a href="https://adoptium.net/temurin/releases/?version=21">Adoptium</a> and run the installer.</p>
+<p>Verify:</p>
+<pre><code>java -version</code></pre>
+<p>You want to see <code>21</code> at the start of the version string.</p>
+<h3>Gradle</h3>
+<p>Do not install it. Every command in this project uses the wrapper script checked in alongside the source:</p>
+<pre><code>./gradlew build      # macOS / Linux
+gradlew.bat build    # Windows</code></pre>
+<p>The first run downloads the right Gradle version and takes a minute. Later runs are quick.</p>
+<h2>Verify Your Setup</h2>
+<p>From the project directory:</p>
+<pre><code>./gradlew test</code></pre>
+<p>You should see the build succeed with <strong>14 tests</strong>. Then:</p>
+<pre><code>./gradlew run</code></pre>
+<p>You should see two sections. The first ends with a form charging £42 — including £2 for gift wrapping that will not happen — and an enabled Place Order button with no courier selected. Both are wrong, and are meant to be.</p>
+<p>If both work, you are ready.</p>
+<h2>Troubleshooting</h2>
+<p><strong><code>./gradlew: Permission denied</code></strong> — mark it executable:</p>
+<pre><code>chmod +x gradlew</code></pre>
+<p><strong><code>Unsupported class file major version</code></strong> — Gradle picked up an older JDK. Check <code>java -version</code>, and point Gradle at 21 explicitly if you have several installed:</p>
+<pre><code>./gradlew test -Dorg.gradle.java.home=/path/to/jdk-21</code></pre>
+<p><strong>The tests fail on <code>chargesForWrappingItWillNotDo</code></strong> — somebody has fixed the deliberate omission in <code>NaiveCheckoutForm</code>. That bug is the lesson; put it back.</p>
+<p><strong><code>WidgetIsolationTest</code> fails naming a field</strong> — a widget has been given a reference to another widget. That is the test doing its job.</p>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — nine references on five controls, and the two bugs that follow</li><li><code>NaiveCheckoutForm</code> in the source — the tangle, gathered into one file</li><li><a href="mediator-pattern-explained.html"><code>mediator-pattern-explained.md</code></a> — the pattern and the code</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> and <a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the star shape, then one click through it</li><li><a href="animation.html"><code>animation.html</code></a> — the click, step by step, in a browser</li><li><code>./gradlew run</code>, then read <code>CheckoutFormDemo</code> alongside its output</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

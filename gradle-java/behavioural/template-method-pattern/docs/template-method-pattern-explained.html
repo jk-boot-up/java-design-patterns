@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Template Method Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Template Method Pattern, Explained</h1>
+<blockquote><p><strong>Define the skeleton of an algorithm in an operation, deferring some steps to subclasses. Template Method lets subclasses redefine certain steps of an algorithm without changing the algorithm&#x27;s structure.</strong> — <em>Design Patterns</em>, Gamma, Helm, Johnson &amp; Vlissides</p></blockquote>
+<p>In plain language: <strong>write the sequence down once, in a method nobody can override, and leave holes.</strong></p>
+<h2>The Thing Three Copies Cannot Do</h2>
+<p>Three fulfilment routes, each written out from beginning to end, have exactly one thing wrong with them, and it is not duplication.</p>
+<p>It is that <strong>the order of the steps is not written down anywhere</strong>. It exists as a shape repeated in three method bodies, and a shape that is repeated by hand is a shape that drifts. Nothing in the compiler, the type system or the test suite knows those six calls have to happen in that order — so when somebody moves two lines in one copy, everything still builds and one customer gets an email with no licence key in it.</p>
+<p>You cannot fix that by extracting helpers, because what is duplicated is the <em>call order</em>, not the call bodies. A helper method cannot own an order it is not the caller of.</p>
+<p>The pattern&#x27;s answer is to make the order into a thing: one method, in one place, that is the sequence — and to close it.</p>
+<pre><code>public final FulfilmentReport fulfil(Order order) {
+    FulfilmentReport report = new FulfilmentReport(order.id(), routeName());
+    validate(order, report);
+    reserveStock(order, report);
+    charge(order, report);
+    pack(order, report);
+    dispatch(order, report);
+    notifyCustomer(order, report);
+    afterFulfilment(order, report);
+    return report;
+}</code></pre>
+<p>That <code>final</code> is not decoration. It is the guarantee, and everything the pattern buys follows from it.</p>
+<h2>Everyday Analogy: The Recipe</h2>
+<p>A recipe for a cake says: cream the fat and sugar, beat in the eggs, fold in the flour, bake, cool, ice.</p>
+<p>The order is not up for discussion. Ice it before you bake it and you have neither cake nor icing. But <em>which</em> fat, <em>which</em> flavouring, whether you ice it at all — those are yours. A vegan version changes what &quot;the eggs&quot; means. A loaf version skips the icing entirely.</p>
+<p>The recipe is the base class. The steps you fill in are the abstract methods. &quot;Ice it, unless you&#x27;d rather not&quot; is a hook. And the thing the recipe will never let you do is bake first.</p>
+<h2>Participants</h2>
+<table><thead><tr><th>Role</th><th>In the GoF book</th><th>Here</th><th>Job</th></tr></thead><tbody><tr><td>Abstract class</td><td><code>AbstractClass</code></td><td><code>FulfilmentProcess</code></td><td>Owns <code>fulfil</code>, which is <code>final</code>; declares the steps</td></tr><tr><td>Template method</td><td><code>TemplateMethod()</code></td><td><code>fulfil(Order)</code></td><td>The sequence itself</td></tr><tr><td>Primitive operations</td><td><code>PrimitiveOperation()</code></td><td><code>reserveStock</code>, <code>charge</code>, <code>dispatch</code>, <code>routeName</code></td><td>Abstract — every route must answer</td></tr><tr><td>Steps with defaults</td><td>—</td><td><code>pack</code>, <code>notifyCustomer</code></td><td>Concrete; a route overrides only if it differs</td></tr><tr><td>Hooks</td><td><code>Hook()</code></td><td><code>requiresShippingAddress</code>, <code>afterFulfilment</code></td><td>Exist purely so a route can opt in or out</td></tr><tr><td>Concrete classes</td><td><code>ConcreteClass</code></td><td><code>WarehouseFulfilment</code>, <code>MarketplaceFulfilment</code>, <code>DigitalFulfilment</code></td><td>Fill in the holes</td></tr><tr><td>Naive alternative</td><td>—</td><td><code>NaiveFulfilment</code></td><td>Three copies, kept for contrast</td></tr></tbody></table>
+<h2>Three Kinds of Hole, and How to Choose</h2>
+<p>This is the part of Template Method that is actually hard. The sequence is easy; deciding what each step should <em>be</em> is the design.</p>
+<h3>Abstract — &quot;you must answer, I have no default&quot;</h3>
+<pre><code>protected abstract void reserveStock(Order order, FulfilmentReport report);</code></pre>
+<p>Use this when there is no behaviour that would be right for a route that forgot to think about it. Holding stock in a warehouse and asking a marketplace seller to confirm have nothing in common but their position in the sequence, so a default would only ever be wrong.</p>
+<p>The cost is real: every new route must implement it, including routes for which the step is trivial. <code>DigitalFulfilment.reserveStock</code> exists purely to record that there was nothing to reserve — and that is the right outcome, because &quot;this route has nothing to reserve&quot; is a decision somebody should have to make explicitly.</p>
+<h3>Concrete with a default — &quot;most of you want this&quot;</h3>
+<pre><code>protected void pack(Order order, FulfilmentReport report) {
+    report.step(&quot;pack&quot;, order.itemCount() + &quot; item(s) boxed and labelled&quot;);
+}</code></pre>
+<p>Use this when there is a behaviour the majority of routes want. It makes the common route short: <code>WarehouseFulfilment</code> says nothing at all about packing or emailing, because the base class already does what it wants.</p>
+<p>The trap is choosing a default that is <em>usually</em> right rather than <em>safely</em> right. A default that silently does the wrong thing for a route nobody re-read is worse than an abstract method that forced the question.</p>
+<h3>Hook — &quot;here is a place to stand&quot;</h3>
+<pre><code>protected boolean requiresShippingAddress() { return true; }
+
+protected void afterFulfilment(Order order, FulfilmentReport report) {
+    // deliberately empty
+}</code></pre>
+<p>Two flavours. <code>requiresShippingAddress</code> is a <strong>question</strong> the base class asks before doing something; a route answers, and does not otherwise participate. <code>afterFulfilment</code> is a <strong>place</strong>: an empty method the base class calls at a point it controls, so a route with an extra obligation has somewhere to put it.</p>
+<p>The empty body is the point. It gets called for every route, including the three that do nothing with it, because the one route that needs it — <code>MarketplaceFulfilment</code>, posting its commission — must not have to negotiate for a call site.</p>
+<h2>Code Walkthrough</h2>
+<h3>The step that is private, and why</h3>
+<pre><code>private void validate(Order order, FulfilmentReport report) {
+    if (order.lines().isEmpty()) throw new FulfilmentException(...);
+    if (order.customerEmail() == null || order.customerEmail().isBlank()) throw ...;
+    if (requiresShippingAddress() &amp;&amp; !order.hasShippingAddress()) throw ...;
+    ...
+}</code></pre>
+<p><code>validate</code> is the one step no route may replace. Making it <code>protected</code> would have been the obvious choice and would have quietly handed every future subclass permission to write <code>@Override protected void validate() { }</code> — which is how orders ship into the void.</p>
+<p>Instead it is <code>private</code>, and the only influence a route has over it is answering one boolean. Look at what <code>DigitalFulfilment</code> got: permission to skip the address check, and nothing else. Its orders still have to have lines and an email address, and there is no override it could write to change that.</p>
+<p><strong>That narrowness is the design.</strong> Every hook you add is a permission you are granting for the lifetime of the class. Grant the smallest one that solves the problem.</p>
+<h3>The route that overrides nothing optional</h3>
+<pre><code>public final class WarehouseFulfilment extends FulfilmentProcess {
+    protected String routeName() { return &quot;warehouse&quot;; }
+    protected void reserveStock(...) { ledger.reserve(...); }
+    protected void charge(...) { ... }
+    protected void dispatch(...) { ... }
+}</code></pre>
+<p>Four methods. No <code>pack</code>, no <code>notifyCustomer</code>, no hooks. When the ordinary route is this short, it is a sign the split between abstract, default and hook was drawn in the right place — the base class&#x27;s defaults were written for the common case, and the common case is getting them for free.</p>
+<h3>The route that justifies every hook</h3>
+<pre><code>public final class DigitalFulfilment extends FulfilmentProcess {
+    protected boolean requiresShippingAddress() { return false; }
+    protected void reserveStock(..) { report.step(&quot;reserve&quot;, &quot;nothing to reserve, ...&quot;); }
+    protected void pack(..)         { report.step(&quot;pack&quot;, &quot;nothing to pack&quot;); }
+
+    protected void dispatch(Order order, FulfilmentReport report) {
+        String key = LicenceKeys.mint(order);
+        report.dispatchedAs(key);
+        report.step(&quot;dispatch&quot;, &quot;licence key issued: &quot; + key);
+    }
+
+    protected void notifyCustomer(Order order, FulfilmentReport report) {
+        report.notified(order.customerEmail() + &quot;: Order &quot; + order.id()
+                + &quot; is ready to download. Key: &quot; + report.dispatchReference());
+        ...
+    }
+}</code></pre>
+<p>Two things to notice.</p>
+<p><strong>The empty steps still record themselves.</strong> <code>reserveStock</code> and <code>pack</code> have nothing physical to do, and they do not vanish — they write &quot;nothing to reserve&quot; and &quot;nothing to pack&quot; onto the report. The digital route produces six steps like everything else. &quot;This step had nothing to do&quot; is a fact worth printing, and it keeps the reports comparable.</p>
+<p><strong><code>notifyCustomer</code> reads what <code>dispatch</code> wrote</strong>, and this is where the <code>final</code> on <code>fulfil</code> cashes out. These two methods are on the same class, written by the same author, and one depends on the other having run. In <code>NaiveFulfilment</code> the identical two lines produce <code>Key: (not dispatched)</code>, because nothing was guaranteeing the order. Here the guarantee is structural: no subclass, present or future, can put <code>notify</code> before <code>dispatch</code>.</p>
+<h3>The route that uses the after-hook</h3>
+<pre><code>protected void afterFulfilment(Order order, FulfilmentReport report) {
+    Money commission = order.subtotal().percent(COMMISSION_PERCENT);
+    report.note(&quot;seller ledger: &quot; + commission + &quot; commission posted against ...&quot;);
+}</code></pre>
+<p><code>MarketplaceFulfilment</code> has an obligation the other routes do not: the commission has to be posted somewhere. It is not one of the six steps, it is not something the base class should know exists, and it has to happen after everything else succeeded. The empty hook is exactly the right size of hole for it.</p>
+<p>Note that it records a <strong>note</strong>, not a step. Notes are kept apart from steps on the report precisely so that a route using this hook cannot change the sequence a test asserts on.</p>
+<h2>Why the Tests Are the Proof</h2>
+<p><code>FulfilmentProcessTest</code> never mentions warehouses, sellers or licence keys. It defines <code>RecordingRoute</code> — a route whose steps do nothing but append their own names to a list — and then reads that list back:</p>
+<pre><code>assertEquals(
+    List.of(&quot;reserveStock&quot;, &quot;charge&quot;, &quot;pack&quot;, &quot;dispatch&quot;, &quot;notifyCustomer&quot;,
+            &quot;afterFulfilment&quot;),
+    route.calls);</code></pre>
+<p>That is the pattern&#x27;s central claim, checked directly: the base class called the steps, in its order, on a subclass it has never heard of.</p>
+<p>Two more that are worth reading:</p>
+<ul><li><code>aThrowingStepStopsTheRest</code> — when <code>charge</code> throws, <code>dispatch</code> and <code>notifyCustomer</code> are never reached. A later step must never run on the assumption that an earlier one succeeded.</li><li><code>hookOnlyAnswersOneQuestion</code> — a route that answers <code>requiresShippingAddress() == false</code> still cannot get an empty order through. The hook grants one permission, not general amnesty.</li></ul>
+<p>And <code>NaiveFulfilmentTest</code> holds the comparison. Each drift is pinned as a <em>passing</em> test that asserts the wrong behaviour:</p>
+<pre><code>assertEquals(List.of(&quot;validate&quot;, &quot;reserve&quot;, &quot;charge&quot;, &quot;pack&quot;, &quot;notify&quot;, &quot;dispatch&quot;),
+        naive.fulfilDigital(digitalOrder()).stepNames());</code></pre>
+<p>The difference the pattern makes is a diff between two test files rather than a claim in a README.</p>
+<h2>What You Gain</h2>
+<ol><li><strong>The sequence exists.</strong> It is a method, not a convention, and it is in one place.</li><li><strong>It cannot be reordered</strong>, by anyone, ever — that is what <code>final</code> means.</li><li><strong>Later steps can rely on earlier ones.</strong> <code>notifyCustomer</code> can quote what <code>dispatch</code> produced without checking whether it ran.</li><li><strong>The common route is short.</strong> Defaults mean <code>WarehouseFulfilment</code> is four methods.</li><li><strong>A fourth route is one new class.</strong> <code>FulfilmentDemo</code> adds click-and-collect without opening <code>FulfilmentProcess</code>, and gets the same six steps in the same order for nothing.</li><li><strong>The sequence is observable</strong>, because every step records itself. Four unrelated routes print identical step names, and no route chose that.</li></ol>
+<h2>What to Watch Out For</h2>
+<p><strong>Inheritance, and you only get one.</strong> Every route is welded to <code>FulfilmentProcess</code> and can extend nothing else. This is the pattern&#x27;s real price and the reason composition is usually the better modern default. Pay it when the <em>order</em> is what you are protecting.</p>
+<p><strong>The fragile base class.</strong> Adding a seventh step to <code>fulfil</code> changes the behaviour of every route at once, including ones in other repositories you cannot see. The template method is public API, and its sequence is part of the contract.</p>
+<p><strong>Too many hooks.</strong> Every hook is a permission granted forever. A base class with a hook before and after every step is not protecting a sequence any more; it is a very complicated way of writing a callback list. If you find yourself adding a hook per subclass, the steps probably wanted to be strategies.</p>
+<p><strong>Steps that call each other.</strong> A subclass step calling another subclass step directly re-creates the drift the pattern removed, because now there are two places that know about ordering. Steps talk to the receiver and the report, not to each other.</p>
+<p><strong>Overriding a default without calling <code>super</code>, when you meant to add.</strong> <code>@Override</code> protects you from typos, not from intent. If your override should extend the default rather than replace it, <code>super.pack(order, report)</code> has to be there — and nothing will remind you.</p>
+<h2>Template Method vs. Factory Method vs. Strategy vs. Command</h2>
+<table><thead><tr><th></th><th>Varies</th><th>Bound at</th><th>Owns the order?</th></tr></thead><tbody><tr><td><strong>Template Method</strong></td><td>Several steps of one algorithm</td><td>Compile time, by subclassing</td><td><strong>Yes</strong> — one <code>final</code> method</td></tr><tr><td><strong>Factory Method</strong></td><td>Which object to create — exactly one step</td><td>Compile time, by subclassing</td><td>Yes, but there is only one hole</td></tr><tr><td><strong>Strategy</strong></td><td>A whole algorithm</td><td>Run time, by composition</td><td>No</td></tr><tr><td><strong>Command</strong></td><td>What action to run, and when</td><td>Run time, by object</td><td>No — the invoker just runs what it is given</td></tr></tbody></table>
+<p>The one worth being precise about is <strong>Factory Method</strong>, because this repository teaches it too, and it is also described as &quot;a workflow with a hole in it&quot;. The line: Factory Method&#x27;s hole is <em>which object to create</em>, there is exactly one of them, and it returns a product. Template Method&#x27;s holes are <em>how several steps behave</em>, they return nothing in particular, and some of them are optional. <strong>Factory Method is Template Method narrowed to object creation.</strong></p>
+<p>The one worth being honest about is <strong>Strategy</strong>. For many problems it is simply better: run-time swappable, no inheritance, testable in isolation. Use Template Method when a fixed <em>order</em> is the invariant you need, and Strategy when independently varying <em>behaviour</em> is.</p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><code>java.util.AbstractList</code> — implements <code>iterator()</code>, <code>indexOf()</code>, <code>equals()</code> and more in terms of the two methods you must supply, <code>get(int)</code> and <code>size()</code>.</li><li><code>java.io.InputStream.read(byte[], int, int)</code> — a loop written once, on top of the single abstract <code>read()</code>.</li><li><code>HttpServlet.service()</code> — dispatches to <code>doGet</code>, <code>doPost</code> and friends, all of which are hooks with a &quot;405 Method Not Allowed&quot; default.</li><li>JUnit&#x27;s <code>@BeforeEach</code> / <code>@AfterEach</code> — a fixed lifecycle around your test method, with hooks at points the framework controls.</li><li>Spring&#x27;s <code>JdbcTemplate</code>, <code>RestTemplate</code> and every other <code>*Template</code> class in the ecosystem. The name is not a coincidence.</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li><strong>Add a fifth route.</strong> Subscription renewal: nothing to reserve, charge a stored card, nothing to pack, extend the licence period. How many methods did you have to write, and did you open <code>FulfilmentProcess</code>?</li><li><strong>Try to break the order.</strong> Add <code>@Override public FulfilmentReport fulfil(Order order)</code> to any route and read the compiler error. That error is the pattern.</li><li><strong>Add a fraud check</strong> as a seventh step between validate and reserve. Do it in <code>FulfilmentProcess</code>, then count how many routes you had to edit. Then do the same to <code>NaiveFulfilment</code>.</li><li><strong>Move the check the other way.</strong> Make <code>validate</code> <code>protected</code> and override it in one route to skip the address check. Then ask yourself what stops the next person doing that to the email check.</li><li><strong>Rewrite it as Strategy.</strong> Six functional interfaces, composed. Get it working, then work out what you would have to add to make it impossible to supply them in the wrong order.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the drift, in detail</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — the structure</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — one <code>fulfil</code> call, step by step</li><li><a href="animation.html"><code>animation.html</code></a> — the same call, animated</li><li><a href="../../../creational/factory-method-pattern/README.html">Factory Method</a> — the narrowed version, for comparison</li><li><a href="../../strategy-pattern/README.html">Strategy</a> — the composed alternative</li></ul>
+</main>
+<footer>
+Generated from <code>template-method-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

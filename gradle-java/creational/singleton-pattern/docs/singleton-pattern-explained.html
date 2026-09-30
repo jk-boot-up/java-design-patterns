@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Singleton Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Singleton Pattern, Explained</h1>
+<h2>First, an Honest Note</h2>
+<p>This is the Gang of Four&#x27;s smallest pattern, and the one Java developers reach for the most casually — and the one <em>Effective Java</em> Item 3 spends the most effort steering people away from misimplementing. The GoF book states the intent; Item 3 supplies the part the GoF book does not: which of the several ways to write &quot;exactly one instance&quot; in Java actually holds up under reflection and serialization, and which only look like they do. This project builds the one Item 3 recommends, and deliberately also builds the one it warns against, so the difference is something you can run, not just read about.</p>
+<h2>The Definition</h2>
+<blockquote><p>Ensure a class only has one instance, and provide a global point of access to it. — <em>Design Patterns</em> (Gamma, Helm, Johnson, Vlissides)</p></blockquote>
+<p>In plainer words:</p>
+<blockquote><p><strong>Make it impossible to construct more than one of this class, and give every caller in the program the same one well-known way to reach the instance that does exist.</strong></p></blockquote>
+<h2>The Participants</h2>
+<table><thead><tr><th>Role</th><th>In this project</th><th>What it does</th></tr></thead><tbody><tr><td>Singleton</td><td><code>OrderSequenceGenerator</code></td><td>A single-element <code>enum</code>; <code>INSTANCE</code> is the one and only instance</td></tr><tr><td>The trap</td><td><code>LegacyOrderSequenceGenerator</code></td><td>The classic private-constructor shape, kept here to demonstrate what it fails to prevent</td></tr><tr><td>Client</td><td><code>OrderSequenceGeneratorDemo</code></td><td>Uses the singleton, then tries to break both implementations</td></tr></tbody></table>
+<h2>The Code, Walked Through</h2>
+<h3><code>OrderSequenceGenerator</code> — a single-element enum</h3>
+<pre><code>public enum OrderSequenceGenerator {
+    INSTANCE;
+
+    private final AtomicLong counter = new AtomicLong();
+
+    public String nextOrderNumber() {
+        return String.format(&quot;ORD-%06d&quot;, counter.incrementAndGet());
+    }
+}</code></pre>
+<p>That is the entire singleton. No private constructor to remember to write, no <code>getInstance()</code> method, no null check, no lock. <code>INSTANCE</code> is a <code>public static final</code> field the compiler generates for you, and three separate guarantees come along with it for free, each one answering a specific way the classic shape fails:</p>
+<p><strong>The JVM creates each enum constant exactly once</strong>, during class initialization, and class initialization is itself thread-safe by the Java Language Specification — no double-checked locking, no explicit <code>synchronized</code>, needed to get a single instance safely under concurrent first use.</p>
+<p><strong>Reflection cannot call an enum&#x27;s constructor.</strong> <code>Constructor.newInstance()</code> explicitly checks whether the declaring class is an enum and throws <code>IllegalArgumentException: Cannot reflectively create enum objects</code> if it is — a check written directly into the reflection API, not something this project&#x27;s code has to add.</p>
+<p><strong>Enum serialization is defined by name, not by field.</strong> The default serialized form of an enum constant is its name; deserializing looks the name up via <code>Enum.valueOf</code> against the already-existing constant rather than reconstructing a new object from scratch. A round trip through <code>ObjectOutputStream</code>/<code>ObjectInputStream</code> hands back the exact same <code>INSTANCE</code>, not a copy.</p>
+<p><code>counter</code> is an <code>AtomicLong</code> rather than a plain <code>int</code> for a reason that matters once &quot;exactly one instance&quot; is guaranteed: that one instance is now reachable from every thread in the program at once, so the method that mutates its state has to be safe to call concurrently. <code>incrementAndGet()</code> is a single atomic operation — no two callers can ever read-then-write the same intermediate value the way two threads incrementing a plain <code>int</code> could.</p>
+<h3><code>LegacyOrderSequenceGenerator</code> — the shape this project deliberately avoids shipping</h3>
+<pre><code>public final class LegacyOrderSequenceGenerator implements Serializable {
+    private static LegacyOrderSequenceGenerator instance;
+    private int counter;
+
+    private LegacyOrderSequenceGenerator() { }
+
+    public static LegacyOrderSequenceGenerator getInstance() {
+        if (instance == null) {
+            instance = new LegacyOrderSequenceGenerator();
+        }
+        return instance;
+    }
+    ...
+}</code></pre>
+<p>Under ordinary use — every caller writing <code>getInstance()</code> and nothing more exotic — this behaves identically to the enum. The three guarantees above are exactly the three things it is missing:</p>
+<ul><li>its lazy <code>if (instance == null)</code> check is not atomic, so two threads racing through it for the first time can each construct their own instance;</li><li>its private constructor is reachable via <code>getDeclaredConstructor().setAccessible(true)</code>, because reflection has no special knowledge that this particular private constructor is meant to be singular;</li><li>implementing <code>Serializable</code> without also writing a <code>readResolve()</code> method means deserializing it builds a brand-new object with its fields restored from the byte stream — <code>counter</code> included, reset to whatever it was at serialization time, not carried forward from the live instance.</li></ul>
+<p>Fixing all three by hand is possible — a <code>volatile</code> field with double-checked locking, a <code>readResolve()</code> that returns <code>INSTANCE</code>, and still nothing stops a determined caller with reflection access. The enum gets all three for the price of one keyword.</p>
+<h3>Using it</h3>
+<pre><code>String orderNumber = OrderSequenceGenerator.INSTANCE.nextOrderNumber();
+// ORD-000001, issued from wherever in the program this line runs</code></pre>
+<p>No constructor, no factory method, no null check — <code>INSTANCE</code> already exists by the time any code can reference it, and every reference to it, anywhere in the program, is the same object.</p>
+<h2>What You Gain</h2>
+<p><strong>A guarantee the compiler and the JVM enforce</strong>, not one your team has to remember to uphold by code review. There is no private constructor for a future maintainer to accidentally make public, no lazy-initialization race to get subtly wrong.</p>
+<p><strong>Safety under concurrency, by construction.</strong> Because there is exactly one instance and it is reachable from every thread, its mutable state (<code>counter</code>) is written once, using <code>AtomicLong</code>, instead of being duplicated per-caller and needing no synchronization at all.</p>
+<p><strong>Immunity to the two classic escape hatches.</strong> Reflection and serialization are the two ways a &quot;singleton&quot; written the ordinary way can quietly stop being one. The enum closes both without any extra code in this project.</p>
+<h2>What to Watch Out For</h2>
+<p><strong>A singleton is global mutable state</strong>, dressed up in a pattern name. Any code, anywhere in the program, can call <code>OrderSequenceGenerator.INSTANCE.nextOrderNumber()</code> — there is no way to give one part of the program its own counter for a test without either resetting shared state between tests or restructuring the code to accept an injected dependency instead of reaching for a global.</p>
+<p><strong>It does not compose with instance-per-tenant designs.</strong> The moment the system needs a separate order sequence per storefront, warehouse, or test run, &quot;exactly one instance for the whole JVM&quot; is precisely the wrong guarantee, and no amount of tuning <code>OrderSequenceGenerator</code> fixes that — the pattern itself has to be abandoned in favour of an ordinary object handed to whoever needs one.</p>
+<p><strong>It hides a dependency.</strong> A method that calls <code>OrderSequenceGenerator.INSTANCE</code> inside its body does not show that dependency in its signature, unlike a method that takes an <code>OrderSequenceGenerator</code> parameter. That makes the call site shorter and the dependency graph less visible at the same time.</p>
+<h2>How This Relates to the Other Creational Patterns</h2>
+<table><thead><tr><th></th><th>Singleton</th><th>Prototype</th><th>Builder</th><th>Abstract Factory</th></tr></thead><tbody><tr><td>In the GoF book?</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr><tr><td>The problem it solves</td><td>Guaranteeing exactly one instance exists</td><td>Cheaply producing near-duplicates of an expensive object</td><td>Many optional pieces, one object</td><td>Which whole matching set?</td></tr><tr><td>What the caller writes</td><td><code>EnumName.INSTANCE.method()</code></td><td><code>template.copy()</code>, then a few setters</td><td>A chain of calls, one per piece</td><td>One call, gets a family back</td></tr><tr><td>Extra classes needed</td><td>None — the enum is the whole implementation</td><td>One interface (<code>Prototype&lt;T&gt;</code>)</td><td>One builder</td><td>One per family</td></tr></tbody></table>
+<p>The honest summary: every other creational pattern in this collection controls <em>how</em> an object gets built. Singleton is the odd one out — it controls <em>how many</em> exist, full stop, and says nothing about assembly at all. It is also the only one of the four that is arguably better avoided than reached for by default: the other three solve construction problems that recur constantly; Singleton solves a narrower one — &quot;the domain genuinely requires exactly one&quot; — and is frequently misused to solve a different problem entirely (&quot;I don&#x27;t want to pass this object around&quot;), which dependency injection solves without the global-state cost.</p>
+<h2>Try It Yourself</h2>
+<ol><li><strong>Prove the race in the classic shape.</strong> Write a test that starts many threads all calling <code>LegacyOrderSequenceGenerator.getInstance()</code> for the first time simultaneously and collects the returned references into a <code>Set</code> by identity. It is timing-dependent — you may need several runs — but it can produce a set with more than one element, which <code>OrderSequenceGenerator.INSTANCE</code> never can.</li><li><strong>Add <code>readResolve()</code>.</strong> Give <code>LegacyOrderSequenceGenerator</code> a <code>private Object readResolve() { return instance; }</code> method and re-run <code>LegacyOrderSequenceGeneratorTest.deserializationCanCreateASecondInstance</code>. Watch it start failing — the fix works, but notice it is one more thing an author has to remember to write, where the enum needs nothing.</li><li><strong>Feel the global-state cost.</strong> Write two unit tests for <code>OrderSequenceGenerator</code> that each assert on the exact order number returned, run in the same JVM, and watch the second one fail because the first already advanced the shared counter. Fix it by asserting on relative behaviour (increases, matches the format) instead of an absolute value — which is what this project&#x27;s own tests do, and why.</li></ol>
+</main>
+<footer>
+Generated from <code>singleton-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

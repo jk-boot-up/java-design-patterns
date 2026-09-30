@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thread Pool with Spring Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Thread Pool with Spring Pattern — Video Narration Script</h1>
+<h2>1. Thread Pool with Spring</h2>
+<p>Hello, and welcome. This video explains the Thread Pool pattern, in Java, using Spring Boot. This video is presented by Jayasekhar Konduru. First, a simple definition. A thread pool runs work on a small set of threads that are created once, and reused. So a burst of work cannot create a burst of threads. Think of a restaurant with a fixed team of waiters. A rush of customers does not hire new waiters on the spot. The customers wait for a free one. This is the framework version of the Thread Pool video, with the same order packing. We will hear the pool Spring Boot gives you when you configure nothing, and watch its queue grow without limit. Then we will limit it, and hear a real refusal. And we will meet two failures that belong to Spring: an annotation that silently does nothing, and a pool that starves itself.</p>
+<h2>2. The Partner Project</h2>
+<p>Before we start, a quick note. This video has a partner: the hand-built Thread Pool video. That one builds a limited pool by hand. And it shows three costs: a queue with no limit is a trap, a refusal needs a decision, and a pool can starve itself. If you are new to the pattern, watch that one first. Here, we ask what Spring Boot does with the same idea.</p>
+<h2>3. Before The First Line</h2>
+<p>One thing is new in this project: Spring Boot. At its heart, Spring is a container that creates and connects your objects. Its at Async annotation sends a method to a thread pool that Spring creates and owns. The pool&#x27;s size and queue are just settings. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.</p>
+<h2>4. What You Get By Default</h2>
+<p>First demo: what you get by default. Add the enable async annotation, and no settings at all. What pool do you get? Eight core threads. A maximum of more than two billion threads. And a queue that holds more than two billion tasks. In practice, that is eight workers, and a queue with no limit. The trap from the hand-built video is not someone&#x27;s mistake here. It is the default.</p>
+<h2>5. @Async Moves The Work</h2>
+<p>Second demo: at Async moves the work. We call the packing method, which is marked at Async. The caller is the main thread. The work runs on a different thread, called task one. One annotation replaced the whole hand-written pool class from the other video.</p>
+<h2>6. The Unbounded Queue</h2>
+<p>Third demo: the queue with no limit. All eight workers are made busy, held on a slow step. Then a thousand more orders arrive. All one thousand wait in the queue. How many were refused? Zero. Nobody was told anything. Submitting never waits, and never refuses. So the backlog just grows, until the application runs out of memory.</p>
+<h2>7. Bound It</h2>
+<p>Fourth demo: add a limit. Three settings: two threads, and a queue that holds three. Two orders are running. Three are waiting. Then a sixth order arrives. It is refused at once, with a Task Rejected exception. That is a decision. The caller learns that the pool is full, instead of a queue growing in silence.</p>
+<h2>8. The Annotation That Does Nothing</h2>
+<p>Fifth demo: the annotation that does nothing. One method calls the at Async packing method on the same object, directly, through this. The packing ran on the main thread, the caller&#x27;s own thread. Not on the pool. And nothing complained. At Async works through a proxy that Spring wraps around the object. A call on this skips the proxy completely.</p>
+<h2>9. Pool Starvation</h2>
+<p>Last demo: pool starvation. The pool has one thread. The packing task asks the same pool to print a label, and waits for the answer. But the label task is queued behind the packing task. And the packing task is waiting for the label. So the label task never gets a thread. The demo is rescued by a timeout, so it can tell you what happened. It is the same deadlock as in the hand-built video.</p>
+<h2>10. The Verdict</h2>
+<p>So, here is the verdict. Configure the pool yourself. Put a limit on the queue. Decide what a refusal should mean. Never make a task wait on its own pool. And do not rely on the default pool for any work that can pile up.</p>
+<h2>11. How To Recognise It</h2>
+<p>How can you spot this in code someone else wrote? Look for the enable async annotation, and methods marked at Async. Look for settings starting with spring dot task dot execution dot pool. Look for a Task Rejected exception in an error report. And a service method that returns a Completable Future.</p>
+<h2>12. Where You Have Met This</h2>
+<p>Where have you met this before? In every at Async method, and in Spring Boot&#x27;s application task executor. Scheduled tasks and asynchronous event listeners use the same kind of pool.</p>
+<h2>13. What Was Used</h2>
+<p>For the record, here are the versions. Spring Boot four point one point one. No web server, no database, and no web library.</p>
+<h2>14. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Spring&#x27;s thread pool, its defaults, and its errors are all real. Every wait uses a latch or a gate, so every count is the same on every run.</p>
+<h2>15. When This Is Too Much</h2>
+<p>So, when is this too much? For work that is already fast, or work that must finish before the caller continues, a thread pool is only overhead.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s Thread Pool with Spring. If you remember one sentence, make it this one. A thread pool you did not configure has a queue that never says no. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Turn on virtual threads in the settings. Print whether the work now runs on one. And think about what the pool has become. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

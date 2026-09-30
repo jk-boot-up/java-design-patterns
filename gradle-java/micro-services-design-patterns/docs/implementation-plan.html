@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Microservices Patterns — Implementation Plan</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Microservices Patterns — Implementation Plan</h1>
+<p>How the twelve projects specified in <a href="spec.html"><code>spec.md</code></a> get built.</p>
+<p>This is the <em>how</em>. The <em>what</em> is in <code>spec.md</code>, and the video and publishing standard both inherit from is <a href="../../docs/video-and-publishing-spec.html"><code>../../docs/video-and-publishing-spec.md</code></a>.</p>
+<hr>
+<h2>Current state</h2>
+<p>Nothing exists but these two documents. <code>gradle-java/micro-services-design-patterns/</code> contains this <code>docs/</code> directory and no projects.</p>
+<p>The twenty-five Gang of Four projects are complete and are the working reference: the file set, the build scripts, the slide renderer and the generators all exist and work. Nothing in this category needs to be invented except its own content — and one thing that <em>is</em> new, which is the simulation harness (§Phase 1).</p>
+<p>The lesson carried over from the behavioural build is the sequencing one: <strong>everything that changes what a video contains lands before the video is rendered</strong>, because re-rendering is the only step that costs ten minutes and cannot be partially redone.</p>
+<hr>
+<h2>Order of work</h2>
+<h3>Phase 0 — Wire the category into the shared tooling</h3>
+<p>Before any project is written, because all twelve depend on it and because doing it later means editing twelve projects instead of five files.</p>
+<ol><li><strong><code>docs/video-and-publishing-spec.md</code></strong> — §1 Scope becomes thirty-seven projects with a fourth row, and points at <code>micro-services-design-patterns/docs/spec.md</code> for the category detail.</li><li><strong><code>docs/make_specs.py</code></strong> — twelve entries appended to <code>ORDER</code> and <code>NAME</code>, and the category-to-directory mapping taught the new folder name, which is the one place the longer directory name (<code>micro-services-design-patterns</code> rather than a single word) will need care.</li><li><strong><code>docs/make_youtube_docs.py</code></strong> — twelve title and tag entries, from <code>spec.md</code> §7.</li><li><strong><code>docs/make_thumbnails.py</code></strong> — twelve entries.</li><li><strong><code>gradle-java/README.md</code> and the repository <code>README.md</code></strong> — a fourth category section and its learning order.</li></ol>
+<p>The per-project <code>SPECS</code> block in <code>make_specs.py</code> carries the real class names, so it cannot be written before the project exists; it lands with each project. All three generators already skip a slug whose directory is absent, so the series can be listed in full from the start.</p>
+<p>Phase 0 is done when all three generators run clean over the existing twenty-five and report the twelve new slugs as not built yet.</p>
+<h3>Phase 1 — Build API Gateway end to end, as the category&#x27;s reference</h3>
+<p>API Gateway is first in the learning order and is the simplest of the twelve, so it is the right project to shake out the template on. It is built <strong>complete</strong> — code, tests, all ten documents, both diagrams, the animation, the video — and reviewed before anything else starts.</p>
+<p>Two things get settled here and then copied eleven times, and getting them right is most of what Phase 1 is for:</p>
+<p><strong>The simulation harness.</strong> Three classes, no more (<code>spec.md</code> §2.4):</p>
+<ul><li>a <code>Clock</code> seam and a fake implementation the tests advance by hand;</li><li>a <code>RemoteService&lt;T&gt;</code> wrapper that adds simulated latency and can be scripted to fail — &quot;fail twice, then succeed&quot;, &quot;always time out&quot;, &quot;take 3 seconds&quot;;</li><li>a <code>CallLog</code> that records service, simulated timestamp, outcome and what the pattern decided, and prints the timeline the demo and the console slide need.</li></ul>
+<p>These must be small enough to read in one sitting and boring enough that no project needs to modify them. If a later project has to change the harness, the change is made in that project <em>and</em> backported, exactly as the audio-pipeline fix was rolled across every project rather than left where it was found.</p>
+<p><strong>The timeline slide.</strong> The layout that shows a failing call sequence with elapsed time — designed once, in <code>make_slides.py</code>, and reused. Every project in this category needs one (<code>spec.md</code> §7.1).</p>
+<h3>Phase 2 — Build the remaining eleven, in learning order</h3>
+<p>Service Discovery, Load Balancing, Retry, Circuit Breaker, Bulkhead, Database per Service, API Composition, CQRS, Saga, Transactional Outbox, Idempotent Consumer.</p>
+<p>In order, and one at a time, because the scenarios build on each other far more tightly than the Gang of Four ones do: Circuit Breaker&#x27;s argument only lands once Retry has been taught, API Composition exists to solve the problem Database per Service creates, and Idempotent Consumer is the second half of Transactional Outbox. Building out of order means writing those references against projects that do not exist yet.</p>
+<p>Per project, in this sequence — the code first, because every other artefact quotes it, and the video last, because it is the only step that is expensive to redo:</p>
+<ol><li>Design the services involved against <code>spec.md</code> §3, using the shared service map rather than inventing new services. Confirm the naive alternative is one a competent developer would actually write.</li><li>Scaffold the Gradle project from the previous one, copying the harness.</li><li>Write the production code and the naive counter-example classes.</li><li>Write the tests, including the property assertions <code>spec.md</code> §6.5 requires and the one that pins the naive alternative&#x27;s wrong behaviour. Confirm the suite is deterministic and under two seconds.</li><li><code>./gradlew build</code>, then <code>./gradlew run</code>, and quote the real output — the timeline, including its failure — in the top-level <code>README.md</code>.</li><li>Write <code>docs/</code> — problem statement, explainer (including the §2.1 limitation and the §5 cross-reference), both diagrams, the animation, prerequisites, session plan. Render both Mermaid diagrams to PNG.</li><li>Write <code>video/scenes.py</code> and <code>make_slides.py</code>. Render the poster and <strong>look at it</strong>.</li><li><code>./build_video.sh</code>. Confirm it prints <code>audio timeline continuous</code>.</li><li><code>python3 ../../docs/make_youtube_docs.py &lt;slug&gt;</code> and <code>python3 ../../docs/make_specs.py &lt;slug&gt;</code>.</li><li>Walk the project&#x27;s conformance checklist — the repository-wide fourteen plus the six in <code>spec.md</code> §9.</li></ol>
+<h3>Phase 3 — Verify the category</h3>
+<p>Once all twelve exist: build and run all twelve, confirm the whole test suite is sleep-free (<code>grep -r &quot;Thread.sleep&quot; src/test</code> returns nothing across the category), confirm every poster shows its own pattern name, confirm every <code>youtube.md</code> chapter list matches its current <code>.srt</code>, and measure loudness on every delivered MP4.</p>
+<p>Then regenerate all thirty-seven specs so the cross-category numbers are consistent, and update both READMEs.</p>
+<hr>
+<h2>Sequencing rules</h2>
+<p><strong>Nothing is rendered twice.</strong> Everything that changes what a video <em>contains</em> — narration text, slide content, the code being shown — lands before <code>build_video.sh</code> is run for that project. This is why the video is step 8 of 10 rather than step 3.</p>
+<p><strong>The harness is settled in Phase 1 and then frozen.</strong> A harness that drifts across twelve projects makes the twelve READMEs subtly wrong about what they share. If it must change, it changes everywhere.</p>
+<p><strong>Listen to the first build of each project.</strong> The continuity self-check verifies that no audio is missing; it cannot hear that the audio is bad.</p>
+<p><strong>Look at every poster.</strong> <code>poster.png</code> is generated, its correctness is not checked by anything, and it is the single most visible artefact the project produces.</p>
+<p><strong>Do not batch the videos.</strong> Rendering twelve at the end defers the discovery of a systematic narration or slide problem until every project has one.</p>
+<hr>
+<h2>Risks</h2>
+<table><thead><tr><th>Risk</th><th>Mitigation</th></tr></thead><tbody><tr><td>The simulation reads as fake, and the reader dismisses the lesson</td><td>The harness is honest about what it is and the explainer says so in every project (<code>spec.md</code> §2.1). The demo shows real failures with real consequences — a double charge, a lost event — not a print statement claiming a service is down.</td></tr><tr><td>Twelve projects blur into &quot;a wrapper class that catches exceptions&quot;</td><td>Retry, Circuit Breaker and Bulkhead are the three most at risk. Each carries a mandatory comparison with the other two, and each has to show a case where the <em>other</em> pattern is the wrong answer.</td></tr><tr><td>Beginners are lost — this is harder material than the Gang of Four</td><td>The order in <code>spec.md</code> §1 defers all failure handling until the shape of a call is understood, and all data problems until then. Prerequisites for these projects name the Gang of Four projects a reader should have done first.</td></tr><tr><td>Tests become slow and flaky, and then get deleted</td><td><code>spec.md</code> §6.4 is a conformance item, not advice: no sleeps, seeded randomness, under two seconds, checked in Phase 3 by grep.</td></tr><tr><td>The category drifts into infrastructure teaching</td><td><code>spec.md</code> §8 fixes what is out of scope and why. A thirteenth project needs a spec change, not a decision made mid-build.</td></tr><tr><td>Bulkhead&#x27;s real threads make its tests non-deterministic</td><td>It is the only project allowed real concurrency; its tests use a fixed pool and latches. If a deterministic version cannot be written, the project is redesigned rather than the rule relaxed.</td></tr></tbody></table>
+<hr>
+<h2>Definition of done</h2>
+<p>The category is complete when:</p>
+<ul class="task"><li>Twelve projects exist, each passing the repository-wide conformance checklist and the six category items in <code>spec.md</code> §9.</li><li>Every project builds, tests pass in under two seconds, and its README quotes real run output including the failure.</li><li>No <code>Thread.sleep</code> appears anywhere under <code>*/src/test</code>.</li><li>Twelve videos are rendered, each having printed <code>audio timeline continuous</code>, each listened to at least once.</li><li>Twelve posters and thumbnails have been looked at.</li><li>All thirty-seven projects&#x27; <code>spec.md</code> / <code>spec.html</code> regenerate clean — every one reporting a real scene count, runtime and test count, with integrated loudness within 0.02 LU of the −16 LUFS target.</li><li>The root <code>README.md</code>, <code>gradle-java/README.md</code> and the repository-wide spec all describe thirty-seven projects across four categories.</li></ul>
+</main>
+<footer>
+Generated from <code>implementation-plan.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teaching Video Specification</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Teaching Video Specification</h1>
+<p>This is the specification the video in <a href="../video/"><code>../video/</code></a> is built to. It describes <em>what the video must be</em>, not how to run the build — for the build steps see <a href="../video/README.html"><code>../video/README.md</code></a>.</p>
+<p>It is written to be portable. Every other teaching video in these repositories is a port of this one, so if you are building a new project&#x27;s video, this file is the contract to satisfy.</p>
+<hr>
+<h2>1. What gets produced</h2>
+<p>One build produces exactly four artefacts, all in <code>video/</code>:</p>
+<table><thead><tr><th>File</th><th>Format</th><th>Purpose</th></tr></thead><tbody><tr><td><code>&lt;project&gt;-explained.mp4</code></td><td>1920×1080, H.264 High, 30 fps, yuv420p, AAC-LC 192 kbps stereo @ 48 kHz, <code>+faststart</code></td><td>The video. Uploaded to YouTube as-is.</td></tr><tr><td><code>&lt;project&gt;-explained.m4a</code></td><td>AAC 192 kbps stereo</td><td>Audio-only, for revision on the move.</td></tr><tr><td><code>&lt;project&gt;-explained.srt</code></td><td>SubRip</td><td>Captions. Uploaded alongside the video.</td></tr><tr><td><code>poster.png</code></td><td>1920×1080 PNG</td><td>The opening frame, used as the custom thumbnail.</td></tr></tbody></table>
+<p>None of the four are committed. They are build output; the scripts that produce them are what lives in git. Every project&#x27;s <code>.gitignore</code> therefore carries:</p>
+<pre><code>/video/*.mp4
+/video/*.m4a
+/video/*.srt
+/video/poster.png
+/video/build/</code></pre>
+<p><strong>Target runtime: 10–13 minutes.</strong> Long enough to teach the idea from nothing, short enough that a student finishes it. That works out at roughly 15–19 scenes.</p>
+<hr>
+<h2>2. Source layout</h2>
+<p>Six files, all in <code>video/</code>, and no others:</p>
+<table><thead><tr><th>File</th><th>Responsibility</th></tr></thead><tbody><tr><td><code>scenes.py</code></td><td>The single source of truth: slide content <em>and</em> the narration spoken over it, in one <code>SCENES</code> list.</td></tr><tr><td><code>make_slides.py</code></td><td>Renders one 1920×1080 PNG per scene into <code>build/</code>.</td></tr><tr><td><code>make_subtitles.py</code></td><td>Writes the SRT, timed from the encoded scene clips.</td></tr><tr><td><code>build_video.sh</code></td><td>The whole pipeline, one command, no arguments.</td></tr><tr><td><code>narration.md</code></td><td>The full spoken script, generated from <code>scenes.py</code>, for human review.</td></tr><tr><td><code>README.md</code></td><td>How to rebuild, what the options are, and how to publish.</td></tr></tbody></table>
+<p>The rule behind this layout is that <strong>slide and narration never live apart</strong>. A scene is a <code>dict</code> holding <code>key</code>, <code>kind</code>, <code>title</code>, <code>body</code> and <code>narration</code> together, so it is impossible to reword the narration and forget the slide, or the other way round.</p>
+<hr>
+<h2>3. The pipeline</h2>
+<p><code>build_video.sh</code> runs five stages and nothing else:</p>
+<ol><li><strong>Slides.</strong> <code>make_slides.py</code> renders <code>build/&lt;key&gt;.png</code> per scene.</li><li><strong>Narration text.</strong> Each scene&#x27;s <code>narration</code> string is written to <code>build/&lt;key&gt;.txt</code>.</li><li><strong>Speech and per-scene clips.</strong> macOS <code>say</code> speaks each <code>.txt</code> to AIFF; the AIFF is cleaned (§6), padded with a 0.9 s tail, and married to its PNG as <code>build/scene-&lt;key&gt;.mp4</code>.</li><li><strong>Concatenation.</strong> The concat demuxer joins the clips with <code>-c copy</code>, then a second lossless remux applies the two opening-frame fixes (§7). The audio track and <code>poster.png</code> are lifted out here.</li><li><strong>Subtitles.</strong> <code>make_subtitles.py</code> measures the encoded clips and writes the SRT.</li></ol>
+<p>Intermediates are deleted afterwards unless <code>KEEP_INTERMEDIATE=1</code> is set. The slide PNGs are kept.</p>
+<p><strong>Requirements:</strong> macOS (for <code>say</code>), <code>ffmpeg</code>, and Python 3 with <code>pillow</code> and <code>matplotlib</code>. <code>matplotlib</code> is a dependency only for the DejaVu TTFs it bundles, which is what makes the slides render identically on any machine without a font install.</p>
+<hr>
+<h2>4. The slide system</h2>
+<p>Canvas is 1920×1080 throughout. Background <code>#0F172A</code>, with an accent rule across the top eight pixels.</p>
+<h3>Palette</h3>
+<table><thead><tr><th>Role</th><th>Hex</th><th>Used for</th></tr></thead><tbody><tr><td><code>BG</code></td><td><code>#0F172A</code></td><td>Slide background</td></tr><tr><td><code>PANEL</code></td><td><code>#1E293B</code></td><td>Code and diagram panels</td></tr><tr><td><code>TEXT</code></td><td><code>#E2E8F0</code></td><td>Body text</td></tr><tr><td><code>MUTED</code></td><td><code>#94A3B8</code></td><td>Footers, secondary lines</td></tr><tr><td><code>ACCENT</code></td><td><code>#A78BFA</code></td><td>Top rule, headings, structure</td></tr><tr><td><code>CLIENT</code></td><td><code>#38BDF8</code></td><td>The caller&#x27;s side of a diagram; the byline pill</td></tr><tr><td><code>HIDDEN</code></td><td><code>#FBBF24</code></td><td>What the pattern conceals; the poster eyebrow</td></tr><tr><td><code>PINK</code></td><td><code>#F472B6</code></td><td>Emphasis and callout notes</td></tr><tr><td><code>RED</code></td><td><code>#F87171</code></td><td>The wrong way, struck through</td></tr><tr><td><code>GREEN</code></td><td><code>#34D399</code></td><td>The right way, and finished work</td></tr><tr><td><code>LINE</code></td><td><code>#475569</code></td><td>Rules and outlines</td></tr></tbody></table>
+<p>Colour carries meaning and must stay consistent: red is always the approach being rejected, green is always the one being taught.</p>
+<h3>Scene kinds</h3>
+<p>A scene declares a <code>kind</code>, and <code>make_slides.py</code> dispatches on it. The set is deliberately small — a new kind should only be added when an existing one genuinely cannot carry the idea.</p>
+<table><thead><tr><th><code>kind</code></th><th>Renders</th></tr></thead><tbody><tr><td><code>poster</code></td><td>The title card and thumbnail (§5)</td></tr><tr><td><code>outro</code></td><td>The sign-off card (§5)</td></tr><tr><td><code>title</code></td><td>Centred statement, for the closing takeaway</td></tr><tr><td><code>bullets</code></td><td>A list, with <code>✓</code>/<code>✗</code> lines auto-coloured green/red</td></tr><tr><td><code>quote</code></td><td>A definition, against a vertical accent bar</td></tr><tr><td><code>code</code></td><td>A monospaced panel, auto-fitted, with syntax colouring by line prefix</td></tr><tr><td><code>console</code></td><td>Real terminal output in a darker panel</td></tr><tr><td><code>diagram</code></td><td>A hand-laid structural drawing for that project</td></tr></tbody></table>
+<p>Two hard rules for <code>code</code> and <code>console</code> scenes:</p>
+<ul><li><strong>Code on a slide must match the real source file.</strong> Condensing is allowed — dropping Javadoc, eliding a body with <code>...</code> — but not paraphrasing. If the source says <code>Node&lt;T&gt; sliceTail = beforeSlice.next;</code>, the slide does not say <code>sliceTail = beforeSlice.next;</code>.</li><li><strong>Console output must be real.</strong> Run the demo, paste what it printed. Never invent plausible output.</li></ul>
+<p>Text must be legible at 360p, because YouTube serves a low-resolution version first: body text no smaller than 40 px, and code auto-fitted rather than allowed to overflow. <code>title</code>, <code>poster</code> and <code>outro</code> carry no page footer; every other kind shows <code>&lt;n&gt; / &lt;total&gt;</code> bottom-left and <code>&lt;Topic&gt;  ·  Java 21</code> bottom-right.</p>
+<hr>
+<h2>5. Branding</h2>
+<p>Every video opens and closes with the same two cards.</p>
+<p><strong>The poster (scene 1)</strong> is the title card and the YouTube thumbnail in one, so it is designed to survive being shrunk to about 320 px wide in a search result: a vertical gradient wash, an eyebrow line in amber, the topic set in 120–128 px across two lines, and one visual comparison — the rejected approach in a red pill with a strike through it, an arrow, and the taught approach in a green pill — wrapped in a single outlined box with the tagline, so the tagline reads as part of the idea rather than as a floating caption.</p>
+<p>The author credit sits in a pill at <strong>bottom left</strong>, at (110, 896). That position is not arbitrary: it aligns with the eyebrow, title and rule above it, and it stays clear of YouTube&#x27;s own furniture — the duration badge sits bottom right, and the watched-progress bar covers the last forty pixels of height.</p>
+<p>The narration of scene 1 credits the author out loud: <em>&quot;This one is written and presented by Jayasekhar Konduru.&quot;</em></p>
+<p><strong>The outro (final scene)</strong> is the same gradient reversed, the title, three outlined buttons reading LIKE / SUBSCRIBE / SHARE, two short lines pointing at the repository, and the byline pill centred at the foot. Its narration asks for the like and the subscribe explicitly, and signs off by name.</p>
+<hr>
+<h2>6. Narration</h2>
+<p><strong>Voice: <code>Samantha</code>, US English, female. Rate: 165 wpm.</strong> Both are <code>build_video.sh</code> environment variables (<code>VOICE</code>, <code>RATE</code>) but the defaults are the spec; a different voice is for experimenting, not for shipping.</p>
+<p>The register is <em>spoken, not read</em>. Contractions, short sentences, the odd aside, and a willingness to say the same thing twice in different words. It must not sound auto-generated, which in practice means writing sentences a person would actually say out loud and then reading them back.</p>
+<p>Three conventions the script must follow:</p>
+<ul><li><strong>Pauses are explicit.</strong> <code>[[slnc NNN]]</code> inserts NNN milliseconds of silence where a person would draw breath — typically 300–500 ms between thoughts. These are instructions to <code>say</code>, not words, and <code>make_subtitles.py</code> strips them before writing captions.</li><li><strong>Maths and symbols are spelled out.</strong> &quot;O of n&quot;, not &quot;O(n)&quot;. &quot;one and a half n&quot;, not &quot;~1.5n&quot;. &quot;next hop&quot;, not &quot;nextHop&quot;. The synthesiser mispronounces the written forms.</li><li><strong>No references the video cannot show.</strong> No line numbers, no &quot;as we saw in chapter three&quot;, no pointing at anything off-screen. The audience is a student meeting the topic for the first time.</li></ul>
+<p><code>narration.md</code> is regenerated from <code>scenes.py</code> whenever the wording changes substantially. It is the review copy, never the source.</p>
+<hr>
+<h2>7. Audio and container correctness</h2>
+<p>These are the two things that go silently wrong, so both are specified and both are verified after every build.</p>
+<h3>The narration is cleaned before encoding</h3>
+<p>Every voice macOS ships by default is the compact 22 kHz tier, and resampling that straight to the 48 kHz the AAC track needs leaves an audible hiss. The filter chain is:</p>
+<pre><code>aresample=48000:filter_size=256:cutoff=0.98,
+highpass=f=85,
+afftdn=nr=14:nf=-45,
+equalizer=f=3000:t=q:w=1.2:g=2.5,
+lowpass=f=10500,
+loudnorm=I=-16:TP=-1.5:LRA=11</code></pre>
+<p>A long resampler so the upsampling adds no grit; a high-pass below the voice; a spectral denoise, which is what actually removes the hiss; a small lift at 3 kHz where consonants live; a low-pass hiding the empty band a 22 kHz source cannot fill; and normalisation to YouTube&#x27;s −16 LUFS target. Measured against the unfiltered encode this drops the noise floor by about 15 dB.</p>
+<p>An Enhanced or Premium voice samples at 44.1 kHz and would sound better still, but it is a manual download (<strong>System Settings → Accessibility → Spoken Content → System Voice → Manage Voices</strong>). The chain stays regardless.</p>
+<h3>The first frame must be the poster</h3>
+<p>Three settings, all necessary:</p>
+<table><thead><tr><th>Setting</th><th>Why</th></tr></thead><tbody><tr><td><code>-bf 0</code></td><td>B-frames save nothing on a static slide and push the video track&#x27;s first timestamp past the audio&#x27;s, so players show black at 0:00.</td></tr><tr><td><code>-ignore_editlist 1</code> on the remux</td><td>Drops the edit list created by the AAC encoder&#x27;s priming delay, which otherwise starts video 21 ms after audio.</td></tr><tr><td><code>-movflags +faststart</code></td><td>Moves the <code>moov</code> atom to the front. Without it the index sits behind twenty-odd megabytes of video and the player has nothing to draw until it has read the lot.</td></tr></tbody></table>
+<hr>
+<h2>8. Subtitles</h2>
+<p>Cues are timed from the <strong>encoded scene clips</strong>, not from the raw narration audio. The clips run marginally longer than the speech they contain because of encoder frame alignment, and timing against the raw audio lets that difference accumulate into tens of seconds of caption drift by the end.</p>
+<p>Each scene&#x27;s narration is stripped of <code>[[slnc]]</code> markers, split at sentence boundaries into cues of at most <strong>84 characters</strong>, and spread across that scene&#x27;s measured duration less a <strong>0.9 s</strong> tail that matches the <code>apad</code> in the build. <code>make_subtitles.py</code> therefore has to run while the per-scene clips still exist, which is why it is stage 5 and not a separate script.</p>
+<hr>
+<h2>9. Verification</h2>
+<p>A build is not finished until it has been measured. Assertions about the output do not count; these commands do.</p>
+<pre><code>F=&lt;project&gt;-explained.mp4
+
+# Both streams must start at 0.000000
+ffprobe -v error -show_entries stream=codec_type,start_time -of csv=p=0 &quot;$F&quot;
+
+# moov must be near the front — expect an offset of 36
+head -c 300000 &quot;$F&quot; | grep -abo moov | head -1
+
+# Noise floor should read -inf; peak should sit a few dB below full scale
+ffmpeg -v info -i &quot;$F&quot; -af astats -f null - 2&gt;&amp;1 | grep -iE &quot;noise floor|peak level&quot;
+
+# No speech commands may leak into the captions — expect 0
+grep -c &#x27;\[\[&#x27; &lt;project&gt;-explained.srt
+
+# Look at the first and last frames. Actually look at them.
+ffmpeg -v error -ss 0      -i &quot;$F&quot; -frames:v 1 build/f0.png    -y
+ffmpeg -v error -sseof -2  -i &quot;$F&quot; -frames:v 1 build/flast.png -y</code></pre>
+<p>Reference figures for this project: 690.10 s runtime, 24,939,131 bytes, 171 cues, both streams at 0.000000, <code>moov</code> at 36.</p>
+<p>Slides should also be rendered and looked at <em>before</em> committing to a ten-minute encode — <code>python3 make_slides.py build</code> on its own is cheap, and multi-row diagram slides in particular tend to collide in ways only the eye catches.</p>
+<hr>
+<h2>10. Publishing</h2>
+<p>The encode already matches YouTube&#x27;s recommended settings, so the mp4 uploads unchanged. Upload <code>poster.png</code> as the custom thumbnail rather than letting YouTube auto-pick a frame, and upload the <code>.srt</code> as captions — the auto-generated ones mis-hear method names. Set the video language to English first, or the subtitle option may not appear. Wait for 1080p processing to finish before sharing the link; code slides are unreadable at 360p.</p>
+<p><code>video/README.md</code> carries the click-by-click instructions and a ready-made video description.</p>
+<hr>
+<h2>11. This project&#x27;s scenes</h2>
+<p>Nineteen scenes, 11 minutes 30 seconds.</p>
+<table><thead><tr><th>#</th><th>Kind</th><th>Scene</th></tr></thead><tbody><tr><td>1</td><td>poster</td><td>Static Factory Method</td></tr><tr><td>2</td><td>bullets</td><td>The Job</td></tr><tr><td>3</td><td>code</td><td>The First Attempt Does Not Compile</td></tr><tr><td>4</td><td>code</td><td>So Everyone Writes This Instead</td></tr><tr><td>5</td><td>bullets</td><td>Why That Hurts</td></tr><tr><td>6</td><td>quote</td><td>The Static Factory Method</td></tr><tr><td>7</td><td>bullets</td><td>A Vending Machine</td></tr><tr><td>8</td><td>diagram</td><td>The Shape of It</td></tr><tr><td>9</td><td>code</td><td>The Type Is Its Own Factory</td></tr><tr><td>10</td><td>code</td><td>Freedom Two: Not to Allocate</td></tr><tr><td>11</td><td>code</td><td>Freedom Three: to Choose the Class</td></tr><tr><td>12</td><td>code</td><td>What the Client Looks Like</td></tr><tr><td>13</td><td>code</td><td>The Same Trick on a Value Type</td></tr><tr><td>14</td><td>bullets</td><td>You Already Use This Every Day</td></tr><tr><td>15</td><td>console</td><td>Running It</td></tr><tr><td>16</td><td>bullets</td><td>Where It Stops</td></tr><tr><td>17</td><td>bullets</td><td>The Rest of the Family</td></tr><tr><td>18</td><td>title</td><td>One Sentence to Keep</td></tr><tr><td>19</td><td>outro</td><td>Thanks for Watching</td></tr></tbody></table>
+<p>The shape is worth copying, because it is what makes the video teachable: <strong>pose the problem → show the obvious answer failing → name the technique → give it a physical analogy → draw the structure → walk the real code → run it → say where it stops → one sentence to keep.</strong> A student who stops halfway has still learned something useful at every point along that line.</p>
+<hr>
+<h2>12. Porting this to a new project</h2>
+<ol><li>Copy <code>make_slides.py</code>, <code>make_subtitles.py</code> and <code>build_video.sh</code> into the new project&#x27;s <code>video/</code>.</li><li>Rename the three <code>OUT_*</code> values in <code>build_video.sh</code> and the default output name in <code>make_subtitles.py</code>.</li><li>Change the footer label in <code>make_slides.py</code>, the poster&#x27;s two title lines, its two pills and its tagline, and the syntax-colouring rules for the identifiers the new topic actually uses.</li><li>Read the real source. Run the real demo and keep its output.</li><li>Write <code>scenes.py</code> — 15–19 scenes following the shape in §11.</li><li><code>python3 make_slides.py build</code>, and look at every slide.</li><li><code>./build_video.sh</code>, then run every check in §9.</li><li>Generate <code>narration.md</code>, write <code>video/README.md</code>, and update the project&#x27;s own README with the video link and a timestamp table read off the finished SRT.</li><li>Add the <code>/video/*</code> block from §1 to <code>.gitignore</code>.</li></ol>
+</main>
+<footer>
+Generated from <code>video-spec.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

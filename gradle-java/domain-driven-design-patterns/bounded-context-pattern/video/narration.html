@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bounded Context Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Bounded Context Pattern — Video Narration Script</h1>
+<h2>1. Bounded Context</h2>
+<p>Hello, and welcome. This video explains the Bounded Context pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A bounded context is a boundary, inside which every word has exactly one meaning, and one model. The contexts around it have their own meanings. And they are connected on purpose. Think of the word, bank. To a banker, it holds money. To a fisherman, it is the edge of a river. Both are right, in their own world. In our online store, the word that means three different things is customer. In this video, one customer class tries to serve three departments. Then three small models each mean what their own department means. We will hear them talk through events, and then the cost.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Sales, Shipping, and Support all talk about the customer. To Sales, a customer is a buyer, with a credit limit. To Shipping, a customer is an address to deliver to. To Support, a customer is a person, with support tickets. So here is the question. Is that really one class?</p>
+<h2>3. One Customer For Everyone</h2>
+<p>First, the usual way: one customer class, for everyone. It has twelve fields, because every department added what it needed. Each department only uses a handful of them. But every department depends on all twelve. So a change for one department is a change for every department.</p>
+<h2>4. The Pattern</h2>
+<p>Now, the pattern. Draw a boundary. Inside it, every word has one meaning, and one model. Each department gets its own model of the customer. They share only an I D. And they talk to each other through events.</p>
+<h2>5. The Same Word, Three Meanings</h2>
+<p>Second demo: one word, three meanings. Is Ada an active customer? Sales says yes, because she bought something in the last ninety days. Shipping says yes, because a parcel is on its way to her. Support says no, because she has no open ticket. One class cannot give all three answers. And each answer is right, in its own context.</p>
+<h2>6. A Model For Each Context</h2>
+<p>Third demo: a model for each context. Sales has a Buyer. Shipping has a Recipient. Support has a Contact. Each has four fields, and each means what its own department means. None of them knows the others&#x27; types. They share just one thing: the customer I D.</p>
+<h2>7. The Contexts Talk By Events</h2>
+<p>Fourth demo: the contexts talk through events. Sales renames Ada, from Ada Lovelace to Ada King. And it publishes that fact as an event. For a moment, Sales says Ada King, and Shipping still says Ada Lovelace. One event is waiting. Then the event is delivered. Shipping updates its own recipient to Ada King. It never saw the Sales buyer at all.</p>
+<h2>8. The Boundary Can Be Checked</h2>
+<p>Fifth demo: the boundary can be checked. A test scans the source code. It finds no place where one context uses another context&#x27;s types. So Shipping can add a field to its recipient. And nothing in Sales or Support needs to change.</p>
+<h2>9. The Bill</h2>
+<p>Finally, the cost. Ada&#x27;s name is now stored three times. Between a rename and its delivery, two contexts disagree about her name. That gap has a name: eventual consistency. And each context needs its own translator, for every event it cares about. That is the price of a clean boundary.</p>
+<h2>10. How To Recognise It</h2>
+<p>How can you spot this pattern in code someone else wrote? Look for the same word, such as customer or product, defined by separate classes, in separate packages. Look for services or modules that each have their own database, and their own idea of a customer. Look for events that carry an I D and a few plain values, not whole objects. And look for a context map, a diagram showing which context depends on which.</p>
+<h2>11. The Verdict</h2>
+<p>So, here is the verdict. Draw a bounded context wherever the same word starts to mean different things. Or wherever different teams own the model. Give each context its own model. Share only I Ds and events. Translate at the border. And accept that the copies will lag behind a little. Do not split a small system that one team understands.</p>
+<h2>12. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything is plain Java. Every result you heard comes from the program&#x27;s own output. And nothing depends on the clock, so every run gives the same result.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, when is this too much? In a small system that one team understands, one model is simpler, and translation is pure cost. A boundary earns its place where the meanings really do differ.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s the Bounded Context pattern. If you remember one sentence, make it this one. A bounded context lets every word mean one thing, at the price of translating between contexts. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Make the support context react to the rename event. And write its translator. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

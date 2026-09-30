@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Domain Event Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Domain Event Pattern — Video Narration Script</h1>
+<h2>1. Domain Event</h2>
+<p>Hello, and welcome. This video explains the Domain Event pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A domain event is a record of something that has already happened in the business. It is named in the past tense, and it never changes. Other parts of the system can react to it, without the thing that raised it knowing who they are. Think of a birth announcement in a newspaper. It states a fact that has already happened. Whoever reads it decides what to do: send a card, visit, or nothing. In our online store, the thing that happens is an order being placed. In this video, an order that calls three services falls into a half-done state. Then the same order simply says what happened. We will hear a failing reaction retried safely, and the gap between saving and telling, which is the cost.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. When an order is placed in our online store, three things must follow. Stock is reserved. A confirmation email is sent. And the sale is counted for the sales report. So here is the question. Who calls whom? Should the order code know about all three?</p>
+<h2>3. The Order Calls Everyone</h2>
+<p>First, the naive way: the order calls everyone. It saves the order, reserves the stock, and then sends the email. But the mail server is down. The caller is told that placing the order failed. Yet the order is saved, and the stock is reserved. And the sales report never counted it, because that step came after the failure. A half-done state. And the order code knows three other systems.</p>
+<h2>4. The Pattern</h2>
+<p>Now, the pattern. The order records what happened: order placed, in the past tense. It calls nobody. Whoever cares reacts, later, and separately. And an event is a fact. Once recorded, it never changes.</p>
+<h2>5. The Order Says What Happened</h2>
+<p>Second demo: the order says what happened. Placing order two records one event: order placed. It holds the order I D, the customer, Ada, and the total, forty-nine pounds ninety-nine. The order called nobody. Ask for its events again, and there are none. Because they have already been handed over.</p>
+<h2>6. Delivered After The Save</h2>
+<p>Third demo: delivered after the save. Saving the order also keeps its event. At this point, nothing has reacted yet. Then a relay delivers the event. Stock is reserved. The email is sent. And the sales report counts it. Nothing is waiting any more.</p>
+<h2>7. A Failing Reaction</h2>
+<p>Fourth demo: a failing reaction. The mail server is down. The email reaction fails. The other two reactions still run. The order is safe. And one event is still waiting, for the email alone. When the mail server is back, the next relay sends just that email. The email goes out once, and the stock is not reserved twice.</p>
+<h2>8. Events Are Facts</h2>
+<p>Fifth demo: events are facts. Place an order, and then cancel it. Two events are recorded, in that order: order placed, then order cancelled. Each event is a simple record. It carries data, not the order itself. So a handler that receives one cannot reach back and change the order.</p>
+<h2>9. The Gap Between Saving And Telling</h2>
+<p>Finally, the cost: the gap between saving and telling. Saving the order, and telling everyone about it, are two separate steps. And the program can stop between them. Here it does. Nothing has reacted yet. But the event was saved together with the order. After a restart, the relay delivers it, and nothing is lost. If the event had been sent straight after the save, and not kept, all three reactions would have been lost. Keeping events with the data like this is called the transactional outbox, and it has its own video.</p>
+<h2>10. How To Recognise It</h2>
+<p>How can you spot this pattern in code someone else wrote? Look for a method that records an event, instead of calling a service. Look for event names in the past tense, like order placed, or payment received. Look for a list of events on an entity, collected when it is saved. And in Spring, look for the application event publisher, and the at Domain Events annotation.</p>
+<h2>11. The Verdict</h2>
+<p>So, here is the verdict. Raise a domain event when something happens that other parts of the business care about. Name it in the past tense, and keep it small. Save the events together with the data. Deliver them separately. Expect a delivery to be repeated, so make every handler safe to run twice. And do not use an event where the caller needs an answer straight away.</p>
+<h2>12. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything is plain Java. The mail server is a simple switch, which makes the email fail. And the relay is run by hand, so events happen in the same order on every run.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, when is this too much? When there is only one reaction, and the caller needs its answer, a plain method call is clearer. An event is for reactions that may come and go, and may happen later.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s the Domain Event pattern. If you remember one sentence, make it this one. An event lets something say what happened, and leaves who cares to someone else, as long as saving and telling are kept together. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add an order shipped event. And a handler that reacts to it. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

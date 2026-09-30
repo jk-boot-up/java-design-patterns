@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clean Architecture, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Clean Architecture, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>Concentric circles — entities, use cases, interface adapters, frameworks and drivers — with one rule, stated once and never relaxed: <strong>source code dependencies point only inward.</strong></p>
+<h2>This is not Hexagonal Architecture again</h2>
+<p>It is a close relative, and it deserves to be named as one honestly rather than pretended into something unrecognisable. Both put the business logic at the centre and both forbid the centre from depending outward. Four things are genuinely different here, and all four are load-bearing rather than decorative.</p>
+<p><strong>The concentric rule is one sentence, stated once, rather than a core-versus-adapter split.</strong> Hexagonal Architecture drew one boundary: core inside, adapter outside. This project draws three rings — entities, use cases, interface adapters — because the translation work between a use case&#x27;s own data shapes and the outside world&#x27;s is itself a distinct responsibility, worth its own ring, not folded into &quot;adapter&quot; as one undifferentiated outside.</p>
+<p><strong>The dependency-inversion moment is shown in code, explicitly, as two directions disagreeing.</strong> Act three of the demo prints it in words: control flows out, to <code>orders.save(order)</code>; the dependency points in, at the interface <code>orders</code> is typed as. Most treatments of this idea show the picture and never say the sentence. This project says the sentence.</p>
+<p><strong>The forced change adds two things at once, rather than swapping one.</strong> Hexagonal Architecture swapped an existing adapter for a different one on each side. This project adds a <code>BatchOrderController</code> — a second delivery mechanism — and a <code>FileBackedOrderRepository</code> — a second data source — <em>alongside</em> the originals, both still working, proving the architecture scales by addition and not only by substitution.</p>
+<p><strong>It is honest about being the most over-appliable pattern in the category.</strong> See &quot;The bill&quot;, below.</p>
+<h2>The four circles</h2>
+<table><thead><tr><th>Circle</th><th>Package</th><th>Job</th></tr></thead><tbody><tr><td>Entities</td><td><code>entities</code></td><td><code>Order</code>, <code>Money</code>, <code>Product</code> — true regardless of anything outside them</td></tr><tr><td>Use cases</td><td><code>usecases</code></td><td><code>PlaceOrderInteractor</code> and the boundary interfaces it declares</td></tr><tr><td>Interface adapters</td><td><code>adapters</code></td><td>Controllers (external request → use case input), gateways (use case boundary → real storage)</td></tr><tr><td>Frameworks &amp; drivers</td><td>—</td><td><code>PlaceAnOrderDemo</code>, the composition root, outside every circle</td></tr></tbody></table>
+<h2>The dependency-inversion moment, in the actual code</h2>
+<pre><code>payments.charge(order.customerId(), order.total());
+...
+orders.save(order);</code></pre>
+<p><code>orders</code> is typed <code>usecases.OrderRepository</code> — an interface, declared in this same package. <code>InMemoryOrderRepository</code>, the class that really keeps a map, lives two circles further out, in <code>adapters.gateway</code>, and implements that interface. When <code>PlaceOrderInteractor.execute</code> runs, <strong>control</strong> flows outward — the call actually lands in <code>InMemoryOrderRepository.save</code>. But the <strong>source code dependency</strong> — the fact that <code>PlaceOrderInteractor.java</code> must have <code>OrderRepository</code> on its classpath to compile — points inward, at an interface the inner circle owns. An annotation-driven container would make this invisible; wiring it by hand in <code>main()</code>, reaching into the outermost circle for a concrete class and handing it to an interactor that only ever names an interface, is this project&#x27;s central scene.</p>
+<h2>The rule, as ArchUnit&#x27;s own layered-architecture API</h2>
+<pre><code>Architectures.layeredArchitecture()
+    .layer(&quot;Entities&quot;).definedBy(&quot;com.jk.explore.clean.entities..&quot;)
+    .layer(&quot;UseCases&quot;).definedBy(&quot;com.jk.explore.clean.usecases..&quot;)
+    .layer(&quot;Adapters&quot;).definedBy(&quot;com.jk.explore.clean.adapters..&quot;)
+    .whereLayer(&quot;Entities&quot;).mayOnlyBeAccessedByLayers(&quot;UseCases&quot;, &quot;Adapters&quot;)
+    .whereLayer(&quot;UseCases&quot;).mayOnlyBeAccessedByLayers(&quot;Adapters&quot;)
+    .check(classes);</code></pre>
+<p>Unlike the <code>noClasses().should().dependOnClassesThat()</code> rule the earlier two projects used, this is ArchUnit&#x27;s dedicated API for exactly this shape — named layers, and a single sentence for what each one may be reached by. <code>ArchitectureRuleCatchesTheShortcutTest</code> widens an equivalent rule to <code>naive.usecases</code> and asserts it fails, naming <code>NaivePlaceOrderInteractor</code>.</p>
+<h2>The forced change, performed</h2>
+<p><strong>A new delivery mechanism</strong>, added beside the existing one: <code>BatchOrderController</code>, reading CSV-shaped rows the way a nightly import would. <strong>A new data source</strong>, added at the same time: <code>FileBackedOrderRepository</code>, a structurally different way of keeping an order than a map ever was. Both depend on exactly what <code>CheckoutController</code> and <code>InMemoryOrderRepository</code> already depended on — <code>PlaceOrderInputBoundary</code> and <code>OrderRepository</code> — and neither addition touches a single file in <code>entities</code> or <code>usecases</code>.</p>
+<pre><code>files added     : 2   BatchOrderController.java, FileBackedOrderRepository.java
+files modified  : 1   PlaceAnOrderDemo.java (the composition root)
+lines changed   : 5
+classes in entities + use cases : 15
+of those, never opened           : 15</code></pre>
+<h2>The bill, and this must be the most honest project in the category</h2>
+<p><strong>Clean Architecture is the most over-applied pattern here, and a project that only showed its benefit would be a sales pitch.</strong> Look at the file count for one feature: two entities-adjacent DTOs, four boundary interfaces, one interactor, two controllers, four gateways — fourteen files for a single checkout. A CRUD screen built this way has more interfaces than behaviour.</p>
+<p><strong>It costs real files, real indirection, and a team that must all understand the rule together</strong>, or it decays into folders with impressive names and no test enforcing anything. The ArchUnit rule catches an import violation; it cannot catch a controller that quietly grows business logic because that was easier than adding a fifth boundary interface.</p>
+<p><strong>When it pays:</strong> long-lived systems, more than one delivery mechanism, more than one data source, a domain genuinely worth protecting from the framework of the week. <strong>When it does not:</strong> almost everything smaller than that. The next project in this category, Clean Architecture with Spring, is this same graph again — because the version most readers will actually be handed at work assembles it with a container, and that comparison is only honest if both sides are real.</p>
+<h2>Comparison with the naive version</h2>
+<table><thead><tr><th></th><th>Naive (use case imports gateways)</th><th>Clean (use case declares boundaries)</th></tr></thead><tbody><tr><td>Testable without a gateway class?</td><td>No</td><td>Yes</td></tr><tr><td>Cost of adding a new delivery mechanism</td><td>Edit the use case</td><td>Zero use-case changes</td></tr><tr><td>Cost of adding a new data source, alongside the old one</td><td>Edit the use case</td><td>Zero use-case changes</td></tr><tr><td>What tells you the use case reached into adapters</td><td>Nobody</td><td><code>ArchitectureTest</code>, by name, in seconds</td></tr></tbody></table>
+</main>
+<footer>
+Generated from <code>clean-architecture-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

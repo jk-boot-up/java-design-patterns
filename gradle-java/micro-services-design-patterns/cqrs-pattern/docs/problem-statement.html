@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Problem Statement</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Problem Statement</h1>
+<h2>The Scenario</h2>
+<p>An online shop has an order history page. A customer opens it to see what they have bought: one line per item, with the product&#x27;s name, the quantity and what it cost.</p>
+<p>The page is assembled the obvious way, and the obvious way is not wrong:</p>
+<ul><li>Ask the <strong>Orders</strong> service what this customer bought. That comes back as order lines — a product code, a quantity, a price — and no product names, because Orders does not have the names.</li><li>Ask the <strong>Catalog</strong> service what those product codes are called, once, for all of them at a time.</li><li>Stitch the two answers together and render the page.</li></ul>
+<p>That is the API Composition pattern, done properly, and this project&#x27;s <code>ComposingOrderHistory</code> does exactly that. It batches the catalog call. It does not loop. Nobody would object to it in review.</p>
+<h2>What Goes Wrong</h2>
+<p>Nothing crashes. That is what makes this one hard to see.</p>
+<p>Run act one and watch three views of the same page:</p>
+<pre><code>Act 1 - composing the page on every view
+     80ms -&gt;   110ms  Orders    OK   ...
+    110ms -&gt;   170ms  Catalog   OK   ...
+    170ms -&gt;   200ms  Orders    OK   ...
+    200ms -&gt;   260ms  Catalog   OK   ...
+    260ms -&gt;   290ms  Orders    OK   ...
+    290ms -&gt;   350ms  Catalog   OK   ...
+  3 views cost 270ms and 6 service calls
+  every view rebuilt a page identical to the last one</code></pre>
+<p>Ninety milliseconds and two service calls, per view. Three views, and every one of them rebuilt a page identical to the last one.</p>
+<p>Now scale that the way a real shop scales. An order is placed <strong>once</strong>. The page showing it is opened by the customer, then again from the confirmation email, then by a support agent, then by the customer&#x27;s phone, then again next week. The underlying facts changed once. The shop paid to discover them a thousand times.</p>
+<p>And there is a second cost, less obvious and more dangerous. Every one of those views is a live dependency on two other services. If Catalog is slow, the order history page is slow. If Catalog is down, a page about <strong>orders the customer has already paid for</strong> cannot be shown at all.</p>
+<h2>Why That Hurts</h2>
+<p>The page is correct. The code is correct. Every test passes. There is no incident, no alert, and no stack trace — and so nothing ever forces the question.</p>
+<p>What you have instead is a shop that gets steadily more expensive as it gets more popular, and a page whose availability is the product of the availability of every service it touches.</p>
+<h2>The Tempting Fix, And Why It Is The Whole Point</h2>
+<p>Everybody reaches for the same thing: <strong>put a cache in front of it.</strong></p>
+<p>This project takes that seriously enough to build it. <code>CachedOrderHistory</code> is a real cache, with a real expiry, and it works — <code>itCachesThePage</code> proves the second view is free.</p>
+<p>Then read the other four tests in <code>CachedOrderHistoryTest</code>, because they are the argument of this entire project:</p>
+<ul><li><strong><code>itServesAPageItKnowsNothingAbout</code></strong> — the cache holds rows it never understood. It stored bytes. It cannot reason about them.</li><li><strong><code>aRenameCannotInvalidateIt</code></strong> — Catalog renames a product. The cache has no idea. It was not told, and there is no mechanism by which it could be told.</li><li><strong><code>itIsCorrectedByATimerAndNothingElse</code></strong> — the only thing that will ever fix it is the clock running out. Not a fact about the world. A timer.</li><li><strong><code>thereIsNoFreeSetting</code></strong> — and so you are left tuning an expiry. Short, and you have paid for a cache that misses. Long, and you are confidently showing people things that stopped being true.</li></ul>
+<p>A cache is a copy that cannot know when it is wrong.</p>
+<h2>The Question This Project Answers</h2>
+<p>What if the copy were kept up to date by the same events that changed the truth?</p>
+<p>Not a timer. Not a guess. The actual facts — an order was placed, a product was renamed, stock changed — arriving as they happen, updating the page as they go.</p>
+<h2>The Second Half, Which Is Harder</h2>
+<p>If you stop there, you have sold the pattern and hidden the bill. There are two things you must be told before you use this, and this project demonstrates both rather than mentioning them.</p>
+<p><strong>The page can be out of date, and there is a moment where that is genuinely alarming.</strong> Act three holds the events in flight and shows a customer whose order is placed, paid for, and final — looking at an order history page with nothing on it. That window is real. It closes by itself, but it is real, and you have to decide whether the page you are building can live inside it.</p>
+<p><strong>The read model must never be used to make a decision.</strong> Act five puts the last kettle in the shop window: the read model says one is available, the ledger says zero, and a second shopper tries to buy it. What saves the shop is that the sale was decided on the write side, by the ledger, which refuses. Show a read model&#x27;s stock number. Never sell against it.</p>
+<h2>The Goal</h2>
+<p>By the end of this project you should be able to:</p>
+<ol><li>Explain why composing a page on every view is correct and still wrong at scale, and why nothing will ever alert you to it.</li><li>Say precisely what a read model has that a cache does not — not speed, but the ability to be told it is wrong.</li><li>State where the work went, rather than claiming it disappeared: to write time, paid once per order instead of once per view.</li><li>Describe the staleness window honestly, including the part where a paid order is not yet on the customer&#x27;s page.</li><li>Say the rule out loud: the write side is where a decision is made, and a read model is throwaway — rebuildable from the events at any time.</li></ol>
+</main>
+<footer>
+Generated from <code>problem-statement.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

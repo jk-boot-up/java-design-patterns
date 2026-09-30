@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concurrency Patterns — Implementation Plan</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Concurrency Patterns — Implementation Plan</h1>
+<p>How the six projects in this category get built. <a href="spec.html"><code>spec.md</code></a> fixes what they are; this fixes the order, the rules that keep the build from redoing itself, and what &quot;finished&quot; means.</p>
+<p><strong>Nothing here is built yet.</strong> This document and <a href="spec.html"><code>spec.md</code></a> are the whole category at the time of writing.</p>
+<hr>
+<h2>Current state</h2>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Projects specified</td><td>6</td></tr><tr><td>Projects built</td><td>6 (Producer–Consumer 88 executions, Thread Pool 125, Future/Promise 124, Read–Write Lock 162, Monitor Object 184, Active Object 125; every test run passing, no <code>Thread.sleep</code> in any)</td></tr><tr><td>Category registered with the shared generators</td><td>yes</td></tr><tr><td>Existing projects in the repository</td><td>48 built (37, plus the 5 architectural-design-patterns projects, plus these 6)</td></tr></tbody></table>
+<hr>
+<h2>Order of work</h2>
+<h3>Phase 0 — Wire the category in, and build the test harness</h3>
+<p>Two jobs, and the second is what makes this category possible at all.</p>
+<p><strong>Tooling.</strong> Add <code>concurrency-design-patterns</code> to <code>CATEGORIES</code> in <code>gradle-java/docs/make_narration.py</code>, and add all six slugs to the per-project tables in <code>make_specs.py</code>, <code>make_thumbnails.py</code> and <code>make_youtube_docs.py</code> — those three carry their own tables and <strong>silently skip anything missing</strong>. Then register the category in <code>gradle-java/README.md</code>, the root <code>README.md</code>, and <code>docs/video-and-publishing-spec.md</code>.</p>
+<p><strong>The determinism harness.</strong> Before any project, extract from <code>bulkhead-pattern</code> (§31) what it already does, and settle the three pieces <code>spec.md</code> §2 names:</p>
+<ol><li>A <strong>barrier helper</strong> that parks <em>n</em> threads at a named point and releases them together, so a race is forced rather than awaited.</li><li>An <strong>interleaving runner</strong> that replays a pair of operations across a fixed list of planned interleavings and asserts the outcome of each. This is what turns &quot;the lost update happens sometimes&quot; into a test that fails every run.</li><li>A <strong>step-controlled executor</strong> that runs queued tasks one at a time on command, so a test can assert on state between tasks.</li></ol>
+<p>These are copied into each project rather than shared through a library — the repository has no cross-project dependencies and should not grow one for this. Copying means the reader of any single project sees the whole mechanism.</p>
+<p><strong>Exit:</strong> the tooling lists the category with zero projects, and the three harness pieces exist, are tested against a known race, and have a home in the reference project.</p>
+<h3>Phase 1 — Build Producer–Consumer end to end, as the category&#x27;s reference</h3>
+<p>It goes first because it is the simplest honest concurrency failure and because every later project consumes its queue. Build it complete — source, tests, the full document set, both diagrams, animation, video, publishing document — and treat the result as the template.</p>
+<p>Three things this phase settles for everyone after it:</p>
+<ul><li><strong>The shape of a forced failure.</strong> How a race is set up, named and asserted, and how the test reads to a beginner. Get it right once.</li><li><strong>How timings are printed.</strong> Queue depth, throughput, thread counts — one format, used by all six.</li><li><strong>The &quot;What the scheduler really does&quot; section.</strong> Its length, its tone, and where it sits relative to the costs.</li></ul>
+<p><strong>Exit:</strong> one project passing every item in <code>spec.md</code> §9, with the harness proven on a real race.</p>
+<h3>Phase 2 — Build the remaining five, one at a time, in learning order</h3>
+<p><strong>One project at a time, finished completely before the next begins.</strong></p>
+<table><thead><tr><th>Order</th><th>Project</th><th>The failure to force</th><th>Risk</th></tr></thead><tbody><tr><td>1</td><td><code>thread-pool-pattern</code></td><td>Pool starvation deadlock, and the thread-per-order collapse</td><td><strong>Medium</strong> — the <code>OutOfMemoryError</code> demo must be safe to run</td></tr><tr><td>2</td><td><code>future-promise-pattern</code></td><td>The stack trace missing the line that caused it</td><td>Low</td></tr><tr><td>3</td><td><code>read-write-lock-pattern</code></td><td>A reader seeing half a price update; writer starvation</td><td>Medium</td></tr><tr><td>4</td><td><code>monitor-object-pattern</code></td><td>The lost update; <code>volatile</code> not being enough; <code>if</code> instead of <code>while</code></td><td>Low</td></tr><tr><td>5</td><td><code>active-object-pattern</code></td><td>The mailbox backing up; the throughput ceiling</td><td><strong>Medium</strong> — it is a capstone and must not re-teach four projects</td></tr></tbody></table>
+<p>Two specific cautions, recorded now because both are discovered late otherwise.</p>
+<p><strong>The thread-per-order collapse must not destabilise the machine building it.</strong> Demonstrating <code>OutOfMemoryError: unable to create native thread</code> by actually exhausting a laptop is not acceptable in a course a beginner runs. Cap the demo, show the curve — creation cost and context-switch cost climbing with thread count — and print the extrapolation rather than reaching the cliff. State in narration that the cliff is real and where it sits.</p>
+<p><strong>Active Object must stay a capstone, not a recap.</strong> Its job is the assembly: queue plus thread plus future plus state ownership. It links to the four projects that taught those and re-teaches none of them. If its script is running long, that is what is wrong with it.</p>
+<p><strong>Exit:</strong> six projects complete, each verified before the next begins.</p>
+<h3>Phase 3 — Verify the category</h3>
+<ol><li>The artefact sweep from <a href="../../micro-services-design-patterns/docs/ai-session.html"><code>../../micro-services-design-patterns/docs/ai-session.md</code></a> §2, pointed here.</li><li><code>./gradlew test</code> in every project, <strong>run twenty times in a row</strong>, with every run green. This is the category&#x27;s defining check and it replaces the single run the other categories do.</li><li>No <code>Thread.sleep</code> anywhere under <code>*/src/test</code>, and none in the demos except where the delay is the subject.</li><li>Every spec regenerated <strong>after</strong> its video exists — a spec reporting <code>0 scenes</code> is stale, and this has already shipped once in this repository.</li><li>Every video printed <code>audio timeline continuous</code>, and every one listened to with the screen ignored, checking the narration stands alone.</li><li>Every poster and thumbnail looked at.</li><li><code>git status</code> shows no mp4, m4a, srt, wav, log, <code>docs/audio/</code> or <code>video/build/</code>.</li><li>The six extra conformance items in <code>spec.md</code> §9 checked per project.</li></ol>
+<hr>
+<h2>Sequencing rules</h2>
+<p><strong>Finish one project before starting the next.</strong> The standing rule across this repository.</p>
+<p><strong>Run the demo before quoting it.</strong> Every number in a document, a slide or a narration line comes from real <code>./gradlew run</code> output. In this category that matters more than usual, because timings differ between machines: quote the figures from one nominated machine and say in the README that the reader&#x27;s will differ in magnitude but not in shape.</p>
+<p><strong>Regenerate the spec last, after the video exists.</strong> <code>make_specs.py</code> measures the mp4 and silently degrades if it is absent.</p>
+<p><strong>Any fix to the shared pipeline is rolled out to all projects.</strong></p>
+<p><strong>Nothing is committed or pushed unless asked.</strong> Build artefacts go to <code>.gitignore</code>; source, documents, <code>animation.html</code>, posters, thumbnails and rendered diagrams stay in. Commit messages carry no co-author trailer.</p>
+<hr>
+<h2>Framework register</h2>
+<p>Any open-source framework may be used where it is genuinely needed, and every use is accounted for here before it reaches a build file — the same rule the platform category follows.</p>
+<table><thead><tr><th>Project</th><th>Dependency</th><th>Verdict</th></tr></thead><tbody><tr><td>all six</td><td>JUnit 5 (<code>5.10.x</code>)</td><td>The repository standard.</td></tr><tr><td>all six</td><td><strong>nothing else</strong></td><td><code>java.util.concurrent</code> is the subject. Adding a concurrency library would mean teaching the library instead of the pattern.</td></tr></tbody></table>
+<p>Two candidates are worth recording, because both are tempting and both may yet be right. Neither is prohibited — this is the current judgement, to be revisited if a draft argues otherwise:</p>
+<table><thead><tr><th>Candidate</th><th>Current judgement</th></tr></thead><tbody><tr><td>jcstress</td><td>The right tool for proving memory-model claims, and genuinely excellent. It needs a harness a beginner cannot read and runs for minutes, which breaks the two-second budget. Best use if taken: <strong>one project, as a closing scene</strong> — &quot;here is the tool that proves this properly&quot; — rather than as the category&#x27;s test mechanism.</td></tr><tr><td>Awaitility</td><td>Makes waiting readable, which sounds ideal, but this category&#x27;s whole thesis is that tests should not wait. A latch says <em>&quot;both threads are now here&quot;</em>; Awaitility says <em>&quot;check again in a moment&quot;</em>. The latch is the lesson.</td></tr></tbody></table>
+<p>This category is expected to stay pure Java with no Tier 2, not because frameworks are unwelcome but because <code>java.util.concurrent</code> is the subject and there is no process boundary to cross. If a project finds a library that makes a concurrency idea clearer rather than more magical, take it and add a row.</p>
+<hr>
+<h2>Risks</h2>
+<table><thead><tr><th>Risk</th><th>Mitigation</th></tr></thead><tbody><tr><td><strong>A test flakes on a loaded CI machine</strong></td><td>The defining risk. Phase 3 runs every suite twenty times. A test that depends on timing rather than on a latch is rewritten, not retried.</td></tr><tr><td><strong>The demos are slow</strong></td><td>Latches release immediately; sleeps do not. A suite that takes minutes has sleeps in it. The under-two-seconds budget still applies.</td></tr><tr><td>The <code>OutOfMemoryError</code> demo harms the machine</td><td>Capped and extrapolated, never actually exhausted. Recorded in Phase 2.</td></tr><tr><td>Timings quoted from one machine mislead on another</td><td>Quote from one nominated machine, say so in the README, and let the reader compare shapes rather than absolutes.</td></tr><tr><td><strong>Narration becomes unfollowable without the picture</strong></td><td>An interleaving is naturally visual, and this is the hardest category to narrate. <code>spec.md</code> §7 makes naming the threads and speaking the order a rule. Listen to every video with the screen off.</td></tr><tr><td>Active Object recaps four earlier projects</td><td>It links rather than re-teaches; a long script is the symptom.</td></tr><tr><td>Virtual threads date the Thread Pool project</td><td>§47 addresses them directly rather than ignoring them. The pattern is bounding a resource, and that survives.</td></tr><tr><td>The harness gets copied with a bug in it</td><td>It is tested against a known race in Phase 0, before it is copied five times.</td></tr></tbody></table>
+<hr>
+<h2>Definition of done</h2>
+<p>The category is complete when:</p>
+<ul class="task"><li>Six projects exist, each passing the repository-wide conformance checklist and the six extra items in <code>spec.md</code> §9.</li><li><strong>Every suite has been run twenty consecutive times with no flake.</strong></li><li>Every naive failure reproduces on every run, forced by a latch, a barrier or a planned interleaving — never by a sleep.</li><li>Every project builds, tests pass in under two seconds, and its README quotes real run output including the failure, the fix and the cost.</li><li>Every video is rendered, printed <code>audio timeline continuous</code>, runs between eleven and thirteen minutes, and has been <strong>listened to with the screen ignored</strong>.</li><li>Every poster and thumbnail has been looked at.</li><li>Every explainer has its &quot;What the scheduler really does&quot; section, and every video says it aloud.</li><li>All specs across the repository regenerate clean.</li><li>The root <code>README.md</code>, <code>gradle-java/README.md</code> and the repository-wide spec all describe the category.</li></ul>
+</main>
+<footer>
+Generated from <code>implementation-plan.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

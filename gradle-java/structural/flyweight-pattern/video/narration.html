@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Video Narration Script</h1>
+<p>Narration for the Flyweight pattern teaching video. Each scene below maps to one slide. The narration is spoken by macOS <code>Samantha</code>, a female US English voice, at 145 words per minute.</p>
+<p>Total scenes: 15. Approximate runtime: about 7 minutes.</p>
+<p>The first and last scenes carry the channel branding: scene 1 credits the author out loud over the poster, and the final scene asks for the thumbs up and the subscribe.</p>
+<p>The script is written to be spoken rather than read, and carries <code>[[slnc NNN]]</code> pause markers in <a href="scenes.py"><code>scenes.py</code></a> that insert NNN milliseconds of silence. Those are instructions to the synthesiser, not words: they are stripped from the text below and from the subtitles.</p>
+<hr>
+<h2>Scene 1 — The Flyweight Pattern</h2>
+<p>Hello, and welcome. This video explains the Flyweight pattern in Java, and it is written and presented by Jayasekhar Konduru. Let&#x27;s start with the simple definition. The flyweight pattern stops you paying for the same data twice. The parts of an object that are identical across thousands of instances are stored once and shared between all of them, and everything that actually differs is passed in from outside at the moment it is needed. That&#x27;s the idea in a sentence, and it&#x27;s a pattern that only shows up once your object count gets large. The rest of the video does it properly, by building a real working Java project: badge rendering across an e-commerce catalog. By the end you&#x27;ll know what a flyweight is, what intrinsic and extrinsic state actually mean, and how to write one yourself.</p>
+<h2>Scene 2 — The Scenario</h2>
+<p>So, imagine an online store with one hundred thousand product listings. Every single listing shows a small badge in the corner. New. Sale. Bestseller. Low stock. Here&#x27;s the thing to notice already. There are only four distinct badge designs in the whole catalog. But a hundred thousand listings each need one drawn.</p>
+<h2>Scene 3 — What a Badge Design Actually Is</h2>
+<p>Look at what actually makes up one badge design. An icon. A background colour. A text colour. Whether it&#x27;s bold. And a rendered artwork bitmap, sixty four kilobytes. And here&#x27;s the key observation. Every single SALE badge in the entire catalog looks completely identical. Same icon, same colours, same artwork. Only the listing underneath it changes.</p>
+<h2>Scene 4 — The Naive Approach — One Badge Object Per Listing</h2>
+<p>So here&#x27;s the naive approach. Every time we build a badge for a listing, we allocate a brand new sixty four kilobyte artwork array, and we rebuild the icon and the colours from scratch, based on a switch over the type. That constructor runs once per listing. One hundred thousand times. And every single SALE badge ends up holding its own private, identical copy of the exact same data.</p>
+<h2>Scene 5 — Why That Hurts</h2>
+<p>And that does real damage, purely on memory. One hundred thousand listings, each with a sixty four kilobyte artwork, comes to roughly six point two five gigabytes. For four distinct designs. Every one of those bytes past the first four copies is a pure duplicate. And the garbage collector has to work through all those repeated allocations. To be clear, no individual badge object is wrong. It renders correctly. The waste is structural, not a bug.</p>
+<h2>Scene 6 — The Flyweight Pattern</h2>
+<p>The flyweight pattern fixes exactly this. And the definition, in Gang of Four terms, is that a flyweight uses sharing to support large numbers of fine grained objects efficiently, by factoring out state that is shared, called intrinsic, from state supplied by the caller, called extrinsic. In plain language? Stop paying for the same data twice.</p>
+<h2>Scene 7 — Remember It With a Rubber Stamp</h2>
+<p>Here&#x27;s how to remember it forever. Think about a rubber stamp. The stamp itself carries fixed ink, and a fixed shape. That never changes, no matter how many times you use it. But where you press it down on the page? That&#x27;s different every single time. The stamp is the flyweight. It gets shared. The position on the page is extrinsic. You supply it fresh, every time you stamp.</p>
+<h2>Scene 8 — The Four Roles</h2>
+<p>Every flyweight setup has four roles. The flyweight itself, which here is BadgeStyle. The flyweight factory, BadgeStyleFactory, which is the only place a BadgeStyle ever gets built. The context, CatalogBadge, which is cheap and plentiful, one per listing. And the client, BadgeDemo, which asks the factory for styles. Here&#x27;s the single most important idea in this whole video. The factory hands out the same shared instance to every caller asking for the same type. One BadgeStyle object. A hundred thousand listings pointing at it.</p>
+<h2>Scene 9 — The Flyweight — Only Intrinsic State, No Setters</h2>
+<p>This is the flyweight itself, BadgeStyle. Every field on it — the icon, the colours, the bold flag, the artwork — is intrinsic. Identical for every SALE badge, no matter which listing is asking. And look closely at render. listingId and customLabel arrive as parameters, not fields. That&#x27;s extrinsic state, supplied fresh by the caller every time, and never stored on the shared object. There are no setters here, on purpose. Mutating a shared instance would corrupt every listing sharing it.</p>
+<h2>Scene 10 — The Factory — computeIfAbsent Does All the Work</h2>
+<p>And this is the factory. One line does the entire pattern&#x27;s work. Cache dot computeIfAbsent, keyed by badge type. The very first time anyone asks for SALE, the lambda runs, build constructs a brand new BadgeStyle, and it goes into the cache. Every single call after that — for any listing, from any thread — finds SALE already there, and gets back that exact same instance. Using a ConcurrentHashMap means this is safe under concurrent access with no extra locking at all.</p>
+<h2>Scene 11 — What the Flyweight Gives You</h2>
+<p>So the flyweight is giving us three things. Sharing — one BadgeStyle per badge type, not per listing. Correctness — thread-safe caching, with no locks we had to write ourselves. And separation — intrinsic fields and extrinsic parameters, cleanly kept apart. Now notice what it doesn&#x27;t contain. There is no per-listing state anywhere on BadgeStyle. A flyweight shares. It never remembers who asked.</p>
+<h2>Scene 12 — The Client — This Is the Whole Thing</h2>
+<p>And here&#x27;s the context object that ties it together, CatalogBadge. Its constructor doesn&#x27;t build a style. It asks the factory for one, and holds a shared reference. It owns exactly two things itself: the listing id and an optional custom label. Everything else, it borrows. So you can create a hundred thousand of these CatalogBadge objects, and behind them, as few as four actual BadgeStyle instances doing all the heavy lifting.</p>
+<h2>Scene 13 — Running It</h2>
+<p>When we run the project, the proof is right there in the output. styleFor SALE, called twice, returns true for equals equals — the exact same object, both times. Two different listings share one style instance. Now compare that to the naive alternative. naive A equals naive B, for two identical SALE badges, is false. Same input, opposite identity. And at the bottom, the arithmetic that makes it matter. Six thousand two hundred fifty megabytes, down to two hundred fifty six kilobytes, just by sharing four instances instead of a hundred thousand.</p>
+<h2>Scene 14 — Wrap Up</h2>
+<p>So, to recap. Use a flyweight when your object count is huge, and most of each object&#x27;s state repeats across instances. Keep intrinsic state as fields, extrinsic state as parameters, and never give a flyweight a setter. And remember, this pattern is only worth it at scale — five listings do not need a cache. And if you remember one sentence from today, make it this one. Prototype hands out copies. Flyweight hands out the same instance, again and again.</p>
+<h2>Scene 15 — Thanks for Watching</h2>
+<p>And that&#x27;s the flyweight pattern. If you got something out of this, do give it a thumbs up, and subscribe. It genuinely helps the channel, and it&#x27;s what makes more of these possible. And if there&#x27;s a pattern you&#x27;d like me to cover next, drop it in the comments. I read every one. All the source code, the written notes and an interactive animation are in the repository. Thanks for watching, and I&#x27;ll see you in the next one.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claim Check, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Claim Check, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>A claim check stores a large payload somewhere cheap and sends only a small ticket through the message broker, so the receiver can redeem the ticket for the payload.</p>
+<h2>The six acts</h2>
+<h3>A Message That Is Too Big</h3>
+<p>The invoice is five thousand bytes, and the broker refuses it: over its limit of a thousand.</p>
+<pre><code>  the invoice is 5000 bytes. message of 5000 bytes is over the broker&#x27;s limit of 1000.
+  most brokers cap the size of a message, and the ones that do not get slow when messages are large.</code></pre>
+<h3>Send The Ticket, Not The Luggage</h3>
+<p>The invoice goes to storage. The message carries a claim with a 37 character id, the size and a checksum. The receiver redeems it and gets the same 5000 bytes.</p>
+<pre><code>  the invoice is stored. the message carries a claim: an id of 37 characters, size 5000, checksum 7ad4d4cb072db3a2.
+  the receiver redeems it and gets 5000 bytes, identical to what was sent: true.</code></pre>
+<h3>What The Broker Carries</h3>
+<p>A hundred invoices carry five hundred thousand bytes through a broker with no limit, and five thousand nine hundred by claim.</p>
+<pre><code>  100 invoices of 5000 bytes. through a broker with no limit: 500000 bytes. by claim: 5900 bytes.
+  the broker moves a small ticket. the storage holds the luggage.</code></pre>
+<h3>Luggage Nobody Collected</h3>
+<p>Ten are sent and six collected and deleted, so four blobs are left. After the time limit a sweep removes them. A slow receiver who arrives later finds its blob gone.</p>
+<pre><code>  10 sent, 6 collected and deleted. blobs still stored: 4.
+  after the time limit, the sweep removes 4. stored now: 0.
+  a slow receiver arrives with its claim: the blob for this claim expired or was never stored.</code></pre>
+<h3>Is It The Same Luggage?</h3>
+<p>One byte is changed in storage. The receiver checks the checksum in the claim and refuses the payload.</p>
+<pre><code>  one byte changed in storage. the receiver: the payload is not the one that was sent: the checksum does not match.
+  the checksum in the claim is what makes a ticket for a blob safe to trust.</code></pre>
+<h3>The Bill</h3>
+<p>One invoice now takes three storage operations and two broker steps, where it took one. Claims that count up let anyone read the next invoice, and random ones do not. And storing then sending can stop between the two.</p>
+<pre><code>  one invoice, one way: 3 storage operations (put, get, delete) and 2 broker steps. before, there was 1.
+  claims that count up: someone holding blob-1 tries blob-2 and reads: ben&#x27;s invoice.
+  random claims: 100000 guesses of the counting kind found 0 invoices. a claim must be hard to guess.
+  storing, then sending, can stop between the two, and leave luggage nobody has a ticket for.</code></pre>
+<h2>The verdict</h2>
+<p>Use a claim check when payloads are larger than a broker should carry, or when many consumers need only part of the message. Make the claim unguessable and carry a checksum. Give stored payloads a life span, sweep the ones nobody collected, and handle a claim that has expired. Store first, then send, and expect the orphan.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>A message that holds a URL or an id and a size instead of the data.</li><li>An S3 or blob storage path in an SQS or Kafka message.</li><li>A <code>ClaimCheck</code> or <code>Payload</code> class in an integration library.</li><li>A lifecycle rule that deletes objects after a number of days.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Amazon SQS&#x27;s extended client, Azure Service Bus with blob storage, and most systems that email attachments through a queue.</p>
+<h2>When this is too much</h2>
+<p>If payloads are small, a claim check adds two steps for nothing. If the receiver needs the data at once and storage is slow, the ticket costs more than it saves.</p>
+</main>
+<footer>
+Generated from <code>claim-check-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

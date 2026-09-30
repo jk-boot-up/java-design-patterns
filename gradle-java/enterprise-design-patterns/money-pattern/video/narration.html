@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Money Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Money Pattern — Video Narration Script</h1>
+<h2>1. Money</h2>
+<p>Hello, and welcome. This video explains the Money pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. The Money pattern keeps a price as a whole number of the smallest coin, such as pence, together with its currency. Never as a number with a decimal point. So every sum is exact, pounds are never added to dollars, and nothing is rounded unless you ask. Think of the cash drawer in a shop. It does not hold nineteen point nine nine of anything. It holds coins: one thousand nine hundred and ninety-nine pence, all of them pounds. You can count coins exactly, and share them out exactly. In this video, the domain is an online shop. It adds up baskets, charges VAT, gives discounts, and sells in pounds, dollars and yen. By the end, you will hear why ten pence plus twenty pence is not thirty pence in a double. How the Money class fixes it. Why rounding is a decision. And how to split ten pounds three ways without losing a penny.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The online shop adds up baskets. It charges VAT, which is a tax added to the price. It spreads a basket discount across the lines. And it sells in pounds, dollars and yen. The first version kept every price in a double. A double is Java&#x27;s ordinary number type for values with a decimal point. Every test passed. So what could go wrong?</p>
+<h2>3. Act One — Prices as Doubles</h2>
+<p>First demo: prices as doubles. A ten pence sticker plus a twenty pence sticker. The total prints as zero point three, followed by fifteen zeros and a four. Is it equal to zero point three? No. Next, a thousand items at ten pence, added one by one. The total is ninety-nine point nine nine nine, and some more nines. Turn that into pence by cutting off the fraction, as a lot of code does, and you get nine thousand nine hundred and ninety-nine pence. A penny short. And ten dollars plus ten pounds is simply twenty. Nobody asked which currency.</p>
+<h2>4. Why A Double Gets It Wrong</h2>
+<p>Why does this happen? A double stores numbers in binary: ones and zeros. Some fractions cannot be written exactly in binary. One tenth is one of them. You already know this problem from ordinary numbers. One third, written as a decimal, is zero point three three three, going on forever. You have to stop somewhere, so it is never quite exact. In the same way, a double stores ten pence as very, very nearly ten pence. Add enough of them, and the tiny errors add up to a missing penny.</p>
+<h2>5. The Pattern</h2>
+<p>Now, the pattern. Store the amount as a whole number of the smallest coin. Nineteen pounds ninety-nine becomes one thousand nine hundred and ninety-nine pence. Whole numbers add and multiply exactly. Keep the currency with the amount, in the same object. And only round when someone says how. That object is called Money.</p>
+<h2>6. Act Two — Prices as Money</h2>
+<p>Second demo: prices as Money. Ten pence plus twenty pence is exactly thirty pence. Equal to thirty pence? Yes. A thousand items at ten pence is exactly one hundred pounds, stored as ten thousand pence. And a real basket. Three mugs at nine pounds forty-nine. A teapot at twenty-four ninety-nine. Two coasters at four ninety-nine. The total is sixty-three pounds forty-four, with no rounding anywhere.</p>
+<h2>7. Act Three — Currencies</h2>
+<p>Third demo: currencies. Every Money carries its currency. So ten pounds plus ten dollars is refused, with a clear message: cannot combine pounds with dollars. The currency also knows how many digits it has after the point. Pounds have two. Japanese yen have none. So fifteen hundred yen prints as fifteen hundred, with no pennies. And a price like nine pounds nine hundred and ninety-nine thousandths is refused at the door. Instead of being quietly rounded somewhere later.</p>
+<h2>8. Act Four — Rounding Is A Choice</h2>
+<p>Fourth demo: rounding. Some sums really do fall between two pennies. Twenty percent VAT on ninety-nine pence is nineteen point eight pence. Money will not round that by itself. The code must say how. And where you round matters. Ten items at ninety-nine pence. Round the VAT on each line, and it comes to two pounds. Round once, on the total, and it comes to one pound ninety-eight. Neither is wrong. But they differ by two pence. A shop must choose one rule, and use it everywhere. Money makes that choice visible.</p>
+<h2>9. Act Five — Splitting</h2>
+<p>Fifth demo: splitting. Three friends share a ten pound bill. Divide by three, and each pays three pounds thirty-three. But three of those is nine pounds ninety-nine. A penny has vanished. Money has a method called allocate. It rounds each share down, then hands out the leftover pennies one at a time. So the shares are three thirty-four, three thirty-three and three thirty-three. Exactly ten pounds. The cart uses the same method to spread a five pound discount across its lines, by value. Two twenty-five, one ninety-seven, and seventy-eight pence. Exactly five pounds.</p>
+<h2>10. The Pieces</h2>
+<p>Let&#x27;s name the pieces. Money holds two things: a whole number of the smallest coin, and a currency. Currency knows its symbol, and how many digits it has. Cart holds lines, each priced in Money. And the naive cart, with its doubles, is kept only so you can compare. One more detail. A Money never changes. Adding two amounts gives you a new Money, and leaves both originals alone. So a price can be shared safely, anywhere.</p>
+<h2>11. Act Six — The Bill</h2>
+<p>Finally, the bill. A price is now a class, not a plain number. So every database, message and screen has to convert it. Nineteen ninety-nine is stored as one thousand nine hundred and ninety-nine, plus the letters G B P. And Money does not convert currencies. Turning pounds into dollars needs an exchange rate, and a date. That is a separate job. Both costs are small, compared with a shop whose totals are a penny out.</p>
+<h2>12. How To Recognise It</h2>
+<p>How can you spot this pattern in code someone else wrote? Look for a class named Money, Amount or Price, holding an amount and a currency. Look for fields like price in pence, or amount in cents, stored as whole numbers. Or Java&#x27;s big decimal type with a rounding rule, and never a double, anywhere near a price. Payment services like Stripe work the same way. They take nineteen ninety-nine as one thousand nine hundred and ninety-nine, plus a currency.</p>
+<h2>13. The Verdict</h2>
+<p>So, here is the verdict. Use Money for every price, fee and balance. Store whole units, plus a currency. Round only at a decided point, with a named rule. And split amounts with allocate, so no penny is ever lost. In a real system, use a tested library, such as Moneta, from the Java Money standard. But write your own once, like this, to understand it.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s the Money pattern. If you remember one sentence, make it this one. A price is a whole number of the smallest coin, plus its currency, and it only rounds when you decide. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Add euros as a fourth currency. And notice how few lines have to change. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

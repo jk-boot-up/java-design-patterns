@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Retry with Backoff, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Retry with Backoff, Explained</h1>
+<h2>In One Sentence</h2>
+<p>If a call fails for a reason that might not happen again, try it once or twice more — waiting a little longer before each attempt, and only if doing the job twice cannot actually <em>do</em> it twice.</p>
+<h2>Everyday Analogy: The Engaged Tone</h2>
+<p>You ring someone and the call does not connect. You redial. It still does not connect, so you wait a moment and try once more.</p>
+<p>Notice what you did without thinking about it.</p>
+<p>You <strong>judged the failure</strong>. The line was engaged, which is temporary, so redialling is sensible. If instead a recorded voice had said &quot;this number is no longer in service&quot;, you would not have redialled twenty times. That is a permanent answer, and persistence does not change permanent answers.</p>
+<p>You <strong>waited longer each time</strong>. Not out of politeness — out of realism. If the line is busy, the thing that will make the next attempt succeed is time passing. Redialling instantly cannot help, and if everybody redials instantly, everybody jabbing at once is part of <em>why</em> the line is busy.</p>
+<p>And here is the part that has no everyday equivalent, which is why it is the part people get wrong. Imagine that when you redial, the other person&#x27;s phone rings again — and they had already answered the first time, and you simply did not hear them. You would be having the conversation twice. A phone call is harmless to repeat. <strong>Taking money is not.</strong></p>
+<h2>The Two Halves, And The One People Skip</h2>
+<p>A retry is safe when <strong>both</strong> of these are true:</p>
+<ol><li>The failure is genuinely temporary.</li><li>Doing the operation twice cannot do it twice.</li></ol>
+<p>Everybody thinks about the first half. The second half is the one that charges somebody twice for an espresso machine, and nothing a retrier does can supply it. It has to come from the caller.</p>
+<h2>The Pattern</h2>
+<p>The retrier is a small class with exactly two decisions in it.</p>
+<pre><code>public &lt;T&gt; T call(String what, Supplier&lt;T&gt; action) {
+    for (int attempt = 1; attempt &lt;= policy.maxAttempts(); attempt++) {
+        long delay = policy.delayBeforeAttempt(attempt);
+        if (delay &gt; 0) {
+            clock.advance(delay);
+        }
+        try {
+            return action.get();
+        } catch (RuntimeException failure) {
+            if (!worthRetrying(failure)) {
+                throw failure;          // a &quot;no&quot; does not become a &quot;yes&quot;
+            }
+        }
+    }
+    throw lastFailure;
+}</code></pre>
+<p>Decision one is <code>worthRetrying</code>. Decision two is <code>delayBeforeAttempt</code>. Everything else is bookkeeping.</p>
+<h2>Decision One: Is This Failure Worth Another Go?</h2>
+<p>In this project the rule is one line:</p>
+<pre><code>return failure instanceof GatewayTimeoutException;</code></pre>
+<p>A timeout might not happen again, so it is retryable. A <code>CardDeclinedException</code> will happen again every single time, so it is not.</p>
+<p>Notice the shape of that line, because it is deliberate. It retries what it <em>recognises</em>, and treats everything else as permanent. The opposite rule — &quot;retry unless I recognise it&quot; — is the one that eventually retries a null pointer exception in your own code four hundred times, at four hundred times the cost, to get four hundred identical crashes.</p>
+<p>The demo&#x27;s second act shows what this buys. A declined card is reported after one attempt, in fifty milliseconds:</p>
+<pre><code>      0ms -&gt;    50ms  Payments         DECLINED  the bank said no
+     50ms -&gt;    50ms  Retrier          PERMANENT not retrying: card declined for ORD-5001
+  the gateway was asked 1 time</code></pre>
+<p>The naive loop asks three times and takes three delays to reach the same answer. The shopper waits longer to be told the same thing, and the gateway did twice the work for nothing.</p>
+<h2>Decision Two: How Long To Wait</h2>
+<p>Two words describe the answer, and both mean something specific.</p>
+<p><strong>Backoff</strong> means the waits get longer: a hundred milliseconds, then two hundred, then four hundred. The reason is not manners. If the gateway is failing because it is overloaded, the only thing that will make the next attempt succeed is the gateway getting some room, and a caller that retries instantly is taking room away rather than giving it.</p>
+<p><strong>Jitter</strong> means each caller waits a slightly <em>different</em> amount. Look closely at the first act:</p>
+<pre><code>    153ms -&gt;   153ms  Retrier          WAITED    103ms before attempt 2</code></pre>
+<p>One hundred and three milliseconds, not one hundred. The extra three are the jitter. With a single caller that looks like pointless noise. With a thousand callers it is the whole point: a thousand callers who all failed at the same instant, all waiting exactly a hundred milliseconds, come back as one wave at exactly the same instant. The stampede simply repeats on a delay. Spreading them over a band turns the wave into a trickle.</p>
+<p>There is a test named for precisely this — <em>two callers that fail together do not retry together</em> — and it is the cheapest insurance in the project.</p>
+<h2>The Half That Is Usually Skipped: The Reply That Got Lost</h2>
+<p>Here is the failure that makes retrying genuinely dangerous, and it is the realistic one.</p>
+<p>The request arrives at the gateway. The card <strong>is</strong> charged. The reply is lost on the way home.</p>
+<p>From the caller&#x27;s side, that is indistinguishable from &quot;the request never arrived&quot;. Same exception, same timeout, same everything. There is no flag to check, no header to read, no clever piece of code that can tell the two apart — and that is not a limitation of this project, it is a property of networks.</p>
+<p>So what does a careful caller do? It stops trying to tell them apart, and makes the difference not matter.</p>
+<pre><code>public static PaymentRequest forOrder(String orderId, Money amount) {
+    return new PaymentRequest(orderId, amount, &quot;key-&quot; + orderId);
+}</code></pre>
+<p>That is an <strong>idempotency key</strong>: a value the caller attaches to the request which means &quot;if you have already seen this key, you have already done this job — do not do it again, just tell me what happened last time&quot;.</p>
+<p>Read what the key is derived from. The order, and nothing else. Not the attempt number. Not the clock. Not a random value. If any of those crept in, every attempt would carry a different key and the gateway would have no way of recognising the repeat.</p>
+<p>The third act is the payoff:</p>
+<pre><code>      0ms -&gt;    50ms  Payments         CHARGED-THEN-LOST chg-1 taken, reply lost
+     50ms -&gt;    50ms  Retrier          RETRYABLE attempt 1 failed: Payments did not answer
+    153ms -&gt;   203ms  Payments         REPLAYED  key already charged, returning chg-1
+  card charged 1 time, £449.99 in total</code></pre>
+<p>The card was charged once. The caller never found out which kind of failure it had suffered, and never needed to.</p>
+<h2>The One-Line Difference</h2>
+<p><code>CheckoutService</code> and <code>NaiveCheckoutService</code> differ by where one line sits.</p>
+<pre><code>// CheckoutService — built once, outside the retry
+PaymentRequest request = PaymentRequest.forOrder(orderId, amount);
+return retrier.call(&quot;payment for &quot; + orderId, () -&gt; payments.charge(request));</code></pre>
+<p>Move that first line inside the lambda and every attempt invents a fresh key, and the careful class becomes the naive one. That is the whole of the difference between charging a shopper once and charging them twice, and it is why this is worth a video rather than a footnote.</p>
+<p>It is also worth saying who is at fault in act four, because it is not who people assume. The gateway is behaving perfectly. It honours keys correctly, it charges each key exactly once, and it declines cards when the bank declines them. Every double charge in this project is the caller&#x27;s doing.</p>
+<h2>What It Costs</h2>
+<p><strong>Time, and the shopper pays it.</strong> A recovered checkout in act one took 203 milliseconds instead of 50. Retrying is not free; it is a trade of latency for success rate, and there are calls where the shopper would rather have the error quickly.</p>
+<p><strong>Load, exactly when you can least afford it.</strong> Three attempts per caller against a struggling service is three times the traffic at the moment it is least able to cope. Backoff and jitter reduce that; they do not remove it.</p>
+<p><strong>A hard requirement on the thing you are calling.</strong> Retrying is only safe against an operation that can be repeated safely, and most interesting operations are not — taking money, sending an email, shipping a parcel. Making them repeatable is work at the other end, not something a retry loop can decide on your behalf.</p>
+<p><strong>A new failure mode.</strong> Retrying a service that is properly down turns a slow system into a dead one: every caller now holds threads open three times as long, waiting on something that will never answer. That is not an argument against retrying. It is why the next pattern in this category exists.</p>
+<h2>When Not To Use It</h2>
+<ul><li><strong>When the operation is not safe to repeat and you cannot make it safe.</strong> No key, no retry. This is not a preference; it is the rule.</li><li><strong>When the failure is a definite answer.</strong> A declined card, a validation error, a 404, a 401. Retrying these is asking the same question louder.</li><li><strong>When the caller is a person waiting.</strong> Three attempts with backoff can easily take a second. Sometimes an honest quick error is the better product.</li><li><strong>When the service is already known to be down.</strong> At that point you want a circuit breaker, not persistence.</li></ul>
+<h2>What To Remember</h2>
+<ol><li>Retrying turns a network blip into a completed checkout, and that is worth real money.</li><li>Retry only failures you <em>recognise</em> as temporary. Everything else is permanent.</li><li>A declined card retried three times is three &quot;no&quot;s and three delays.</li><li>Back off — waits get longer — because a struggling service needs room, not traffic.</li><li>Add jitter, because a thousand callers waiting the same amount are one wave.</li><li>The dangerous failure is the reply that got lost after the work was done, and the caller cannot detect it.</li><li>So don&#x27;t try to. Carry an idempotency key derived from the order and nothing else, and let the other end recognise the repeat.</li><li>Build the request <em>outside</em> the retry. That one line is the difference between one charge and two.</li></ol>
+</main>
+<footer>
+Generated from <code>retry-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

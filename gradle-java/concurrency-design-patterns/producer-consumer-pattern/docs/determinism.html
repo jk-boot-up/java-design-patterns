@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Determinism — How This Project&#x27;s Failures Are Forced</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Determinism — How This Project&#x27;s Failures Are Forced</h1>
+<p>Every test and every demo act in this project is deterministic. No test under <code>src/test</code> contains a <code>Thread.sleep</code>, and the one delay anywhere in the demo — how long packing takes — is named as the subject being measured, not hidden as a wait.</p>
+<h2>The three harness pieces, and where each is used</h2>
+<p><strong><code>Gate</code></strong> — a one-shot door a thread parks at until the test opens it. Used everywhere a thread needs to be provably <em>not finished yet</em>: <code>InlineCheckoutTest</code> proves checkout has not returned by holding packing closed; <code>ThreadPerOrderCheckoutTest</code> proves three checkouts produced three live threads the same way; every act in the demo that needs a thread parked mid-work uses one.</p>
+<p><strong><code>Rendezvous</code></strong> — an n-party barrier that forces two or more threads to be at the same instant before either proceeds. <code>HarnessSelfTest.rendezvousForcesTheLostUpdateEveryRun</code> is the proof: two threads each read a shared value, meet at the rendezvous, then both write back a value derived from what they read. Without the rendezvous this is &quot;wrong sometimes&quot;. With it, it is wrong on all twenty repetitions.</p>
+<p><strong><code>StepExecutor</code></strong> — a queue with a manual crank. Nothing runs until <code>runNext()</code> is called, on whichever thread calls it. Proven in <code>HarnessSelfTest.stepExecutorRunsNothingUntilStepped</code>. This project does not lean on it directly — Thread Pool and Active Object, later in the category, do — but it is proven here, in the reference project, before it is reused.</p>
+<h2>How each specific scenario in this project is forced</h2>
+<p><strong>&quot;Checkout does not return until packing finishes&quot;</strong> (<code>InlineCheckoutTest</code>) — packing is a <code>Gate</code>. The test starts a checkout on its own thread, confirms with a bounded <code>join(100)</code> that the thread has not died (it cannot have — the gate has not been opened), then opens the gate and confirms the checkout completes.</p>
+<p><strong>&quot;The queue really is full, and a fourth order is rejected&quot;</strong> (demo act three, and the same shape in <code>BoundedOrderQueueTest</code>) — the packer&#x27;s <em>first</em> pack call is a <code>Gate</code>, held closed. A <code>CountDownLatch</code> counts down the instant the packer has taken that first order and is parked mid-pack, so the test knows, with certainty rather than a guess, that the packer cannot race the next three <code>put</code> calls for a queue slot. Only once that latch has fired are the remaining orders enqueued, and only then is &quot;the queue is at capacity&quot; a fact rather than a hope.</p>
+<p><strong>&quot;A poison pill drains everything queued before it&quot;</strong> (<code>PackerTest.poisonDrainsEverythingQueuedBeforeIt</code>) — no timing at all. The pill is enqueued after four real orders, on a <code>BlockingQueue</code>, whose ordering guarantee does the rest.</p>
+<p><strong>&quot;Interrupting the packer loses whatever is still queued&quot;</strong> (<code>PackerTest.interruptingThePackerLosesWhateverIsStillQueued</code>, and demo act five) — the same held-first-order technique as the queue-full scenario, followed by <code>Thread.interrupt()</code> on the packer thread rather than a poison pill. <code>Packer</code> checks <code>Thread.currentThread().isInterrupted()</code> after every <code>pack</code> call, and only logs an order as packed if that flag is still clear — which is what stops the held order itself from being wrongly recorded as packed when the interrupt lands.</p>
+<h2>What the scheduler really does</h2>
+<p>Every technique above pins one specific interleaving so a lesson can be shown on every run. <strong>The real JVM scheduler chooses none of this freely elsewhere.</strong> Outside a test, two checkout threads might interleave in any order the operating system&#x27;s scheduler decides, on any given run, on any given machine — the failures this project demonstrates are bugs on <em>some</em> schedules, not a schedule this project has discovered is the only one that exists. A reader who believes a passing test proves a concurrent design is safe on every possible schedule has been taught something false. What a passing test here actually proves is narrower and still valuable: that the one interleaving forced onto the naive version produces the failure it is supposed to, and that the pattern version, under the same forced interleaving, does not.</p>
+</main>
+<footer>
+Generated from <code>determinism.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

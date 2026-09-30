@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Memento Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Memento Pattern, Explained</h1>
+<blockquote><p><strong>Without violating encapsulation, capture and externalize an object&#x27;s internal state so that the object can be restored to this state later.</strong> — Gang of Four</p></blockquote>
+<p>Two halves, and the first one is the one people skip. Capturing state is easy; anybody can copy some fields. Capturing it <em>without violating encapsulation</em> — so that the thing holding the copy still cannot see inside the object — is the part that takes a pattern.</p>
+<p>In this project the object is a shopping basket, the copy is a <code>BasketSnapshot</code>, and the thing holding the copies is an undo stack called <code>BasketHistory</code> that manages to do its whole job without knowing that a basket contains anything at all.</p>
+<h2>A Photograph, Not a Window</h2>
+<p>Here is the mistake this pattern exists to prevent, in one line:</p>
+<pre><code>savedLines = lines;      // this saves nothing</code></pre>
+<p>That records <em>where</em> the list is, not <em>what is in it</em>. The saved list and the live list are the same list, so every later edit changes the save too. When undo eventually runs <code>lines.clear()</code>, it clears the very list it was about to restore from, and the shopper&#x27;s basket comes back empty.</p>
+<p>The snapshot does this instead:</p>
+<pre><code>this.lines = List.copyOf(lines);</code></pre>
+<p>A copy, taken at the moment of saving, that nothing can reach afterwards. A photograph of the basket rather than a window onto it. Everything else in the pattern is arrangement; this line is the substance.</p>
+<h2>Everyday Analogy: The Sealed Envelope</h2>
+<p>You are about to rearrange a room. Before you start, you take a photograph, put it in an envelope, seal it, and hand the envelope to a friend.</p>
+<p>Your friend can hold it. They can keep several, in order, and hand you back whichever one you ask for. What they cannot do is open it — and they do not need to, because putting the room back is your job, not theirs. They only have to remember which envelope is which, which is why you write &quot;before I moved the sofa&quot; on the outside.</p>
+<p>That is the whole pattern. The basket is you, the snapshot is the sealed envelope, the history is the friend, and the label written on the outside is the one thing the friend is allowed to read.</p>
+<h2>Participants</h2>
+<table><thead><tr><th>Role</th><th>In this project</th><th>Its job</th></tr></thead><tbody><tr><td><strong>Originator</strong></td><td><code>Basket</code></td><td>Knows what its state is. Writes snapshots and reads them back — nobody else does either.</td></tr><tr><td><strong>Memento</strong></td><td><code>BasketSnapshot</code></td><td>Holds a complete, immutable copy. Public on the outside, opaque on the inside.</td></tr><tr><td><strong>Caretaker</strong></td><td><code>BasketHistory</code></td><td>Holds snapshots and hands them back. Never opens one.</td></tr><tr><td><strong>Client</strong></td><td><code>BasketUndoDemo</code></td><td>Presses the buttons.</td></tr></tbody></table>
+<h2>Code Walkthrough</h2>
+<h3>The memento, and its two interfaces</h3>
+<pre><code>public final class BasketSnapshot {
+
+    private final List&lt;BasketLine&gt; lines;
+    private final String voucher;
+    private final String label;
+
+    BasketSnapshot(List&lt;BasketLine&gt; lines, String voucher, String label) {
+        this.lines = List.copyOf(lines);
+        this.voucher = voucher;
+        this.label = label;
+    }
+
+    public String label() { return label; }     // the wide interface
+
+    List&lt;BasketLine&gt; lines()  { return lines; }     // the narrow one:
+    String voucher()          { return voucher; }   // package-private
+}</code></pre>
+<p>The books describe a memento as having a <em>wide</em> interface for the originator and a <em>narrow</em> one for everyone else. In Java you get that for free with the default access level. <code>label()</code> is public, so an undo menu can display &quot;undo: removed the laptop stand&quot;. <code>lines()</code> and <code>voucher()</code> have no modifier at all, so only classes in <code>com.jk.explore.memento</code> — which means <code>Basket</code> — can call them.</p>
+<p>The constructor is package-private too. The only way to get a snapshot is to ask a basket for one.</p>
+<h3>The originator</h3>
+<pre><code>public BasketSnapshot save(String label) {
+    return new BasketSnapshot(lines, voucher, label);
+}
+
+public void restore(BasketSnapshot snapshot) {
+    lines.clear();
+    lines.addAll(snapshot.lines());
+    this.voucher = snapshot.voucher();
+}</code></pre>
+<p>Six lines, and they are the only six in the project that know what a basket&#x27;s state is. That is the property worth protecting: add a delivery date next month, and undo keeps working the moment you have added it to these two methods. Nothing outside the class needs to hear about it.</p>
+<p>Note that <code>restore</code> reads the snapshot without changing or consuming it. The same snapshot can be restored twice, which is what makes redo — or a branching history — possible later without touching any of these classes.</p>
+<h3>The caretaker</h3>
+<pre><code>public class BasketHistory {
+
+    private final Deque&lt;BasketSnapshot&gt; undoStack = new ArrayDeque&lt;&gt;();
+
+    public void record(Basket basket, String label) {
+        undoStack.push(basket.save(label));
+        if (undoStack.size() &gt; MAX_UNDO_STEPS) {
+            undoStack.removeLast();
+        }
+    }
+
+    public String undo(Basket basket) {
+        BasketSnapshot snapshot = undoStack.pop();
+        basket.restore(snapshot);
+        return snapshot.label();
+    }
+}</code></pre>
+<p>Read this class looking for something it cannot do. It never opens a snapshot, because the methods that would let it are not visible from here. Undo works without this class knowing that a basket contains lines, or a voucher, or a price.</p>
+<p>That is why it is worth building the feature this way rather than by making the basket&#x27;s fields public. Both give you undo. Only one of them leaves the basket as private as it was before you started.</p>
+<h3>Why the copy can be shallow</h3>
+<p><code>List.copyOf</code> copies the list, not the objects in it. That would be dangerous if those objects could change — you would be sharing them between the snapshot and the live basket. They cannot: <code>BasketLine</code> is a record, so it is immutable, and a thing that never changes is safe to share.</p>
+<p>That pairing is worth remembering as a general rule. <strong>Immutable parts make a shallow copy safe. Mutable parts make it a bug waiting to be found.</strong></p>
+<h2>Why the Tests Are the Proof</h2>
+<p>A test that says &quot;undo restores the basket&quot; passes here and fails on the naive version, which is a start. Two of the sixteen go further.</p>
+<p><code>laterChangesCannotReachBackIntoAnOlderSnapshot</code> empties the basket completely <em>after</em> taking the snapshot, then restores. If the snapshot were an alias rather than a copy, there would be nothing to come back to. This is the aliasing bug, written as an assertion.</p>
+<p><code>SnapshotEncapsulationTest</code> walks <code>BasketSnapshot</code>&#x27;s declared methods by reflection and fails if any public one is outside a small allowed list. A comment saying &quot;the caretaker must not read a snapshot&quot; survives exactly as long as the first person in a hurry. Add a public getter and this test names the method back at you.</p>
+<p>And <code>NaiveBasketTest</code> asserts the <em>wrong</em> answers on purpose — the empty basket, the voucher that will not come back — so the cost of the alternative is something the build says out loud rather than something a README claims. Fix <code>NaiveBasket</code> and those tests go red, which is exactly right: being broken is its entire job.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>Undo without opening the object up.</strong> The basket&#x27;s fields are as private after this feature as they were before it.</li><li><strong>One place that knows the state.</strong> New field, two methods to update, undo still correct.</li><li><strong>Snapshots you can stack.</strong> Multi-level undo is the same three classes and a <code>Deque</code>.</li><li><strong>Restore is repeatable.</strong> Nothing is consumed, so redo and branching histories are additions rather than rewrites.</li></ul>
+<h2>What to Watch Out For</h2>
+<p><strong>Memory.</strong> Each snapshot is a full copy. Twenty snapshots of a big basket is twenty baskets, and <code>BasketHistory</code> caps the stack for exactly that reason. If the state is genuinely large, the alternative is the Command pattern, where you store the <em>change</em> rather than the <em>state</em> — smaller, but every operation then needs a working inverse.</p>
+<p><strong>Deep versus shallow.</strong> The copy here is shallow and safe because the parts are immutable. Put a mutable object in a basket line and this stops being true, and it stops being true silently.</p>
+<p><strong>Snapshotting at the wrong moment.</strong> <code>record</code> must be called <em>before</em> the change it describes. Call it after and every undo is one step off — a bug that looks like the pattern failing when it is really the caller.</p>
+<p><strong>Do not reach for it when the state is one field.</strong> If undo means putting one <code>int</code> back, remember the <code>int</code>. This earns its keep when &quot;the state&quot; is several fields that must move together, which is precisely when a hand-rolled undo starts forgetting one of them.</p>
+<h2>Memento vs. Command vs. Prototype</h2>
+<p>All three copy or replay something, and they get confused constantly.</p>
+<table><thead><tr><th></th><th>What it stores</th><th>Undo works by</th></tr></thead><tbody><tr><td><strong>Memento</strong></td><td>the <em>state</em>, before the change</td><td>putting the old state back</td></tr><tr><td><strong>Command</strong></td><td>the <em>operation</em>, and its arguments</td><td>running the inverse operation</td></tr><tr><td><strong>Prototype</strong></td><td>a copy, to make new objects from</td><td>not an undo pattern at all</td></tr></tbody></table>
+<p>Memento is the one to reach for when states are small and operations are awkward to invert — which is most editing. Command wins when the state is huge and every operation has a clean inverse. And Prototype shares the machinery of copying but none of the intent: it copies an object so you can have another one, not so you can go back.</p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><strong>Every undo button you have ever pressed.</strong> Editors, drawing tools, spreadsheets, and the &quot;restore this version&quot; button on a document.</li><li><strong>Database transactions.</strong> <code>BEGIN</code> takes a snapshot in spirit; <code>ROLLBACK</code> restores it.</li><li><strong>Java serialization</strong> and its modern replacements, when used to store an object&#x27;s state and read it back later.</li><li><strong><code>git stash</code>.</strong> The stash is a caretaker holding mementos, and it hands them back without interpreting them.</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li><strong>Break the copy.</strong> Change <code>List.copyOf(lines)</code> to just <code>lines</code> in the snapshot&#x27;s constructor and run the tests. Watch <code>laterChangesCannotReachBackIntoAnOlderSnapshot</code> fail, and note that nothing throws — it just quietly returns the wrong basket.</li><li><strong>Break the encapsulation.</strong> Make <code>lines()</code> public on <code>BasketSnapshot</code> and watch <code>SnapshotEncapsulationTest</code> name the method back at you. This is the exercise most worth doing; it is the moment the structural promise stops being a comment.</li><li><strong>Add a third field.</strong> Give <code>Basket</code> a gift message, and make undo cover it. You should be editing two methods and nothing else.</li><li><strong>Add redo.</strong> A second <code>Deque</code>, and the observation that <code>restore</code> never consumed the snapshot. It is about ten lines.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the version without a snapshot, and why it fails twice</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — the static structure</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — one undo, message by message</li><li><a href="animation.html"><code>animation.html</code></a> — the same undo, stepped through</li></ul>
+</main>
+<footer>
+Generated from <code>memento-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

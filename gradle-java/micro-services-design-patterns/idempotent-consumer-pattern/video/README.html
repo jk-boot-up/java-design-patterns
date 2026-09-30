@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Idempotent Consumer — Video</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Idempotent Consumer — Video</h1>
+<p>Sixteen scenes, narrated end to end.</p>
+<h2>Scenes</h2>
+<table><thead><tr><th>#</th><th>Key</th><th>Kind</th><th>What it does</th></tr></thead><tbody><tr><td>1</td><td><code>01-poster</code></td><td>poster</td><td>Title card and thumbnail. States what the video is, who made it, what the pattern is in plain words, and what it means for an online shop.</td></tr><tr><td>2</td><td><code>02-at-least-once</code></td><td>bullets</td><td>Why the broker sends the same message twice, and why that is a contract rather than a bug.</td></tr><tr><td>3</td><td><code>03-the-set</code></td><td>code</td><td>The version everybody writes: a set of message ids, held in a field.</td></tr><tr><td>4</td><td><code>04-act-one</code></td><td>console</td><td>It works. The duplicate is skipped, the test is green, and this is what ships.</td></tr><tr><td>5</td><td><code>05-act-two</code></td><td>console</td><td>A deploy lands between the two deliveries. The database survived it; the set did not.</td></tr><tr><td>6</td><td><code>06-not-unlucky</code></td><td>quote</td><td>The restart is often <em>why</em> the acknowledgement went missing, so the two arrive together.</td></tr><tr><td>7</td><td><code>07-act-three</code></td><td>console</td><td>No restart at all — just a crash between doing the work and recording the id.</td></tr><tr><td>8</td><td><code>08-one-cause</code></td><td>quote</td><td>The hinge. Wrong place, wrong moment, one cause: they are being treated as two things.</td></tr><tr><td>9</td><td><code>09-one-commit</code></td><td>code</td><td>The whole mechanism. The effect and the record, in one transaction.</td></tr><tr><td>10</td><td><code>10-the-shape</code></td><td>diagram</td><td>The four consumers, and where the memory lives in each.</td></tr><tr><td>11</td><td><code>11-act-four</code></td><td>console</td><td>The redelivery is ignored, and the two failures that beat the <code>HashSet</code> bounce off.</td></tr><tr><td>12</td><td><code>12-exactly-once</code></td><td>quote</td><td>Exactly-once processing out of at-least-once delivery — and where that guarantee lives.</td></tr><tr><td>13</td><td><code>13-did-you-need-it</code></td><td>console</td><td>The handler that needed no store, and the one rewritten until it needed none either.</td></tr><tr><td>14</td><td><code>14-the-window</code></td><td>console</td><td>The store&#x27;s own cost: a table to operate, and an expiry window that is a guess.</td></tr><tr><td>15</td><td><code>15-the-handover</code></td><td>quote</td><td>One stable message id is everything the sending side owes you.</td></tr><tr><td>16</td><td><code>16-outro</code></td><td>outro</td><td>Three things you get, two things you pay, and the cheaper question to ask first.</td></tr></tbody></table>
+<h2>Building</h2>
+<pre><code>cd video
+python3 make_slides.py      # 16 PNGs into build/
+./build_video.sh            # narration + slides -&gt; idempotent-consumer-pattern-explained.mp4
+python3 make_subtitles.py   # .srt alongside the mp4</code></pre>
+<p>The narration uses the macOS <code>say</code> voice Samantha at 145 words per minute, and <code>ffmpeg</code> stitches the audio to the slides. Rendered output — the mp4, the m4a, the srt — is deliberately not committed; only the sources and <code>poster.png</code> are.</p>
+<h2>Notes On The Shape</h2>
+<p><strong>Scenes 3 to 8 come before the mechanism on purpose.</strong> The commit is a boring idea until the room has watched a green test ship a bug twice over, for two different reasons. Scene 8 is the hinge that names the single cause underneath both failures.</p>
+<p><strong>Scene 6 exists because the failure sounds like bad luck and is not.</strong> A restart is frequently why the acknowledgement went missing, so the redelivery and the wiped memory arrive as a pair far more often than chance suggests.</p>
+<p><strong>Scenes 13 and 14 must not be cut.</strong> Thirteen is the handler that needed no dedupe store at all, and the rewrite from &quot;add seventy points&quot; to &quot;set the points for this order to seventy&quot; — a viewer who leaves adding a dedupe table to every consumer has been made worse at this. Fourteen is the expiry window, which is chosen rather than derived, and it is the honest ending.</p>
+<p><strong>Every number is exact.</strong> Every figure spoken or shown comes from the real output of <code>./gradlew run</code> — two confirmations for one order in acts two and three, one in act four, a hundred and forty loyalty points for a seventy pound order, and the duplicate that gets through after a thirty-second memory expires.</p>
+<p><strong>The outro names no other pattern.</strong> It closes on what the sending side owes the receiving side, without announcing what comes next, because the publishing order of these videos is not fixed.</p>
+<p>Suggested description:</p>
+<blockquote><p>Idempotent consumer in Java 21, starting with why a broker sends the same message twice — which is a contract rather than a bug. The version everybody writes is a set of message ids held in a field. It works, the duplicate is skipped, the test is green, and that is what ships. Then a deploy lands between the two deliveries: the database survived it and the set did not. And it is not bad luck, because a restart is often the very reason the acknowledgement went missing, so the two arrive together. A second failure needs no restart at all — just a crash between doing the work and recording the id. One cause underneath both: the effect and the record are being treated as two things. So the mechanism is to put them in one transaction, and the two failures that beat the in-memory set bounce off. That is exactly-once processing built out of at-least-once delivery. We finish on the store&#x27;s own cost — a table to operate and an expiry window that is a guess — and on the cheaper question to ask first, which is whether your handler needed any of this.</p></blockquote>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

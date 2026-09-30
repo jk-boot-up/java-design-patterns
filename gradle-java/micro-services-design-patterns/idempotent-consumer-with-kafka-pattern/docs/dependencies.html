@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dependencies</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Dependencies</h1>
+<p>This project uses Kafka, Postgres and Testcontainers, which the plain-Java version does not. This page says what they are, why they are here, and what they cost. It comes before the first line of broker code on purpose.</p>
+<p><strong>Skipping this project loses none of the pattern.</strong> The plain-Java Idempotent Consumer project in this course teaches all of it, with nothing installed.</p>
+<h2>What Kafka is</h2>
+<p>Kafka is a message log: a separate program that keeps messages in the order they were written and lets any number of readers read them. Think of a shared notebook in which the till writes one line per sale, and the back office reads down it with a bookmark.</p>
+<p>In Kafka&#x27;s words, the notebook is a <strong>topic</strong>. Every message sits at a numbered place in it, counting from 0, and that number is its <strong>offset</strong>. A service that reads the topic is a <strong>consumer group</strong>; however many copies of the service are running, they share one group. The broker keeps each group&#x27;s bookmark: the place it has reached. Asking the broker to move the bookmark is <strong>committing the offset</strong>, and until a copy does it, the broker assumes nothing past the old bookmark was handled. That is why delivery is <strong>at least once</strong>: a copy that does the work and stops before moving the bookmark leaves the same messages to be handed out again.</p>
+<p>A copy must keep asking for more messages. If it goes too long without asking, the broker decides it is stuck and gives its share of the topic to another copy. That patience limit is <strong><code>max.poll.interval.ms</code></strong>, five minutes by default. A topic keeps its messages for a set time, its <strong>retention</strong>, seven days by default; an operator can move a group&#x27;s bookmark back and have it read them all again, which is a <strong>replay</strong>.</p>
+<h2>What Postgres is</h2>
+<p>Postgres is a relational database: tables of rows, and a guarantee about groups of changes. A <strong>transaction</strong> is a group of changes that are kept together or thrown away together; nothing in it is visible to anyone else until it is <strong>committed</strong>. A <strong>primary key</strong> is a column the database will not allow two rows to share. When two sessions try to write the same key at once, the second is made to wait for the first, on a <strong>lock</strong>, and then told whether the key is taken. <code>on conflict do nothing</code> asks Postgres to write nothing, rather than fail, when the key is already there, and to say it wrote zero rows.</p>
+<h2>What Testcontainers is</h2>
+<p>Testcontainers is a Java library that starts a container from inside your program and stops it again when you are done. It is here so the demo owns both tools&#x27; lifetimes: <code>./gradlew run</code> brings Kafka and Postgres up, uses them, and takes them away at the end. It maps each tool&#x27;s port — 9092 for Kafka, 5432 for Postgres — to a free port on your machine picked at random, so neither collides with anything already running.</p>
+<h2>Why this project uses them</h2>
+<p>Because the things this project teaches only happen when the log and the store are separate programs from the service: a copy stopping and the log handing its messages to a different copy, two copies holding the same message at once, a transaction thrown away by the database when a connection drops, and a bookkeeping request refused by the broker. A broker and a map inside one Java program cannot show any of that.</p>
+<h2>What to install</h2>
+<p>Only a JDK, version 21, and a container runtime. Gradle downloads the rest, and the versions are pinned:</p>
+<table><thead><tr><th>Tool</th><th>Version</th></tr></thead><tbody><tr><td>Docker, or a Docker-compatible runtime</td><td>running; 24 or later</td></tr><tr><td>Kafka broker image</td><td><code>apache/kafka:4.3.1</code></td></tr><tr><td>Postgres image</td><td><code>postgres:18.6-alpine</code></td></tr><tr><td><code>org.apache.kafka:kafka-clients</code></td><td>4.3.1</td></tr><tr><td><code>org.postgresql:postgresql</code></td><td>42.7.13</td></tr><tr><td><code>org.testcontainers:testcontainers-kafka</code></td><td>2.0.5</td></tr><tr><td><code>org.testcontainers:testcontainers-postgresql</code></td><td>2.0.5</td></tr><tr><td><code>org.slf4j:slf4j-simple</code></td><td>2.0.17</td></tr></tbody></table>
+<p>Every one of these is the newest generally available release; none is held back. Postgres uses its Alpine build because it is smaller; Kafka has no Alpine build, so the Apache project&#x27;s one image is used. Kafka runs in KRaft mode, a single node that needs no ZooKeeper, with its memory held to 256 MB. In the Testcontainers 2 line every module&#x27;s name starts with <code>testcontainers-</code>.</p>
+<h2>What it costs</h2>
+<p>The first run pulls two images, Kafka at about 446 MB and Postgres at about 298 MB once unpacked. After that a run takes about twenty seconds. The two containers use a few hundred megabytes of memory between them while they are up. Testcontainers also runs a small helper container that removes anything left behind if the demo is killed part way through; it exits on its own a few seconds after the demo does.</p>
+<h2>Where this pattern lives in a real system</h2>
+<p>In one table with one primary key, in the insert at the top of the consumer&#x27;s transaction, in the consumer setting that turns off Kafka&#x27;s automatic bookmark and commits it by hand after the work, and in the cleanup job whose window somebody has checked against the topic&#x27;s retention.</p>
+</main>
+<footer>
+Generated from <code>dependencies.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

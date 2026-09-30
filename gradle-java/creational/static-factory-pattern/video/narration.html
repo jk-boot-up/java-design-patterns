@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Static Factory Method Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Static Factory Method Pattern — Video Narration Script</h1>
+<h2>1. Static Factory Method</h2>
+<p>Hello, and welcome. This video explains the Static Factory Method pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A static factory method is a static method that returns an object of its own type. It is used instead of a public constructor. Because it has a name, it can say what it makes. And because it is a method, it can hand back a shared object, or a different class, instead of always building something new. If you have ever written List dot of, you have already used one. In this video, we build the discounts for an online shop&#x27;s checkout. By the end, you will know exactly what this technique gives you, and exactly where it stops.</p>
+<h2>2. The Job</h2>
+<p>Here is the job. An online shop prices an order, and applies a discount to it. The shop needs several kinds of discount. Ten percent off. Five pounds off. Free shipping. No discount at all. And one clever one, which picks whichever of two others saves the customer more. The checkout should not care which one it is given. It should just apply it, and move on.</p>
+<h2>3. The First Attempt Does Not Compile</h2>
+<p>So you start where everyone starts: constructors. Ten percent off is one number. Five pounds off is also one number. So you write two constructors, each taking one decimal number. And it does not compile. Java says the constructor is already defined. Why? A constructor&#x27;s name is fixed. It is always the name of the class. So the only way to tell two constructors apart is by their parameter types. And both take one decimal number. The difference, percent versus pounds, only exists in your head. There is nowhere in the code to put it.</p>
+<h2>4. So Everyone Writes This Instead</h2>
+<p>So what does everyone do instead? They widen the constructor until every kind of discount fits. One constructor, with three parameters: a percentage, an amount off, and a free shipping flag. And an unwritten rule: set the ones you are not using to zero. Now imagine reading four calls to it, each with three values. Which one gives five pounds off? You can work it out, but only by counting commas. And a call with all zeros? That is a discount that does nothing. But nothing in that line says so.</p>
+<h2>5. Why That Hurts</h2>
+<p>And that costs you in five ways. One. The call no longer says what it means. Two. Nothing stops someone passing a percentage, an amount, and free shipping, all at once. That is nonsense, and the compiler accepts it. Three. Every discount carries fields that belong to the other kinds. Four. A new kind of discount means changing the constructor, and every caller with it. Five. The new keyword always creates a new object. Even a discount of nothing is built fresh, every single time. Notice that the discount type itself is fine. The problem is the way in.</p>
+<h2>6. The Static Factory Method</h2>
+<p>The fix has a name. A static factory method is a static method that returns an object of its own type, used instead of a public constructor. It is item one, the very first item, in the book Effective Java. In plain words: give the constructor a name. That is the whole idea. One warning. This is not a Gang of Four pattern. And despite the word factory, it is not the Factory Method pattern. They share a word, and nothing else.</p>
+<h2>7. A Vending Machine</h2>
+<p>Think about a vending machine. You press a button with a label on it. You do not open the front and reach inside. The button has a name, so you always know what you asked for. The machine decides which shelf and which slot. That is its business, not yours. It might hand you one it already had waiting. And if a button means nothing, it does not have to make anything at all. That is the whole idea. You ask for an outcome, not a manufacturing step.</p>
+<h2>8. The Shape of It</h2>
+<p>So here is the shape of it. Your code calls a named method on the Discount interface itself. The type is its own factory. There is no separate factory class anywhere in this project. Behind the interface are five classes that do the real work. And none of them is public. So no code outside the package can even name them. That means all five could be renamed, merged, or deleted tomorrow. And not a single caller would break.</p>
+<h2>9. The Type Is Its Own Factory</h2>
+<p>Here is the code. Since Java eight, an interface can hold static methods. So all six ways in live on the Discount interface itself. Just listen to the names. None. Percentage. Amount off. Free shipping. Best of. And for coupon. You know what each one does without reading inside it. And percentage and amount off could never have been two constructors. Both take one number. As named methods, they sit side by side, and nobody confuses them. That is the first freedom: a name.</p>
+<h2>10. Freedom Two: Not to Allocate</h2>
+<p>Now the second freedom, which a constructor can never have: not creating anything. A discount of nothing holds no data. There is no reason for two of them to exist. So the class keeps one shared instance, and hides its constructor. The none method hands back that same object, every single time. The new keyword always means, make a new one. It cannot say, here is one I already had. A named method can. That is exactly why Integer dot value of exists. And why calling new Integer is deprecated.</p>
+<h2>11. Freedom Three: to Choose the Class</h2>
+<p>The third freedom is the deepest one: choosing the class. A static factory method does not have to return the class you expect. Ask for a percentage discount of zero. You do not get a percentage discount holding a zero. You get the shared do-nothing discount instead. Nobody outside can tell, and nobody can complain. Because the return type was only ever Discount. Notice the input check, too. A percentage below zero, or above one hundred, is refused, before anything is built.</p>
+<h2>12. What the Client Looks Like</h2>
+<p>And here is the payoff: the whole checkout. Search it for the new keyword applied to a discount. There is none. Search it for a branch on the kind of discount. There is none. Search it for any of the five discount class names. Not one of them appears. It takes a Discount, asks what it is worth, and subtracts it. That is all. Every decision was made inside a factory method, long before.</p>
+<h2>13. The Same Trick on a Value Type</h2>
+<p>The same trick works beautifully on a small value type: money. Money dot pounds of five, and Money dot pence of five. Two completely different amounts. As constructors, they could never exist side by side, because both take one number. As named methods, they say exactly what they mean. There is also a parse method, for text coming from outside. And money zero hands back one shared instance, for the same reason as the do-nothing discount.</p>
+<h2>14. You Already Use This Every Day</h2>
+<p>You are not really learning something new. You are learning the name of something you already use. List dot of. Integer dot value of. Optional dot empty. Local Date dot now. Every one of those is a static factory method. And here is something worth remembering. List dot of returns a different class, depending on how many items you pass it. You have never noticed, and it has never caused a problem. That is the third freedom, quietly at work. The usual names are of, from, value of, get instance, new instance, parse, and copy of. Use those, and your code reads like Java&#x27;s own library.</p>
+<h2>15. Running It</h2>
+<p>Let&#x27;s run the demo. Every coupon code from the shop goes through the for coupon method. It returns whichever discount fits. The code save ten gives ten percent off, which saves twelve pounds on a one hundred and twenty pound order. The code best deal builds a combined discount, holding two others, and picks the bigger saving. The caller could never have built that itself, because it cannot name any of the classes. Then the proofs. Percentage and amount off, which could never have been constructors. A none discount that really is shared. A zero percent discount, quietly becoming the do-nothing discount. And an unknown coupon, refused before any object was created.</p>
+<h2>16. Where It Stops</h2>
+<p>Now the honest part. This technique has limits. Hiding the constructor means nobody outside can extend your classes. For value types, that is usually a good thing. But sometimes, it is a real problem for someone. Static factory methods are also harder to find. There is no new keyword to search for. And the big one. A static method is fixed when the code compiles. A subclass cannot change what gets built, and neither can a configuration file. The day you need that, you have outgrown this technique. And do not use it everywhere. In this project, the order and the receipt are plain records, with ordinary constructors. They have nothing to decide.</p>
+<h2>17. The Rest of the Family</h2>
+<p>Which brings us to the rest of the factory family. A static factory says: give me one that does this, with no factory class at all. A simple factory asks: which one? And answers with a switch, in a helper class. A factory method asks which one, and lets a subclass answer. And an abstract factory asks: which whole matching set? One choice, many related objects. Each one exists because the one before it reaches a limit. So start with the static factory. And move up only when something really forces you to.</p>
+<h2>18. One Sentence to Keep</h2>
+<p>If you keep one sentence from this video, keep this one. A constructor cannot be named, and cannot refuse to create a new object. A static factory method can do both. Everything else in this video follows from those two facts. The project has full notes, an animated walkthrough, and a teaching plan. Try adding a discount of your own. That is the best way to make it stick.</p>
+<h2>19. Thanks for Watching</h2>
+<p>That&#x27;s the Static Factory Method. The full source code, written notes, and diagrams are all in the repository. If there is a pattern you would like to see covered, suggest it in the comments. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

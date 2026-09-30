@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Behavioural Patterns — Category Specification</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Behavioural Patterns — Category Specification</h1>
+<p>The standard the eleven behavioural projects under <code>gradle-java/behavioural/</code> are built to: which pattern gets which scenario in the store, why that scenario is the right one, and what each project has to deliver.</p>
+<p>This document is the <em>what</em>. The companion <a href="implementation-plan.html"><code>implementation-plan.md</code></a> is the <em>how</em> — the ordered plan for building the eleven.</p>
+<p>It <strong>inherits</strong> the repository-wide <a href="../../docs/video-and-publishing-spec.html"><code>video-and-publishing-spec.md</code></a>. Everything there — the narration rate, the audio pipeline, the poster rules, the publishing document, the conformance checklist — applies here unchanged and is not repeated. This document adds only what is specific to the behavioural category. Where the two appear to disagree, the repository-wide document wins.</p>
+<hr>
+<h2>1. Scope</h2>
+<p>Eleven projects, one per Gang of Four behavioural pattern, each a self-contained Gradle Java 21 project with sources, JUnit 5 tests, <code>docs/</code>, <code>video/</code>, and a top-level <code>README.md</code> — the same shape as the fourteen creational and structural projects that already exist.</p>
+<table><thead><tr><th>#</th><th>Pattern</th><th>Directory</th></tr></thead><tbody><tr><td>1</td><td>Strategy</td><td><code>strategy-pattern</code></td></tr><tr><td>2</td><td>Observer</td><td><code>observer-pattern</code></td></tr><tr><td>3</td><td>Command</td><td><code>command-pattern</code></td></tr><tr><td>4</td><td>Template Method</td><td><code>template-method-pattern</code></td></tr><tr><td>5</td><td>State</td><td><code>state-pattern</code></td></tr><tr><td>6</td><td>Chain of Responsibility</td><td><code>chain-of-responsibility-pattern</code></td></tr><tr><td>7</td><td>Iterator</td><td><code>iterator-pattern</code></td></tr><tr><td>8</td><td>Mediator</td><td><code>mediator-pattern</code></td></tr><tr><td>9</td><td>Memento</td><td><code>memento-pattern</code></td></tr><tr><td>10</td><td>Visitor</td><td><code>visitor-pattern</code></td></tr><tr><td>11</td><td>Interpreter</td><td><code>interpreter-pattern</code></td></tr></tbody></table>
+<p>The order is the learning order. It is not the book&#x27;s order. It runs from the patterns a working developer meets soonest and can apply immediately (Strategy, Observer) toward the ones that need the most scaffolding before they make sense (Visitor, Interpreter).</p>
+<p>Two of them lean on projects that already exist and are placed to take advantage of that: <strong>Template Method</strong> after the learner has met Factory Method, and <strong>Visitor</strong> after Composite.</p>
+<hr>
+<h2>2. What makes this category different</h2>
+<p>Creational patterns are about <em>making</em> objects and structural patterns about <em>arranging</em> them. Behavioural patterns are about how objects <strong>decide</strong> and <strong>talk to each other at runtime</strong>, and that changes what a good teaching example has to show.</p>
+<p>The consequence for these projects: <strong>a static class diagram is not enough.</strong> For most of these eleven, the interesting content is a sequence — what happens in what order, and what the object graph looks like at each step. So:</p>
+<ul><li>The <code>uml-diagram.md</code> sequence diagram carries more weight here than in the other two categories, and must show a real interaction, not a summary.</li><li><code>animation.html</code> must step through <em>runtime</em> state, not structure.</li><li>The demo&#x27;s printed output is the primary evidence. It has to make the behaviour visible — which handler took the request, which observers fired and in what order, which state refused the transition. A demo that prints only a final answer has failed to teach a behavioural pattern.</li></ul>
+<hr>
+<h2>3. The scenarios</h2>
+<p>The repository-wide spec requires every project to teach through the online store, and requires each project to pick a scenario where the pattern is <strong>genuinely the right answer</strong> — a contrived e-commerce wrapper around a non-e-commerce idea is worse than a clean example, because the honest &quot;when not to use this&quot; section then has nothing to stand on.</p>
+<p>Each subsection below therefore fixes four things: the scenario, why the pattern genuinely fits it, the naive alternative the project must show failing, and the honest cost the project must admit to.</p>
+<h3>3.1 Strategy — shipping cost calculation</h3>
+<p>Checkout must price delivery, and the rule varies: a flat rate, a weight-banded rate, a distance-based rate, and free shipping above a threshold. Merchandising changes which rule is live, per campaign, without a deploy.</p>
+<p><strong>Why it fits.</strong> The rules are genuine peers — same inputs, same output, different algorithm — and which one applies is decided per order at runtime. That is Strategy&#x27;s exact shape.</p>
+<p><strong>Naive alternative.</strong> One <code>calculateShipping</code> method with a <code>switch</code> over a <code>ShippingMethod</code> enum, growing a branch per rule, with all four rules&#x27; details tangled in one method that nothing can test in isolation.</p>
+<p><strong>Honest cost.</strong> Four small classes instead of one method is more files, and for two rules that never change it would be over-engineering. The project says so.</p>
+<h3>3.2 Observer — order status changes</h3>
+<p>When an order moves to <code>SHIPPED</code>, several unrelated things must happen: inventory releases the reservation, the customer gets an email, analytics records the event, and the warehouse feed is updated. The list grows, and the order service should not grow with it.</p>
+<p><strong>Why it fits.</strong> One state change, many independent reactions, and the publisher genuinely has no business knowing who is listening.</p>
+<p><strong>Naive alternative.</strong> <code>OrderService.markShipped()</code> calling each of the four services directly, so adding a fifth listener means editing the order service and re-testing it.</p>
+<p><strong>Honest cost.</strong> The call graph becomes invisible: reading <code>markShipped()</code> no longer tells you what happens. The project must show this, and must cover listener exceptions and the fact that notification order is not something observers may rely on.</p>
+<h3>3.3 Command — cart operations with undo</h3>
+<p>Cart edits — add item, remove item, change quantity, apply a coupon — are turned into objects, so the cart can offer undo, and so the same objects can be logged and replayed.</p>
+<p><strong>Why it fits.</strong> Undo requires the request to be reified; there is no way to undo a method call that has already returned. A history of executed commands is the natural representation.</p>
+<p><strong>Naive alternative.</strong> Mutating the cart directly, plus a hand-rolled <code>Stack</code> of ad-hoc &quot;what I changed&quot; tuples that has to be extended for every new kind of edit.</p>
+<p><strong>Honest cost.</strong> Every operation becomes a class, and every command must correctly implement its own inverse — which is where the bugs live. The project must show a command whose undo is not trivial.</p>
+<h3>3.4 Template Method — the fulfilment workflow</h3>
+<p>Fulfilling an order always runs the same sequence: validate, reserve stock, charge, pack, dispatch, notify. <em>How</em> several of those steps work depends on the fulfilment route — the store&#x27;s own warehouse, a third-party marketplace seller, or a digital download that has no stock and nothing to pack.</p>
+<p><strong>Why it fits.</strong> The sequence is genuinely invariant and must not be overridable; several individual steps genuinely differ; and some steps have a sensible default that only one route overrides — which is what hooks are for.</p>
+<p><strong>Naive alternative.</strong> Three fulfilment classes that each write the whole sequence out, already subtly divergent in the order of the last two steps.</p>
+<p><strong>Honest cost.</strong> Inheritance. The base class and its subclasses are welded together, and the project must compare this directly with composing strategies, which is usually the better modern default.</p>
+<blockquote><p><strong>Required distinction.</strong> The repository already has a Factory Method project, also described as &quot;a workflow with a hole in it&quot;, and a learner will meet them close together. Both projects must draw the line explicitly: Factory Method&#x27;s hole is <em>which object to create</em> — exactly one, returning a product. Template Method&#x27;s holes are <em>how several steps behave</em>, return nothing in particular, and include optional hooks. Factory Method is Template Method narrowed to object creation.</p></blockquote>
+<h3>3.5 State — the order lifecycle</h3>
+<p>An order moves <code>PLACED → PAID → PACKED → SHIPPED → DELIVERED</code>, and may be cancelled — but only up to a point. What <code>cancel()</code>, <code>ship()</code> and <code>refund()</code> do, and whether they are allowed at all, depends entirely on where the order currently is.</p>
+<p><strong>Why it fits.</strong> This is a real state machine with real illegal transitions, and the behaviour genuinely varies by state rather than merely the data.</p>
+<p><strong>Naive alternative.</strong> An <code>OrderStatus</code> enum field and a nested <code>if</code>/<code>else</code> over it at the top of every method — the same chain repeated in <code>cancel()</code>, <code>ship()</code> and <code>refund()</code>, kept in agreement by hand.</p>
+<p><strong>Honest cost.</strong> A class per state, and the transition rules end up distributed across them rather than visible in one table. The project must be honest that for a small, stable machine an enum with a permitted-transitions map is often clearer.</p>
+<blockquote><p><strong>Required distinction.</strong> State and Strategy have the same class diagram. The difference is intent and control: a Strategy is chosen by the caller and does not change itself; a State is entered as a consequence of what the object did, and states hand control to one another. Both projects must say this.</p></blockquote>
+<h3>3.6 Chain of Responsibility — checkout screening</h3>
+<p>Before an order is accepted it passes a series of independent checks: the address is deliverable, the items are in stock, the fraud score is under threshold, the payment is within the customer&#x27;s limit. Any check can reject outright; otherwise the request moves on. Which checks run, and in what order, is configuration.</p>
+<p><strong>Why it fits.</strong> The checks are genuinely independent, the order genuinely matters, and the set is genuinely assembled at runtime rather than compiled in.</p>
+<p><strong>Naive alternative.</strong> One <code>validate()</code> method running all four in sequence with early returns, where reordering means editing the method and testing one check means constructing the state for all of the preceding ones.</p>
+<p><strong>Honest cost.</strong> A request can fall off the end of the chain unhandled, and debugging &quot;which link rejected this?&quot; is harder than reading four sequential <code>if</code>s. The project must show the unhandled case being dealt with deliberately.</p>
+<h3>3.7 Iterator — paging the catalog</h3>
+<p>A catalog search matches forty thousand products, and the backend returns them a page at a time. Calling code wants to write a <code>for</code> loop over <em>products</em> and should never see a page, a cursor, or a fetch.</p>
+<p><strong>Why it fits.</strong> The traversal is genuinely non-trivial — it is lazy, it does I/O partway through, and the total is not known up front — which is precisely the case where implementing <code>Iterable</code> earns its keep.</p>
+<p><strong>Naive alternative.</strong> Every caller looping over pages itself, tracking the cursor and the end-of-results condition, with the off-by-one on the last page duplicated everywhere.</p>
+<p><strong>Honest cost.</strong> This is the one pattern in the category that Java already gives you. The project must be explicit that you should almost never write an iterator over a plain collection, must show <code>Iterable</code> and the enhanced <code>for</code> loop being satisfied, and must mention <code>Stream</code> and <code>Spliterator</code> as the modern alternatives.</p>
+<h3>3.8 Mediator — the checkout page</h3>
+<p>The checkout screen has interacting parts: a cart summary, a country selector, a shipping-method picker, a coupon field, a payment panel, and an order total. Changing the country changes which shipping methods are available, which changes the total, which can invalidate a coupon that had a minimum spend, which changes the total again.</p>
+<p><strong>Why it fits.</strong> This is genuinely many-to-many. Six components wired directly to each other is the class of problem the pattern exists for, and the cascading update is a real interaction rather than an invented one.</p>
+<p><strong>Naive alternative.</strong> Each component holding references to the others and calling them directly — a graph nothing can be tested or reused apart from.</p>
+<p><strong>Honest cost.</strong> The mediator becomes the place all the complexity moves to, and left unchecked it grows into a god object. The project must name that failure mode and show where the line is.</p>
+<blockquote><p><strong>Required distinction.</strong> Observer and Mediator both decouple communication. Observer is one-to-many broadcast where the publisher does not care who listens; Mediator is many-to-many coordination where something genuinely has to know the rules of the interaction. The Mediator project must reference the Observer project directly.</p></blockquote>
+<h3>3.9 Memento — restoring a saved cart</h3>
+<p>A customer bulk-edits a large cart — clears it, applies a promotion, changes quantities — and wants to get back to how it was. The cart takes a snapshot before each risky edit and can be restored from one, without exposing its internals to whatever is holding the snapshot.</p>
+<p><strong>Why it fits.</strong> The saved state is genuinely private to the cart, and the caretaker genuinely must not be able to read or forge it. That encapsulation constraint is what separates a memento from &quot;just keep a copy&quot;.</p>
+<p><strong>Naive alternative.</strong> Exposing the cart&#x27;s internal item list so the caller can copy it — which both breaks encapsulation and hands out a reference that can mutate the live cart.</p>
+<p><strong>Honest cost.</strong> Snapshots are expensive for a large cart, and a naive implementation keeps a full copy per edit. The project must address what is copied and when snapshots are discarded.</p>
+<blockquote><p><strong>Required distinction.</strong> Command and Memento both provide undo, and this project sits two after Command deliberately. Command stores the <em>operation</em> and reverses it; Memento stores the <em>state</em> and restores it. Commands are cheap and compose; mementos are simple but heavy. The project must say when each is the right choice.</p></blockquote>
+<h3>3.10 Visitor — reporting over the catalog tree</h3>
+<p>The catalog is the same tree of categories and products the Composite project builds. The business keeps asking for new reports over it: total inventory value, a count by category, a CSV export, a compliance audit of restricted items. Each is a new operation over a structure that does not change.</p>
+<p><strong>Why it fits.</strong> The structure is genuinely stable and the operations genuinely keep coming, which is the one condition under which Visitor pays for itself.</p>
+<p><strong>Naive alternative.</strong> A new method on <code>CatalogComponent</code> for every report — so a reporting requirement edits the domain model, and every node type gains a method about CSV formatting.</p>
+<p><strong>Honest cost.</strong> The trade runs the other way for node types: adding a new kind of catalog node breaks <em>every</em> visitor. Visitor is only correct when you are confident the structure is settled, and the project must state that as plainly as it states the benefit. Double dispatch is also genuinely awkward to read, and the project must not pretend otherwise.</p>
+<blockquote><p><strong>Required dependency.</strong> This project reuses the Composite project&#x27;s catalog domain — the same <code>Category</code> and <code>Product</code> shape and the same demo tree — so a learner arrives already understanding the structure and only has to absorb the traversal. It must link back to it explicitly.</p></blockquote>
+<h3>3.11 Interpreter — promotion rules</h3>
+<p>Marketing wants to define promotion eligibility without a deploy: <code>cart total over 100 AND country is UK AND NOT already discounted</code>. The rule is parsed into an expression tree of terminal and non-terminal nodes and evaluated against a cart.</p>
+<p><strong>Why it fits.</strong> A small, genuinely recursive grammar with a real evaluation context.</p>
+<p><strong>Naive alternative.</strong> A growing set of hard-coded eligibility methods, one per campaign, each requiring a release.</p>
+<p><strong>Honest cost — and this project must lead with it.</strong> Interpreter is the least broadly useful pattern in the book. It does not scale past a small grammar, hand-writing a parser is more work than it looks, and in practice you would reach for a parser generator, a rules engine, or an embedded scripting language. It is included because it is in the book, because the expression tree is genuinely instructive, and because <em>knowing when not to reach for it</em> is the actual lesson. Being last in the order is deliberate.</p>
+<hr>
+<h2>4. Relationships to the existing projects</h2>
+<p>Behavioural patterns are the category where learners most often confuse one pattern for another, because several share a class diagram and differ only in intent. The pairs below are the ones that actually cause trouble, and each is assigned to a project that must address it head-on in its <code>{pattern}-pattern-explained.md</code>:</p>
+<table><thead><tr><th>Confusion</th><th>Addressed in</th></tr></thead><tbody><tr><td>Template Method vs Factory Method</td><td>Template Method (§3.4)</td></tr><tr><td>State vs Strategy</td><td>State (§3.5)</td></tr><tr><td>Observer vs Mediator</td><td>Mediator (§3.8)</td></tr><tr><td>Command vs Memento, for undo</td><td>Memento (§3.9)</td></tr><tr><td>Visitor vs putting the method on the Composite</td><td>Visitor (§3.10)</td></tr><tr><td>Strategy vs Simple Factory</td><td>Strategy — choosing <em>behaviour</em> versus choosing <em>which object to construct</em></td></tr><tr><td>Chain of Responsibility vs Decorator</td><td>Chain of Responsibility — both are linked wrappers, but a decorator always delegates onward and adds; a handler may stop the chain</td></tr></tbody></table>
+<p>A cross-reference is not a paragraph saying the two are &quot;similar but different&quot;. It must state the distinguishing question a developer can actually ask themselves at the point of choosing.</p>
+<hr>
+<h2>5. Deliverables per project</h2>
+<p>Exactly as the repository-wide spec §7 requires, with no additions and no omissions: <code>docs/</code> (prerequisites, problem statement, the explainer, class diagram, UML sequence diagram, <code>animation.html</code>, <code>session.md</code>, <code>youtube.md</code>, <code>thumbnail.png</code>, and a generated <code>spec.md</code> / <code>spec.html</code>), <code>video/</code> (scenes, slides, subtitles, build script, <code>narration.md</code>, <code>README.md</code>), and a top-level <code>README.md</code> quoting the real <code>./gradlew run</code> output.</p>
+<p>Two category-specific requirements on top:</p>
+<ol><li><strong>The demo must make the behaviour visible</strong>, per §2. Printed output that shows only a result, and not the interaction that produced it, does not satisfy this.</li><li><strong>Tests must cover the interaction, not just the outcome.</strong> For these patterns the outcome is often reachable by an implementation that has not applied the pattern at all: a State project passes an &quot;order ships&quot; test whether or not there are state objects. So the tests must also assert the things only the pattern gives you — that an illegal transition is refused, that an observer added later is notified, that a handler later in the chain is not consulted after an earlier one rejects, that undo restores exactly the prior state. Nine tests is the working floor, matching the leanest of the existing projects.</li></ol>
+<hr>
+<h2>6. Video, poster and publishing</h2>
+<p>Inherited wholesale from the repository-wide spec §§3–6 and §8: 145 wpm, Samantha, the two-pass <code>loudnorm</code>, one AAC encode at the mux, the continuity self-check, no strikethrough on the poster, and the seven-section <code>docs/youtube.md</code>. The build scripts are generated from <code>creational/abstract-factory-pattern</code>&#x27;s, as the existing thirteen are.</p>
+<p>The one category-specific point: several of these patterns are about a <em>sequence</em>, and a slide showing a class diagram cannot carry that. Scenes for Observer, Chain of Responsibility, State, Mediator and Command must include at least one slide that walks the interaction step by step, in the order it happens, rather than presenting the finished structure and describing it.</p>
+<p>Titles follow the existing series convention — the pattern name, then a dash, then the worked scenario:</p>
+<table><thead><tr><th>Pattern</th><th>Working title</th></tr></thead><tbody><tr><td>Strategy</td><td>Strategy Pattern in Java - Shipping Rules</td></tr><tr><td>Observer</td><td>Observer Pattern in Java - Order Status Events</td></tr><tr><td>Command</td><td>Command Pattern in Java - Undoable Cart Edits</td></tr><tr><td>Template Method</td><td>Template Method in Java - The Fulfilment Workflow</td></tr><tr><td>State</td><td>State Pattern in Java - The Order Lifecycle</td></tr><tr><td>Chain of Responsibility</td><td>Chain of Responsibility - Checkout Screening</td></tr><tr><td>Iterator</td><td>Iterator Pattern in Java - Paging the Catalog</td></tr><tr><td>Mediator</td><td>Mediator Pattern in Java - The Checkout Page</td></tr><tr><td>Memento</td><td>Memento Pattern in Java - Restoring a Saved Cart</td></tr><tr><td>Visitor</td><td>Visitor Pattern in Java - Catalog Reports</td></tr><tr><td>Interpreter</td><td>Interpreter Pattern in Java - Promotion Rules</td></tr></tbody></table>
+<p>Each is under the 60-character limit. These are working titles and may be revised at publication.</p>
+<hr>
+<h2>7. Conformance</h2>
+<p>A behavioural project is compliant when it passes <strong>every item of the repository-wide checklist</strong> (<code>video-and-publishing-spec.md</code> §9) plus these four:</p>
+<ul class="task"><li>The scenario is the one this document assigns to the pattern, and the &quot;when not to use this&quot; section states the honest cost named here.</li><li>The demo output makes the interaction visible, not just the result.</li><li>Tests assert the behaviour only the pattern provides, per §5.2, and there are at least nine of them.</li><li>The cross-reference this document assigns to the project (§4) is present, and states a question a developer can act on rather than observing that two patterns resemble each other.</li></ul>
+</main>
+<footer>
+Generated from <code>spec.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

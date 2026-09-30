@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundational Patterns — Implementation Plan</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Foundational Patterns — Implementation Plan</h1>
+<p>How the five projects in this category get built. <a href="spec.html"><code>spec.md</code></a> fixes what they are; this fixes the order, the rules that keep the build from redoing itself, and what &quot;finished&quot; means.</p>
+<p><strong>All five projects are built.</strong> One deliberate difference from this plan: Dependency Injection writes a small container in plain Java rather than running Spring Boot.</p>
+<hr>
+<h2>Current state</h2>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Projects specified</td><td>5</td></tr><tr><td>Projects built</td><td>9 (five by hand, four with a framework or infrastructure)</td></tr><tr><td>Category registered with the shared generators</td><td>yes</td></tr><tr><td>Existing projects in the repository</td><td>68 built (37, plus 5 architectural, 6 concurrency, 11 enterprise and these 9)</td></tr></tbody></table>
+<hr>
+<h2>Order of work</h2>
+<h3>Phase 0 — Wire the category in, and settle the shared collaborators</h3>
+<p><strong>Tooling.</strong> Add <code>foundational-design-patterns</code> to <code>CATEGORIES</code> in <code>gradle-java/docs/make_narration.py</code>, and add all five slugs to the per-project tables in <code>make_specs.py</code>, <code>make_thumbnails.py</code> and <code>make_youtube_docs.py</code> — those three carry their own tables and <strong>silently skip anything missing</strong>. Then register the category in <code>gradle-java/README.md</code>, the root <code>README.md</code> and <code>docs/video-and-publishing-spec.md</code>.</p>
+<p><strong>The three collaborators.</strong> Projects 70, 71 and 72 are three answers to one question, so they must ask the same question in the same words. Settle once: a <code>DiscountPolicy</code>, a <code>PaymentGateway</code> and a <code>Notifier</code>, with the same interfaces and the same checkout using them. Then the three projects differ only in how the checkout gets hold of them, and a reader can compare them directly.</p>
+<p>Settle the deep constructor chain too — the six levels §70&#x27;s naive version collapses — because all three projects refer to it.</p>
+<p><strong>Exit:</strong> the tooling lists the category with zero projects, and the three interfaces, the checkout and the constructor chain exist in one place ready to be copied.</p>
+<h3>Phase 1 — Build Null Object end to end, as the category&#x27;s reference</h3>
+<p>It goes first because it is the smallest and most self-contained of the five, and because its structure is the one all five share: a naive version, a pattern, and a bill heavy enough to change the recommendation.</p>
+<p>Two things this phase settles for everyone after it:</p>
+<ul><li><strong>How a verdict is delivered.</strong> Every project in this category ends with a plain position — use this, use it narrowly, or prefer the alternative. The tone is set here: direct, reasoned, not hedged and not strident.</li><li><strong>How an alternative is treated fairly.</strong> §68 recommends <code>Optional</code> in many cases, which means the project argues partly against its own title. Getting that right once makes §69 and §71 straightforward.</li></ul>
+<p><strong>Exit:</strong> one project passing every item in <code>spec.md</code> §9.</p>
+<h3>Phase 2 — Build the remaining four, one at a time</h3>
+<p><strong>One project at a time, finished completely before the next begins.</strong></p>
+<table><thead><tr><th>Order</th><th>Project</th><th>The evidence it must produce</th><th>Risk</th></tr></thead><tbody><tr><td>1</td><td><code>object-pool-pattern</code></td><td>Pooling a small object being <strong>slower</strong> than allocating one</td><td>Medium — the benchmark must be sound</td></tr><tr><td>2</td><td><code>registry-pattern</code></td><td>A test failing because of the order the tests ran in</td><td>Low</td></tr><tr><td>3</td><td><code>service-locator-pattern</code></td><td>The compiler saying nothing while a dependency is missing</td><td>Medium — tone</td></tr><tr><td>4</td><td><code>dependency-injection-pattern</code></td><td>Twenty lines of hand-wiring, then the same graph in a container</td><td><strong>Medium — scope</strong></td></tr></tbody></table>
+<p>Four cautions, recorded now.</p>
+<p><strong>§69&#x27;s benchmark must be defensible.</strong> &quot;Pooling is slower than allocating&quot; is a strong claim and a JVM microbenchmark is easy to get wrong — dead-code elimination, no warm-up, allocation hoisted out of the loop. Either warm up properly and measure carefully with the method documented in the README, or make the claim qualitatively with allocation counts instead of timings. Do not ship a number that a knowledgeable viewer can dismantle in the comments, because the project&#x27;s authority rests on exactly that number.</p>
+<p><strong>§71 must argue, not sneer.</strong> Service Locator was a reasonable answer to a real problem and is still correct for plugin systems and <code>ServiceLoader</code>. The project shows its failures as runnable evidence and then gives its verdict. A video that mocks a pattern teaches contempt rather than judgement.</p>
+<p><strong>§72 must not become a Spring tutorial.</strong> Hand-wiring first, always, with the line count stated. The container is one scene near the end whose only job is recognition. If the script is running long, the container scene is what is wrong with it.</p>
+<p><strong>§72 should ideally be built before the architectural category&#x27;s §66</strong>, so Clean Architecture can link to it rather than explaining injection itself. If the schedule does not allow it, §66 explains its own wiring and links forward.</p>
+<p><strong>Exit:</strong> five projects complete, each verified before the next begins.</p>
+<h3>Phase 3 — Verify the category</h3>
+<ol><li>The artefact sweep from <a href="../../micro-services-design-patterns/docs/ai-session.html"><code>../../micro-services-design-patterns/docs/ai-session.md</code></a> §2, pointed here.</li><li><code>./gradlew test</code> in every project, all green, offline.</li><li><strong>The three-way comparison.</strong> Projects 70, 71 and 72 solve the same problem with the same collaborators. Diff them and confirm that only the acquisition mechanism differs. If they have drifted, the argument the three make together does not hold.</li><li>Every benchmark number re-checked, with its method written down.</li><li>Every spec regenerated <strong>after</strong> its video exists.</li><li>Every video printed <code>audio timeline continuous</code>, and every one listened to.</li><li>Every poster and thumbnail looked at — and for §69 and §71 specifically, checked that the poster does not promise a technique the video advises against.</li><li><code>git status</code> shows no mp4, m4a, srt, wav, log, <code>docs/audio/</code> or <code>video/build/</code>.</li><li>The six extra conformance items in <code>spec.md</code> §9 checked per project.</li></ol>
+<hr>
+<h2>Sequencing rules</h2>
+<p><strong>Finish one project before starting the next.</strong></p>
+<p><strong>Give the verdict; do not hedge.</strong> Three of these patterns are contested and the reader is here for a position. &quot;It depends&quot; is only acceptable with the dependency named.</p>
+<p><strong>Run the demo before quoting it.</strong> Every number comes from real <code>./gradlew run</code> output, and every benchmark carries its method.</p>
+<p><strong>Regenerate the spec last, after the video exists.</strong></p>
+<p><strong>Any fix to the shared pipeline is rolled out to all projects.</strong></p>
+<p><strong>Nothing is committed or pushed unless asked.</strong> Build artefacts go to <code>.gitignore</code>; source, documents, <code>animation.html</code>, posters, thumbnails and rendered diagrams stay in. Commit messages carry no co-author trailer.</p>
+<hr>
+<h2>Framework register</h2>
+<p>Any open-source framework may be used where it is genuinely needed, and every use is accounted for here before it reaches a build file.</p>
+<table><thead><tr><th>Project</th><th>Tier</th><th>Dependency</th><th>Why it, rather than plain Java</th></tr></thead><tbody><tr><td>all five</td><td>1</td><td>JUnit 5 (<code>5.10.x</code>)</td><td>The repository standard.</td></tr><tr><td><code>null-object</code>, <code>registry</code>, <code>service-locator</code></td><td>1</td><td><strong>nothing else</strong></td><td>Each pattern is a dozen lines. A library would be larger than the subject.</td></tr><tr><td><code>object-pool</code></td><td>1</td><td><strong>nothing else</strong>, with a caveat</td><td>See below.</td></tr><tr><td><code>dependency-injection</code></td><td>2</td><td>Spring Boot (<code>3.3.x</code>)</td><td>The container is how every reader has met this pattern. Recognition is the scene&#x27;s whole job.</td></tr><tr><td><code>dependency-injection-with-spring</code></td><td>own project</td><td>Spring Boot (<code>4.1.1</code>), the container only</td><td>Built as a project of its own, after its hand-built partner.</td></tr><tr><td><code>registry-with-spring</code></td><td>own project</td><td>Spring Boot (<code>4.1.1</code>), its test support</td><td>The test-context cache is Spring&#x27;s own version of the registry&#x27;s order dependence.</td></tr><tr><td><code>object-pool-with-hikaricp</code></td><td>own project</td><td>HikariCP, H2, <code>slf4j-nop</code>, versions from Spring Boot 4.1.1&#x27;s bill of materials</td><td>The mature answer to the hand-built pool&#x27;s costs, over real JDBC.</td></tr><tr><td><code>service-locator-with-consul</code></td><td>own project</td><td><strong>A real Consul agent, run as a local process</strong>; <strong>Docker, running <code>nginx:1.31.5-alpine</code></strong>; no Java library beyond the JDK</td><td>Real service discovery needs a real agent, and server-side discovery needs a real proxy.</td></tr></tbody></table>
+<p><strong>Infrastructure used by <code>service-locator-with-consul</code>.</strong> Consul runs in development mode as a child process on ports chosen at run time and is stopped when the run ends. nginx runs in a container named <code>locator-demo-nginx</code>, started and removed by the project, which touches no other container. Both are optional for anyone reading: the tests are skipped, not failed, when <code>consul</code> is not on the PATH or Docker and the image are unavailable, and <code>docs/dependencies.md</code> says so. Act five relies on Docker Desktop providing <code>host.docker.internal</code>.</p>
+<p><strong>The Object Pool caveat.</strong> JMH is the correct tool for the benchmark in §69 and is available if needed. It is not the first choice only because it changes the project layout, needs an annotation processor, and runs for minutes, which sits badly with the two-second test budget — so if it is taken, it belongs in a separate source set that <code>./gradlew test</code> does not run. First try: §69 measures carefully by hand with warm-up and documents the method in its README, or makes its claim with allocation counts rather than wall-clock timings. If neither is convincing in a draft, the honest fallback is to state the claim qualitatively and cite the JVM&#x27;s escape analysis and generational collector rather than to show a number that cannot be defended.</p>
+<h3>Considered, and not currently planned</h3>
+<p><strong>Any open-source framework is available.</strong> This table records current judgement rather than prohibition. If a draft shows one of these earning its place, take it and update the row.</p>
+<table><thead><tr><th>Candidate</th><th>Current judgement</th></tr></thead><tbody><tr><td>Guice or Dagger, in §72</td><td>One container is enough for recognition and Spring is the one the audience has. A sentence naming the alternatives costs nothing; a second container adds no new idea.</td></tr><tr><td>Apache Commons Pool, in §69</td><td>Worth taking in the one place the project recommends pooling — connections — precisely because it shows the mature answer to the leak-and-dirty-object problems the demo just produced. Do not use it to pool ordinary objects, which is the practice §69 argues against.</td></tr><tr><td>JMH</td><td>See the caveat above. If the hand-rolled measurement is not convincing in a draft, JMH in a separate source set is a better outcome than a number that cannot be defended.</td></tr><tr><td>A mocking framework</td><td>Hand-written fakes are readable and this category&#x27;s classes are tiny. No objection where one genuinely helps.</td></tr></tbody></table>
+<hr>
+<h2>Risks</h2>
+<table><thead><tr><th>Risk</th><th>Mitigation</th></tr></thead><tbody><tr><td><strong>§69&#x27;s benchmark is wrong and gets dismantled publicly</strong></td><td>The project&#x27;s authority rests on that number. Warm up, document the method, or drop to allocation counts. A qualitative claim beats an indefensible measurement.</td></tr><tr><td><strong>§71 reads as contempt</strong></td><td>It shows evidence and then gives a verdict, and it names where the pattern is still right — plugin systems, <code>ServiceLoader</code>.</td></tr><tr><td><strong>§72 becomes a Spring tutorial</strong></td><td>Hand-wiring first with the line count stated; the container gets one scene whose job is recognition.</td></tr><tr><td>The three acquisition projects drift apart</td><td>The collaborators are settled in Phase 0 and the three-way diff is a Phase 3 check.</td></tr><tr><td>Posters promise what the videos argue against</td><td>Checked explicitly in Phase 3 for §69 and §71. Honest titles; no bait-and-switch.</td></tr><tr><td>§70 restates Singleton (§4)</td><td>It links to it and says plainly that a registry inherits every one of §4&#x27;s problems, then spends its time on what is different: many things, looked up by key, registered at runtime.</td></tr><tr><td>The category reads as leftovers</td><td><code>spec.md</code> §1 gives it a subject — how an object gets hold of another object — and the last three projects form one argument with a conclusion.</td></tr><tr><td>Scheduling against §66</td><td>§72 before §66 is preferable but not required; either order works with a forward link.</td></tr></tbody></table>
+<hr>
+<h2>Definition of done</h2>
+<p>The category is complete when:</p>
+<ul class="task"><li>Five projects exist, each passing the repository-wide conformance checklist and the six extra items in <code>spec.md</code> §9.</li><li><strong>Every project ends with a plain verdict</strong>, and every video says it aloud.</li><li>The three acquisition projects use the same collaborators and can be diffed against each other.</li><li><strong>§69&#x27;s performance claim is either carefully measured with its method documented, or stated qualitatively</strong> — never an undefended number.</li><li>§72 shows hand-wiring before any container, with the line count stated.</li><li>Every project builds, tests pass in under two seconds, offline.</li><li>Every video is rendered, printed <code>audio timeline continuous</code>, runs between eleven and thirteen minutes, and has been listened to.</li><li>Every poster and thumbnail has been looked at, and none promises a technique its video advises against.</li><li>All specs across the repository regenerate clean.</li><li>The root <code>README.md</code>, <code>gradle-java/README.md</code> and the repository-wide spec all describe the category.</li></ul>
+</main>
+<footer>
+Generated from <code>implementation-plan.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

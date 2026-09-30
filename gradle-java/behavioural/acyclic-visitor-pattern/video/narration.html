@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acyclic Visitor Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Acyclic Visitor Pattern — Video Narration Script</h1>
+<h2>1. Acyclic Visitor</h2>
+<p>Hello, and welcome. This video explains the Acyclic Visitor pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A visitor is an operation, such as working out tax, kept outside the classes it works on. In the acyclic version, each type gets its own tiny visitor interface. Each visitor handles only the types it chooses. So a new type changes nothing that already exists. Think of a hotel where staff wear a badge for each language they speak. A guest looks for the right badge. Nobody has to speak every language. And a new language only needs a new badge. In this video, the domain is an online shop. Its catalogue has books, food, and electronics, and later, gift cards. Visitors work out VAT, and customs forms. By the end, you will hear what goes wrong with the classic visitor. How the acyclic version fixes it. How a new product type changes nothing old. And what it costs.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The shop sells books, food, and electronics. Two operations visit every product. One works out VAT, a sales tax. The other writes customs forms, for items sent abroad. Each operation was a classic visitor. It had one method for every product type, whether it cared about that type or not. Then the shop started selling gift cards.</p>
+<h2>3. Act One — The classic visitor</h2>
+<p>First demo: the classic visitor. One visitor interface, with one method for every product type. Book, food, and electronics. The VAT visitor works on a book, some tea, and a kettle. Six pounds of VAT, all on the kettle. The customs visitor only cares about electronics. But it must still write two empty methods, one for books and one for food. Then the shop starts selling gift cards. The visitor interface has no method for them. Adding one means changing the interface, and every visitor.</p>
+<h2>4. Act Two — The acyclic visitor</h2>
+<p>Second demo: the acyclic visitor. The root visitor interface is now empty. It names no product type at all. Each product type gets its own tiny interface, with one method. A book visitor. A food visitor. An electronics visitor. A product checks whether the visitor wears its interface, like a guest looking for the right language badge. If it does, the product lets it visit. The VAT visitor wears three badges: book, food, and electronics. The VAT is still six pounds.</p>
+<h2>5. Act Three — A new product type</h2>
+<p>Third demo: a new product type, and nothing old changes. Gift cards arrive, with their own small interface: gift card visitor. A new visitor activates gift cards. It wears only the gift card badge. It handles gift card one. The VAT visitor does not wear that badge. So it simply skips the gift card, and the VAT stays six pounds. The VAT and customs classes were not touched at all.</p>
+<h2>6. Act Four — A visitor for one type</h2>
+<p>Fourth demo: a visitor for exactly the types it cares about. Customs forms are only needed for electronics. So the customs visitor wears one badge: electronics. Across four products, it handles one: the kettle. One form, twelve hundred grams. No empty methods anywhere.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. Suppose a VAT visitor forgets the food badge. It still compiles. When the program runs, the tea is simply skipped. Nobody is told. The classic visitor would have caught that before the program ever ran. And there is now one extra interface, for every product type.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the pattern. Start with an empty root visitor interface. It names no product type at all. Give each product type its own tiny interface, with one method. Book visitor, food visitor, and so on. Each visitor implements only the interfaces for the types it handles. And each product checks for its own interface before letting a visitor in.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. Product visitor is the empty root. Book visitor, food visitor, electronics visitor, and gift card visitor are the badges. One method each. Each product checks for its badge in its accept method. And the visitors are VAT, customs, and gift card activation. Each wears only the badges it needs.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met this pattern already. Event listeners often implement only the listener interfaces for the events they care about. Plug-in systems let each plug-in say which file types it can handle. And the pattern itself was described by Robert C. Martin, as a way to break the dependency cycle in the classic visitor.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use it? When new types keep arriving, and most operations only care about a few of them. Log or test the skipped cases, because the compiler no longer checks them. And when the list of types is fixed, prefer the classic visitor, or a sealed interface with a switch. Then the compiler checks everything for you.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Acyclic Visitor pattern. If you remember one sentence, make it this one. Give each type its own small visitor interface, and let each visitor handle only what it knows. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Add clothing as a new product type, and a size label visitor that handles only clothing. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

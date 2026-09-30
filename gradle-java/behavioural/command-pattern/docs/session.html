@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Command Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Command Pattern</h1>
+<p>A 60-minute guided session for teaching or self-studying the Command pattern using this project.</p>
+<ul><li><strong>Audience:</strong> beginners comfortable with core Java</li><li><strong>Duration:</strong> ~60 minutes</li><li><strong>Format:</strong> live coding + discussion</li><li><strong>Prerequisites:</strong> see <a href="prerequisites.html"><code>prerequisites.md</code></a></li></ul>
+<blockquote><p><strong>Optional pre-work.</strong> Ask participants to watch the video (<code>video/command-pattern-explained.mp4</code>) beforehand. If they do, you can compress the problem and pattern segments and spend the extra time on the exercises. If you are teaching a group that has <em>not</em> watched it, run the session exactly as written below.</p></blockquote>
+<h2>Learning Objectives</h2>
+<p>By the end of this session a participant should be able to:</p>
+<ol><li>Say why undo cannot be built out of method calls.</li><li>Explain why <code>previousQuantity</code> is set in <code>execute</code> and not in the constructor, and what breaks if you move it.</li><li>Identify the roles — command, concrete command, receiver, invoker — in real code.</li><li>State honestly what the pattern costs, starting with the fact that every operation becomes a class and every inverse is yours to get right.</li><li>Distinguish Command from Memento, and from Strategy.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Segment</th><th>Mode</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td><td>Hands-on</td></tr><tr><td>0:05–0:16</td><td>The problem</td><td>Discussion</td></tr><tr><td>0:16–0:26</td><td>The pattern</td><td>Explanation</td></tr><tr><td>0:26–0:41</td><td>Code walkthrough</td><td>Live coding</td></tr><tr><td>0:41–0:51</td><td>Exercises</td><td>Hands-on</td></tr><tr><td>0:51–0:58</td><td>Costs &amp; comparisons</td><td>Discussion</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td><td>—</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<p>Everyone runs:</p>
+<pre><code>java -version
+./gradlew run</code></pre>
+<p>Anyone whose build fails pairs up with a neighbour. Do not debug installs during the session — that is what the prerequisites doc is for.</p>
+<h2>0:05–0:16 — The Problem</h2>
+<p><strong>Do not show <code>CartCommand</code> yet.</strong> Start with the pain.</p>
+<p>Open <code>NaiveCartEditor</code> and put <code>addItem</code> and <code>undo</code> on the screen together. Read them out. Then ask:</p>
+<blockquote><p><em>&quot;This is fifteen lines and it obviously works. Convince me it&#x27;s wrong.&quot;</em></p></blockquote>
+<p>Let them try. Most groups go straight to &quot;the switch will grow&quot;, which is true and is the <em>weaker</em> argument. Steer to the strong one by asking:</p>
+<blockquote><p><em>&quot;What does the note say? And what does undo actually need to know?&quot;</em></p></blockquote>
+<p>Land it: <strong>the note records the request; undo needs the state.</strong> Then run section 1 of the demo live. Three headphones on screen, then an empty cart. Nobody argues after that.</p>
+<p>Follow with the coupon case, which is the same mistake wearing a different hat: applying <code>BLACKFRIDAY</code> over <code>WELCOME10</code> <em>replaced</em> something, and clearing on undo takes away a discount the customer never touched.</p>
+<p>This is the moment the session turns: it converts &quot;the code will get messy&quot; into &quot;the customer is charged the wrong amount&quot;.</p>
+<h2>0:16–0:26 — The Pattern</h2>
+<p>Use the order-slip analogy from <a href="command-pattern-explained.html"><code>command-pattern-explained.md</code></a>. Ask: <em>&quot;Why does a waiter write a slip instead of just remembering?&quot;</em> Land on: a slip can be stacked, read back, passed to someone else, and torn up. Spoken words cannot.</p>
+<p>Then the one-liner that makes it click:</p>
+<blockquote><p><em>&quot;A method call is an event. It happens and it&#x27;s gone. You can&#x27;t put it in a list, and you can&#x27;t ask it what it did.&quot;</em></p></blockquote>
+<p>Show the class diagram (<a href="images/class-diagram.png"><code>images/class-diagram.png</code></a>) and name the roles. Point out the two directions of ignorance: <code>Cart</code> has never heard of a command, and <code>CartHistory</code> has never heard of a coupon.</p>
+<p>Then show the sequence diagram (<a href="images/uml-diagram.png"><code>images/uml-diagram.png</code></a>) and go straight to steps 10–12. That capture is the whole pattern; the rest is bookkeeping.</p>
+<p>Optionally open <a href="animation.html"><code>animation.html</code></a> and play it through once. It has a <strong>Narration</strong> button: leave it off if you want to talk over it, or switch it on to let it explain each step in its own voice.</p>
+<p><strong>The one point that must land:</strong></p>
+<blockquote><p>A command records what it needs to reverse itself <em>during</em> <code>execute</code>, by asking the receiver. Not in the constructor — that is a guess about a cart you have not reached yet.</p></blockquote>
+<h2>0:26–0:41 — Code Walkthrough</h2>
+<p>Open the files in this order. Resist jumping ahead.</p>
+<p><strong>1. The command — <code>CartCommand.java</code></strong> Three methods. Ask: <em>&quot;Which one is hard?&quot;</em> Everyone says <code>undo</code>, and they are right. Read the three rules in the Javadoc out loud; they are the whole session in twelve lines.</p>
+<p><strong>2. The interesting one — <code>AddItemCommand.java</code></strong> Put the two branches of <code>undo</code> on screen and ask which one runs. The answer is &quot;it depends what the cart had&quot;, and <em>that</em> is why there is a field the constructor does not set. Spend real time here.</p>
+<p><strong>3. The one about position — <code>RemoveItemCommand.java</code></strong> Ask: <em>&quot;What does undo have to restore?&quot;</em> Wait for someone to say &quot;the line&quot;. Then ask where it goes. Show <code>undoRestoresThePosition</code>.</p>
+<p><strong>4. The one that is usually a no-op — <code>ApplyCouponCommand.java</code></strong> <code>previousCoupon</code> is null nine times in ten. Ask what happens the tenth time if you write <code>cart.setCoupon(null)</code> instead.</p>
+<p><strong>5. The invoker — <code>CartHistory.java</code></strong> Search the file live, on screen, for &quot;coupon&quot;, then &quot;quantity&quot;, then &quot;sku&quot;. Zero hits each time. Say it out loud: <em>the thing that runs the edits does not know what any of them are.</em></p>
+<p>Then read <code>execute</code> and name the two decisions: <code>undone.clear()</code>, and the fact that a throwing command is never pushed.</p>
+<p><strong>6. The trap, revisited — <code>NaiveCartEditor.java</code></strong> Back to it with fresh eyes now the alternative exists. Read the two comments on the <code>switch</code> arms out loud.</p>
+<p><strong>7. The proof — <code>CartHistoryTest.anUnknownCommandWorksUnchanged</code></strong> Gift wrapping, declared inside the test. Ask: <em>&quot;Could this test exist against the naive editor?&quot;</em></p>
+<p><strong>8. Run it — <code>CartCommandsDemo</code></strong> Compare section 1 and section 4 on screen: the same two edits, two different answers.</p>
+<h2>0:41–0:51 — Exercises</h2>
+<p>Let participants work; circulate and help.</p>
+<h3>Exercise 1 — Add a fifth kind of edit (everyone)</h3>
+<p>Write a <code>ClearCartCommand</code> that empties the cart, and make its undo put every line back <strong>in order</strong>. Attach it in the demo.</p>
+<blockquote><p><strong>The payoff:</strong> one new class and no edit to <code>Cart</code> or <code>CartHistory</code>. Say this out loud when someone finishes.</p></blockquote>
+<h3>Exercise 2 — Do the same thing to the naive version (everyone)</h3>
+<p>Add clearing to <code>NaiveCartEditor</code>. You need a new field on <code>Change</code> that every other kind of edit will carry as null, a new case in the <code>switch</code>, and a decision about what the note should hold. Compare that diff to Exercise 1&#x27;s.</p>
+<p><strong>Never cut this exercise.</strong> The shape of the diff is the argument.</p>
+<h3>Exercise 3 — Break undo on purpose (discussion)</h3>
+<p>Move <code>previousQuantity = cart.quantityOf(sku)</code> out of <code>execute</code> and into the constructor of <code>AddItemCommand</code>. Run the suite. Exactly one test goes red — the one that adds, undoes, and adds again. Discuss <em>why</em> that is the test that catches it.</p>
+<h3>Exercise 4 — Stretch (for fast finishers)</h3>
+<p>Give <code>CartHistory</code> an <code>undoAll()</code>, then write the test that proves a cart which has had every kind of edit applied to it ends up exactly as it started.</p>
+<h2>0:51–0:58 — Costs &amp; Comparisons</h2>
+<p>Be honest here; it is what makes the session credible.</p>
+<ul><li><strong>Every operation becomes a class.</strong> For four edits that will never change, <code>NaiveCartEditor</code> is a third of the code and it works. Command pays when undo, logging or queuing is a requirement.</li><li><strong>The inverse is yours to get right.</strong> The pattern gives you a place to put <code>undo</code>; nothing checks that yours is correct. Every command needs a test that executes <em>and then undoes</em> against a cart that was not empty.</li><li><strong>Ordering is a contract.</strong> Undo must be called on the state the command left behind. That is <code>CartHistory</code>&#x27;s job, and calling <code>undo</code> by hand out of order is undefined.</li><li><strong>Not everything should be a command.</strong> Reads should not be — nothing to undo, nothing to log.</li></ul>
+<p>Then the comparison. The line worth memorising:</p>
+<blockquote><p><strong>Command stores the difference and needs each edit to know its inverse. Memento stores the state and needs no inverses at all — at the cost of a copy per step and no record of what changed.</strong></p></blockquote>
+<p>Finish by naming where they have already used it: <code>Runnable</code> and every <code>ExecutorService</code>, <code>javax.swing.undo</code>, database migrations with <code>up()</code> and <code>down()</code>, and event sourcing, where the log of commands <em>is</em> the system of record.</p>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>Ask three people for a one-sentence definition. Then assign follow-up:</p>
+<blockquote><p>Find one feature in your own product that a user would expect to be able to take back. Ask what its inverse is. If you cannot state the inverse in a sentence, that is the real work — the pattern is the easy half.</p></blockquote>
+<h2>Facilitator Notes</h2>
+<p><strong>Common misconceptions to correct:</strong></p>
+<table><thead><tr><th>They say</th><th>Correct with</th></tr></thead><tbody><tr><td>&quot;Isn&#x27;t this just a lambda?&quot;</td><td>For <code>execute</code> alone, yes — <code>Runnable</code> is a command. Undo needs state that survives between two calls, which is what makes it an object rather than a function</td></tr><tr><td>&quot;Can&#x27;t I just snapshot the cart?&quot;</td><td>You can, and it is a real pattern — Memento. It costs a full copy per edit and gives you no record of what changed. Both are valid; know which you are choosing</td></tr><tr><td>&quot;Why not put <code>undo</code> on the Cart?&quot;</td><td>Then the cart has to know what was done to it, and you are back to a <code>switch</code> over kinds of edit — the naive version with extra steps</td></tr><tr><td>&quot;Should <code>execute</code> be idempotent?&quot;</td><td>No, and do not try. <code>execute</code> is expected to run once per push; redo re-runs it deliberately, after an undo has put the cart back</td></tr><tr><td>&quot;Why does a failed command not go on the stack?&quot;</td><td>Because undoing a half-applied edit applies the reverse of something that never fully happened. Show <code>aFailedCommandIsNotRecorded</code></td></tr><tr><td>&quot;Four classes for four edits seems like a lot&quot;</td><td>Agree. It is. The trade is that the fifth costs one class and the naive version&#x27;s fifth costs a field, a case and a re-test of the other four</td></tr></tbody></table>
+<p><strong>If you are running short on time:</strong> cut Exercise 4 and shorten the costs discussion. Never cut Exercise 2.</p>
+<p><strong>If you have extra time:</strong> have participants write the <code>@Nested</code> test class for their <code>ClearCartCommand</code>, mirroring <code>CartCommandTest</code>, and confirm that nothing outside their new files had to change.</p>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>Everyone has JDK 21 and a green <code>./gradlew run</code></li><li>Diagrams open in a tab (<code>images/</code>)</li><li><code>animation.html</code> open in a browser</li><li>Video on hand (<code>../video/command-pattern-explained.mp4</code>) — useful as a recap for anyone who joins late, or to send round afterwards</li><li><code>NaiveCartEditor</code> open in a second window, so you can put it beside <code>AddItemCommand</code> at the 0:26 mark</li><li>The demo&#x27;s section 1 and section 4 output ready to show side by side</li><li>IDE font size raised for screen sharing</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

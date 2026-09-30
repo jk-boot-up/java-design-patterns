@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Command Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Command Pattern, Explained</h1>
+<p>The Gang of Four definition:</p>
+<blockquote><p><em>&quot;Encapsulate a request as an object, thereby letting you parameterize clients with different requests, queue or log requests, and support undoable operations.&quot;</em></p></blockquote>
+<p>In plain language: <strong>make the action an object, and it can be held, listed, logged and reversed.</strong></p>
+<h2>The Thing a Method Call Cannot Do</h2>
+<p>A method call is an event. It happens, it returns, and then it is gone. You cannot ask it what it did. You cannot put it in a list. You cannot run it later, or on a different cart, or backwards.</p>
+<p>Undo needs every one of those. So the first move is not clever: stop calling the method, and make an object that <em>is</em> the call.</p>
+<pre><code>public interface CartCommand {
+    String describe();
+    void execute(Cart cart);
+    void undo(Cart cart);
+}</code></pre>
+<p>That is the entire pattern. Everything below is consequences.</p>
+<h2>Everyday Analogy: The Order Slip</h2>
+<p>A waiter does not carry your words to the kitchen. They write a slip.</p>
+<p>The slip can be <strong>stacked</strong> with the others, <strong>read back</strong> to you, <strong>passed</strong> to a different chef, <strong>found again</strong> an hour later when you query the bill, and <strong>torn up</strong> if you change your mind before it is cooked. None of that is possible with a spoken request, which exists only while it is being said.</p>
+<p>The slip is the command. The kitchen is the receiver. The waiter — who can carry any slip without being able to cook anything — is the invoker.</p>
+<h2>Participants</h2>
+<table><thead><tr><th>Role</th><th>Here</th><th>Responsibility</th></tr></thead><tbody><tr><td>Command</td><td><code>CartCommand</code></td><td>Declares <code>execute</code> and <code>undo</code></td></tr><tr><td>Concrete commands</td><td><code>AddItemCommand</code>, <code>RemoveItemCommand</code>, <code>ChangeQuantityCommand</code>, <code>ApplyCouponCommand</code></td><td>One edit each, and its exact inverse</td></tr><tr><td>Receiver</td><td><code>Cart</code></td><td>Knows how to change; knows nothing about commands</td></tr><tr><td>Invoker</td><td><code>CartHistory</code></td><td>Runs commands, keeps the undo and redo stacks</td></tr><tr><td>Client</td><td><code>CartCommandsDemo</code></td><td>Decides which command to build</td></tr><tr><td>Naive alternative</td><td><code>NaiveCartEditor</code></td><td>Direct mutation plus ad-hoc undo notes</td></tr></tbody></table>
+<p>Note which way the ignorance runs. <code>Cart</code> has never heard of a command, and <code>CartHistory</code> has never heard of a coupon. Only the concrete commands know both, and each knows only its own edit.</p>
+<h2>Code Walkthrough</h2>
+<h3>The command that is not trivial to reverse</h3>
+<p>Read this one twice. It is the reason the project exists.</p>
+<pre><code>public void execute(Cart cart) {
+    previousQuantity = cart.quantityOf(sku);
+    cart.putLine(new CartLine(sku, name, unitPrice, previousQuantity + quantity));
+    executed = true;
+}
+
+public void undo(Cart cart) {
+    if (previousQuantity == 0) {
+        cart.removeLine(sku);
+    } else {
+        cart.putLine(new CartLine(sku, name, unitPrice, previousQuantity));
+    }
+}</code></pre>
+<p>Adding 2 to a cart that held 3 leaves 5. Undoing that is <strong>not</strong> &quot;remove the line&quot; — it is &quot;put it back to 3&quot;. Which of the two applies is not known when the command is constructed, only when it runs. Hence a field the constructor does not set.</p>
+<p>This is the general rule, and it is the one place undo bugs live:</p>
+<blockquote><p><strong>Capture the state you will need to reverse yourself inside <code>execute</code>, from the receiver, at the moment you run.</strong></p></blockquote>
+<p>Not in the constructor: that is a guess about a cart you have not reached yet, and an earlier undo may have made it wrong before you get there.</p>
+<h3>The command that has to remember <em>where</em></h3>
+<pre><code>public void execute(Cart cart) {
+    position = cart.positionOf(sku);
+    removed = cart.removeLine(sku).orElseThrow(...);
+}
+
+public void undo(Cart cart) {
+    cart.insertLineAt(position, removed);
+}</code></pre>
+<p>Undoing a removal by adding the line back puts it last. To the customer looking at the screen, that is not undo. Position is part of the state, so position is part of what gets restored.</p>
+<h3>The command whose undo is usually — but not always — nothing</h3>
+<pre><code>public void execute(Cart cart) {
+    previousCoupon = cart.coupon().orElse(null);   // very often null
+    cart.setCoupon(coupon);
+}
+
+public void undo(Cart cart) {
+    cart.setCoupon(previousCoupon);
+}</code></pre>
+<p>A cart holds one coupon, so applying a second replaces the first. Clearing the coupon on undo is right nine times in ten, and the tenth time it takes a discount off a customer who never touched it. Restoring <code>previousCoupon</code> handles both cases without a branch.</p>
+<h3>The invoker, which knows nothing</h3>
+<pre><code>public void execute(CartCommand command) {
+    command.execute(cart);
+    done.push(command);
+    undone.clear();
+}
+
+public boolean undo() {
+    if (done.isEmpty()) { return false; }
+    CartCommand command = done.pop();
+    command.undo(cart);
+    undone.push(command);
+    return true;
+}</code></pre>
+<p>Search <code>CartHistory</code> for the words <em>coupon</em>, <em>quantity</em> or <em>SKU</em>. They are not there. It holds <code>CartCommand</code>s and does two things with them. That is precisely why a fifth kind of edit does not touch this file.</p>
+<p>Two decisions worth naming:</p>
+<ul><li><strong><code>undone.clear()</code> on a new command.</strong> Once you take a different branch, the old future is unreachable. Every text editor you have used does this.</li><li><strong>A command that throws is not pushed.</strong> An edit that failed halfway is not on the undo stack, because undoing it would apply the reverse of something that never fully happened.</li></ul>
+<h2>Why the Tests Are the Proof</h2>
+<p>A test that says &quot;adding two items leaves two items&quot; passes against the naive editor too. It tests the cart, not the pattern. Three tests here do not:</p>
+<ul><li><strong><code>undoingAMergedAddRestoresThePreviousQuantity</code></strong> — the exact case the hand-rolled note gets wrong.</li><li><strong><code>undoRestoresTheReplacedCoupon</code></strong> — the other one.</li><li><strong><code>anUnknownCommandWorksUnchanged</code></strong> — a gift-wrapping command declared inside the test, executed and undone by a <code>CartHistory</code> that was compiled before it existed. If somebody put a <code>switch</code> back in the invoker tomorrow, this is the test that goes red.</li></ul>
+<p><code>NaiveCartEditorTest</code> asserts the buggy behaviour <em>as it is</em>, deliberately. Those tests are not a claim that the naive version is unfixable — they are what &quot;fixing it&quot; would have to make fail.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>Undo and redo</strong>, exactly, including the cases that depend on prior state.</li><li><strong>An audit trail for free.</strong> <code>history.log()</code> is a list of strings because every edit is already an object that can describe itself.</li><li><strong>A new edit is one class.</strong> No file that already works is opened.</li><li><strong>Each edit is testable alone</strong>, without an invoker and without a UI.</li><li><strong>Deferral becomes possible.</strong> A command can be queued, scheduled, sent over a wire, or replayed against a different cart — none of which a method call can be.</li></ul>
+<h2>What to Watch Out For</h2>
+<ul><li><strong>Every operation becomes a class.</strong> For four edits that will never change, the naive version is a third of the code and it works. Command pays when undo, logging or queuing is a requirement — and undo alone is usually enough.</li><li><strong>The inverse is your problem, and it is where the bugs are.</strong> The pattern gives you a place to put <code>undo</code>; it does not check that yours is right. Every command needs the test that executes it <em>and then undoes it</em> against a cart that was not empty.</li><li><strong>Undo must be called in order, on the state the command left behind.</strong> <code>CartHistory</code> guarantees that. Calling <code>undo</code> by hand out of order is undefined, which is why each command here refuses to undo before it has run.</li><li><strong>Do not let commands hold live receiver objects.</strong> They hold values — a SKU, a quantity, a coupon — never a line the cart may have replaced underneath them.</li><li><strong>Not every operation should be a command.</strong> Reads should not be. If it does not change anything, there is nothing to undo and nothing to log.</li></ul>
+<h2>Command vs. Memento vs. Strategy vs. Observer</h2>
+<table><thead><tr><th>Pattern</th><th>The object is</th><th>Undo works by</th><th>Tell them apart by</th></tr></thead><tbody><tr><td><strong>Command</strong></td><td>A request</td><td>Each command reversing itself</td><td>You need a <em>list of what was done</em></td></tr><tr><td><strong>Memento</strong></td><td>A snapshot of state</td><td>Restoring the whole snapshot</td><td>You need to <em>get back</em>, and do not care what changed</td></tr><tr><td><strong>Strategy</strong></td><td>An algorithm</td><td>—</td><td>The choice comes from outside and stays put</td></tr><tr><td><strong>Observer</strong></td><td>A subscription</td><td>—</td><td>One change, many independent reactions</td></tr></tbody></table>
+<p>Command and Memento are the two answers to undo, and the trade is clean: Command stores <em>the difference</em> and needs each edit to know its inverse; Memento stores <em>the state</em> and needs no inverses at all, at the cost of a copy per step and no record of what changed. Real editors often use both.</p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><strong><code>Runnable</code> and <code>Callable</code></strong> — a command with one method and no undo. Every <code>ExecutorService</code> is an invoker.</li><li><strong><code>javax.swing.Action</code></strong> and the undo support in <code>javax.swing.undo</code>, which is this pattern almost name for name.</li><li><strong>Database migrations</strong> — <code>up()</code> and <code>down()</code>.</li><li><strong>Event sourcing</strong> — the log of commands <em>is</em> the system of record; the current state is a fold over it.</li><li><strong>The HTTP request objects</strong> in every web framework: a request reified so it can be queued, retried and logged.</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li>Write a <code>ClearCartCommand</code> that empties the cart, and make its undo put every line back in order. Notice that it has to capture a list, and that nothing else in the project changes.</li><li>Give <code>CartHistory</code> a <code>undoAll()</code> and check it against <code>everyCommandIsSubstitutableForEveryOther</code>.</li><li>Add gift wrapping to <code>NaiveCartEditor</code> instead, and count the files you had to open.</li><li>Make <code>AddItemCommand</code> capture <code>previousQuantity</code> in its <em>constructor</em> rather than in <code>execute</code>, then run the whole suite. Exactly one test goes red, and it is the one that undoes twice.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the outage this fixes</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — the structure</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — an execute and an undo, side by side</li><li><a href="animation.html"><code>animation.html</code></a> — step through the stacks</li></ul>
+</main>
+<footer>
+Generated from <code>command-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

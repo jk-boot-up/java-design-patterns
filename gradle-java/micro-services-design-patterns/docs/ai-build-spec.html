@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build Specification — Toolchain, File Shapes And Known Traps</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Build Specification — Toolchain, File Shapes And Known Traps</h1>
+<p>How a project in this category is actually built: the exact commands, the exact shape each generated file has to have, and the mistakes that have cost real time. It is written for a session resuming work with no memory of how any of this was produced.</p>
+<p><a href="spec.html"><code>spec.md</code></a> says <em>what</em> each project teaches. This document says <em>how</em> the artefacts are made. <a href="ai-session.html"><code>ai-session.md</code></a> holds the standing instructions and the current state of the work.</p>
+<hr>
+<h2>1. Environment</h2>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Java</td><td>21, via each project&#x27;s own Gradle wrapper</td></tr><tr><td>Gradle</td><td>9.2.1, wrapper committed per project</td></tr><tr><td>Tests</td><td>JUnit 5</td></tr><tr><td>Runtime dependencies</td><td>none, in any project</td></tr><tr><td>Python</td><td>3, standard library plus Pillow for the slide generators</td></tr><tr><td>Audio and video</td><td>macOS <code>say</code>, and <code>ffmpeg</code></td></tr><tr><td>Diagrams</td><td>the Mermaid CLI, fetched on demand by <code>npx</code> — nothing to install</td></tr></tbody></table>
+<p>Everything runs offline once the Gradle wrapper has downloaded itself once. There is no broker, no database and no container anywhere in the category — that is a deliberate rule from <a href="spec.html"><code>spec.md</code></a> §2.1, not a shortcut.</p>
+<hr>
+<h2>2. The shared generators</h2>
+<p>The generators live in <code>gradle-java/docs/</code> and are shared by every project in the repository.</p>
+<blockquote><p><strong>They must be run from the <code>gradle-java</code> directory, and they take a slug with the <code>-pattern</code> suffix removed.</strong> <code>cqrs</code>, not <code>cqrs-pattern</code>.</p></blockquote>
+<pre><code>cd gradle-java
+
+python3 docs/make_specs.py &lt;slug&gt;          # docs/spec.md + docs/spec.html
+python3 docs/make_youtube_docs.py &lt;slug&gt;   # docs/youtube.md
+python3 docs/make_thumbnails.py &lt;slug&gt;     # docs/thumbnail.png
+python3 docs/make_narration.py --force &lt;slug&gt;   # video/narration.md</code></pre>
+<p>With no arguments, each processes every project it knows about. <code>make_specs.py</code> also accepts <code>--no-measure</code> to skip the loudness measurement, which is the slow part.</p>
+<p>Two more take a <strong>path</strong> rather than a slug, so they can be pointed at one project or a whole category:</p>
+<pre><code>python3 docs/make_diagrams.py    &lt;category-or-project&gt;   # docs/images/*.png from docs/*-diagram.md
+python3 docs/make_readme_html.py &lt;category-or-project&gt;   # README.html beside every README.md</code></pre>
+<p><code>make_diagrams.py</code> skips a PNG that is newer than its Markdown unless you pass <code>--force</code>, because each render starts a headless browser and takes a few seconds.</p>
+<h3>Registration</h3>
+<p><code>make_narration.py</code> discovers projects by walking the category directories for anything ending in <code>-pattern</code>, so a new project needs nothing from you. Note that it <strong>keeps an existing <code>narration.md</code> unless you pass <code>--force</code></strong>, and prints <code>kept (already written)</code> when it does — easy to mistake for success after editing <code>scenes.py</code>.</p>
+<p>The other three are different. <strong><code>make_specs.py</code>, <code>make_thumbnails.py</code> and <code>make_youtube_docs.py</code> each carry their own table of slugs</strong>, holding per-project content such as the thumbnail&#x27;s wording and the video title. Adding the directory is not enough; a project missing from those tables is silently skipped.</p>
+<h3>make_specs.py reads the rendered video</h3>
+<p><code>make_specs.py</code> measures the mp4 to fill in the runtime, the subtitle count and the integrated loudness. <strong>If the video is not on disk when you run it, the spec silently degrades</strong> to <code>~not yet built over 0 scenes, 0 subtitle cues</code> rather than failing.</p>
+<p>This has already produced one real defect: <code>service-discovery-pattern/docs/spec.md</code> sat in the repository claiming zero scenes because it had been generated before its video was rendered. Always regenerate the spec <em>after</em> the build, and check the line it prints.</p>
+<p>A good run prints one line, and every field in it should look plausible:</p>
+<pre><code>cqrs   spec.md + spec.html  (16 scenes, 17:26, 18 tests, -16.02 LUFS)</code></pre>
+<hr>
+<h2>3. <code>video/scenes.py</code></h2>
+<p>The script for the video. One <code>SCENES</code> list of dictionaries, 14 to 16 entries.</p>
+<blockquote><p><strong>Use <code>dict(key=..., kind=..., title=..., body=..., narration=...)</code> keyword form, never a dict literal with <code>&quot;title&quot;:</code> string keys.</strong> <code>make_specs.py</code> counts scenes with a regular expression looking for <code>title=</code>. A literal-style file reports <strong>0 scenes</strong> and the spec is quietly wrong.</p></blockquote>
+<h3>Body types</h3>
+<p>The body&#x27;s Python type depends on the <code>kind</code>, and getting it wrong is a crash or a silent mess:</p>
+<table><thead><tr><th><code>kind</code></th><th><code>body</code> must be</th><th>Notes</th></tr></thead><tbody><tr><td><code>poster</code></td><td><code>None</code> or <code>&quot;&quot;</code></td><td></td></tr><tr><td><code>diagram</code></td><td><code>None</code> or <code>&quot;&quot;</code></td><td></td></tr><tr><td><code>bullets</code></td><td>a <strong>list</strong> of lines</td><td></td></tr><tr><td><code>quote</code></td><td>a <strong>list</strong> of lines</td><td><code>kind_quote</code> raises <code>TypeError</code> on a bare string</td></tr><tr><td><code>outro</code></td><td>a <strong>list</strong> of lines</td><td></td></tr><tr><td><code>code</code></td><td>a <strong>single string</strong></td><td>split internally on <code>\n</code></td></tr><tr><td><code>console</code></td><td>a <strong>single string</strong></td><td>split internally on <code>\n</code></td></tr></tbody></table>
+<p>Passing a list where a string is expected fails with <code>AttributeError: &#x27;list&#x27; object has no attribute &#x27;split&#x27;</code>.</p>
+<h3>Layout limits — nothing warns you</h3>
+<p>Text that overflows a slide is simply drawn past the bottom edge or off the right. Validate before rendering.</p>
+<table><thead><tr><th></th><th>Limit</th></tr></thead><tbody><tr><td><code>bullets</code>, <code>quote</code>, <code>outro</code></td><td><strong>12 lines</strong>, each <strong>≤ 62 characters</strong></td></tr><tr><td><code>console</code></td><td>lines <strong>≤ 62 characters</strong></td></tr><tr><td><code>code</code></td><td>lines <strong>≤ 52 characters</strong> — tighter, the font is wider</td></tr></tbody></table>
+<p>The 12-line figure comes from the geometry: the body starts at y=260 and steps 60 pixels a line, and the footer sits at about y=1022.</p>
+<p>A validation pass before every render:</p>
+<pre><code>import scenes
+for s in scenes.SCENES:
+    b = s[&quot;body&quot;]
+    if b is None or b == &quot;&quot;: continue
+    lines = b if isinstance(b, list) else b.split(&quot;\n&quot;)
+    cap = 52 if s[&quot;kind&quot;] == &quot;code&quot; else 62
+    if s[&quot;kind&quot;] in (&quot;bullets&quot;, &quot;quote&quot;, &quot;outro&quot;) and len(lines) &gt; 12:
+        print(&quot;TOO TALL&quot;, s[&quot;key&quot;], len(lines))
+    for ln in lines:
+        if len(ln) &gt; cap:
+            print(&quot;TOO WIDE&quot;, s[&quot;key&quot;], len(ln), ln)</code></pre>
+<hr>
+<h2>4. <code>video/make_slides.py</code></h2>
+<p>Renders one PNG per scene into <code>video/build/</code>.</p>
+<p>Three things carry the <em>source</em> project&#x27;s identity when this file is copied, and all three must be changed:</p>
+<ol><li><strong>The line-2 docstring</strong>, which names the pattern.</li><li><strong><code>footer(d, label)</code></strong>, which hard-codes the pattern name on the right-hand side.</li><li><strong>The poster and diagram content</strong>, which is entirely per-project.</li></ol>
+<h3>Patching the poster and diagram safely</h3>
+<p>Both functions are replaced by slicing between markers. <strong>Use these exact boundaries:</strong></p>
+<table><thead><tr><th>Function</th><th>From</th><th>To</th></tr></thead><tbody><tr><td><code>kind_poster</code></td><td><code>s.index(&quot;def kind_poster(scene, img, d):&quot;)</code></td><td><code>s.index(&quot;\n\ndef kind_outro&quot;)</code></td></tr><tr><td><code>kind_diagram</code></td><td><code>s.index(&quot;def kind_diagram(scene, img, d):&quot;)</code></td><td><code>s.index(&quot;\n\nAUTHOR = &quot;)</code></td></tr></tbody></table>
+<p>A generic <code>&quot;\n\ndef &quot;</code> boundary looks equivalent and is not: it swallows the module-level constants <code>AUTHOR</code>, <code>POSTER_TOP</code>, <code>POSTER_BOTTOM</code>, <code>GOLD</code> and <code>RULE</code>, and the next render fails with a <code>NameError</code>.</p>
+<h3>The poster</h3>
+<p>The poster is lifted out as <code>video/poster.png</code> and used as the YouTube thumbnail, so it is the first and often only thing a viewer judges the video by. It carries a large pattern word, a short accent line, a <em>before</em> pill and an <em>after</em> pill each with a one-line result, and two taglines.</p>
+<p><strong>The before pill is never struck through.</strong> This was an explicit instruction: strikethrough is unreadable at search-result size and makes the poster look negative. Use colour and the label to carry the contrast.</p>
+<h3>The diagram slide</h3>
+<p>A right-hand spine of four <code>(title, subtitle, colour)</code> rows and a single bottom line. The bottom line is where the pattern&#x27;s real lesson goes.</p>
+<p><strong>Check the rendered PNG at full width.</strong> Header lines that look fine in the source run close to the right edge at 1920 pixels; two have had to be shortened after visual inspection.</p>
+<hr>
+<h2>5. <code>video/build_video.sh</code> and <code>make_subtitles.py</code></h2>
+<pre><code>cd &lt;project&gt;/video
+python3 make_slides.py      # one PNG per scene into build/
+./build_video.sh            # narrate, clean, level, assemble
+python3 make_subtitles.py   # .srt alongside the mp4</code></pre>
+<p>The output filename is <code>&lt;slug&gt;-pattern-explained.mp4</code>, written to <code>video/</code>, <strong>not</strong> to <code>video/build/</code>.</p>
+<blockquote><p><strong>Both scripts hard-code the source project&#x27;s output filename when copied.</strong> This has been missed more than once — one project inherited <code>cqrs-pattern-explained</code>, another inherited <code>strategy-pattern-explained</code> from a different category entirely. Fix immediately after copying: ``<code>bash sed -i &#x27;&#x27; &#x27;s/&lt;old&gt;-pattern-explained/&lt;new&gt;-pattern-explained/g&#x27; build_video.sh make_subtitles.py </code>``</p></blockquote>
+<h3>The audio chain, and why it is shaped this way</h3>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Voice</td><td><code>Samantha</code>, macOS <code>say</code></td></tr><tr><td>Rate</td><td>145 words per minute — the pace educational YouTube settles on</td></tr><tr><td>Cleanup</td><td><code>highpass=f=75</code> plus a gentle 3 kHz presence lift</td></tr><tr><td>Levelling</td><td><code>loudnorm=I=-16:TP=-1.5:LRA=11</code>, <strong>two-pass, measured once over the whole timeline</strong></td></tr><tr><td>Encode</td><td>AAC, 192 kbit/s, 48 kHz stereo</td></tr><tr><td>Frame rate</td><td>30</td></tr></tbody></table>
+<p>Two decisions in that chain are load-bearing and should not be &quot;simplified&quot; by a later session:</p>
+<p><strong>There is deliberately no denoiser.</strong> An earlier version ran one and it made the voice sound underwater. <code>say</code> output has no noise floor worth removing.</p>
+<p><strong>Levelling is not part of the per-scene cleanup.</strong> Run per scene, <code>loudnorm</code> re-measures each clip independently and pushes a quiet scene up to match a loud one, which audibly pumps across a cut. It runs once, in two-pass mode, over the assembled timeline.</p>
+<p><strong>Per-scene AAC concatenation needs care</strong>, because AAC is a lapped format and every separately encoded clip carries priming samples. The script handles this; the check at the end exists to prove it worked.</p>
+<h3>The continuity check</h3>
+<p>A successful build prints:</p>
+<pre><code>audio timeline continuous: NNNNN packets, no gaps</code></pre>
+<p><strong>If that line is missing or reports a gap, the build failed even if an mp4 was produced.</strong> A gap means a scene join or the concatenation dropped samples, and the video will have an audible click or a silence.</p>
+<h3>A render takes eight to ten minutes</h3>
+<p>Run it in the background and wait on the output file rather than blocking:</p>
+<pre><code>until [ -f &lt;slug&gt;-pattern-explained.mp4 ]; do sleep 20; done</code></pre>
+<p><strong>Delete <code>video/.build.log</code> afterwards.</strong> It is not covered by <code>.gitignore</code> and will otherwise be committed.</p>
+<hr>
+<h2>6. <code>docs/animation.html</code></h2>
+<p>A single self-contained HTML file — no network, no dependencies — holding a stepped animation with narration, a console, and play / step / reset / audio controls.</p>
+<h3>Assembling one from the reference</h3>
+<p>The file is built in three pieces, taking the head and the engine from <code>cqrs-pattern</code>:</p>
+<pre><code>REF = &quot;.../cqrs-pattern/docs/animation.html&quot;
+lines = open(REF).readlines()
+head   = &quot;&quot;.join(lines[:166])   # through &lt;/head&gt;
+engine = &quot;&quot;.join(lines[385:])   # from the line after the STEPS array closes</code></pre>
+<p><strong>The <code>385</code> is exact.</strong> Line 385 is the <code>];</code> that closes <code>STEPS</code>, and line 386 is <code>const BOXES = [&quot;b-naive&quot;, &quot;b-client&quot;];</code>. Slicing a line either side breaks the script.</p>
+<p>Between the two pieces go the new body markup and a new <code>const STEPS = [...]</code>.</p>
+<h3>Element ids the engine requires</h3>
+<p>The copied engine addresses these by id, and every one must exist in the new body markup:</p>
+<pre><code>b-naive  b-client
+r-s1 r-s2 r-s3 r-s4      r-c1 r-c2 r-c3
+n-s1 n-s2 n-s3 n-s4      n-c1 n-c2 n-c3
+naive-state  holding  clock  gate-label  family-label  bridge-rail
+narration  console-lines  progress
+play  step  reset  audio  audio-icon  audio-note</code></pre>
+<h3>Row and console classes</h3>
+<table><thead><tr><th>Class</th><th>Meaning</th></tr></thead><tbody><tr><td><code>.row.dim</code></td><td>opacity .38</td></tr><tr><td><code>.row.absent</code></td><td>opacity .22, dashed border</td></tr><tr><td><code>.row.wrong</code></td><td>red</td></tr><tr><td><code>.row.ok</code></td><td>green</td></tr><tr><td><code>.row.wait</code></td><td>amber</td></tr><tr><td><code>.c-context</code> / <code>.c-strategy</code></td><td>green / purple console text</td></tr><tr><td><code>.c-pick</code> / <code>.c-out</code></td><td>a decision / ordinary output</td></tr><tr><td><code>.c-bad</code> / <code>.c-good</code></td><td>red / green</td></tr></tbody></table>
+<h3>Validate before considering it done</h3>
+<p>Four checks, all of which have caught real breakage:</p>
+<pre><code># 1. the script parses
+python3 - &lt;&lt;&#x27;EOF&#x27;
+h = open(&quot;docs/animation.html&quot;).read()
+open(&quot;docs/.chk.js&quot;,&quot;w&quot;).write(h.split(&quot;&lt;script&gt;&quot;,1)[1].rsplit(&quot;&lt;/script&gt;&quot;,1)[0])
+EOF
+node --check docs/.chk.js &amp;&amp; rm docs/.chk.js</code></pre>
+<ol><li>Every <code>r-*</code> and <code>b-*</code> id referenced in <code>STEPS</code> exists as an element id.</li><li>Every caption key — matched with <code>(?:^|,)\s*(\w+):</code> — has a matching <code>n-*</code> element.</li><li>Every <code>cls:</code> value used in <code>STEPS</code> has a CSS rule.</li></ol>
+<p>Delete any scratch file afterwards.</p>
+<blockquote><p><strong><code>str.replace</code> is global.</strong> Replacing a line that appears in both <code>render()</code> and <code>reset()</code> collapses the pair and leaves <code>reset()</code> referring to an undefined variable. This has happened. Either include enough surrounding context to make the match unique, or order the replacements so the more specific one runs first.</p></blockquote>
+<hr>
+<h2>7. <code>docs/make_animation_audio.sh</code></h2>
+<p>Generates one short clip per animation step into <code>docs/audio/</code>, which is <strong>ignored by git</strong> — the script is the source, the clips are output.</p>
+<p>The narration lives in a <code>cat &lt;&lt;&#x27;EOF&#x27;</code> heredoc, one line per step. To replace it, slice between <code>s.index(&quot;cat &lt;&lt;&#x27;EOF&#x27;\n&quot;)</code> and <code>s.index(&quot;\nEOF\n&quot;, start)</code>.</p>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Voice and rate</td><td><code>Samantha</code> at 145 wpm, matching the video</td></tr><tr><td>Filter</td><td><code>highpass=f=60,loudnorm=I=-16:TP=-1.5:LRA=11</code></td></tr><tr><td>Encode</td><td>AAC 128 kbit/s → <code>docs/audio/step-N.m4a</code></td></tr></tbody></table>
+<blockquote><p><strong>The loop reads on file descriptor 3</strong>, not stdin: <code>done 3&lt; &lt;(narrate)</code>. <code>say</code> consumes stdin, and an earlier version using a plain <code>while read</code> loop had <code>say</code> eat the remaining narration lines so only the first clip was produced. Do not &quot;tidy&quot; the fd-3 redirection away.</p></blockquote>
+<hr>
+<h2>8. Rendering the Mermaid diagrams</h2>
+<p>Use the generator. It renders the <strong>first</strong> Mermaid block of every <code>docs/*-diagram.md</code> it finds — that is the one the <code>![...]</code> image tag at the top of the file refers to — into <code>docs/images/&lt;same-name&gt;.png</code>:</p>
+<pre><code>cd gradle-java
+python3 docs/make_diagrams.py &lt;category-or-project&gt;</code></pre>
+<p>It shells out to the Mermaid CLI through <code>npx</code>, so there is nothing to install and no <code>node_modules</code> in the repository, but the first run needs a network connection. The palette (<code>#0f172a</code>, matching the slides) and the scale factor are written down inside the script: <code>-s 4</code> is the smallest scale at which the text survives both a high-density display and a video frame.</p>
+<p>Two consequences of &quot;the first block only&quot; are worth knowing. <code>uml-diagram.md</code> holds one sequence diagram per act, so put the act you most want shown at the top rather than in chronological order. And <strong>a file with two diagrams in it should be two files</strong> — that is how <code>architecture-diagram.md</code>, <code>data-flow-diagram.md</code> and <code>sequence-diagram.md</code> came to be separate documents rather than three sections of one.</p>
+<p><code>sequence-diagram.md</code> is the one a README embeds, and it is deliberately not a copy of <code>uml-diagram.md</code>: it is the single end-to-end run of the pattern working, written so that somebody only listening can follow it, and it ends by pointing at the UML document for the rejected designs and the failure modes.</p>
+<p><strong>Double quotes inside a <code>Note over</code> fail to parse.</strong> The error names the line but calls the token <code>INVALID</code>, which is not a helpful clue. Write the quoted text without the quotation marks — <code>turns 4799 pence into the text £47.99</code> rather than <code>into &quot;£47.99&quot;</code>.</p>
+<p><strong>Check the rendered PNG before moving on.</strong> Mermaid lays diagrams out itself, and a label long enough to shove two boxes apart is invisible in the source and obvious in the picture.</p>
+<hr>
+<h2>9. Environment quirks that have wasted time</h2>
+<ul><li><strong>The shell&#x27;s working directory can reset between commands.</strong> Prefer absolute paths. A <code>cd</code> into the directory you are already in fails, and if it is part of an <code>&amp;&amp;</code> chain it silently short-circuits everything after it.</li><li><strong>Writing to <code>/tmp</code> with the file-writing tool is blocked.</strong> Write scratch files inside the project, dot-prefixed, and delete them. Shell heredocs to <code>/tmp</code> are fine.</li><li><strong><code>sleep N</code> chained with another command is blocked.</strong> Use a background run, or an <code>until [ -f ... ]; do sleep 20; done</code> loop.</li><li><strong><code>ls *.mp4</code> fails with <code>no matches found</code> under zsh</strong>, not an empty result. During a render that looks like a build failure and is not.</li></ul>
+<hr>
+<h2>10. Checklist for a new or revised project</h2>
+<ul class="task"><li>Registered with all four generators in <code>gradle-java/docs/</code>.</li><li><code>./gradlew test</code> passes; no <code>Thread.sleep</code> under <code>src/test</code>.</li><li><code>./gradlew run</code> prints a timeline showing both the failure and the pattern&#x27;s answer.</li><li>Every number in every document, slide and narration line matches that output.</li><li><code>scenes.py</code> uses <code>title=</code> keyword form; scene count is as expected in the spec output.</li><li>Body types match their kinds; no slide overflows the 12-line / 62- / 52-character limits.</li><li><code>make_slides.py</code> docstring, footer, poster and diagram all name <em>this</em> pattern.</li><li><code>build_video.sh</code> and <code>make_subtitles.py</code> name <em>this</em> project&#x27;s output file.</li><li>The build printed <code>audio timeline continuous</code>; loudness is within 0.02 LU of −16 LUFS.</li><li><code>animation.html</code> passes all four validation checks.</li><li>Both diagrams rendered; the poster and thumbnail looked at, not just generated.</li><li><code>video/.build.log</code> and any scratch files deleted.</li><li>Spec regenerated <strong>after</strong> the video existed, and its printed line checked.</li><li><code>git status</code> shows no mp4, m4a, srt, wav, log, <code>docs/audio/</code> or <code>video/build/</code>.</li></ul>
+</main>
+<footer>
+Generated from <code>ai-build-spec.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

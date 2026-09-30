@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Service Stub Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Service Stub Pattern — Video Narration Script</h1>
+<h2>1. Service Stub</h2>
+<p>Hello, and welcome. This video explains the Service Stub pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A service stub is a small, free stand-in for an outside service, such as a paid address lookup. It sits behind the same interface, and answers like the real one. You use it while developing and testing. Think of a flight simulator. Pilots practise in it every day, for free. It can give them an engine failure on demand. But it is only useful while it behaves like the real plane, so it is checked against the real aircraft. In this video, the domain is an online shop. At checkout, it turns a postcode into an address, using a paid outside service. By the end, you will hear what developing against the real service costs. How a stub fixes it. How to test failures on demand. And how to keep a stub honest.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. At checkout, the customer types a postcode, and the shop fills in the address. To do that, it asks an outside postcode service. Each lookup costs five pence. It takes four hundred milliseconds. And it needs the network. Developers were calling it for every test checkout.</p>
+<h2>3. Act One — The real service in development</h2>
+<p>First demo: developing against the real postcode service. Every lookup costs five pence, and takes four hundred milliseconds. A developer tries fifty test checkouts in a day. Two pounds fifty in lookup fees. Twenty seconds of waiting. Then they get on a train with no signal. The lookup is unavailable, and they cannot work at all.</p>
+<h2>4. Act Two — A service stub</h2>
+<p>Second demo: a service stub. Checkout only knows a small interface: the address gateway. A postcode in, an address out. The stub implements that interface, with a few postcodes kept in memory. Four Mill Lane, Leeds, comes back instantly. Fifty checkouts cost nothing, need no network, and wait for nothing.</p>
+<h2>5. Act Three — Awkward cases on demand</h2>
+<p>Third demo: the stub plays the awkward cases, on demand. An unknown postcode. Checkout asks the customer to type their address. A service that is down. The stub can pretend. Checkout says the lookup is unavailable, and asks the customer to type it. You cannot ask the real service to go down, just when you want to test it.</p>
+<h2>6. Act Four — The contract check</h2>
+<p>Fourth demo: a contract check. Once a week, the stub and the real service are asked the same questions. Any difference is reported. One postcode, typed in small letters. The stub finds the address. The real service refuses it: invalid format. Checkout, tested only against the stub, would have broken in production.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. A stub is a second, simpler copy of someone else&#x27;s service. It must be kept in step with the real one. And it only knows the postcodes you gave it. The contract check is what keeps it honest.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the pattern. Put the outside service behind a small gateway interface. In development and in tests, plug in a stub. A small class, in memory, that answers like the real service. And regularly, ask the stub and the real service the same questions, to check they still agree.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. Address gateway is the interface: a postcode in, an address out. Postcode service is the real, paid service. Postcode stub is the stand-in, with a few postcodes, and a switch to pretend it is down. The contract check compares the two. And checkout is the client, which knows only the interface.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met this pattern already. WireMock and MockServer stand in for web services during tests. Payment providers offer sandboxes and test modes. LocalStack stands in for cloud services on a laptop. And Pact, and other contract-testing tools, check that stubs still match the real thing.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use it? Stub outside services that are slow, paid, unreliable, or only available online. Let the stub play failures on demand. And run a contract check against the real service on a schedule. Do not stub your own code just to make tests quicker. Stub what is genuinely outside your control.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Service Stub pattern. If you remember one sentence, make it this one. Develop against a free stand-in, and check it against the real thing. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Fix the stub so it refuses small letters, and watch the contract check pass. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

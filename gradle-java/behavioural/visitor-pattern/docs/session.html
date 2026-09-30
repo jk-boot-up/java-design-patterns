@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Visitor</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Visitor</h1>
+<p>A 60-minute guided session for teaching or self-studying the Visitor pattern using this project.</p>
+<ul><li><strong>Audience:</strong> developers comfortable with core Java and with tree recursion</li><li><strong>Duration:</strong> ~60 minutes</li><li><strong>Format:</strong> live coding + discussion</li><li><strong>Prerequisites:</strong> see <a href="prerequisites.html"><code>prerequisites.md</code></a>, and ideally <a href="../../../structural/composite-pattern"><code>structural/composite-pattern</code></a> first — this project reports on that project&#x27;s tree</li></ul>
+<blockquote><p><strong>Optional pre-work.</strong> Ask participants to watch the video (<code>video/visitor-pattern-explained.mp4</code>) beforehand. If they do, you can compress the problem and pattern segments and spend the extra time on the exercises, which are the part of this session that actually lands.</p></blockquote>
+<h2>Learning Objectives</h2>
+<p>By the end of this session a participant should be able to:</p>
+<ol><li>Explain what double dispatch is, and why <code>visitor.visit(node)</code> does not compile when <code>node</code> is declared as a <code>CatalogComponent</code>.</li><li>Say why <code>accept</code> is not redundant even though every implementation of it is the same line of code.</li><li>State the trade in both directions — cheap operations, expensive node types — and name which axis their own codebase is growing along.</li><li>Point at where the traversal lives and say what that buys and what it takes away.</li><li>Decide, out loud and with reasons, when <em>not</em> to use this pattern.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Segment</th><th>Mode</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check</td><td>Hands-on</td></tr><tr><td>0:05–0:16</td><td>The problem</td><td>Discussion</td></tr><tr><td>0:16–0:28</td><td>Double dispatch</td><td>Explanation</td></tr><tr><td>0:28–0:41</td><td>Code walkthrough</td><td>Live coding</td></tr><tr><td>0:41–0:52</td><td>Exercises</td><td>Hands-on</td></tr><tr><td>0:52–0:58</td><td>The cost</td><td>Discussion</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td><td>—</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check</h2>
+<p>Everyone runs:</p>
+<pre><code>java -version
+./gradlew run</code></pre>
+<p>Anyone whose build fails pairs up with a neighbour. Do not debug installs during the session.</p>
+<h2>0:05–0:16 — The Problem</h2>
+<p>Put <code>NaiveCatalogNode</code> on the screen. <strong>Do not</strong> say it is bad. Ask the room to read the five methods and say which of them is about a catalog.</p>
+<p>The answer they will converge on is <code>name()</code>, and possibly <code>inventoryValue()</code>. Nobody defends <code>appendCsvTo</code>. That is the moment: a class about a thing on a shelf has a private method that knows a comma means the field needs quoting.</p>
+<p>Then run section 1 of the demo and show the two rows:</p>
+<pre><code>    Electronics/Accessories,CLN-003,&quot;Screen Cleaner, 200ml&quot;,product,6.50,190,flammable   (7 fields)
+    Electronics/Kits,KIT-01,Starter Kit, 3 items,bundle,639.00,25,   (8 fields)</code></pre>
+<p>Ask: <em>how did this happen?</em> Let them find it. The answer is in <code>NaiveBundle</code> — copied from <code>NaiveProduct</code>, quoting dropped, and no kit had a comma in its name that year.</p>
+<p>Then show the compliance finding that is missing, and let it sit. An undeclared lithium cell on an aircraft is the strongest version of &quot;the fourth copy drifted&quot;, and it is worth more than any argument about coupling.</p>
+<p><strong>Point to make before moving on:</strong> the naive inventory value is <em>correct</em>, and so are the category counts. This project does not claim the naive design is incompetent. It claims it does not survive the fourth report.</p>
+<h2>0:16–0:28 — Double Dispatch</h2>
+<p>This is the segment people get wrong by rushing. Budget the full twelve minutes and do it at the keyboard.</p>
+<p>Write this live, in a scratch file, and let it fail to compile:</p>
+<pre><code>CatalogComponent node = new Product(&quot;PHN-900&quot;, &quot;Phone&quot;, Money.pounds(599.99), 74);
+CatalogVisitor visitor = new InventoryValueVisitor();
+visitor.visit(node);   // watch it fail</code></pre>
+<p>Read the compiler error out loud. Ask why — the object <em>is</em> a <code>Product</code>.</p>
+<p>Draw the distinction on the board: <strong>overloads are picked by the compiler from the static type; overrides are picked by the JVM from the runtime type.</strong> Java gives you dynamic dispatch on the receiver and nothing else.</p>
+<p>Now open <code>Product.accept</code> and show that the same call compiles there, because in that file <code>this</code> is a <code>Product</code>. Then run section 3 of the demo, which prints which method each node reached.</p>
+<p>Finish the segment by saying the awkward part yourself, before someone else does: two calls to reach one method, and the reason is a fact about Java, not about catalogs. If you defend it as elegant you will lose the room.</p>
+<h2>0:28–0:41 — Code Walkthrough</h2>
+<p>In this order, and no other:</p>
+<ol><li><code>CatalogComponent</code> — two methods, one of which is <code>accept</code>.</li><li><code>Product.accept</code> and <code>Bundle.accept</code> — the same line, twice, and ask again why it is not redundant.</li><li><code>Category.accept</code> — the walk, plus <code>leave</code>. Ask what <code>leave</code> is for before telling them; someone will get to &quot;the visitor needs to know it came back out&quot;.</li><li><code>InventoryValueVisitor</code> — the two <code>visit</code> methods side by side. <strong>The teaching moment:</strong> a kit is not worth the sum of its parts, and here that is a sentence rather than an <code>if</code>.</li><li><code>ComplianceAuditVisitor.visit(Bundle)</code> — the loop over <code>contents()</code>. Ask where else that loop could have gone. There is nowhere.</li><li><code>CategoryPathVisitor</code> — and say clearly that this is <em>not</em> part of the pattern. It is a base class four visitors happen to share.</li></ol>
+<p>Skip <code>CsvExportVisitor</code> unless there is time; it makes the same point as the compliance one, less dramatically.</p>
+<h2>0:41–0:52 — Exercises</h2>
+<p>Pairs. Ten minutes. Nobody finishes all three, and that is fine.</p>
+<p><strong>Exercise 1 — write a report (everyone does this one).</strong> In <code>ReportVisitorTest</code>, write a visitor that finds the most expensive single line in the catalog. Rule: you may not open any file in the model. Time it — most pairs are done in four minutes, and that speed is the point of the pattern.</p>
+<p><strong>Exercise 2 — feel the cost.</strong> Add a <code>GiftCard</code> node type: a class, a <code>visit(GiftCard)</code> on <code>CatalogVisitor</code>, and then fix everything that stops compiling. Do not let them skip the compiling; the six errors <em>are</em> the lesson. Ask afterwards how many of the six needed a real rule and how many got an empty method.</p>
+<p><strong>Exercise 3 — try to prune.</strong> Write a visitor that reports only on Accessories and stop the walk from descending into Kits. They cannot. Ask what they would have to change, and steer to two answers: a <code>boolean</code> return from <code>visit(Category)</code>, or an external iterator — and what each costs.</p>
+<h2>0:52–0:58 — The Cost</h2>
+<p>Run section 5 of the demo. Read the list of six class names off the screen.</p>
+<p>Then put the table up and ask the room to fill in the numbers for a codebase they actually work on:</p>
+<table><thead><tr><th></th><th>Node types</th><th>Operations</th></tr></thead><tbody><tr><td>How many today?</td><td></td><td></td></tr><tr><td>How many added last year?</td><td></td><td></td></tr></tbody></table>
+<p>Whichever number is growing is the axis that should be cheap. In this catalog it is operations, 3 against 6. In a language front end it is usually the other way and Visitor is a poor fit there — say so explicitly, because the pattern&#x27;s reputation for being over-used is deserved.</p>
+<p>Close the segment with the honest summary: <em>this pattern makes one kind of change free and another kind expensive, and it is your job to know which one you are going to be doing.</em></p>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>Ask for the answer to one question, from anyone: <strong>when would you not use this?</strong> Acceptable answers include: two operations; node types still being added; a single local operation that a <code>switch</code> handles; a team that has never seen <code>accept</code> before and a codebase nobody has time to explain it in.</p>
+<p>Point them at <a href="animation.html"><code>animation.html</code></a> for the walk step by step, and at <a href="visitor-pattern-explained.html"><code>visitor-pattern-explained.md</code></a> for the comparisons.</p>
+<h2>Common Questions</h2>
+<p><strong>&quot;Why not just use <code>instanceof</code>?&quot;</strong> You can, and for one report it is better. Show the pattern-matching switch from <code>prerequisites.md</code>. What it does not give you is the shared traversal, so every report walks the tree itself — which is the fourth problem in the problem statement with nicer syntax.</p>
+<p><strong>&quot;Why is <code>leave</code> a default method?&quot;</strong> Because half the reports do not care, and an empty method that must be written is a place for a real one to go missing.</p>
+<p><strong>&quot;Can a visitor return a value instead of accumulating?&quot;</strong> Yes — a generic <code>CatalogVisitor&lt;R&gt;</code> with <code>R visit(...)</code> is a common variant. It reads well for a leaf and badly for a composite, because the results of the children have to be combined somewhere and <code>accept</code> is the wrong place for that rule to live. This project accumulates in a field and exposes a getter, which is the plainer of the two.</p>
+<p><strong>&quot;Isn&#x27;t <code>accept</code> boilerplate?&quot;</strong> It is one line per node type, written once, in a hierarchy the project has already committed to being stable. Compare it with the alternative it replaces: one method per node type per report.</p>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

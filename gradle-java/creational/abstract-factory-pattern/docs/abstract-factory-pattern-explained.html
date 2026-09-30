@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Abstract Factory Pattern — Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Abstract Factory Pattern — Explained</h1>
+<h2>One-Line Definition</h2>
+<blockquote><p><strong>Abstract Factory</strong> provides an interface for creating families of related or dependent objects without specifying their concrete classes.</p></blockquote>
+<p>Put less formally: instead of choosing objects one at a time and hoping they go together, you choose a <strong>set</strong> once, and something else hands you every piece of it.</p>
+<p>The word doing the work in that definition is <em>families</em>. If your objects have no reason to match, you do not need this pattern.</p>
+<p>It is a <strong>creational</strong> pattern from the original Gang of Four catalogue, and the more ambitious of the book&#x27;s two factory patterns.</p>
+<h2>The Everyday Analogy</h2>
+<p>Think of a restaurant&#x27;s set menu.</p>
+<p>You could order à la carte: pick a starter, pick a main, pick a wine. Three free decisions, and nothing stops you pairing a delicate fish with a heavy red. The kitchen will serve it. It will simply be wrong.</p>
+<p>The set menu removes the freedom on purpose. You choose <em>one</em> thing — &quot;the tasting menu&quot; — and three courses arrive that were designed together. You never name a dish. And when the chef changes the menu next season, you order in exactly the same words and get an entirely different dinner.</p>
+<p>The set menu is <code>MarketFactory</code>. &quot;The British menu&quot; is <code>UkMarketFactory</code>. The three courses are the tax calculator, the currency formatter and the address validator. And the wrong pairing you can no longer order is British VAT on an American address.</p>
+<h2>The Participants</h2>
+<table><thead><tr><th>Role</th><th>In this project</th><th>Job</th></tr></thead><tbody><tr><td>Abstract Factory</td><td><code>MarketFactory</code></td><td>Declares one creation method per product kind</td></tr><tr><td>Concrete Factory</td><td><code>UkMarketFactory</code>, <code>UsMarketFactory</code>, <code>IndiaMarketFactory</code></td><td>Builds one complete, self-consistent family</td></tr><tr><td>Abstract Products</td><td><code>TaxCalculator</code>, <code>CurrencyFormatter</code>, <code>AddressValidator</code></td><td>The only types the client is allowed to see</td></tr><tr><td>Concrete Products</td><td><code>UkVatCalculator</code>, <code>PoundFormatter</code>, <code>UkPostcodeValidator</code>, and the six others</td><td>The real, market-specific behaviour</td></tr><tr><td>Client</td><td><code>CheckoutService</code></td><td>Holds one factory, names no market and no product class</td></tr></tbody></table>
+<h2>How This Project Implements It</h2>
+<h3>The abstract factory</h3>
+<pre><code>public interface MarketFactory {
+
+    /** The market this family belongs to, for logs and receipts. */
+    String market();
+
+    TaxCalculator createTaxCalculator();
+
+    CurrencyFormatter createCurrencyFormatter();
+
+    AddressValidator createAddressValidator();
+}</code></pre>
+<p>Four methods and no implementation. Notice the return types: all three are interfaces. Nothing here reveals that <code>PoundFormatter</code> exists, and nothing here mentions Britain.</p>
+<p>Notice also what the interface makes <em>impossible</em>. There is no method that returns &quot;a tax calculator for a market you name&quot; — the market is not a parameter anywhere. It was decided when the factory was chosen.</p>
+<h3>Three abstract products, not one</h3>
+<pre><code>public interface TaxCalculator {
+    String label();
+    double taxOn(double subtotal);
+}
+
+public interface CurrencyFormatter {
+    String currencyCode();
+    String format(double amount);
+}
+
+public interface AddressValidator {
+    String postcodeLabel();
+    boolean isValid(String postcode);
+}</code></pre>
+<p>This is the difference from Factory Method in a single glance. There, one creator produced one kind of thing. Here, one factory produces three kinds of thing that must agree with each other.</p>
+<p>Each interface exposes not just behaviour but <em>vocabulary</em>: <code>label()</code> gives &quot;VAT&quot; or &quot;GST&quot;, <code>postcodeLabel()</code> gives &quot;postcode&quot; or &quot;ZIP code&quot;. That is what lets the client write market-correct messages without knowing any market.</p>
+<h3>The concrete products are small and unaware</h3>
+<pre><code>public class UkVatCalculator implements TaxCalculator {
+
+    private static final double RATE = 0.20;
+
+    @Override
+    public String label() {
+        return &quot;VAT&quot;;
+    }
+
+    @Override
+    public double taxOn(double subtotal) {
+        return round(subtotal * RATE);
+    }
+
+    private static double round(double amount) {
+        return Math.round(amount * 100.0) / 100.0;
+    }
+}</code></pre>
+<pre><code>public class UkPostcodeValidator implements AddressValidator {
+
+    private static final Pattern FORMAT =
+            Pattern.compile(&quot;^[A-Z]{1,2}\\d[A-Z\\d]? ?\\d[A-Z]{2}$&quot;);
+
+    @Override
+    public String postcodeLabel() {
+        return &quot;postcode&quot;;
+    }
+
+    @Override
+    public boolean isValid(String postcode) {
+        return postcode != null &amp;&amp; FORMAT.matcher(postcode.trim().toUpperCase()).matches();
+    }
+}</code></pre>
+<p>Neither class mentions the other. Neither mentions pounds. They are family members that have never met — the factory is the only thing that knows they belong together.</p>
+<h3>The concrete factory is where a family is declared</h3>
+<pre><code>public class UkMarketFactory implements MarketFactory {
+
+    @Override
+    public String market() {
+        return &quot;United Kingdom&quot;;
+    }
+
+    @Override
+    public TaxCalculator createTaxCalculator() {
+        return new UkVatCalculator();
+    }
+
+    @Override
+    public CurrencyFormatter createCurrencyFormatter() {
+        return new PoundFormatter();
+    }
+
+    @Override
+    public AddressValidator createAddressValidator() {
+        return new UkPostcodeValidator();
+    }
+}</code></pre>
+<p>Three <code>new</code> calls in a class whose name says &quot;British&quot;. That is the entire consistency guarantee, and it is worth appreciating how cheap it is: the matching is enforced not by validation, but by there being no code anywhere that could produce a mismatch.</p>
+<p>Read the other two factories and they are the same shape with different nouns.</p>
+<h3>The client asks once, then forgets the factory</h3>
+<pre><code>public class CheckoutService {
+
+    private final String market;
+    private final TaxCalculator tax;
+    private final CurrencyFormatter money;
+    private final AddressValidator addresses;
+
+    public CheckoutService(MarketFactory factory) {
+        this.market = factory.market();
+        this.tax = factory.createTaxCalculator();
+        this.money = factory.createCurrencyFormatter();
+        this.addresses = factory.createAddressValidator();
+    }</code></pre>
+<p>Four lines, and the world is set up. After the constructor the factory is never touched again — it was a decision, not a dependency.</p>
+<p>The rest of the class reads as if there were only ever one market:</p>
+<pre><code>    public Quote quote(Order order) {
+        if (!addresses.isValid(order.postcode())) {
+            throw new IllegalArgumentException(
+                    &quot;\&quot;&quot; + order.postcode() + &quot;\&quot; is not a valid &quot; + market + &quot; &quot;
+                            + addresses.postcodeLabel());
+        }
+
+        double taxAmount = tax.taxOn(order.subtotal());
+        double total = order.subtotal() + taxAmount;
+
+        return new Quote(market, money.format(order.subtotal()), tax.label(),
+                money.format(taxAmount), money.format(total));
+    }
+}</code></pre>
+<p>Search that method for &quot;UK&quot;, &quot;US&quot; or &quot;India&quot; and you find nothing. Even the error message is market-correct — &quot;not a valid United States ZIP code&quot; — and it was assembled from the products themselves, with no branch.</p>
+<h3>One line changes, everything changes</h3>
+<pre><code>CheckoutService uk = new CheckoutService(new UkMarketFactory());
+CheckoutService us = new CheckoutService(new UsMarketFactory());</code></pre>
+<p>Same order, same call, same code path:</p>
+<pre><code>Checkout: VAT of £24.00 on £120.00
+Checkout: total £144.00 GBP
+
+Checkout: Sales Tax of $10.65 on $120.00
+Checkout: total $130.65 USD</code></pre>
+<p>Three products swapped in one constructor argument.</p>
+<h3>Java 21 records as the data carriers</h3>
+<pre><code>public record Order(String orderId, String customerId, double subtotal, String postcode) { }
+public record Quote(String market, String subtotal, String taxLabel, String tax, String total) { }</code></pre>
+<p><code>Quote</code> holds <em>already formatted</em> strings rather than numbers. That is deliberate: the currency decision the factory made travels all the way out to the caller, so nothing downstream can render £24.00 as $24.00.</p>
+<h2>What You Gain</h2>
+<ul><li><strong>A mismatched family becomes unrepresentable.</strong> Not &quot;checked for&quot; — unrepresentable. There is no code path that combines products from different markets, so there is no bug to test for.</li><li><strong>One decision instead of three.</strong> The market is chosen in exactly one place, in one line, and everything else follows from it.</li><li><strong>The client shrinks.</strong> <code>CheckoutService</code> went from nine class names and three country codes to three interface types and no country codes at all.</li><li><strong>A new market is additive.</strong> Germany means a new factory and three new products. No existing class is edited — the test suite in this project proves it by inventing a German market inside a single test method.</li><li><strong>Each family is testable as a unit.</strong> &quot;The British market&quot; is now an object you can construct, pass around and assert about.</li></ul>
+<h2>What to Watch Out For</h2>
+<ul><li>**Adding a new product <em>kind</em> is expensive.** Suppose checkout now needs a <code>ReceiptTemplate</code> too. You add a method to <code>MarketFactory</code> — and every concrete factory must implement it. Three markets, three edits, and this cost grows with every market you have added. This is the pattern&#x27;s one real weakness, and it is the exact mirror of its strength: rows are cheap, columns are expensive.</li><li><strong>The class count grows quickly.</strong> Markets × product kinds. Three by three is nine classes plus four interfaces before any business logic. Five markets and five product kinds is twenty-five. Be sure the families are real.</li><li><strong>You still have to choose the factory.</strong> The pattern removes the branching from the client, not from the universe. Somewhere a line reads <code>new UkMarketFactory()</code>, and in a real application that decision comes from configuration or dependency injection. If you write a <code>switch</code> on a country code to make it, you have built a Simple Factory <em>of</em> Abstract Factories — which is fine and common, but notice that you did it, and keep it in exactly one place.</li><li><strong>Do not use it when the products are unrelated.</strong> If your tax calculator and your currency formatter genuinely never need to agree, this is machinery around nothing. Ask the question honestly: <em>would a mismatched pair be a bug?</em> If the answer is no, inject the two objects separately and stop.</li><li><strong>Do not add parameters to the creation methods.</strong> The moment <code>createTaxCalculator(String market)</code> appears, the family guarantee is gone and you are back to per-call decisions.</li><li><strong>Beware the one-implementation abstract factory.</strong> An interface with a single concrete factory behind it, &quot;in case we go international one day&quot;, is a cost paid today for a benefit that may never arrive.</li></ul>
+<h2>Abstract Factory vs. the Other Factory Patterns</h2>
+<table><thead><tr><th></th><th>Simple Factory</th><th>Factory Method</th><th>Abstract Factory</th></tr></thead><tbody><tr><td>Is it in the GoF book?</td><td>No, an idiom</td><td>Yes</td><td>Yes</td></tr><tr><td>Mechanism</td><td>One static method with a <code>switch</code></td><td>An abstract method, overridden</td><td>An interface with several creation methods</td></tr><tr><td>Creates</td><td>One product</td><td>One product</td><td>A family of related products</td></tr><tr><td>Adding a new <em>variant</em> means</td><td>Editing the factory</td><td>Adding a subclass</td><td>Adding a factory and its products</td></tr><tr><td>Adding a new <em>product kind</em> means</td><td>Editing the factory</td><td>Nothing — there is only one kind</td><td>Editing every factory</td></tr><tr><td>Needs inheritance?</td><td>No</td><td>Yes, of the creator</td><td>Yes, of the factory</td></tr><tr><td>The question it answers</td><td>&quot;Which one?&quot;</td><td>&quot;Which one — decided by my subclass?&quot;</td><td>&quot;Which set?&quot;</td></tr></tbody></table>
+<p>The progression across those three columns is the reason to learn them in order. Simple Factory moves a decision into a helper. Factory Method dissolves the decision into the type system. Abstract Factory raises the decision from a single object to a whole coordinated set.</p>
+<p>A one-sentence test for which you need: <strong>if getting two objects from different groups would be a bug, you want Abstract Factory.</strong> Otherwise you probably do not.</p>
+<h2>Where You Have Already Seen It</h2>
+<ul><li><code>javax.xml.parsers.DocumentBuilderFactory</code> and <code>SAXParserFactory</code> — pick an implementation once, get a matching parser stack.</li><li><code>java.sql.Connection</code> — one connection hands you the <code>Statement</code>, <code>PreparedStatement</code> and <code>ResultSet</code> implementations of a single driver. Mixing drivers&#x27; objects is exactly the mismatch the pattern prevents.</li><li>Swing&#x27;s <code>LookAndFeel</code> — one choice, and every widget is drawn to match.</li><li><code>javax.net.ssl.SSLContext</code> — one context supplies matching socket, server socket and engine factories.</li><li>Any application with a locale, a theme, a cloud provider or a database dialect that swaps a whole coordinated set of behaviours at once.</li></ul>
+<h2>Try It Yourself</h2>
+<ol><li><strong>Add Germany.</strong> Write <code>GermanyMarketFactory</code>, <code>GermanVatCalculator</code>, <code>EuroFormatter</code> and <code>GermanPlzValidator</code>, and add one line to the demo. Confirm you never opened <code>CheckoutService</code>.</li><li><strong>Try to build a mismatch.</strong> Attempt to give the checkout British tax and American addresses without editing <code>CheckoutService</code>. Notice that the constructor does not offer you the opportunity.</li><li><strong>Feel the expensive direction.</strong> Add a <code>createReceiptTemplate()</code> method to <code>MarketFactory</code> and count the files you had to touch. Compare that with the count from step 1.</li><li><strong>Watch the same code produce different money.</strong> Run the demo and read the three blocks of output. Every line came from the same method.</li><li><strong>Question the pattern.</strong> If the store only ever sold in one country, what would all this machinery be buying you? Write your answer down before re-reading &quot;What to Watch Out For&quot;.</li></ol>
+<h2>See Also</h2>
+<ul><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the pain this removes</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> — the static structure and the families</li><li><a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the runtime sequence</li><li><a href="animation.html"><code>animation.html</code></a> — the flow, step by step</li><li><a href="prerequisites.html"><code>prerequisites.md</code></a> — what to know before you start</li><li><a href="../../factory-method-pattern"><code>../../factory-method-pattern</code></a> — one creator, one product, decided by inheritance</li><li><a href="../../simple-factory-pattern"><code>../../simple-factory-pattern</code></a> — where the whole family of factory patterns starts</li></ul>
+</main>
+<footer>
+Generated from <code>abstract-factory-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

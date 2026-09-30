@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Distributed Tracing Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Distributed Tracing Pattern</h1>
+<p>A one-hour facilitated session. It works as a live-coded walkthrough, a study-group session, or a lunchtime talk with the exercises cut.</p>
+<p>The session has one shape: spend the first fifteen minutes making the group feel the problem properly, because the pattern is obvious once the problem is felt and forgettable if it is not.</p>
+<hr>
+<h2>Learning Objectives</h2>
+<p>By the end, everyone can:</p>
+<ol><li>Say why merged logs cannot measure a service under concurrency, and why more logging does not fix it.</li><li>Name the two fields that make a trace — trace id and parent span id — and say what each one buys.</li><li>Compute self time by hand and explain why it names a culprit when total time cannot.</li><li>Recognise the three ways tracing quietly stops working: a missing span, a lost context across a thread, and a sampled-away trace.</li><li>Point at the one line in their own codebase most likely to be losing context.</li></ol>
+<hr>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup, and a question nobody can answer</td></tr><tr><td>0:05–0:15</td><td>The problem: two customers, four logs</td></tr><tr><td>0:15–0:25</td><td>The pattern: one id, one parent link</td></tr><tr><td>0:25–0:38</td><td>Code walkthrough</td></tr><tr><td>0:38–0:50</td><td>Exercises</td></tr><tr><td>0:50–0:58</td><td>The bill</td></tr><tr><td>0:58–1:00</td><td>Wrap-up</td></tr></tbody></table>
+<hr>
+<h2>0:00–0:05 — Setup, And A Question Nobody Can Answer</h2>
+<p>Have everyone run:</p>
+<pre><code>./gradlew run</code></pre>
+<p>Then put the Act 1 text on screen and ask the room:</p>
+<blockquote><p>A product page takes nine hundred milliseconds. Four services contributed. Which one is slow?</p></blockquote>
+<p>Take answers. Somebody will say &quot;recommendations, it&#x27;s always recommendations&quot;. Ask them how they would <em>prove</em> it with what the shop currently has. That question is the session.</p>
+<p><strong>Facilitator note:</strong> resist explaining anything yet. The next ten minutes work only if the group has actually tried and failed.</p>
+<hr>
+<h2>0:05–0:15 — The Problem: Two Customers, Four Logs</h2>
+<p>Put the Act 2 output on screen. Give the room two full minutes with this and no commentary:</p>
+<pre><code>  14:32:07.120  catalog          lookup complete
+  14:32:07.120  pricing          quote started
+  14:32:07.160  catalog          lookup complete
+  14:32:07.160  pricing          quote started
+  14:32:07.300  pricing          quote complete
+  14:32:07.340  pricing          quote complete</code></pre>
+<blockquote><p>How long did pricing take?</p></blockquote>
+<p>Somebody will answer 180ms. Ask which two lines they subtracted. Then point out that the other pairing gives 220ms and looks equally reasonable, and that one of the two is Ada&#x27;s start with Ben&#x27;s finish.</p>
+<p>Then ask the question that lands the point:</p>
+<blockquote><p>What would you add to these log lines to fix it?</p></blockquote>
+<p>Collect suggestions. You will get: the thread name, the pod name, the product id, the response size. Take each one and ask whether it is <em>the same across one request and different across the next</em>. None of them is. The thread name is close and fails the moment work crosses a thread — which is a nice piece of foreshadowing for 0:50.</p>
+<p>Land it explicitly: <strong>the missing thing is not detail, it is an identifier.</strong></p>
+<hr>
+<h2>0:15–0:25 — The Pattern: One Id, One Parent Link</h2>
+<p>Two moves, and let the group discover the second one.</p>
+<p><strong>Move one.</strong> Give the front door an id and pass it down. Ask: does that fix the question from Act 1? Let somebody work out that it fixes the <em>pairing</em> — you can now filter the log to one request — but it still does not say where the time went, because a filtered log is still a list of timestamps.</p>
+<p><strong>Move two.</strong> Each unit of work also records <em>what called it</em>. Put the Act 3 output up:</p>
+<pre><code>  ranking-model    span-6     parent span-5      340ms
+  recommendations  span-5     parent span-1      400ms
+  product-page     span-1     parent (none)      900ms</code></pre>
+<p>Ask someone to read the parent column aloud and describe the shape. Then show the waterfall and let the room see that nobody designed it — it is that column, drawn.</p>
+<p>Then do the self-time arithmetic <strong>on a whiteboard, by hand</strong>, before showing the program&#x27;s answer:</p>
+<ul><li>page: 900ms, children 900ms → <strong>0ms</strong></li><li>recommendations: 400ms, child 340ms → <strong>60ms</strong></li><li>ranking-model: 340ms, no children → <strong>340ms</strong></li></ul>
+<p>Ask: which of those three is the answer? The longest span is the page, and the page did nothing at all. That is the moment the pattern earns its keep.</p>
+<hr>
+<h2>0:25–0:38 — Code Walkthrough</h2>
+<p>Read in this order, and do not read the whole file — read the named part.</p>
+<table><thead><tr><th>File</th><th>What to show</th><th>The sentence to say</th></tr></thead><tbody><tr><td><code>TraceContext</code></td><td>the record, and <code>childWith</code></td><td>&quot;Two strings. Everything else is bookkeeping.&quot;</td></tr><tr><td><code>Span</code></td><td>the six fields</td><td>&quot;Five of these are obvious. The parent is the pattern.&quot;</td></tr><tr><td><code>Tracer.Scope.close()</code></td><td>the whole method</td><td>&quot;The closing brace is what records the span.&quot;</td></tr><tr><td><code>ProductPage.load</code></td><td>the recommendations block</td><td>&quot;This argument is <code>recommendations.context()</code>, not <code>request</code>.&quot;</td></tr><tr><td><code>Trace.selfTime</code></td><td>all four lines</td><td>&quot;Duration minus what it was waiting on. That is the trick.&quot;</td></tr><tr><td><code>Waterfall.appendSpan</code></td><td><code>offset</code> and <code>length</code></td><td>&quot;Two divisions. Jaeger&#x27;s picture is this picture.&quot;</td></tr></tbody></table>
+<p>Spend the most time on <code>ProductPage.load</code>&#x27;s recommendations block. Ask what would happen if the inner span were started from <code>request</code> instead. Do not answer — that is Exercise 1.</p>
+<hr>
+<h2>0:38–0:50 — Exercises</h2>
+<h3>Exercise 1 — Flatten the tree (everyone, 5 min)</h3>
+<p>In <code>ProductPage.load</code>, change the ranking model&#x27;s span to start from <code>request</code> instead of <code>recommendations.context()</code>. Run it.</p>
+<p>What to expect: the model becomes a sibling of recommendations rather than its child. Recommendations&#x27; self time jumps from 60ms to 400ms, and the model still shows 340. The total still adds to 900.</p>
+<p>The discussion point: the arithmetic still closes, the trace still has one root and no orphans, and the answer is now wrong. <strong>A trace can be internally consistent and false.</strong></p>
+<h3>Exercise 2 — Lose a span (everyone, 4 min)</h3>
+<p>Replace the pricing <code>try (...)</code> with a bare <code>tracer.start(request, &quot;pricing&quot;)</code> and no close. Run it.</p>
+<p>Pricing vanishes entirely and the page grows 180ms of self time. Ask what that would look like at three in the morning: a page that appears to spend a fifth of its time rendering.</p>
+<p>Then ask the real question: <strong>in your own codebase, where could an exception be thrown past an open span?</strong></p>
+<h3>Exercise 3 — Break it across a thread (discussion, then code)</h3>
+<p>Before running Act 6, ask the room to predict what happens when the recommendations call moves to a worker thread and the context is in a thread-local.</p>
+<p>Most rooms predict an error, or a missing span. The answer is neither: two roots, a complete-looking trace, and no warning. Run it and show them.</p>
+<p>Then show <code>withExplicitContext</code> and ask what changed. It is one line moved earlier.</p>
+<h3>Exercise 4 — Stretch</h3>
+<p>Add a <code>fraud-check</code> span inside pricing, lasting 40ms, and adjust pricing&#x27;s own work so the page still totals 900. Run it. <code>Waterfall</code> and <code>Trace</code> need no changes at all — which is the point about the drawing being derived rather than designed.</p>
+<hr>
+<h2>0:50–0:58 — The Bill</h2>
+<p>Three failures, and the honest framing is that all three are the <em>cost</em> of the pattern rather than mistakes made while applying it.</p>
+<p><strong>A service that is not instrumented.</strong> Show Act 5&#x27;s waterfall next to Act 4&#x27;s. Ask what is different. Somebody will spot that the ranking model moved up a level. Ask what a person who had never seen Act 4 would conclude. They would conclude the page renderer is slow, and they would be wrong, and nothing would have told them.</p>
+<p>Land it: <strong>partial instrumentation is worse than none</strong>, because none tells you nothing and partial tells you something false.</p>
+<p><strong>Sampling.</strong> Show Act 7. Ten thousand kept, nine hundred and ninety thousand gone, and the one somebody complained about is in the second group. Ask when the decision was made — at the front door, before anything was known.</p>
+<p>Then ask the room what they would do about it, and let tail sampling be their idea rather than yours. Somebody always gets there: hold the spans, decide at the end.</p>
+<p><strong>If time allows — the question worth leaving open.</strong> Tracing is one of three things: logs, metrics, traces. Ask which of the three answers &quot;what was the error message&quot;, which answers &quot;how did yesterday compare&quot;, and which answers &quot;where did the time go in this one request&quot;. Most teams try to make logs do all three.</p>
+<hr>
+<h2>0:58–1:00 — Wrap-Up</h2>
+<p>The three sentences to leave people with:</p>
+<ol><li><strong>A trace id makes a log readable. A parent span id makes it an answer.</strong> If you only do one of the two, do both.</li><li><strong>Self time, not total time.</strong> The longest span is always the request itself and it is always innocent.</li><li><strong>The context dies at boundaries.</strong> Threads, queues, scheduled jobs. Pass it as a value; never trust a thread-local to make the trip.</li></ol>
+<p>And one action: ask everyone to find, in their own codebase this week, one <code>executor.submit(...)</code> or <code>CompletableFuture.supplyAsync(...)</code> and check whether anything traced happens inside it.</p>
+<hr>
+<h2>Facilitator Notes</h2>
+<p><strong>The first fifteen minutes are not padding.</strong> Every group that is shown the waterfall before they have failed at the log exercise treats the pattern as obvious, and then does not remember why the parent link matters.</p>
+<p><strong>Do not let &quot;just use Jaeger&quot; close the conversation early.</strong> It will come up around 0:20. The reply is that Jaeger draws the picture and does not produce the data — if your services do not open spans and forward context, Jaeger shows you the same nothing.</p>
+<p><strong>The self-time whiteboard moment is the peak of the session.</strong> Do it by hand, do it slowly, and let the room say &quot;the page did nothing&quot; out loud before you do.</p>
+<p><strong>Exercise 1 is the highest-value exercise.</strong> The lesson — that a wrong trace looks exactly like a right one — is what people carry back to work.</p>
+<p><strong>Expect a question about overhead.</strong> Six spans per request costs serialisation, a write to a collector, and storage. It is usually small and it is never zero, and &quot;trace everything at full fidelity&quot; is a decision with an invoice attached.</p>
+<p><strong>Expect a question about OpenTelemetry.</strong> The honest answer: this project is forty lines of the thing OpenTelemetry standardises, and learning the standard is a better use of a week than learning any one vendor&#x27;s SDK.</p>
+<hr>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>JDK 21 installed, <code>./gradlew test</code> green (82 tests)</li><li><code>./gradlew run</code> output ready to project, Acts 2, 3, 4, 5, 6 and 7 bookmarked</li><li><code>docs/animation.html</code> open in a browser tab</li><li>A whiteboard, for the self-time arithmetic</li><li><code>docs/uml-diagram.md</code> diagram 4, for the thread boundary, if the room wants the sequence rather than the code</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

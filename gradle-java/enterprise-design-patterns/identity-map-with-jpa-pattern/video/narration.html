@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Identity Map with JPA Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Identity Map with JPA Pattern — Video Narration Script</h1>
+<h2>1. Identity Map with JPA</h2>
+<p>Hello, and welcome. This video explains the Identity Map pattern, in Java, using J P A, Java&#x27;s standard for storing objects in databases. This video is presented by Jayasekhar Konduru. First, a simple definition. An identity map keeps one object for each database row, for as long as one session lasts. Think of a hotel&#x27;s key desk. While you are staying, there is one key for your room. Ask again, and you are handed the same key, not a new one. This is the framework version of the Identity Map video, with the same customer and order. We will hear why loading the same customer twice gives the same object. Why two sessions give two objects. And what happens to a change made to an object whose session has closed.</p>
+<h2>2. The Partner Project</h2>
+<p>Before we start, a quick note. This video has a partner: the hand-built Identity Map video. That one builds the map by hand, in plain Java, and shows why one row should be one object. Here, we use the very same customer, number seven, and the very same order, number one hundred. We will not teach the pattern again. Instead, we ask what J P A does with it.</p>
+<h2>3. Before The First Annotation</h2>
+<p>Two things are new in this project. First, Hibernate, the most widely used implementation of J P A. You mark your classes with annotations, and it turns work on those objects into database commands. Second, H2, a database that runs in memory, inside the test, so nothing needs installing. And one promise. If you skip this video, you lose none of the pattern. This one only shows you where you have already met it.</p>
+<h2>4. Two Annotations</h2>
+<p>The customer class from the partner project gets two annotations. At Entity says: this class is stored in the database. At Id says: this field is its identity. Nothing else about the class changed. Not one line of its logic.</p>
+<h2>5. One Persistence Context</h2>
+<p>First demo, and here is the key moment. Ask the entity manager for customer seven, twice. Are the two the same object? Yes. And only one database query was made. That is the identity map from the hand-built project. You did not write it. It is called the persistence context, and every entity manager has one.</p>
+<h2>6. The Order&#x27;s Customer</h2>
+<p>Second demo: the order&#x27;s customer. Load order one hundred, and ask it for its customer. Then ask for customer seven by I D. The same object again. And just one database query for all of it: the order, and its customer, fetched once. Everything from the hand-built project, now done for you.</p>
+<h2>7. Both Changes Are Kept</h2>
+<p>Third demo: both changes are kept. Remember the bug from the hand-built project? One route moves the customer to York. Another changes her email. Without a map, one of those changes vanished. Here, both are kept. There is only one object, so the second change cannot overwrite the first. And when the transaction commits, Hibernate writes one single update, carrying both changes.</p>
+<h2>8. The Failure Of Its Own: Two Contexts</h2>
+<p>Fourth demo: this project&#x27;s own failure, two contexts. The map belongs to one persistence context. Open a second one, and ask for customer seven again. It has its own map. Is it the same object as the first context&#x27;s? No. Equal by I D, but two separate objects, each free to disagree. The problem from the hand-built project is back, just by opening a second context.</p>
+<h2>9. A Detached Change Is Not Saved</h2>
+<p>And worse. When a context closes, every object it loaded becomes detached. Now change a detached customer&#x27;s address. Then open a new context, and look at the stored address. It still says twelve Mill Lane, Leeds. The change was silently not saved. Nothing tracks a detached object. And there was no error at all.</p>
+<h2>10. Cost: The Context Is A Cache</h2>
+<p>Fifth demo: the context is a cache. Another context saves a new email address for the customer. This context still sees the old one. It has no reason to look again. The cure is a method called refresh, which reloads the object from the database. After refresh, it sees the new email.</p>
+<h2>11. Cost: It Holds References</h2>
+<p>Last demo: the context holds on to everything. After loading one thousand customers, the context holds all one thousand. Until a method called clear is called. So how long a context lives really matters. In a Spring application, it normally lives for one transaction, or one request. That is why it does not grow forever.</p>
+<h2>12. Where You Have Met This</h2>
+<p>Where have you met this before? Every J P A developer has used an identity map, often without knowing it. If a second lookup ever did not touch the database, this was why. And if an entity ever failed to see another transaction&#x27;s change, this was why too.</p>
+<h2>13. What Was Used</h2>
+<p>For the record, here are the versions. Hibernate seven point four point five. And H2 two point four point two forty. These versions come from Spring Boot four point one point one&#x27;s list of tested libraries. But Spring Boot itself is not used here.</p>
+<h2>14. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything here is real. The persistence context is Hibernate&#x27;s own. And the query counts come from Hibernate&#x27;s own statistics. The only stand-in is the database, which is H2, in memory.</p>
+<h2>15. When This Is Too Much</h2>
+<p>So, when is this too much? If you use J P A, you already have an identity map, and you cannot turn it off. The lesson is simply knowing that it is there.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s the Identity Map, in J P A. If you remember one sentence, make it this one. The persistence context is an identity map, and it belongs to one entity manager. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Use the merge method to save the detached change. And look closely at what merge returns. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

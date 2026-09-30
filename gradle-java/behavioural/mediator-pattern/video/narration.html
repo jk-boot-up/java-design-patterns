@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mediator Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Mediator Pattern — Video Narration Script</h1>
+<h2>1. Mediator</h2>
+<p>Hello, and welcome. This video explains the Mediator pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. When a group of objects all affect each other, you have two choices. Connect every object to every other one. Or give them all one single object to talk to, which holds the rules. That single object is the mediator. Think of an airport control tower. Planes do not talk to each other. They all talk to the tower, and the tower tells each one what to do. In this video, we build the checkout page of an online shop. Choosing a delivery country changes the couriers, the gift wrapping, the total, and whether you may place the order at all. By the end, you will know why five controls can need nine connections, what that costs, and the one fair criticism of this pattern.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario: an online shop&#x27;s checkout page, with five controls. The delivery country. The courier. A gift wrap option. The total. And the place order button. These five are connected by four rules. One. Changing the country changes the list of couriers, because different couriers serve different countries. Two. Gift wrapping is done by hand in the London warehouse, so it is only offered for UK orders. Three. The total follows the courier and the gift wrap. And four. The button may only be pressed when a country and a courier are both chosen. The rules are simple. The hard part is where they live.</p>
+<h2>3. Look Closely at One Click</h2>
+<p>Before any code, let&#x27;s follow one click. A shopper has a UK order, with express shipping, gift wrapped, for forty-eight pounds. Then they change the country to the United States. The gift wrap option is correctly withdrawn, because the London warehouse cannot wrap this order. But the tick stays in the box. Withdrawing the option and clearing the tick were two separate steps, and only one was written. So the total is now forty-two pounds. And two pounds of that is for gift wrapping that will never happen. Nothing crashes, and nothing is logged. It looks like a normal checkout, with two pounds of pure fiction in it.</p>
+<h2>4. The Naive Approach — Everyone Wires Everyone</h2>
+<p>Here is why it happens. The obvious place for the rule, when the country changes, refresh the couriers, is inside the country control. So the country control is given a reference to the courier control. But gift wrap depends on the country too, so it needs that as well. And the total changes, so it needs the total. And the button might need checking, so it needs the button. That makes nine references, on a page with just five controls. Inside the country control&#x27;s method, three of the four follow-up steps were remembered. The fourth, re-checking the button, was forgotten. Nobody was careless. The page is only correct if someone holds all five controls in their head, every time they change any one of them.</p>
+<h2>5. Why That Hurts</h2>
+<p>So what exactly is wrong? Four separate things. One. Nobody can see the whole form. What happens when the country changes is spread across three files, and no single file has the answer. Two. The bugs are missing lines. And you cannot review a line that was never written. Three. The connections grow faster than the form. Three controls can have six connections. Five controls, twenty. Ten controls, ninety. And four. No control can be built or tested alone. The country control needs four other controls just to exist.</p>
+<h2>6. The Mediator Pattern</h2>
+<p>Here is the pattern&#x27;s definition, from the famous Gang of Four book. Define an object that encapsulates how a set of objects interact, and keep the objects from referring to each other directly. That has two halves. Keeping objects from referring to each other is the mechanism. Nine references become five. Encapsulating how they interact is the bigger benefit. After the change, there is one file, with one method, that tells you everything the page does. Nothing hides anywhere else.</p>
+<h2>7. An Analogy</h2>
+<p>Here is the analogy to hold on to: aircraft near an airport. Planes do not negotiate with each other about who lands first. They all talk to the control tower. The tower knows where everyone is, and tells each plane what to do. That is not because pilots cannot be trusted. It is simple arithmetic. Ten planes talking to each other means ninety conversations, and sooner or later, one is missed. Ten planes talking to one tower means just ten conversations. And all the rules are in one place. In our project, the checkout form is the tower, and the five controls are the planes.</p>
+<h2>8. The Roles</h2>
+<p>So here are the pieces. The Checkout Mediator interface has exactly one method, called changed. A control calls it to say, something about me changed. Controls report. They never ask. Every control extends a base class called Form Widget. It has two fields: a name, and the mediator. There is no field that could hold another control. So controls cannot tangle, even by accident. Then there are the five real controls: country, courier, gift wrap, the total, and the button. Each one knows the form. And the form knows all five. The shape is a star, not a web.</p>
+<h2>9. The Colleague — Notice What Is Missing</h2>
+<p>Let&#x27;s look at a control, and notice what is missing. The base class has only two fields: a name, and the mediator. No field can hold another control. Now the country control. When a country is chosen, it stores the country, announces that it changed, and stops. That is the whole class. Compare it with the naive version, which had four follow-up steps, and still missed one. A control now only says, something about me is different. What that means for the rest of the page is not its business.</p>
+<h2>10. The Mediator — The Whole Page, in One Method</h2>
+<p>And here is the whole page, in one method, in the mediator. If the country changed, it refreshes the courier list, and sets whether gift wrap is offered. Then, whatever changed, it recalculates the total, and re-checks the button. Two things are worth noticing. First, the total and the button are refreshed after every change, with no special cases. So the mediator never needs to remember that clearing the courier affects the button. It simply checks again, every time. Simple and always right beats clever and sometimes wrong. Second, withdrawing the gift wrap offer also clears the tick, in the same method. There is no way to do only half of that. So there is nothing left to forget. One if statement. That is the entire control flow of the page.</p>
+<h2>11. The Tests — Asserting the Structure, Not Just the Behaviour</h2>
+<p>The project has fourteen tests. Two of them prove the pattern. A test like, choosing express makes the total forty-six pounds, passes for the tangled version too. So it proves nothing about the pattern. The first special test checks the structure. It looks at every field of every control, and fails if any field can hold another control. A comment saying, controls must not reference each other, lasts until the first person in a hurry. This test does not. The second test checks a wrong answer, on purpose. It confirms that the naive form still has the bug: the tick stays, and the total is forty-two pounds. The cost of that design is stated out loud, by the build.</p>
+<h2>12. Running It</h2>
+<p>Let&#x27;s run the demo. The same page, the same three clicks, and the same change of mind. First, the tangled version. The total is forty-two pounds, with two pounds of phantom gift wrap. And the place order button still works, even though no courier is chosen. Now the mediated version. The tick disappeared when the offer did. The courier was cleared, so the total is back to just the basket. And the button switched itself off. Notice that nobody wrote code saying, when the country changes, disable the button. It just happens, because the mediator re-checks everything after every change.</p>
+<h2>13. What to Remember</h2>
+<p>So, what should you remember? When everything talks to everything, nobody can see the whole picture. Give them one place to talk to, and the rules have somewhere to live. People often confuse Mediator with Observer. The difference is knowledge. An observer&#x27;s publisher knows nothing about its subscribers. A mediator knows all of its controls, on purpose. That knowledge is what lets it enforce a rule that spans several of them. A Facade also sits in front of several objects. But a facade faces outward, to make life simpler for an outside caller. A mediator faces inward. Now the honest cost, and this criticism is fair. Everything you take out of the controls goes into the mediator. On a real form, that class can grow huge. The answer is to split it, one mediator per section of the page, before it gets there. And for two controls that will never be three, direct wiring is clearer. This pattern pays off at about four or five interacting parts.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s the Mediator pattern. If you remember one sentence, make it this one. Give a group of objects one place to talk to, and their rules have one place to live. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Give the country control a field that points at the total. Run the tests, and listen as the structure test names that field. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

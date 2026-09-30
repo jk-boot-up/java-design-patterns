@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Service Discovery Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Service Discovery Pattern, Explained</h1>
+<h2>In One Sentence</h2>
+<p>Instead of writing a service&#x27;s address into the caller, keep a shared list of who is running right now, and have the caller ask that list every time.</p>
+<p>That is the whole pattern. Everything below is about why a list beats a constant, what the list gets wrong, and what a caller has to do about it.</p>
+<h2>Everyday Analogy: The Taxi Rank</h2>
+<p>Imagine you need a taxi. One way is to keep the mobile number of a driver called Dave. It works beautifully while Dave is working. It fails completely the evening Dave is off, and it goes on failing even though there are eleven other drivers in town who would happily take you, because your phone knows about Dave and nobody else.</p>
+<p>The other way is a taxi rank. You do not know any driver&#x27;s name. You go to the rank and take whoever is at the front. Drivers join the rank when they start a shift and leave it when they finish, and none of that requires you to change anything you know or do.</p>
+<p>The rank is a service registry. The drivers are instances. And the crucial detail — the one that makes this more than a nice picture — is what happens when you get into a car whose driver has just been called away. You do not stand there insisting. You take the next one.</p>
+<p>Analogies are allowed to come from anywhere; the worked example below is the online shop, as it is throughout this repository.</p>
+<h2>The Problem, In The Shop</h2>
+<p>The shop&#x27;s Pricing service runs as three instances: <code>pricing-1</code>, <code>pricing-2</code> and <code>pricing-3</code>. They are the same program started three times, so any one of them can answer any question and all three give the same answer.</p>
+<p>The checkout needs a price, and so it needs an address.</p>
+<p>Writing one down is the first thing everybody does, and for a long time it is right. <code>HardcodedPricingClient</code> in this project holds the string <code>pricing-1</code> and calls it. There is no bug in that class. It is four lines and every one of them is correct.</p>
+<p>Then somebody deploys Pricing. A rolling deployment stops <code>pricing-1</code>, and:</p>
+<pre><code>      0ms -&gt;    10ms  pricing-1        OK        £449.99
+     10ms -&gt;    10ms  Registry         DEREGISTER pricing-1 left cleanly
+  after the deploy:  pricing-1 did not answer</code></pre>
+<p>The checkout is down. Not degraded — down. And two perfectly healthy instances are sitting idle three metres away in the same rack, because the only thing the client was ever told was the name of a machine that no longer exists.</p>
+<p>The same thing happens, in reverse, when the shop scales up. Start <code>pricing-4</code> for a busy Friday and nothing will ever call it. The capacity is real, paid for, and unreachable.</p>
+<p>The underlying mistake is easy to state: <strong>the set of running instances changes several times a day, and the source code of the callers changes once a fortnight.</strong> A fast-moving fact has been written into a slow-moving artefact. A properties file improves the ratio a little and does not change the shape of the problem, because a human still has to edit it, and that human still has to notice.</p>
+<h2>The Pattern</h2>
+<p>Add a registry — a shared list of who is running right now — and three rules about how it is kept.</p>
+<p><strong>An instance announces itself when it starts.</strong> <code>PricingCluster.start</code> calls <code>registry.register(instance)</code>. From that moment the instance is discoverable. Nobody edits anything.</p>
+<p><strong>An instance says &quot;still here&quot; periodically.</strong> That is the heartbeat. A registration is not permanent; it is a <strong>lease</strong>, good for three seconds from the last heartbeat in this project. Renewing is cheap and forgetting is fatal, which is exactly the property you want.</p>
+<p><strong>An instance deregisters when it shuts down politely.</strong> A rolling deployment takes an instance off the list before it stops answering, so callers never see the gap at all.</p>
+<p>And on the other side, the caller asks. <code>DiscoveringPricingClient.price</code> starts with <code>registry.instances(&quot;Pricing&quot;)</code> on <strong>every single call</strong>, not once at startup. That is deliberate and it is the difference between discovery and a slightly more elaborate configuration file. A client that looks up once and caches the answer for the life of the process has reinvented the hardcoded address with extra steps.</p>
+<h2>The Half That Is Usually Skipped</h2>
+<p>A registry cannot be right. Not &quot;is sometimes wrong&quot; — cannot be right, in principle. An instance that crashes cannot send a message saying it has crashed. For some window of time, the list will confidently offer you an address that nothing is listening on.</p>
+<p>Act three of the demo does exactly that. <code>pricing-1</code> is killed with no deregistration, and then a price is asked for:</p>
+<pre><code>      0ms -&gt;     0ms  Pricing          CRASHED   pricing-1 died without deregistering
+      0ms -&gt;     0ms  Client           LOOKUP    2 Pricing instance(s) offered
+      5ms -&gt;     5ms  Client           STALE     pricing-1 was on the list but is not answering
+      5ms -&gt;    15ms  pricing-2        OK        £449.99</code></pre>
+<p>Read the third line again. The registry offered two instances and the first one was a lie. The shopper still got a price, because the client did the one thing that makes discovery usable rather than merely correct: it tried the next name on the list.</p>
+<p>This is why the pattern is a <em>pair</em>. A registry without a client that copes with stale entries fails every time an instance dies — which is precisely the situation it was introduced to fix. In this project that coping is a loop and a caught exception, and that is genuinely all it is:</p>
+<pre><code>for (ServiceInstance instance : candidates) {
+    try {
+        return cluster.endpoint(instance).invoke(sku);
+    } catch (ServiceUnavailableException e) {
+        log.note(&quot;Client&quot;, &quot;STALE&quot;, instance.instanceId()
+                + &quot; was on the list but is not answering&quot;);
+        lastFailure = e;
+    }
+}
+throw lastFailure;</code></pre>
+<p>Note the last line. When every offered instance is dead, the caller fails rather than hanging or inventing a price. &quot;Everything is down&quot; is a real answer and the client is allowed to give it.</p>
+<h2>The Lease, And Why The Window Cannot Be Removed</h2>
+<p>Act four advances the clock a second at a time and asks the registry how many instances it lists:</p>
+<pre><code>  immediately after the crash: 2 listed
+  1s later: 2 listed
+  2s later: 2 listed
+  3s later: 2 listed
+  4s later: 1 listed</code></pre>
+<p>For three seconds the registry names a dead process. On the fourth second its lease expires unrenewed, it is dropped, and the list becomes true again.</p>
+<p>That window is the price of the pattern, and it is worth being honest about it because every real registry — Eureka, Consul, etcd, the endpoints controller in Kubernetes — has one. You can make it shorter by heartbeating more often, and then every instance spends more of its life telling a registry it is alive. You cannot make it zero, because the only message that would close it is the one a crashed process cannot send.</p>
+<p>So the correct response is not to tune the lease until the problem disappears. It is to build clients that expect to be handed a bad address occasionally, which is the loop above.</p>
+<h2>Client-Side And Server-Side Discovery</h2>
+<p>This project shows <strong>client-side</strong> discovery: the caller asks the registry and chooses an instance itself. That makes the mechanism visible, which is why it is the version to learn first.</p>
+<p>The alternative is <strong>server-side</strong> discovery: the caller sends its request to one fixed address — a load balancer, a Kubernetes service, an ingress — and that thing does the looking up. The caller is simpler, because it is back to knowing one address, but the registry has not gone away. It has moved behind something else, and that something else is now on the critical path of every call.</p>
+<p>Neither is more correct. The trade is fewer moving parts in the client against one more piece of infrastructure that has to be running.</p>
+<h2>What It Costs</h2>
+<p><strong>The registry is a new thing that has to be up.</strong> If it goes down and callers cannot look anything up, nothing can call anything. Real registries are therefore run as a cluster, and real clients usually keep the last good answer as a fallback — which reintroduces staleness on purpose, as the lesser of two evils.</p>
+<p><strong>One more call per request.</strong> In this project the lookup is free because the registry is in-process. In a real system it is a network call, usually served from a short-lived local cache for exactly that reason.</p>
+<p><strong>Nothing is where you left it.</strong> The address a request went to is no longer something you can read out of a config file; it is a decision taken at runtime. That is the whole point, and it means logs have to say which instance answered or debugging becomes guesswork. <code>CallLog</code> in this project records the instance name on every line for the same reason.</p>
+<h2>When Not To Use It</h2>
+<p>If the service has exactly one instance, and it is started by hand, and it never moves, a constant is the right answer and a registry is theatre. The pattern earns its keep the moment the number of instances stops being one — or the moment instances start being replaced rather than restarted, which in practice happens the first time anybody deploys with zero downtime.</p>
+<h2>What To Remember</h2>
+<p>A registry is a list of who is running, kept by the instances themselves rather than by a person. Callers ask it every time. It is occasionally wrong, always for a bounded period, and a client that tries the next name on the list turns that from an outage into a line in a log.</p>
+</main>
+<footer>
+Generated from <code>service-discovery-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

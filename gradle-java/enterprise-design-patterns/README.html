@@ -5,10 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Enterprise Application Patterns</title>
 <style>
-:root {
+:root, [data-theme=dark] {
+  color-scheme: dark;
   --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
   --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
-  --ok: #34d399;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
 }
 * { box-sizing: border-box; }
 body {
@@ -24,7 +40,7 @@ h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
 h3 { font-size: 19px; margin: 32px 0 4px; }
 p { margin: 14px 0; }
 a { color: var(--link); }
-a:hover { color: #7dd3fc; }
+a:hover { color: var(--link-hover); }
 hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
 code {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
@@ -39,14 +55,14 @@ pre {
 pre code { background: none; border: 0; padding: 0; font-size: 14px; }
 blockquote {
   margin: 20px 0; padding: 4px 20px;
-  background: rgba(167, 139, 250, 0.08);
+  background: var(--quote);
   border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
 }
 table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
 th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
          vertical-align: top; }
 th { background: var(--panel-hi); font-weight: 600; }
-tr:nth-child(even) td { background: rgba(30, 41, 59, 0.55); }
+tr:nth-child(even) td { background: var(--stripe); }
 img {
   display: block; max-width: 100%; height: auto; margin: 24px auto;
   background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
@@ -61,14 +77,33 @@ footer {
   max-width: 860px; margin: 60px auto 0; padding-top: 20px;
   border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
 }
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
 </style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
 </head>
 <body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <main>
 <h1>Enterprise Application Patterns</h1>
 <p>The seventh category. Seven patterns from Martin Fowler&#x27;s <em>Patterns of Enterprise Application Architecture</em>, in eleven projects, covering the space between an application&#x27;s objects and its database.</p>
 <p><strong>Status: all eleven built.</strong> Each project has code, deterministic tests, a README, diagrams, an animation, a narrated video pipeline and a YouTube document, and the four framework projects add a <code>docs/dependencies.md</code>. The two documents below fixed what the projects are before any of them was written. One thing is not built: the optional one-scene <code>real/</code> demos for Data Mapper, Service Layer and DTO, which the specification describes.</p>
-<ul><li><a href="docs/spec.md"><code>docs/spec.md</code></a> — the scenario each pattern is taught through, the naive version it must show failing, the cost it must admit to, and the framework feature it lives inside.</li><li><a href="docs/implementation-plan.md"><code>docs/implementation-plan.md</code></a> — the order the eleven get built in, the shared toy database they all use, the framework register, and the rules that keep the build from having to redo itself.</li></ul>
+<ul><li><a href="docs/spec.html"><code>docs/spec.md</code></a> — the scenario each pattern is taught through, the naive version it must show failing, the cost it must admit to, and the framework feature it lives inside.</li><li><a href="docs/implementation-plan.html"><code>docs/implementation-plan.md</code></a> — the order the eleven get built in, the shared toy database they all use, the framework register, and the rules that keep the build from having to redo itself.</li></ul>
 <h2>The seven patterns, built by hand</h2>
 <table><thead><tr><th>#</th><th>Pattern</th><th>Scenario</th></tr></thead><tbody><tr><td>52</td><td>Data Mapper</td><td>The object that does not know it is a row</td></tr><tr><td>53</td><td>Identity Map</td><td>The same customer, loaded twice, in two states</td></tr><tr><td>54</td><td>Unit of Work</td><td>Save half an order and nothing else</td></tr><tr><td>55</td><td>Lazy Load</td><td>Loading one order, and getting the whole catalogue</td></tr><tr><td>56</td><td>Repository</td><td>Query the collection, not the table</td></tr><tr><td>57</td><td>Service Layer</td><td>Where does &quot;place an order&quot; actually live?</td></tr><tr><td>58</td><td>DTO</td><td>The object that crosses the boundary</td></tr></tbody></table>
 <p>The order is Fowler&#x27;s own dependency order. Identity Map solves a problem Data Mapper creates; Unit of Work needs the Identity Map to know what changed; Lazy Load is the escape hatch all three make possible; Repository hides the four of them; Service Layer sits above it; DTO is last because you must know what is inside before deciding what leaves.</p>
@@ -84,7 +119,7 @@ footer {
 <p><strong>The hand-built project comes first, always.</strong> Offline, no database, no network, deterministic tests under two seconds, and its video is built entirely from it. A reader who installs nothing gets the whole pattern.</p>
 <p><strong>The framework project comes after it</strong>, never before, and its job is recognition plus one failure. It uses the real thing a reader meets at work — Hibernate, Spring, Spring Data — over an in-memory H2, so it still needs nothing installed beyond a JDK and a warm Gradle cache. That is what makes it reasonable to ship these as projects rather than as optional extras.</p>
 <h2>Where this sits</h2>
-<p>Projects 52 to 62, after the twenty-five object-oriented patterns, the twelve microservices ones, the eight platform ones and the six concurrency ones. See <a href="../README.md"><code>../README.md</code></a> for the full course.</p>
+<p>Projects 52 to 62, after the twenty-five object-oriented patterns, the twelve microservices ones, the eight platform ones and the six concurrency ones. See <a href="../README.html"><code>../README.md</code></a> for the full course.</p>
 <h2>More enterprise patterns</h2>
 <ul><li><a href="transaction-script-pattern">Transaction Script</a></li><li><a href="active-record-pattern">Active Record</a></li><li><a href="optimistic-offline-lock-pattern">Optimistic Offline Lock</a></li><li><a href="pessimistic-offline-lock-pattern">Pessimistic Offline Lock</a></li><li><a href="front-controller-pattern">Front Controller</a></li><li><a href="gateway-pattern">Gateway</a></li></ul>
 </main>

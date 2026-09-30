@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Immutable Object Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Immutable Object Pattern — Video Narration Script</h1>
+<h2>1. Immutable Object</h2>
+<p>Hello, and welcome. This video explains the Immutable Object pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. An immutable object is one that can never change after it is made. To change something, you make a new object with the difference. The old one stays exactly as it was, for everyone still holding it. Think of a whiteboard menu behind a café counter, and a printed till receipt. Anyone with a cloth can change the whiteboard, even while you are reading it. A receipt never changes. If something changes, the shop prints a new one. In this video, the domain is an online shop. It passes addresses and price lists around everywhere. Orders keep a shipping address, and checkout reads the price list. By the end, you will hear three bugs that changeable objects cause. How to write an object that cannot change. How to replace a price list in one step. And what immutability costs.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Each order keeps the address it ships to. Checkout reads the shop&#x27;s price list. And a set records addresses where a delivery failed. All of these are ordinary objects with setters. A setter is a method that changes a field, such as set city. And they are shared by reference. That means two parts of the program can hold the very same object. Not two copies. One object.</p>
+<h2>3. Act One — Shared, then changed</h2>
+<p>First demo: one address, shared, then changed. Priya places order one. The order keeps her profile address: four Mill Lane, Leeds. But it does not keep a copy. It keeps the same object that her profile uses. Later, Priya moves house. She updates her profile, for future orders. Order one now ships to twelve High Street, York. An order she placed before she moved.</p>
+<h2>4. Act Two — Changed while being read</h2>
+<p>Second demo: a price list changed while someone reads it. A kettle, a mug and a teapot come to sixty-five pounds. A ten percent sale is applied, one price at a time. First the kettle. Then the mug. Then the teapot. A checkout reads the list just after the kettle changed. It sees the new kettle, and the old mug and teapot. Sixty-two pounds. That is neither the old price, nor the sale price. The customer paid a price that never existed.</p>
+<h2>5. Act Three — Lost in a set</h2>
+<p>Third demo: a changed object is lost in a set. Tom&#x27;s address goes into a set of failed deliveries. A hash set files each object under a number, worked out from what the object contains. Like a filing cabinet, sorted by the first letter of a name. Then someone tidies the spelling. Road becomes R D. Now the set cannot find it. Contains says false. But the set&#x27;s size is still one. It is filed in the wrong drawer.</p>
+<h2>6. Act Four — Immutable objects</h2>
+<p>Fourth demo: immutable objects. Now the address has no setters. A change makes a new address, and leaves the old one alone. Priya&#x27;s profile moves to York. Order two still ships to Leeds. The price list is immutable too. The sale builds a whole new list, on the side. Checkout keeps reading sixty-five pounds. Then the shop swaps in the new list, in one single step. Checkout reads fifty-eight fifty. There is no moment in between. The list also copies whatever it was built from. So changing that later does nothing. And an address that cannot change is never lost in a set.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. Every change is a copy. Change one price, in a list of a thousand items. You get a new list, of a thousand entries. And every field that might change needs its own with method, to build the new object. For small values that change rarely, that is cheap. For something that changes all the time, think twice.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the pattern. No setters, and every field is final. If the object holds a list or a map, copy it in when the object is made. And hand it out read-only. To change something, make a new object with the difference. And when many readers share the current version, such as the shop&#x27;s price list, swap in the new object in one step.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. Address is a Java record. Its with street and with city methods return a new address. Price list copies the prices it is given, and hands them out read-only. A sale returns a whole new price list. Shop holds the current price list, and swaps in a new one in one step. And the mutable address and mutable price list are the old way, kept for comparison.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have used immutable objects since your first Java program. String is immutable. So are Integer, Local Date, and Big Decimal. Java records make writing your own easy. And List dot of, and Map dot copy of, give you lists and maps that cannot change. The Value Object and Money patterns in this course are built on this idea. And so is state in React and Redux.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use it? Make every value immutable by default. Addresses, prices, dates, IDs, messages, settings. Replace objects whole, instead of editing something that is shared. And keep mutation for the few objects that exist to change, such as a cart being filled. Give each of those exactly one owner.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Immutable Object pattern. If you remember one sentence, make it this one. Never change a shared object. Make a new one. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Add a list of delivery notes to the address. And make sure it stays immutable. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

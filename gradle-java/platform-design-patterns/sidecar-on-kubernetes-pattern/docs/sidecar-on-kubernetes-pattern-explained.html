@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sidecar on Kubernetes, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Sidecar on Kubernetes, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>A Pod is two or more containers that share one network namespace and one fate, which is exactly what a sidecar needs.</p>
+<h2>An analogy, and then back to the shop</h2>
+<p>Two flatmates who share a phone line have agreed to it. Either can ring the other from the hall, but only because they set it up, and if one moves out the line stays. Now think of a couple who share a flat. Nobody set anything up: they have one address, one front door, and one lease. If the flat is given up, both leave together. That is the difference between two containers in a Compose file and two containers in a Pod. The first is an agreement. The second is what a Pod is.</p>
+<h2>Four things a Pod guarantees</h2>
+<p><strong>1. A shared network, by definition.</strong></p>
+<pre><code>ONE. Shared by configuration, or shared by definition.
+  a Pod: checkout reaches localhost:8081: true. there is no line to forget.
+  both containers are on 10.244.0.10, one network, because that is what a Pod is.</code></pre>
+<p><strong>2. A shared lifecycle.</strong> The Pod is scheduled, evicted and deleted as one unit.</p>
+<pre><code>TWO. One lifecycle.
+  Compose: checkout stopped. the proxy is still running: true.
+  Pod: deleted. checkout running: false, proxy running: false. they go together.
+  the replacement is a new Pod on a new address (10.244.0.10 became 10.244.0.11), with both containers new.</code></pre>
+<p><strong>3. A correction worth making: restarts are per container.</strong> It is tempting to say a crash in one container takes its neighbour with it. It does not. The kubelet restarts each crashed container on its own.</p>
+<pre><code>THREE. Restarts, however, are per container.
+  the proxy&#x27;s process dies. the Pod is 1/2. a payment now: connection refused on localhost:8081
+  the kubelet restarts the proxy alone. Pod 2/2, proxy restarts 1, checkout restarts 0.</code></pre>
+<p>What is shared is the Pod: scheduling, eviction and deletion, not process death. While the proxy is down the service&#x27;s calls fail, exactly as in <a href="../sidecar-pattern"><code>sidecar-pattern</code></a>&#x27;s &quot;kill the proxy&quot; act, and then they recover without anyone touching the service.</p>
+<p><strong>4. Injection.</strong> The sidecar arrives beside a service whose own manifest does not mention it.</p>
+<pre><code>FOUR. Injection.
+  the manifest the refunds team wrote lists 1 container: [refunds]
+  the Pod that was created lists 2: [refunds, sidecar-proxy]</code></pre>
+<p>That is the mechanism every service mesh is built on: an admission step adds a proxy to every Pod as it is created, and no team wrote it. This project does the same by hand; a real mutating webhook is named and not built.</p>
+<h2><code>READY 2/2</code>, and the start-up race</h2>
+<p><code>kubectl get pods</code> prints <code>2/2</code> for one logical service made of two containers. With the proxy down it prints <code>1/2</code>, and the Pod stops receiving traffic. Containers started together also leave a race: the service can start, and call the proxy, before the proxy is listening. A <strong>native sidecar</strong>, an init container with <code>restartPolicy: Always</code>, is started first and must be running before the service starts.</p>
+<pre><code>FIVE. READY 2/2, and the start-up race.
+  containers started together, in manifest order: [checkout, sidecar-proxy].
+  a native sidecar starts first: [sidecar-proxy, checkout]. the ordering problem is gone.</code></pre>
+<h2>The bill, and the honest question</h2>
+<p>Everything Compose cost, plus a cluster: a scheduler, a control plane, a YAML dialect and a networking model, added to a shop that worked with two containers and a file. For a fleet that is a bargain. For four services it is the reason &quot;do you need Kubernetes yet?&quot; is a real question, and for four services the honest answer is almost certainly not. This project answers it rather than selling the cluster.</p>
+<h2>What this simulation does not show</h2>
+<p>Tier 1 is a model. It has no scheduler deciding which node, no etcd, no network partitions, and no restart back-off: a real kubelet waits longer between each restart of a container that keeps crashing. Tier 2 runs the same two containers on a real cluster and closes most of that gap. It does not close all of it: one laptop running <code>kind</code> is not a fleet, and its control plane is one container that does not fail.</p>
+<h2>Where you have already met this</h2>
+<p>Every Pod in every cluster, and the proxy a service mesh injects beside your service.</p>
+<h2>When this is too much</h2>
+<p>For four services, or one team, Compose is cheaper, faster to start, and has fewer ways to fail.</p>
+</main>
+<footer>
+Generated from <code>sidecar-on-kubernetes-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entity Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Entity Pattern — Video Narration Script</h1>
+<h2>1. Entity</h2>
+<p>Hello, and welcome. This video explains the Entity pattern, from domain-driven design, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. An entity is something defined by who it is, not by its current details. It gets an identity that never changes. Its details can change, and it is still the same thing. Think of a car. Over the years it gets a new colour, new plates, and a new owner. It is still the same car, because its chassis number, stamped in at the factory, never changes. In this video, the domain is an online shop. Its customers change their emails, earn points, and sometimes share a name with someone else. By the end, you will hear how comparing customers by their values goes wrong. How an identity fixes it. How look-alikes stay apart. And what equality does not tell you.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Customers change their email. They earn loyalty points. Some share a name, and even an email, with someone in their family. The shop kept customers as records. Two records are equal when every field is equal.</p>
+<h2>3. Act One — Defined by values</h2>
+<p>First demo: a customer defined by its values. The customer is a record, compared by every field: name, email, and points. Priya changes her email. Now the old record and the new one are not equal. Her orders were stored under the old record. Looked up with the new one: nothing found. And the mailing list now has two customers. Both of them are Priya.</p>
+<h2>4. Act Two — Defined by identity</h2>
+<p>Second demo: an entity, a customer defined by its identity. The customer now has an ID, C 17, given when the account was opened. Two customer objects are equal when their IDs are equal. Nothing else is compared. Priya changes her email. She is still C 17. Her orders are found. And the mailing list holds one customer.</p>
+<h2>5. Act Three — Look-alikes are different</h2>
+<p>Third demo: two people who look the same are still two people. A father and his son are both called Tom Reed. They share a family email. As records, they are equal. The shop would mix up their orders. As entities, they are C 42 and C 43. Two different customers.</p>
+<h2>6. Act Four — A life story</h2>
+<p>Fourth demo: an entity has a life story. Priya&#x27;s account was opened with her old email. Then she changed it. Then she changed it again, to her work email. She earned eighty points along the way. Three emails. One customer. The ID never changed.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. Equal is not the same as up to date. A cached copy of Priya, and the live Priya, are equal. They share the same ID. But the copy has an old email, and the live one a new email. And every entity needs an ID that is unique, and never reused.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the pattern. Give each customer an identity when it is created. A customer ID. Never change it. Compare customers by that identity only. Everything else, the email, the points, is free to change.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. Customer ID is the identity: a small value that never changes. Customer is the entity. It holds the ID, and details that change, and a history of those changes. Its equals and hash code look at the ID only. And customer record is the old way, kept for comparison.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met this pattern already. J P A entities have an ID field. Database tables have a primary key. Order numbers, account numbers, and parcel tracking numbers are all identities of entities. And any equals method that compares only an ID is treating its class as an entity.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use it? For things the business follows one by one, through time. Customers, orders, parcels. For things where only the value matters, such as an amount of money or an address, use a value object instead. Ten pounds is ten pounds, whichever coins.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Entity pattern. If you remember one sentence, make it this one. Some things are who they are, not what they currently look like. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Make the order an entity, with its own order ID. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

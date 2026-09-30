@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Future/Promise with Spring, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Future/Promise with Spring, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p><code>@Async</code> returns a <code>CompletableFuture</code> that the container completes, so independent work can run at once, on a pool you must choose.</p>
+<h2>What is new here</h2>
+<p>The pattern is <a href="../future-promise-pattern">Future/Promise</a>. This page is only what Spring Boot adds.</p>
+<h3>The Pool Decides</h3>
+<p><code>@Async</code> asks for concurrency and the pool decides whether to give it: three lookups overlap on the default pool, and on a pool of one thread they run one at a time.</p>
+<pre><code>  on the default pool, lookups in flight at the same moment: 3
+  on a pool of one thread: 1</code></pre>
+<h3>Exceptions</h3>
+<p>A method returning a future carries its exception to the caller, with a stack trace that belongs to a pool thread. A <code>void</code> method&#x27;s exception reaches nobody: only a handler you register by hand.</p>
+<pre><code>  a method returning a future: the caller sees CompletionException, cause &quot;the review service is down&quot;.
+  the calling method appears in that stack trace: false.
+  a void method threw, and the caller got: nothing.
+  the only place it went is a handler you have to register</code></pre>
+<h3>Thread-Locals</h3>
+<p>Request context, security context and logging context are thread-locals, and none crosses to a pool thread. A <code>TaskDecorator</code> bean that copies it is the fix, and it is yours to write.</p>
+<pre><code>  the caller is working for customer 7. the async method asked whose order it is: &quot;customer null&quot;.
+  with a TaskDecorator that copies it across: &quot;customer 7&quot;.</code></pre>
+<h3>A Timeout Does Not Stop It</h3>
+<p><code>orTimeout</code> makes the caller give up. The task keeps running, and finishes its work, with nobody waiting for the answer.</p>
+<pre><code>  the caller waited 200ms and got: TimeoutException.
+  the task had finished when the caller gave up: false.
+  and then it ran to the end anyway, and did its work: true.</code></pre>
+<h3>cancel(true) Interrupts Nothing</h3>
+<p><code>cancel(true)</code> on a <code>CompletableFuture</code> sets a flag on the future. It never interrupts the thread, so the task runs to completion.</p>
+<pre><code>  cancel(true) reported: true. isCancelled: true.
+  the task ran to completion anyway: true.</code></pre>
+<h3>Composing The Page</h3>
+<p>Three futures combine into a page with no <code>get</code> until the end. One failing lookup fails the whole page unless a fallback is chosen at that one step.</p>
+<pre><code>  assembled from three futures, with no get() until the end: price £129.99, stock 7, rating 4.6
+  with the review service down and a fallback chosen at that one step: price £129.99, stock 7, rating unavailable</code></pre>
+<h2>The verdict</h2>
+<p>Return a <code>CompletableFuture</code>, never <code>void</code>. Choose the pool. Propagate context on purpose, with a <code>TaskDecorator</code>. Treat a timeout as giving up, not stopping, and design tasks that check for cancellation themselves.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li><code>@Async</code> on a method returning <code>CompletableFuture</code>.</li><li><code>.thenCombine</code>, <code>.exceptionally</code> and <code>.orTimeout</code> chains in a service.</li><li>A <code>TaskDecorator</code> or <code>AsyncUncaughtExceptionHandler</code> bean.</li><li><code>MDC</code> or <code>SecurityContextHolder</code> copied by hand across a thread.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Every <code>@Async</code> method that returns a <code>CompletableFuture</code>, and every log line that lost its request id on the way to a pool thread.</p>
+<h2>When this is too much</h2>
+<p>For two lookups that are already fast, or where the second needs the first&#x27;s result, a future around work that never overlaps is ceremony.</p>
+</main>
+<footer>
+Generated from <code>future-promise-with-spring-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

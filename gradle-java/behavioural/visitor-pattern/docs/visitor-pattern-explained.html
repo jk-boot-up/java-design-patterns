@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Visitor Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Visitor Pattern</h1>
+<blockquote><p>Represent an operation to be performed on the elements of an object structure. Visitor lets you define a new operation without changing the classes of the elements on which it operates. — <em>Design Patterns</em>, Gamma, Helm, Johnson and Vlissides, 1994</p></blockquote>
+<p>Two sentences, and the second one is a promise about <em>change</em>, not about structure. That is the right way to hold this pattern: it is not a way of walking a tree — Composite already walks the tree — it is a way of deciding which of your two axes of change is going to be cheap.</p>
+<h2>The Shape</h2>
+<pre><code>public interface CatalogComponent {
+    String name();
+    void accept(CatalogVisitor visitor);
+}
+
+public interface CatalogVisitor {
+    void visit(Product product);
+    void visit(Bundle bundle);
+    void visit(Category category);
+    default void leave(Category category) { }
+}</code></pre>
+<p>Every node implements <code>accept</code> with the same single line:</p>
+<pre><code>@Override
+public void accept(CatalogVisitor visitor) {
+    visitor.visit(this);
+}</code></pre>
+<p>Copied verbatim into <code>Product</code>, <code>Bundle</code> and <code>Category</code> — and it is not redundant, because <code>this</code> means something different in each file.</p>
+<p><code>Category</code> adds the walk:</p>
+<pre><code>@Override
+public void accept(CatalogVisitor visitor) {
+    visitor.visit(this);
+    for (CatalogComponent child : children) {
+        child.accept(visitor);
+    }
+    visitor.leave(this);
+}</code></pre>
+<p>That is the whole pattern. Everything else in this project is a report.</p>
+<h2>Why <code>accept</code> Exists</h2>
+<p>The question everybody asks first: why not just call <code>visitor.visit(node)</code>?</p>
+<pre><code>CatalogComponent node = someProduct();
+visitor.visit(node);   // does not compile</code></pre>
+<p>Java resolves overloads at compile time from the <strong>static</strong> type of the argument. At that call site the static type is <code>CatalogComponent</code>, there is no <code>visit(CatalogComponent)</code>, and the compiler refuses to guess — it does not matter that at runtime the object is a <code>Product</code>.</p>
+<p>Inside <code>Product.accept</code>, the static type of <code>this</code> is <code>Product</code>. The same call now compiles, and it compiles to <code>visit(Product)</code> permanently, when <code>Product.java</code> is compiled.</p>
+<p>So the two hops do two different jobs:</p>
+<table><thead><tr><th>Hop</th><th>Chooses</th><th>When</th><th>Using</th></tr></thead><tbody><tr><td><code>node.accept(v)</code></td><td>which <code>accept</code></td><td>runtime</td><td>the node&#x27;s class</td></tr><tr><td><code>v.visit(this)</code></td><td>which <code>visit</code></td><td>compile time</td><td>the enclosing class</td></tr></tbody></table>
+<p>Together they pick a method from the combination of two types, which is what <em>double dispatch</em> names. Java gives you single dispatch — on the receiver — and <code>accept</code> is the trick that gets you the second one.</p>
+<p><strong>This is genuinely awkward to read.</strong> Two calls to reach one method, and the reason is a fact about overload resolution rather than a fact about catalogs. A reader who does not already know the pattern will not derive it from the code. That is a real cost, it is paid on every read, and the only thing that justifies it is the number of reports on the other side of the ledger.</p>
+<h2>The Four Reports</h2>
+<p>Each is a class, and none of them required a line of change to the model.</p>
+<p><strong>Inventory value.</strong> The simplest one, and the clearest illustration that one method per node type lets each rule be a plain sentence:</p>
+<pre><code>@Override
+public void visit(Product product) {
+    total = total.plus(product.price().times(product.stockOnHand()));
+}
+
+@Override
+public void visit(Bundle bundle) {
+    // The kit price, not the contents.
+    total = total.plus(bundle.price().times(bundle.stockOnHand()));
+}</code></pre>
+<p>A kit sells for less than its parts, so valuing it at the sum of its contents reports stock the shop cannot realise. Two methods, two sentences, no <code>if</code>.</p>
+<p><strong>Count by category.</strong> The report that could not have been a method on <code>Product</code>, because in this tree nothing points upwards. A product does not know its category; the answer exists only during the walk. <code>visit(Category)</code> pushes the name, <code>leave(Category)</code> pops it, and counting is what is left.</p>
+<p><strong>CSV export.</strong> Read what is in this class: a header, a quoting rule, and a decision about how a bundle is rendered. Three facts about spreadsheets, none of them a fact about a product — and in the naive design all three live on the domain classes, the quoting rule twice.</p>
+<p><strong>Compliance audit.</strong> The report <code>Bundle</code> exists for. A product is restricted or it is not; a bundle is restricted by what is in the box:</p>
+<pre><code>@Override
+public void visit(Bundle bundle) {
+    for (Product content : bundle.contents()) {
+        if (content.restriction().isRestricted()) {
+            record(...);
+        }
+    }
+}</code></pre>
+<p>There is nowhere else that loop could go. The bundle carries no restriction of its own to read — which is exactly the mistake <code>NaiveBundle</code> makes, by reading a field it copied from <code>NaiveProduct</code> and never sets.</p>
+<h2>Where The Traversal Lives, And What That Costs</h2>
+<p>The walk is in <code>Category.accept</code>, not in the visitors. Written once, it cannot be written differently the fourth time, and every report gets depth-first, parents-first, insertion-ordered traversal for free — including the report you write next year. <code>CatalogVisitorTest.traversalIsNotInTheVisitor</code> makes the point by counting: a visitor with no loop and no recursion in it sees all seventeen calls of the demo tree.</p>
+<p>The cost is that <strong>a visitor cannot prune</strong>. A report interested only in Accessories still walks all of Electronics and filters, because there is no exit from the walk that a report controls.</p>
+<p>The alternative — an <em>external</em> iterator that the visitor drives — hands control back and lets a report stop early, at the price of every report writing its own walk, which is the problem this pattern was brought in to solve. There is a middle road, a <code>boolean</code> return from <code>visit(Category)</code> meaning &quot;do not descend&quot;, and it is worth knowing about; it is left out here because it makes the interface harder to explain and this catalog is small.</p>
+<h2>The Cost, Stated As Plainly As The Benefit</h2>
+<p>Adding a fourth node type — a gift card, a digital download — means adding a method to <code>CatalogVisitor</code>, and <strong>every implementation stops compiling until it is written</strong>. Six today:</p>
+<pre><code>    InventoryValueVisitor
+    CategoryCountVisitor
+    CsvExportVisitor
+    ComplianceAuditVisitor
+    DispatchTraceVisitor
+    LowStockVisitor</code></pre>
+<p>and the list only ever grows, because reports are never deleted. The naive design takes a new node type in its stride: one new class, and nothing else recompiles.</p>
+<p>Some people call the compile errors a feature — the compiler enumerating every report that now has a decision to make — and when the new node type genuinely does need a rule in every report, that is fair. When it does not, you are writing five empty methods to satisfy the compiler, and five empty methods is where a real one goes missing.</p>
+<p><strong>Visitor is only correct when you are confident the structure is settled.</strong> In a catalog it is: products and categories have been the node types since the shop opened, and finance asks for a new report every month. In an AST for a language still gaining syntax, or a UI toolkit still gaining widgets, the answer is the other way round and this pattern will cost you a sprint every time a type is added.</p>
+<h2>Pitfalls</h2>
+<p><strong>Putting a method on the node &quot;just this once&quot;.</strong> The fifth report is always smaller than the fourth, and a method on <code>Product</code> is always quicker than a new file. Do it twice and the model is back to knowing about spreadsheets. <code>CatalogVisitorTest.theModelHasNoReportingMethods</code> is a guard against exactly this, and it fails with a message that says why.</p>
+<p><strong>A visit method that recurses.</strong> If a visitor loops over <code>category.children()</code> itself, the tree is walked twice — once by <code>Category.accept</code> and once by the visitor — and the totals silently double. Let the structure walk.</p>
+<p><strong>Visiting a bundle&#x27;s contents as nodes.</strong> <code>Bundle.accept</code> does not descend into the box, on purpose: the phone in the Starter Kit is already a node elsewhere in the catalog, and walking into the box would count its stock twice. The compliance audit reads <code>contents()</code> directly because it wants to inspect them, not to visit them, and those are different things.</p>
+<p><strong>Stateful visitors reused carelessly.</strong> A visitor accumulates. Walking two trees with one instance adds them together, which is a feature — <code>aVisitorAccumulatesAcrossTrees</code> asserts it — and a bug the moment you meant to ask two separate questions. Make a new one per report.</p>
+<p><strong>Reaching for it too early.</strong> Two operations over a stable structure do not need this. Write the two methods. The demo agrees: sections 1 and 2 show the naive inventory value and category counts agreeing to the penny, and that part of the naive design is not criticised anywhere in this project.</p>
+<h2>Comparisons</h2>
+<h3>Visitor vs putting the method on the Composite</h3>
+<p>The comparison that decides whether to use the pattern at all.</p>
+<p><strong>The question to ask yourself:</strong> <em>which axis is growing — the node types, or the operations?</em></p>
+<table><thead><tr><th></th><th>A method on the node</th><th>A visitor</th></tr></thead><tbody><tr><td>New operation costs</td><td>one method × every node class</td><td>one new file</td></tr><tr><td>New node type costs</td><td>one new class</td><td>one method × every visitor</td></tr><tr><td>An operation&#x27;s logic is</td><td>spread across the node classes</td><td>in one class, end to end</td></tr><tr><td>A node&#x27;s logic is</td><td>in one class, end to end</td><td>spread across the visitors</td></tr><tr><td>Traversal</td><td>once per operation</td><td>once, in the structure</td></tr></tbody></table>
+<p>Neither column is better. It is the same trade from two ends, and the tie is broken only by which axis your codebase actually grows along. Count the two numbers in your own repository — node types, and operations over them — and pick the cheap direction. In this project they are 3 and 6, and moving in one direction.</p>
+<h3>Visitor vs <code>instanceof</code> and a pattern-matching switch</h3>
+<pre><code>return switch (node) {
+    case Product p  -&gt; ...;
+    case Bundle b   -&gt; ...;
+    case Category c -&gt; ...;
+};</code></pre>
+<p>Shorter, needs no <code>accept</code>, and with <code>sealed</code> types the compiler still catches a missed case. For a single local operation it is the better answer, and saying otherwise would be pattern-worship.</p>
+<p>What it does not give you is the shared traversal or the shared state across the walk, so every report written this way walks the tree itself. Reach for the switch when the operation is small and local; reach for Visitor when there are many operations that need the same walk.</p>
+<h3>Visitor vs Composite</h3>
+<p>Composite is the tree. Visitor is what you do to it. This project&#x27;s model is <a href="../../../structural/composite-pattern"><code>structural/composite-pattern</code></a>&#x27;s model with <code>accept</code> added and the report methods taken away — the two patterns are neighbours, not alternatives, and Visitor is the usual answer to what Composite&#x27;s <code>Component</code> interface should do when the operations keep coming.</p>
+<h3>Visitor vs Strategy</h3>
+<p>Both hand behaviour to an object passed in. A <a href="../../strategy-pattern">Strategy</a> is chosen for <em>one</em> call and knows nothing about structure; a visitor is carried across a whole walk and has a method per node type. If your &quot;strategy&quot; has grown one method per subclass of the thing it operates on, it has become a visitor and may as well say so.</p>
+<h2>Further Reading</h2>
+<ul><li><em>Design Patterns</em>, chapter 5 — the original, and the source of the &quot;structure must be stable&quot; warning, which is usually quoted less often than the benefit</li><li><a href="../../../structural/composite-pattern"><code>structural/composite-pattern</code></a> — the tree this project reports on</li><li><code>CatalogVisitorTest</code> — the mechanism asserted, including the cost</li><li><code>NaiveCatalogTest</code> — the two drifted copies, pinned as passing tests</li></ul>
+</main>
+<footer>
+Generated from <code>visitor-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

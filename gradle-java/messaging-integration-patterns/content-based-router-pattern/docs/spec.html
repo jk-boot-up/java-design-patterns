@@ -5,10 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Content-Based Router Pattern — Project Specification</title>
 <style>
-:root {
+:root, [data-theme=dark] {
+  color-scheme: dark;
   --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
   --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
-  --ok: #34d399;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
 }
 * { box-sizing: border-box; }
 body {
@@ -24,7 +40,7 @@ h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
 h3 { font-size: 19px; margin: 32px 0 4px; }
 p { margin: 14px 0; }
 a { color: var(--link); }
-a:hover { color: #7dd3fc; }
+a:hover { color: var(--link-hover); }
 hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
 code {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
@@ -39,14 +55,14 @@ pre {
 pre code { background: none; border: 0; padding: 0; font-size: 14px; }
 blockquote {
   margin: 20px 0; padding: 4px 20px;
-  background: rgba(167, 139, 250, 0.08);
+  background: var(--quote);
   border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
 }
 table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
 th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
          vertical-align: top; }
 th { background: var(--panel-hi); font-weight: 600; }
-tr:nth-child(even) td { background: rgba(30, 41, 59, 0.55); }
+tr:nth-child(even) td { background: var(--stripe); }
 img {
   display: block; max-width: 100%; height: auto; margin: 24px auto;
   background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
@@ -61,14 +77,33 @@ footer {
   max-width: 860px; margin: 60px auto 0; padding-top: 20px;
   border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
 }
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
 </style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
 </head>
 <body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <main>
 <h1>Content-Based Router Pattern — Project Specification</h1>
 <p>The single reference document for this project: what it teaches, how it is built, and the quality bar its video and its YouTube publication have to meet.</p>
-<p>This is a <em>specification</em>, not a tutorial. It says what must be true and why. The teaching material itself lives in <a href="content-based-router-pattern-explained.md"><code>content-based-router-pattern-explained.md</code></a>; the problem it addresses is set out at length in <a href="problem-statement.md"><code>problem-statement.md</code></a>.</p>
-<p>Where this document repeats a rule from the repository-wide <a href="../../../docs/video-and-publishing-spec.md"><code>video-and-publishing-spec.md</code></a>, that document is the authority. This project&#x27;s <code>video/build_video.sh</code> is generated from <code>creational/abstract-factory-pattern</code>&#x27;s, differing only in the pattern name and the output filenames, so a change to the pipeline belongs there and in the repository-wide spec, not here.</p>
+<p>This is a <em>specification</em>, not a tutorial. It says what must be true and why. The teaching material itself lives in <a href="content-based-router-pattern-explained.html"><code>content-based-router-pattern-explained.md</code></a>; the problem it addresses is set out at length in <a href="problem-statement.html"><code>problem-statement.md</code></a>.</p>
+<p>Where this document repeats a rule from the repository-wide <a href="../../../docs/video-and-publishing-spec.html"><code>video-and-publishing-spec.md</code></a>, that document is the authority. This project&#x27;s <code>video/build_video.sh</code> is generated from <code>creational/abstract-factory-pattern</code>&#x27;s, differing only in the pattern name and the output filenames, so a change to the pipeline belongs there and in the repository-wide spec, not here.</p>
 <hr>
 <h2>1. Purpose</h2>
 <p>Teach Content-Based Router with orders of different kinds: one channel that forces the warehouse to sort, a router with ordered rules that sends six orders to four channels, two rule orders giving two answers for one gift card, a message no rule covers that is caught by a fallback or dropped and counted, a rule added with no other change, and the bill of a renamed value that makes a rule miss.</p>
@@ -77,7 +112,7 @@ footer {
 <ul><li>Not a message broker. Channels are lists of ids.</li><li>Not header-based routing in full. It is named as the alternative.</li><li>Not dynamic rules loaded from configuration.</li></ul>
 <hr>
 <h2>2. Problem statement</h2>
-<p>The full treatment is in <a href="problem-statement.md"><code>problem-statement.md</code></a>. In brief:</p>
+<p>The full treatment is in <a href="problem-statement.html"><code>problem-statement.md</code></a>. In brief:</p>
 <p>Messages of several kinds on one channel make the receiver sort them, and every new kind changes the receiver.</p>
 <p><strong>What this project must deliver:</strong> ordered rules, a fallback, a count of dropped messages, the effect of rule order, an added rule with no other change, and the coupling to content shown.</p>
 <hr>
@@ -127,13 +162,13 @@ footer {
 <blockquote><p><strong>Requirement.</strong> The poster is inspected visually before it is considered done, not merely confirmed to exist. <code>proxy-pattern</code> once shipped a poster reading &quot;DECORATOR PATTERN&quot;, complete with decorator&#x27;s code samples, because <code>make_slides.py</code> was copied and <code>kind_poster</code> was never updated. Only looking at the image catches that.</p></blockquote>
 <hr>
 <h2>7. YouTube publication</h2>
-<p><a href="youtube.md"><code>youtube.md</code></a> holds everything needed to publish, so that uploading is copy-and-paste rather than reconstruction. Seven sections are required:</p>
+<p><a href="youtube.html"><code>youtube.md</code></a> holds everything needed to publish, so that uploading is copy-and-paste rather than reconstruction. Seven sections are required:</p>
 <ol><li><strong>Title</strong> — the exact string, ≤ 60 characters so search does not truncate it, leading with the pattern name. Currently <em>&quot;Content-Based Router&quot;</em>, 20 characters. The suffix after the dash names the worked e-commerce scenario, so the title says what the viewer will actually watch rather than only which pattern it is about.</li><li><strong>Description</strong> — first two lines carry the hook, because that is what shows above the fold; then what the video covers, the chapters, the repository link, the prerequisites.</li><li><strong>Chapters</strong> — <code>mm:ss Title</code>, one per scene, first entry <code>00:00</code>. YouTube needs at least three and the first at zero to render them at all.</li><li><strong>Tags</strong> — comma-separated, under 500 characters.</li><li><strong>Thumbnail</strong> — pointing at <code>docs/thumbnail.png</code>, and explaining why it is not the poster.</li><li><strong>Upload checklist</strong> — subtitles, language, thumbnail, HD processing, playlist.</li><li><strong>Cards and end screen</strong> — which video comes next in the learning order. For this project: Splitter and Aggregator.</li></ol>
 <blockquote><p><strong>Requirement.</strong> Chapter timings are generated from the built <code>.srt</code>, never written by hand, by <code>python3 ../../docs/make_youtube_docs.py content-based-router</code>. They are the one part of the file that goes stale silently: any change to the narration text or the speaking rate invalidates every timestamp, and a chapter list that is thirty seconds out is worse than none. Regenerate after any rebuild.</p></blockquote>
 <p>Subtitles are uploaded from the generated <code>.srt</code> rather than left to YouTube&#x27;s automatic captions, which mis-transcribe class names throughout.</p>
 <hr>
 <h2>8. Conformance</h2>
-<p>This project is compliant when all of the following hold. The full version, which governs all fourteen projects, is in <a href="../../../docs/video-and-publishing-spec.md"><code>video-and-publishing-spec.md</code></a> §9.</p>
+<p>This project is compliant when all of the following hold. The full version, which governs all fourteen projects, is in <a href="../../../docs/video-and-publishing-spec.html"><code>video-and-publishing-spec.md</code></a> §9.</p>
 <ul class="task"><li>The worked example is e-commerce.</li><li><code>./gradlew build</code> passes, and the README quotes the real <code>./gradlew run</code> output, which still matches.</li><li>Scene 1 follows the four-step opening of §5.1 — what the video is, the author credit, the pattern&#x27;s definition in general terms, and only then the e-commerce scenario.</li><li><code>RATE</code> is 145 and <code>VOICE</code> is Samantha.</li><li><code>CLEANUP</code> is exactly as §5.4 gives it — no <code>afftdn</code>, no <code>lowpass</code>.</li><li>Per-scene audio is PCM; exactly one AAC encode, at the mux.</li><li><code>loudnorm</code> is two-pass with <code>linear=true</code>.</li><li>The build prints <code>audio timeline continuous: N packets, no gaps</code>.</li><li><code>poster.png</code> shows the correct pattern name and contains no strikethrough, confirmed by looking at it.</li><li><code>docs/youtube.md</code> has all seven sections, and its chapter timings match the current <code>.srt</code>.</li><li><code>video/README.md</code> describes the pipeline as it actually is.</li></ul>
 <p>Last verified: all eleven items pass. The delivered MP4 measures -16.06 LUFS integrated, -1.38 dBTP true peak, and both streams start at 0.000.</p>
 <hr>
@@ -146,8 +181,8 @@ python3 ../../docs/make_specs.py content-based-router</code></pre>
 <p>Changing the voice or the filter chain means listening to the result. Changing the narration text means both of the above, and re-checking the runtime claims in the top-level <code>README.md</code> and in <code>video/README.md</code>.</p>
 </main>
 <footer>
-Generated from <code>spec.md</code> by <code>docs/make_specs.py</code> &mdash;
-edit the generator, not this file.
+Generated from <code>spec.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
 </footer>
 </body>
 </html>

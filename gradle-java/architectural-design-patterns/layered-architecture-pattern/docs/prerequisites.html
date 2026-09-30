@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>This is the first project in the architectural category, and it is chosen to go first because it is the architecture most readers already have. If you have ever organised a codebase into <code>controller</code>, <code>service</code> and <code>repository</code> packages, you already have the folders this project starts from — what it adds is a test that notices when somebody reaches past them.</p>
+<h2>Knowledge Prerequisites</h2>
+<h3>Required</h3>
+<ul><li><strong>Java basics</strong> — interfaces, packages, and what it means for one class to <em>import</em> another.</li><li><strong>Records</strong> — Java 16&#x27;s <code>record</code>. Every value type in this project (<code>Money</code>, <code>Order</code>, <code>Product</code>) is one. If you have not met them, the primer below covers everything this project uses.</li><li><strong><code>Optional</code></strong> — <code>orElseThrow</code>, <code>map</code>. Used by the storage interface to say &quot;no such order&quot; without a null.</li><li><strong>What a unit test is</strong>, in general terms — you do not need to have written one, but the video assumes you know that a build can run automated checks.</li></ul>
+<h3>Helpful, but explained as we go</h3>
+<ul><li><strong>JUnit 5</strong> — <code>@Test</code>, <code>@DisplayName</code>, <code>assertThrows</code>. If this is new, the two test classes in this project are short enough to read as the introduction.</li><li><strong>The idea of a dependency rule</strong> — &quot;X may not import Y&quot; — is explained from first principles in the pattern-explained document, so nothing here is assumed.</li></ul>
+<h3>Explicitly NOT required</h3>
+<ul><li><strong>No ArchUnit experience.</strong> This project is many people&#x27;s first contact with it. <code>ArchitectureTest</code> is thirty lines and every line is explained.</li><li><strong>No Spring, no database, no web framework.</strong> The whole project runs offline with nothing but a JDK. &quot;Presentation&quot; is a class with a <code>checkout</code> method that returns a <code>String</code>; there is no HTTP anywhere in this category until §67.</li><li><strong>No prior architectural patterns.</strong> This is the category&#x27;s first project. Everything after it is a small step from what is built here, and each later project&#x27;s document says which step.</li></ul>
+<h2>A 60-Second &quot;Layers&quot; Primer</h2>
+<p>A <strong>layered architecture</strong> splits a program into stacked groups of classes, each group allowed to depend only on the group directly beneath it.</p>
+<p>This project has four: <strong>presentation</strong> at the top, turning what a customer typed into a call and turning the answer into words; <strong>application</strong>, which runs the checkout as a fixed sequence of steps; <strong>domain</strong>, the nouns of the business — an order, a price, a product — with no dependency on anything above or below; and <strong>infrastructure</strong> at the bottom, where the products and orders are actually kept, the card is actually charged, and the email is actually sent.</p>
+<p>The promise of the arrangement is that a change to one layer should not force a change to the layers above it. The risk — and this project&#x27;s whole point — is that the promise is only as good as whatever enforces it. Draw four boxes on a whiteboard and nothing stops a developer, on a busy Tuesday, from adding one import that skips a box. This project shows that happening, shows what it costs, and then shows the one line that turns &quot;the layers are not supposed to be skipped&quot; from a sentence into a test.</p>
+<h2>A 60-Second &quot;Dependency Rule&quot; Primer</h2>
+<p>A <strong>dependency rule</strong> is a sentence about imports, stated so precisely that a program can check it: <em>no class in package X may depend on a class in package Y.</em></p>
+<p>Written on a whiteboard, that sentence is a promise a team makes to itself and gradually stops keeping. Written as an <strong>ArchUnit</strong> test, it is thirty lines that read almost exactly like the English sentence, run every time <code>./gradlew test</code> runs, and fail — naming the offending class — the day somebody breaks it. This project&#x27;s central scene is watching that failure happen on purpose.</p>
+<h2>Software Prerequisites</h2>
+<table><thead><tr><th>Need</th><th>Version</th><th>Why</th></tr></thead><tbody><tr><td>JDK</td><td>21 or later</td><td>Records, the Gradle toolchain</td></tr><tr><td>Gradle</td><td>none to install</td><td>The wrapper (<code>./gradlew</code>) fetches what it needs</td></tr></tbody></table>
+<p>Nothing else. No Spring, no container runtime, no database.</p>
+<h3>Verify Your Setup</h3>
+<pre><code>java -version          # expect 21 or later
+cd architectural-design-patterns/layered-architecture-pattern
+./gradlew test         # expect BUILD SUCCESSFUL, 18 tests
+./gradlew -q run       # expect five acts of output, then ACCEPTANCE</code></pre>
+<p>If <code>java -version</code> reports something older than 21, the Gradle toolchain will try to download a suitable JDK on the first build, which needs a network connection once.</p>
+<h2>Troubleshooting</h2>
+<p><strong><code>./gradlew: Permission denied</code></strong> — <code>chmod +x gradlew</code>.</p>
+<p><strong>The demo&#x27;s &quot;classes in the four layers&quot; count reads 0</strong> — the forced change in act five counts <code>.java</code> files on disk under <code>src/main/java/.../layered/</code>, relative to the working directory. Run <code>./gradlew run</code> from the project root, not from <code>video/</code> or anywhere else.</p>
+<p><strong><code>£</code> characters appear as mojibake</strong> — your terminal is not reading UTF-8. Try <code>JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8 ./gradlew -q run</code>.</p>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the four layers, and the one call that ruins them</li><li>Run <code>./gradlew -q run</code> and read all five acts of output</li><li><a href="layered-architecture-pattern-explained.html"><code>layered-architecture-pattern-explained.md</code></a> — the pattern, the rule as a test, and the bill</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> and <a href="uml-diagram.html"><code>uml-diagram.md</code></a></li><li><a href="animation.html"><code>animation.html</code></a> — step through the five acts in a browser</li><li>The source, starting with <code>PlaceAnOrderDemo</code> and then <code>PlaceOrderService</code></li><li><code>ArchitectureTest</code> and <code>ArchitectureRuleCatchesTheShortcutTest</code> — the same rule, passing on the real project and failing on the naive one</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

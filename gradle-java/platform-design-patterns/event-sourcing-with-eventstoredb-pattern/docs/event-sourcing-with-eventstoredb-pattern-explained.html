@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event Sourcing with EventStoreDB, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Event Sourcing with EventStoreDB, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>Event sourcing means you never overwrite what you know. You write down each thing that happened, in order, never change it, and work out the current state by adding the list up.</p>
+<h2>The analogy, before any of KurrentDB&#x27;s words</h2>
+<p>Think of a village post office that keeps a paper ledger for every customer&#x27;s savings. Each ledger has numbered lines. A clerk may only write on the next empty line, and nothing is ever rubbed out. To know a customer&#x27;s savings, you add up their ledger.</p>
+<p>Now there are two clerks at two windows. The same customer&#x27;s husband is at one window, and the wife is at the other. Both clerks open the same ledger, see line 3 is the last, add it up to 140, and both approve a withdrawal of 100. If both then write their entry, the ledger ends at minus 60.</p>
+<p>The post office fixes this with one rule. Before writing, a clerk says aloud &quot;I last read line 3&quot;. The clerk who writes first fills line 4. When the second clerk says &quot;I last read line 3&quot;, the ledger keeper says no, line 4 exists now. Go back, read again and decide again. That rule is this project.</p>
+<h2>What KurrentDB calls these things</h2>
+<p><strong>KurrentDB</strong> is the post office&#x27;s ledger room: a separate program that keeps events in order and never changes them. It was called <strong>EventStoreDB</strong> until 2025. It is the same database under a new name, with a new Docker image name, a new Java library name and a new connection-string prefix.</p>
+<p>A <strong>stream</strong> is one ledger, one named list of events. Here the stream name is <code>loyalty-C-4417</code>.</p>
+<p>A <strong>revision</strong> is a line number. The first event in a stream is revision 0.</p>
+<p>An <strong>append</strong> writes events on the next lines. There is no call to change an event.</p>
+<p>The <strong>expected revision</strong> is &quot;I last read line 3&quot;. The Java client calls it a <code>StreamState</code>: <code>streamRevision(3)</code> for &quot;only if still at 3&quot;, <code>noStream()</code> for &quot;only if the stream does not exist yet&quot;, and <code>any()</code> for &quot;don&#x27;t check&quot;. <strong><code>any()</code> is the default.</strong></p>
+<p><strong>WrongExpectedVersion</strong> is the refusal: &quot;expected revision 3, but the stream is at revision 4&quot;.</p>
+<p>An <strong>event id</strong> is a random identifier the writer puts on each event. If the same id arrives again with the same expectation, the server treats it as a retry and does not write it twice.</p>
+<p><strong><code>$all</code></strong> is the server&#x27;s one log of every event in every stream, in the order it wrote them.</p>
+<p>A <strong>catch-up subscription</strong> asks for every event from a starting point, receives the stored ones, is told &quot;caught up&quot;, and then receives each new event as it is written. A copy built from it for one screen is a <strong>projection</strong>, or <strong>read model</strong>.</p>
+<p>A <strong>soft delete</strong> hides a stream. A <strong>tombstone</strong> is a hard delete that forbids the name for ever. A <strong>scavenge</strong> is the later clean-up that actually frees the disk.</p>
+<p><strong>Insecure mode</strong> switches off TLS, which is encryption on the network, and switches off user accounts. The demo uses it; production must not.</p>
+<h2>The six acts</h2>
+<h3>A Real Log, Read Back</h3>
+<p>The demo appends the four things that happened to customer C-4417 in March, and KurrentDB numbers them revision 0 to 3. A second connection reads the stream from the start and adds it up to 140. Nothing stores 140.</p>
+<pre><code>  4 events appended to the stream loyalty-C-4417. KurrentDB numbered them revision 0 to 3.
+    revision 0  2025-03-01  earned 60 points on order ORD-8801           balance 60
+    revision 1  2025-03-03  spent 25 points on order ORD-8814            balance 35
+    revision 2  2025-03-08  earned 120 points on order ORD-8907          balance 155
+    revision 3  2025-03-14  lost 15 points to the twelve-month expiry    balance 140
+  balance: 140 points, from 4 events. nothing stores 140; it was added up just now.</code></pre>
+<h3>Two Checkouts, No Check</h3>
+<p>Customer C-5120 pays with points on the website and in the phone app at the same moment. Each checkout looks and sees 140 points at revision 3. Each decides 100 is affordable, and each appends a spend with no check. The two checkouts are two real threads, each with its own connection. They wait for each other after looking, so both always see the same thing. Both appends are accepted, and the balance is -60.</p>
+<pre><code>  C-5120 has 140 points. the website and the phone app both look: 140 points, at revision 3.
+  both decide 100 is not more than 140, and both append a redemption with the check off.
+  both appends accepted, at revisions 4 and 5. balance now: -60 points.</code></pre>
+<h3>The Expected Revision</h3>
+<p>This is the same race for customer C-5121, but each append now says &quot;only if the stream is still at revision 3&quot;. One append is written at revision 4. The other is refused with WrongExpectedVersion. The refused checkout looks again, sees 40 points, and says no. Which checkout wins depends on the machine, so the demo does not name it. That exactly one wins is certain, because the server makes the comparison.</p>
+<pre><code>  appends accepted: 1, at revision 4. appends refused: 1.
+  the refusal is WrongExpectedVersion: expected revision 3, but the stream is at revision 4.
+  the refused checkout looks again: 40 points, at revision 4. 100 is more than 40, so it tells the customer no.
+  balance now: 40 points. nothing was locked; the server compared one number.</code></pre>
+<h3>A Retry It Recognises</h3>
+<p>The shop awards C-5122 45 points, the reply is lost, and the shop sends the award again with a new event id. Now there are two awards and a balance of 90. This is the twin&#x27;s double-award bug, caused here by the network rather than by a release.</p>
+<p>For C-5123 the retry reuses the event id and the expectation of &quot;no stream yet&quot;. The server answers revision 0 again and writes nothing, so there is one award and a balance of 45.</p>
+<pre><code>  sent again with a new event id: 2 awards for ORD-9001 in the stream. balance 90.
+  sent again with the same event id and the same expectation: the server answers revision 0 again, and writes nothing.
+  1 award in the stream. balance 45.</code></pre>
+<h3>A Screen That Catches Up</h3>
+<p>The support dashboard starts after everything else. It subscribes to every stream whose name starts with <code>loyalty-</code>, from the start. It receives 18 stored events and is told it has caught up. Then an award of 20 for C-4417 arrives on its own, and C-4417 shows 160.</p>
+<pre><code>  it receives 18 events that were already stored, and the server tells it it has caught up.
+  it shows C-4417 = 140, C-5120 = -60, C-5121 = 40, C-5122 = 90.
+  a new order awards C-4417 20 points. moments later the dashboard shows C-4417 = 160, with 19 events received in all.</code></pre>
+<h3>The Bill: Deleting A Stream</h3>
+<p>C-5122 asks to be forgotten, and the shop deletes the stream. Reading it by name now fails. Reading <code>$all</code> still finds its 2 events, and they stay until a scavenge runs. The dashboard still shows 90. A later write to the same name is accepted at revision 2, not 0. The server also ran with security off.</p>
+<pre><code>  reading the stream now: stream not found.
+  reading the store&#x27;s whole log, every stream at once: 2 events of loyalty-C-5122 are still there, until a clean-up called a scavenge runs.
+  the support dashboard still shows C-5122 = 90. the delete reached the stream, not the copies built from it.
+  a later order writes to the same stream name. it is accepted at revision 2, not 0, and reading the stream shows 1 event.
+  and this server ran with security off: no TLS, no passwords, in 1 container. production must never run like that.</code></pre>
+<h2>The verdict</h2>
+<ul><li>Give each thing that must stay consistent its own stream: here, one customer&#x27;s points.</li><li>Look, decide, then append with the revision you looked at.</li><li>On a refusal, look again and decide again; never resend blindly.</li><li>Choose an event id once per decision and reuse it on every retry.</li><li>Treat erasure as a job for every projection as well as the stream, and schedule the scavenge that really removes the bytes.</li><li>Run the server with TLS and user accounts.</li></ul>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li><code>appendToStream(name, events)</code> with no options, or with <code>StreamState.any()</code>. That writer races.</li><li><code>StreamState.streamRevision(n)</code>, where <code>n</code> came from the read that the decision was based on. That writer is safe.</li><li>A <code>catch (WrongExpectedVersionException e)</code> that simply calls append again. That is a blind retry, and the check it was meant to enforce is gone.</li><li><code>EventDataBuilder.json(UUID.randomUUID(), ...)</code> inside a retry loop. Each retry gets a new id, so the server cannot recognise it.</li><li><code>subscribeToAll(...fromStart())</code> feeding a map or a table. That is a projection, and it has to be told about deletes.</li></ul>
+<h2>Where you have already met this</h2>
+<p>Bank ledgers, wallets, loyalty and gift-card balances, and order histories. Any SQL event table with a unique key on stream and revision is doing the same check.</p>
+<h2>When this is too much</h2>
+<p>If one program writes each customer&#x27;s points, the race cannot happen. If nobody will ask how a number came to be, store the number.</p>
+</main>
+<footer>
+Generated from <code>event-sourcing-with-eventstoredb-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

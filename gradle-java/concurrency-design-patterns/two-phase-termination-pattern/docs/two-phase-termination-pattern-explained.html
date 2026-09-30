@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two-Phase Termination, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Two-Phase Termination, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>Two-phase termination stops a thread in two steps: first it is asked to stop, and it finishes what it is doing and tidies up, then the caller waits for it to end, for a limited time.</p>
+<h2>The six acts</h2>
+<h3>Pull The Plug</h3>
+<p>The shop closes the ledger while order one is half written. Only line one was written. The order is left half written.</p>
+<pre><code>  the shop shuts down and closes the ledger while ORD-1 is half written. lines written: [ORD-1 line 1].
+  left with an order half written: true. the order has a line 1 and no line 2 or 3.</code></pre>
+<h3>Ask It To Stop, And Let It Finish</h3>
+<p>Stop is requested while order one is half written and order two is waiting. The worker finishes order one, all three lines, starts nothing else, and ends. Nothing is half written.</p>
+<pre><code>  stop requested while ORD-1 is half written, and ORD-2 is waiting.
+  the worker ended: true. orders finished: 1. lines: 3, all of ORD-1&#x27;s, none of ORD-2&#x27;s.
+  left with an order half written: false.</code></pre>
+<h3>A Worker That Is Asleep</h3>
+<p>A stop request that only sets a flag does nothing to a worker waiting for an order: it is still waiting. With an interrupt to wake it, the worker ends.</p>
+<pre><code>  a stop request that only sets a flag, to a worker waiting for an order: false, still WAITING.
+  the same request, with an interrupt to wake it: true.</code></pre>
+<h3>Tidy Up On The Way Out</h3>
+<p>The worker is interrupted while waiting, and its cleanup still runs, because it is in a finally block.</p>
+<pre><code>  the worker was interrupted while waiting. did its cleanup run: true.
+  the cleanup is in a finally block, so it runs however the worker ends.</code></pre>
+<h3>A Worker That Will Not Stop</h3>
+<p>The worker is stuck in something that ignores the request. After two hundred milliseconds it has not ended, and is still alive. Phase two has a time limit, and what comes next is a decision, because Java gives no safe way to force a thread to stop.</p>
+<pre><code>  the worker is stuck in something that ignores the request. after waiting 200 ms: ended false, alive true.
+  phase two has a time limit. what happens next is a decision: report it, wait longer, or restart the process. Java gives no safe way to force a thread to stop.</code></pre>
+<h3>The Bill</h3>
+<p>Stopped with five orders still waiting: one finished, five pending. Those five were accepted from customers and not done. A stop needs a policy, and shutting down took as long as the order in progress.</p>
+<pre><code>  stopped with 5 orders still waiting: finished 1, pending 5.
+  those 5 orders were accepted from customers and have not been done. a stop needs a policy: finish them first, hand them to another worker, or save them.
+  and shutting down took as long as the order in progress. stopping is never instant.</code></pre>
+<h2>The verdict</h2>
+<p>Stop threads in two phases: ask, then wait with a limit. Let a worker finish the unit of work it is in, and check for the request between units. Wake it if it may be waiting. Put cleanup in a finally block. Decide what happens to the queued work, and to a worker that does not end. Never force-stop a thread.</p>
+<h2>How to recognise this in code you did not write</h2>
+<ul><li>A <code>volatile boolean stopRequested</code> checked at the top of a loop.</li><li><code>ExecutorService.shutdown()</code> followed by <code>awaitTermination(timeout, unit)</code>.</li><li><code>Thread.interrupt()</code> followed by <code>Thread.join(timeout)</code>.</li><li>Shutdown hooks and graceful-shutdown settings in servers and frameworks.</li></ul>
+<h2>Where you have already met this</h2>
+<p><code>ExecutorService</code>&#x27;s shutdown and awaitTermination, Spring&#x27;s graceful shutdown, and Kubernetes sending a stop signal and then a kill after a grace period.</p>
+<h2>When this is too much</h2>
+<p>For a thread that holds no state and whose work can be repeated, stopping at once is fine, and a daemon thread can simply be left. The pattern matters where a stop can damage something.</p>
+</main>
+<footer>
+Generated from <code>two-phase-termination-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

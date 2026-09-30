@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reactor Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Reactor Pattern — Video Narration Script</h1>
+<h2>1. Reactor</h2>
+<p>Hello, and welcome. This video explains the Reactor pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. In a reactor, one thread waits for events on many connections at once. When something happens on a connection, the thread hands that event to a short piece of code called a handler. No connection gets a thread of its own. Think of one waiter looking after a whole restaurant. They do not stand at one table while the guests read the menu. They watch the room, and go to whichever table raises a hand. In this video, the domain is an online shop&#x27;s warehouse. Its stock server has a hundred shop tills connected all day, asking short questions like: how many kettles are in stock? By the end, you will hear why a thread per connection wastes threads. How a reactor serves them all with one. How handlers work. And the one rule you must never break.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The warehouse runs a stock server. A hundred shop tills stay connected all day. Now and then, each asks a short question. How many kettles? What does a mug cost? The server gave every connection its own thread.</p>
+<h2>3. Act One — A thread per connection</h2>
+<p>First demo: a thread for every connection. A hundred shop tills connect to the stock server. The server starts a thread for each one. That is a hundred threads. Almost all of them are idle, waiting for their till to ask something. Each one still holds memory. Till one asks: how many kettles are in stock? Four.</p>
+<h2>4. Act Two — One reactor thread</h2>
+<p>Second demo: a reactor. One thread waits on every connection at once. Java gives us a selector for this. It sleeps until some connection is ready, then says which one. A hundred tills connect. Till one asks about kettles: four. Threads running handlers: one.</p>
+<h2>5. Act Three — A handler per event</h2>
+<p>Third demo: each kind of event has its handler. When a new connection arrives, the accept handler registers it, so the selector will watch it. When bytes arrive, the read handler answers the line. Till two asks the price of a mug. Eight hundred pence.</p>
+<h2>6. Act Four — Every till, one thread</h2>
+<p>Fourth demo: every till is answered by the one thread. All hundred tills ask at the same moment. The selector reports whichever connections are ready. The one thread answers them, one after another. A hundred correct answers. Still one thread.</p>
+<h2>7. Act Five — The bill</h2>
+<p>Fifth demo: the bill. Till two asks for a report. Its handler takes three hundred milliseconds. Meanwhile, till three asks a quick question. It waits over two hundred milliseconds, for an answer that takes microseconds. The only thread was busy. Like the waiter who stopped to cook. So handlers must never block, and slow work goes to another thread.</p>
+<h2>8. The Pattern</h2>
+<p>Let&#x27;s name the pattern. One thread waits on every connection at once. In Java, a selector does the waiting. When a connection is ready, the thread dispatches the event to its handler. A new connection, to the accept handler. Arriving bytes, to the read handler. And every handler must be quick.</p>
+<h2>9. Who Does What</h2>
+<p>Here is who does what. The selector says which connections are ready. The reactor runs the loop: wait, then dispatch. The accept handler registers new tills. The read handler answers their questions, using stock commands. And thread per connection is the old way, kept for comparison.</p>
+<h2>10. Where You Have Seen It</h2>
+<p>You have probably met this pattern already. Java&#x27;s NIO selector is the reactor&#x27;s building block. Netty&#x27;s event loops are reactors. So are Node.js, Nginx, and Redis. And Spring WebFlux and Vert.x are built on them.</p>
+<h2>11. When To Use It</h2>
+<p>So, when should you use it? For servers with many connections that are mostly idle. Usually through Netty, or a framework built on it. Keep handlers short. Hand slow work to a thread pool. And for a few dozen connections, Java&#x27;s virtual threads give you a thread per connection without the cost.</p>
+<h2>12. Thanks for Watching</h2>
+<p>That&#x27;s the Reactor pattern. If you remember one sentence, make it this one. One thread watches every connection, and every handler must be quick. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Hand the slow report to a thread pool, so the other tills never wait. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video — Saga</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Video — Saga</h1>
+<p>The narrated teaching video for this project: sixteen scenes, about eighteen minutes, built entirely offline from the sources in this folder.</p>
+<h2>Scenes</h2>
+<table><thead><tr><th>#</th><th>Key</th><th>Kind</th><th>What it does</th></tr></thead><tbody><tr><td>1</td><td><code>01-poster</code></td><td>poster</td><td>Title card and YouTube thumbnail. States what the video is, credits the author, gives the plain definition, then the shop</td></tr><tr><td>2</td><td><code>02-scenario</code></td><td>bullets</td><td>One checkout, five services, and the sentence everything follows from: there is nothing to roll back</td></tr><tr><td>3</td><td><code>03-the-try-block</code></td><td>code</td><td><code>NaiveCheckoutService</code> — four calls in a <code>try</code> block, taken seriously</td></tr><tr><td>4</td><td><code>04-act-five</code></td><td>console</td><td>The courier refuses. £70.95 taken, no parcel, and nothing threw</td></tr><tr><td>5</td><td><code>05-transactional</code></td><td>bullets</td><td>Why <code>@Transactional</code> does not help, and why nobody uses two-phase commit</td></tr><tr><td>6</td><td><code>06-holiday</code></td><td>quote</td><td>The holiday booking: flight, hotel, hire car, and the word &quot;approximately&quot;</td></tr><tr><td>7</td><td><code>07-the-step</code></td><td>code</td><td><code>SagaStep</code> — execute, compensate, and whether it can be compensated at all</td></tr><tr><td>8</td><td><code>08-the-orchestrator</code></td><td>code</td><td>Forward keeping a list, backwards undoing it, and it never throws</td></tr><tr><td>9</td><td><code>09-the-shape</code></td><td>diagram</td><td>The whole cast: the design being replaced on the left, the mechanism on the right</td></tr><tr><td>10</td><td><code>10-act-one</code></td><td>console</td><td>The happy path, and the line that makes the rest necessary</td></tr><tr><td>11</td><td><code>11-act-two</code></td><td>console</td><td>The same refusal, walked backwards — and why reverse order is the only safe order</td></tr><tr><td>12</td><td><code>12-in-reverse</code></td><td>bullets</td><td>The turn: three things undoing costs you, named before they are shown</td></tr><tr><td>13</td><td><code>13-the-ledger</code></td><td>console</td><td>A charge and a refund. Two lines, not zero. Compensation is not rollback</td></tr><tr><td>14</td><td><code>14-needs-human</code></td><td>console</td><td>The refund fails too. The unwinding carries on, and there is a third outcome</td></tr><tr><td>15</td><td><code>15-the-email</code></td><td>console</td><td>There is no unsend, so steps that cannot be undone go last</td></tr><tr><td>16</td><td><code>16-outro</code></td><td>outro</td><td>Sign-off, one exercise, and the harder question</td></tr></tbody></table>
+<h2>Building it</h2>
+<pre><code>cd video
+./build_video.sh</code></pre>
+<p>Needs macOS (for <code>say</code>), <code>ffmpeg</code>, and Python with Pillow. Output lands in <code>build/</code>: <code>saga-pattern-explained.mp4</code>, an audio-only <code>.m4a</code>, and a <code>.srt</code>. The poster is lifted out as <code>poster.png</code>, which is also the YouTube thumbnail.</p>
+<p>Rendered media is deliberately not committed. The sources here are enough to reproduce all of it.</p>
+<p>Individual pieces, if you want to iterate on one part:</p>
+<pre><code>python3 make_slides.py      # slides only, into build/
+python3 make_subtitles.py   # .srt from the narration timings</code></pre>
+<h2>Notes On The Shape</h2>
+<p><strong>Scenes 3 and 4 come before the mechanism, on purpose.</strong> The pattern is boring until the problem has been felt. Those two scenes are ten minutes of a live session compressed, and cutting them leaves a viewer memorising an interface they have no reason to want.</p>
+<p><strong>Scene 12 is the hinge.</strong> Most explanations of this pattern end at scene 11 with a happy summary. That does real damage, because everything up to there is the easy half. Scene 12 names the three costs, and scenes 13, 14 and 15 pay them one at a time.</p>
+<p><strong>Scenes 13, 14 and 15 must not be cut or reordered.</strong> The two-line ledger, the compensation that itself fails, and the email that cannot be unsent are the three facts that separate someone who can use this pattern from someone who has heard of it.</p>
+<p><strong>The outro names no other pattern.</strong> Publishing order is not fixed, so no video in this series announces what comes next.</p>
+<p><strong>Every number is exact.</strong> <code>SimulatedClock</code> advances by fixed amounts — 30ms for Stock, 100ms for Payments, 20ms for Orders, 60ms for Shipping, 40ms for Email — so the timelines on the console slides match <code>./gradlew run</code> on any machine, and the £70.95 is the real total of the demo basket.</p>
+<p>Suggested description:</p>
+<blockquote><p>Saga pattern in Java 21, starting from the sentence everything else follows from: across five services there is nothing to roll back. Four calls in a try block are taken seriously, and then the courier refuses — seventy pounds ninety-five taken, no parcel, and nothing threw. We say why a transaction annotation does not help and why nobody uses two- phase commit, then use a holiday booking for the analogy: flight, hotel, hire car, and the word approximately. The mechanism is a step that knows how to execute, how to compensate, and whether it can be compensated at all, plus an orchestrator that keeps a list going forward, undoes it going backwards, and never throws. Reverse order turns out to be the only safe order. The second half is what undoing costs you: the ledger shows a charge and a refund — two lines, not zero, because compensation is not rollback — the refund itself can fail and the unwinding carries on to a third outcome, and there is no unsend, which is why steps that cannot be undone go last.</p></blockquote>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

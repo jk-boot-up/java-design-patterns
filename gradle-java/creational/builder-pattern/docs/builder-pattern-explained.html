@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Builder Pattern, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Builder Pattern, Explained</h1>
+<h2>First, an Honest Note</h2>
+<p>Unlike the static factory method next door, this one really is in the Gang of Four book, in the creational chapter, right alongside Abstract Factory. It is also <em>Effective Java</em>&#x27;s <strong>Item 2: Consider a builder when faced with many constructor parameters</strong> — the two describe the same technique from two different angles, twenty years apart, and they agree completely. That double billing is why it belongs early in this collection: it is both the formal pattern and the practical advice.</p>
+<p>One thing to set aside before we start: the GoF book frames Builder around a <strong>Director</strong> that drives a builder through a fixed sequence of steps, so different builders can produce different representations from the same director. Real Java code almost never writes that as a class. It writes it as a static method — which is exactly what <a href="../src/main/java/com/jk/explore/builder/PurchaseOrderPresets.java"><code>PurchaseOrderPresets</code></a> in this project does. Same idea, no ceremony.</p>
+<h2>The Definition</h2>
+<blockquote><p>Separate the construction of a complex object from its representation, so that the same construction process can create different representations. — <em>Design Patterns</em> (Gamma, Helm, Johnson, Vlissides)</p></blockquote>
+<p>In plainer words:</p>
+<blockquote><p><strong>Instead of one constructor call carrying every fact at once, assemble the object across several small calls — one per piece — and finish with a <code>build()</code> that checks everything is in order.</strong></p></blockquote>
+<h2>The Telescoping Constructor, One More Time</h2>
+<p><code>docs/problem-statement.md</code> showed the wall: a <code>PurchaseOrder</code> with two required facts and five optional ones has thirty-two legitimate combinations, and no fixed argument list reads well for all of them. The builder&#x27;s answer is to stop insisting the whole object arrive in one call.</p>
+<h2>The Participants</h2>
+<table><thead><tr><th>Role</th><th>In this project</th><th>What it does</th></tr></thead><tbody><tr><td>Product</td><td><code>PurchaseOrder</code></td><td>The complex, immutable object being assembled</td></tr><tr><td>Builder</td><td><code>PurchaseOrder.Builder</code></td><td>One chainable method per optional (and required) piece</td></tr><tr><td>Director <em>(GoF&#x27;s term)</em></td><td><code>PurchaseOrderPresets</code></td><td>Drives the builder through a fixed recipe — as static methods, not a class</td></tr><tr><td>Client</td><td><code>PurchaseOrderDemo</code></td><td>Uses either the builder directly or a preset</td></tr></tbody></table>
+<h2>The Code, Walked Through</h2>
+<h3><code>PurchaseOrder.builder(...)</code> — a static factory that returns a builder</h3>
+<pre><code>public static Builder builder(String orderId, String customerId) {
+    return new Builder(orderId, customerId);
+}</code></pre>
+<p>The two facts that every order needs — an id and a customer — are taken here, as constructor-style required arguments, rather than as chained methods. This is deliberate: <strong>required fields belong in the step that starts the builder, optional fields belong in the steps that follow.</strong> Mixing the two — making <code>orderId</code> just another chained call — would let a caller build an order and forget it entirely, and nothing would catch that until <code>build()</code>, if ever. This is also the point where the builder pattern and the static factory method pattern meet: the door into a <code>Builder</code> is itself a named static method, not a <code>new Builder(...)</code> call.</p>
+<h3><code>PurchaseOrder.Builder</code> — one method per piece, all returning <code>this</code></h3>
+<pre><code>public Builder addItem(LineItem item) { items.add(item); return this; }
+public Builder shippingAddress(Address address) { this.shippingAddress = address; return this; }
+public Builder giftWrap() { this.giftWrapped = true; return this; }
+public Builder giftMessage(String message) {
+    this.giftMessage = message;
+    this.giftWrapped = true;   // a message implies wrapping
+    return this;
+}
+public Builder couponCode(String code) { this.couponCode = code; return this; }
+public Builder priority() { this.priority = true; return this; }
+public Builder notes(String notes) { this.notes = notes; return this; }</code></pre>
+<p>Every method returns <code>this</code>, which is what makes the calls chain:</p>
+<pre><code>PurchaseOrder order = PurchaseOrder.builder(&quot;ORD-9001&quot;, &quot;CUST-100&quot;)
+        .addItem(mug)
+        .addItem(book)
+        .shippingAddress(home)
+        .giftMessage(&quot;Happy birthday!&quot;)
+        .couponCode(&quot;WELCOME10&quot;)
+        .build();</code></pre>
+<p>Read that call site against the telescoping version from the problem statement. Nobody counts commas. Every line names the thing it is setting. An order with none of the options reads as five lines instead of nine, with no trailing <code>null, null, false, null</code> to explain.</p>
+<p>Look at <code>giftMessage</code> closely: it sets <strong>two</strong> fields, because a gift message without gift wrap makes no sense in this domain, and that rule now lives in exactly one place. A telescoping constructor would have had to trust every caller to pass <code>true</code> alongside the message, or bury a correcting <code>if</code> in its body that silently overrides what it was handed. Here, the builder&#x27;s own method enforces the rule as the value goes in.</p>
+<h3><code>build()</code> — where the required fields are finally checked</h3>
+<pre><code>public PurchaseOrder build() {
+    if (items.isEmpty()) {
+        throw new IllegalStateException(&quot;a purchase order needs at least one item&quot;);
+    }
+    if (shippingAddress == null) {
+        throw new IllegalStateException(&quot;a purchase order needs a shipping address&quot;);
+    }
+    return new PurchaseOrder(this);
+}</code></pre>
+<p>A builder is filled in gradually, in whatever order the caller finds natural — items first, address first, it does not matter. That means the two remaining required facts, at least one item and a shipping address, cannot be checked as they arrive; they can only be checked once the caller declares they are finished, which is what calling <code>build()</code> means. Nothing is checked too early, and nothing is checked too late — there is never a half-valid <code>PurchaseOrder</code> in memory, only a <code>Builder</code> that has not finished yet.</p>
+<h3><code>PurchaseOrder</code> — immutable once built</h3>
+<pre><code>private PurchaseOrder(Builder builder) {
+    this.items = List.copyOf(builder.items);
+    ...
+}</code></pre>
+<p>The constructor is private — a <code>Builder</code> is the only way in — and <code>List.copyOf</code> takes a snapshot rather than holding the builder&#x27;s own list. Reuse the builder to assemble a second order, and the first one does not change underneath you:</p>
+<pre><code>PurchaseOrder.Builder reused = PurchaseOrder.builder(&quot;ORD-9005&quot;, &quot;CUST-104&quot;)
+        .addItem(mug).shippingAddress(home);
+PurchaseOrder first = reused.build();
+reused.addItem(book).priority();
+PurchaseOrder second = reused.build();
+// first.items().size() == 1, second.items().size() == 2</code></pre>
+<p>Without the copy, <code>first</code> and <code>second</code> would share one mutable list, and <code>first</code> would silently grow a second item it was never asked for. This is the detail that separates a real builder from a bag of setters: <strong>the product does not keep watching the builder after <code>build()</code> returns.</strong></p>
+<h3><code>PurchaseOrderPresets</code> — the Director, written the Java way</h3>
+<pre><code>public static PurchaseOrder expressOrder(String orderId, String customerId,
+                                         List&lt;LineItem&gt; items, Address address) {
+    PurchaseOrder.Builder builder = PurchaseOrder.builder(orderId, customerId)
+            .shippingAddress(address)
+            .priority()
+            .notes(&quot;Ship same-day if received before 2pm.&quot;);
+    items.forEach(builder::addItem);
+    return builder.build();
+}</code></pre>
+<p>This is the GoF Director&#x27;s job — drive a builder through a fixed sequence so callers do not need to know the recipe — done as one static method instead of a class implementing a <code>Director</code> interface. Notice what it does <em>not</em> touch: no <code>PurchaseOrder</code> field, no <code>List.copyOf</code>, nothing from <code>PurchaseOrder</code>&#x27;s private insides. It only calls public methods on <code>Builder</code>. That is what makes it safe for <code>PurchaseOrder</code> to change its internal representation later without anyone needing to touch a preset.</p>
+<h2>What You Gain</h2>
+<p><strong>Readable call sites.</strong> Every value at the call site is named by the method that receives it. There is nothing left to decode by position.</p>
+<p><strong>Options that default themselves.</strong> An order with none of the five extras chained on simply has all five off. No caller writes <code>false, null, null, false, null</code> to say so.</p>
+<p><strong>A single place to enforce cross-field rules.</strong> <code>giftMessage</code> implying <code>giftWrapped</code> lives once, in the builder, rather than being a rule every caller must remember or a correction the constructor makes silently.</p>
+<p><strong>Validation at the natural moment.</strong> <code>build()</code> runs after every piece has arrived, which is the only point at which &quot;is this order complete&quot; can honestly be answered.</p>
+<p><strong>Immutability without a constructor nobody can call.</strong> <code>PurchaseOrder</code>&#x27;s fields are all <code>final</code>. A builder is the on-ramp; once you are off it, nothing can be changed, including by the builder that built you.</p>
+<h2>What to Watch Out For</h2>
+<p><strong>A second object exists during construction.</strong> For a moment, there are two things in memory — the builder and, once <code>build()</code> runs, the product. For a <code>PurchaseOrder</code> this costs nothing worth mentioning; for something built a million times a second in a hot loop, it is a real allocation to weigh.</p>
+<p><strong>It is more typing for a simple type.</strong> <code>LineItem</code> and <code>Address</code> in this project are plain records with public constructors, on purpose. They have two or three fields, all required, and nothing to decide — a builder there would be ten lines of ceremony around a one-line problem. Reach for a builder when the <em>option count</em> is the problem, not whenever a class has more than one field.</p>
+<p><strong>Required fields still need a place to live.</strong> This project puts <code>orderId</code> and <code>customerId</code> on the entry to <code>builder(...)</code> rather than as chained methods, precisely so the compiler — not a runtime check — refuses to let you forget them. Some builders instead check every required field in <code>build()</code>, the way <code>items</code> and <code>shippingAddress</code> are checked here; both are legitimate, and the choice is about how early you want the mistake caught.</p>
+<h2>How This Relates to the Other Creational Patterns</h2>
+<table><thead><tr><th></th><th>Builder</th><th>Static Factory Method</th><th>Simple Factory</th><th>Abstract Factory</th></tr></thead><tbody><tr><td>In the GoF book?</td><td>Yes</td><td>No</td><td>No</td><td>Yes</td></tr><tr><td>The problem it solves</td><td>Many optional pieces, one object</td><td>Naming and hiding a constructor</td><td>Which one?</td><td>Which whole matching set?</td></tr><tr><td>What the caller writes</td><td>A chain of calls, one per piece</td><td>One named call</td><td>One call to a factory class</td><td>One call, gets a family back</td></tr><tr><td>Extra classes needed</td><td>One builder</td><td>None</td><td>One</td><td>One per family</td></tr></tbody></table>
+<p>The honest summary: these solve <em>different</em> problems and are not alternatives to each other. A type can easily have both a static factory method and a builder — <code>PurchaseOrder.builder(...)</code> in this project is exactly that, a named static entry point that hands back a builder instead of a finished object.</p>
+<h2>Try It Yourself</h2>
+<ol><li><strong>Add an option.</strong> Give <code>PurchaseOrder</code> a <code>deliveryWindow</code> (a <code>String</code> such as <code>&quot;9am-12pm&quot;</code>), with a matching <code>Builder.deliveryWindow(String)</code>. Note that every existing call site — the hand-built order, all three presets, every test — keeps compiling unchanged.</li><li><strong>Add a preset.</strong> Write <code>PurchaseOrderPresets.subscriptionRenewal(...)</code> that always sets a fixed coupon code and a fixed note. Check that it never mentions a <code>PurchaseOrder</code> field directly.</li><li><strong>Break the invariant on purpose.</strong> Delete the <code>this.giftWrapped = true</code> line from <code>giftMessage(...)</code>, then write a test asserting that a gift message with no gift wrap is nonsense. Watch it fail, and see exactly which line of the builder was carrying that rule.</li><li><strong>Feel the alternative.</strong> Make every <code>PurchaseOrder</code> field settable through a public constructor instead, in the order they are declared. Then add a sixth optional field and count how many existing call sites you must edit to keep compiling.</li></ol>
+</main>
+<footer>
+Generated from <code>builder-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

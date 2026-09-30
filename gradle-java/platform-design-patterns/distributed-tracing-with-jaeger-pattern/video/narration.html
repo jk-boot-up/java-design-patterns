@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Distributed Tracing with Jaeger Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Distributed Tracing with Jaeger Pattern — Video Narration Script</h1>
+<h2>1. Distributed Tracing with Jaeger</h2>
+<p>Hello, and welcome. This video explains the Distributed Tracing pattern in Java, using a real tracing library called OpenTelemetry, and a real trace collector called Jaeger. This video is presented by Jayasekhar Konduru. First, a simple definition. Distributed tracing gives one customer request one identifier. Every piece of work records how long it took, and which piece of work asked for it. Afterwards, those records are put back together into one story. Think of a hospital. At reception you get a wristband with a number on it. X-ray, the blood test and the consultant each write their own form, with your wristband number on it. At the end of the shift, the records office puts your afternoon back together, by that number. In our online store, one product page is built by two programs. By the end, you will hear a page split into two stories because one header was forgotten. A trace that arrives late, or not at all. A customer complaint with no trace to look at. And a clock that makes an answer arrive before its question.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. The product page is the front door. It looks the product up in the catalog, asks pricing for a price, and checks the stock. Then it calls a second program, the recommendations service, over the network. And then it builds the page. Recommendations runs a ranking model, the slowest single piece of work on the page. Both are real web servers, in two separate Java programs. And the collector, Jaeger, runs in a container that the demo starts by itself. The plain Java version of this video kept everything inside one program. Here, nothing is shared except the network.</p>
+<h2>3. The Tools&#x27; Words</h2>
+<p>These tools bring a few words with them. One form, for one piece of work, is called a span. It has a name, a start time, a length, and the ID of the span that asked for it, called its parent. A span with no parent is the front door, and is called the root. The wristband number is called the trace ID. Every span of one customer request carries the same one. The wristband travels from one program to the next in a web header, called trace parent. It is fifty-five characters long. Writing it onto an outgoing request is called injecting. Reading it from an incoming one is called extracting. And Jaeger is the records office. It receives every service&#x27;s spans, and joins them by trace ID.</p>
+<h2>4. A Hop That Forgets The Header</h2>
+<p>First demo: a hop that forgets the header. The product page calls recommendations over the network. But it leaves out the one line that writes the trace parent header. Nothing fails. Recommendations finds no header, so it starts a story of its own. Jaeger now holds two traces, for one page load. The page&#x27;s trace has six spans. Its call to recommendations has nothing under it. The other trace has two spans: recommendations, and its ranking model, with no page above them. And each trace looks perfectly healthy. The two halves could only be found together by searching both services for a visit number the shop happened to record.</p>
+<h2>5. The Header Forwarded</h2>
+<p>Second demo: the header forwarded. One line is added. Write the current trace onto the outgoing request. The header the page sent, and the header recommendations received, are the same fifty-five characters. A version number. The trace ID. The caller&#x27;s own span ID. And a flag that says: keep this one. Jaeger now holds one trace. Eight spans, from two services, with one root. Read as a family tree, the ranking model sits inside recommendations&#x27; span, which sits inside the page&#x27;s call. By its own time, the slowest piece of work is the ranking model: three hundred and forty milliseconds or more. And the page&#x27;s call lasted a little longer than recommendations took to answer. That difference is the network hop itself. You can only see it because both sides reported.</p>
+<h2>6. One Page Load, One Trace</h2>
+<p>So here is the shape of it. The product page does its own four steps, and records six spans. On its call to recommendations, it writes the trace parent header. Recommendations reads that header, joins the same trace, and records two spans of its own. Neither program ever holds the whole story. Each sends its own spans to Jaeger, separately. And Jaeger joins them by trace ID. The rule is short. Write the header on every call that leaves a program. Read it on every call that arrives.</p>
+<h2>7. The Collector Puts It Together, Later</h2>
+<p>Third demo: the collector puts it together, later. The customer already has the page. And at that moment, Jaeger holds none of its spans. OpenTelemetry does not send a span the moment it ends. It keeps finished spans in memory, and sends them together, in a batch, every five seconds. Sending each one as it finished would slow the shop down. So the spans arrive more than two seconds after the customer had the page. Then Jaeger holds eight: six sent by the product page, and two sent by recommendations. The customer never waits for tracing. That is the point. And nobody sees the trace straight away. That is the price.</p>
+<h2>8. Sampling At The Front Door</h2>
+<p>Fourth demo: sampling at the front door. Keeping every trace costs storage. So the page now keeps one trace in four. The decision is made once, at the front door. Twenty page loads. Six kept, and fourteen dropped. The decision travels in the last two characters of the header. Zero one means kept. Zero zero means dropped. Recommendations obeys the flag it is sent, and records spans for the same six. Jaeger holds six traces of the twenty. Now a customer complains about the first of those page loads. Jaeger has no trace of it, and never will. The decision was made at the only moment when nothing at all was known about that request.</p>
+<h2>9. A Clock That Is Off</h2>
+<p>Fifth demo: a clock that is off. Each program stamps its spans with its own machine&#x27;s time. Now the recommendations machine&#x27;s clock is set three seconds slow. The page&#x27;s clock is right. The trace is complete. Eight spans, one root, and every parent link is correct. So the family tree is right. But in time order, the first span is recommendations&#x27; own. It starts two to three seconds before the call that caused it. An answer, before its question. Jaeger notices, and attaches a warning of its own. Clock skew adjustment is turned off. Out of the box, it stores what each service said, and corrects nothing.</p>
+<h2>10. The Bill</h2>
+<p>Sixth demo: the bill. Recommendations answers the customer. Then it is killed, before its next batch is sent. The page stops politely, which sends everything it holds. Jaeger holds six spans of that page load, all from the page. None from recommendations. Its spans were finished, correct, and waiting. And they never arrive. The spans a crash loses are always the last ones before it. Exactly the ones somebody will want, when they investigate the crash. And the ongoing costs. Eight spans for every page load, from two programs. A fifty-five character header on every hop. And Jaeger is one more system to run. Out of the box, it keeps everything in memory, so a restart empties it.</p>
+<h2>11. What The Simulation Left Out</h2>
+<p>So what did the plain Java version get right? The whole idea. Spans with parents, one trace ID, and the slowest step found by its own time. All of that holds with Jaeger. What it left out was the distance. In the plain version, the trace was an object passed along inside one program. Here, it has to become a header, cross the network, and be read by a different program. Spans are sent later, in batches. And every machine has its own clock. And the headline. In the plain version, a trace could never be lost. Here, a crash loses exactly the spans you would want to read about the crash.</p>
+<h2>12. The Verdict</h2>
+<p>So, here is the verdict. Put a collector behind your services, as soon as one customer request crosses more than one program. Then remember five things, because nothing will fail if you forget them. One. Write the header on every call that leaves a program, and read it on every call that arrives. Two. Sample once, at the front door, and let the decision travel. Three. Shut services down politely, so their last batch is sent. Four. Keep the machines&#x27; clocks in step. Five. Give the collector real storage, before you rely on it.</p>
+<h2>13. How To Recognise It</h2>
+<p>How can you spot this in code someone else wrote? Look for a call to inject, just before a web request is sent. And a call to extract, at the top of a request handler. That is the header being carried. A sampler described as parent based means: follow the decision in the header, instead of making a new one. And a batch span processor, with its delay, tells you how many seconds of spans a crash can lose. Where have you met this? Spring Boot, Quarkus and the OpenTelemetry Java agent all write and read this header for you.</p>
+<h2>14. What Is Real, And When Not</h2>
+<p>A quick, honest note about this demo. OpenTelemetry is version one point sixty-six. Jaeger is version two point twenty-one, in a container that the demo starts and removes by itself. The two services are separate Java programs, talking over real web requests. And everything the demo says about a trace is read back from Jaeger itself, which neither service can fake. You just need Docker switched on first. So, when is this too much? If the shop is one program, a profiler, or a request ID in the logs, answers the question without a collector to run. A collector earns its keep once one request crosses several programs, and somebody has to say which of them was slow.</p>
+<h2>15. Thanks for Watching</h2>
+<p>That&#x27;s Distributed Tracing, with Jaeger. If you remember one sentence, make it this one. Give every request one trace ID, carry it across every hop, and remember that the trace arrives later, or not at all. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Shorten the batch delay to one second, run the crash again, and count how many spans arrive. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event-Driven Architecture with Kafka Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Event-Driven Architecture with Kafka Pattern — Video Narration Script</h1>
+<h2>1. Event-Driven Architecture with Kafka</h2>
+<p>Hello, and welcome. This video explains the Event-Driven Architecture pattern, in Java, using Apache Kafka. This video is presented by Jayasekhar Konduru. First, a simple definition. In an event-driven system, services do not call each other. They write facts, called events, to a shared log, and each service reads that log at its own pace. With Kafka, that log is called a topic, and it lives on a server called a broker. The broker also remembers how far each reading service has got. Think of a library that keeps a bookmark for every reader. You can leave for a week, come back, and carry on from the right page. This is the framework version of the Event-Driven Architecture video. We keep the same online store, and watch a real Kafka broker do the work. We will lose an order the old way, then send events to Kafka, catch up after an outage, replay history, and finally, look at the cost.</p>
+<h2>2. The Partner Project</h2>
+<p>Before we start, a quick note. This video has a partner: the hand-built Event-Driven Architecture video. That one builds the log itself, in plain Java. It shows readers working at their own pace, a reader catching up, and a new reader replaying history. If you are new to the pattern, watch that one first. Here, we keep the same example. We won&#x27;t teach the pattern again. Instead, we ask what a real tool, Kafka, does with it.</p>
+<h2>3. Before The First Line</h2>
+<p>So, what is Apache Kafka? Kafka keeps a log of events on a server, called a broker. Programs that write events are called producers. They add events to a topic. Programs that read events are called consumers. Consumers work in named groups, and the broker remembers how far each group has read. To run the demo, you need Docker running, because the broker runs in a container. Without Docker, the demo tells you so, and stops. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.</p>
+<h2>4. Calling And Waiting</h2>
+<p>First, the old way: services calling each other. The order service calls shipping, and waits for an answer. But shipping is down. So the order is not accepted. A customer just lost their order, because of a service they never even see.</p>
+<h2>5. Telling The Log</h2>
+<p>Second demo: telling the log. The order service sends its event to Kafka. Kafka stores it at position zero, called offset zero. And the order service is finished. It knows nothing about inventory or shipping. Inventory reads the topic, and sees the order. Shipping reads the same topic, and sees it too.</p>
+<h2>6. A Service That Is Down</h2>
+<p>Third demo: a service that is down. Shipping reads the first order, and then goes down. Three more orders arrive, and all three are accepted. The broker reports that shipping is three events behind. This gap is called lag. Then shipping comes back. The broker remembers exactly where it stopped. So shipping carries on from there, and plans all four orders. Now the lag is zero.</p>
+<h2>7. A New Reader</h2>
+<p>Fourth demo: a new reader. After two orders have been placed, we add a brand new service: analytics. It reads the topic from the very beginning. So it sees both earlier orders. And the order service was not changed at all. Kafka keeps the events, so a new service can be built from history.</p>
+<h2>8. Not The Same Instant</h2>
+<p>Fifth demo: things do not happen at the same instant. An order is accepted. But the stock count still says ten. It should say nine. A moment later, inventory reads the event, and the count becomes nine. For that short moment, the two services disagree. This is called eventual consistency. The system becomes correct, but not at every single instant.</p>
+<h2>9. The Bill</h2>
+<p>Finally, the cost. Kafka can deliver the same event twice, for example when a reader crashes before saving its place. Without a duplicate check, the stock drops twice, to eight. That is wrong. With a duplicate check, it stays at nine, which is right. Second, the journey of one order is now spread across several services. To follow it, you read the topic, not one piece of code. And third, the broker is one more system you have to run.</p>
+<h2>10. The Verdict</h2>
+<p>So, here is the verdict. Use a broker when services must not depend on each other being up, and when new services will join later. Then follow four rules. One. Give each service its own consumer group. Two. Expect readers to be behind, and design for it. Three. Make every reader safe to run twice on the same event. And four. Watch the lag.</p>
+<h2>11. How To Recognise It</h2>
+<p>How can you spot this in code someone else wrote? Look for the Kafka Producer and Kafka Consumer classes. Or a method marked with the at Kafka Listener annotation. Look for a group I D setting for each service. And look for dashboards that show lag, or the Kafka consumer groups command line tool.</p>
+<h2>12. Where You Have Met This</h2>
+<p>Where have you met this before? In most large event-driven systems. Order pipelines, activity feeds, and systems that copy database changes to other services.</p>
+<h2>13. What Was Used</h2>
+<p>For the record, here are the versions. Apache Kafka, four point three point one. And Docker, version twenty-four or later.</p>
+<h2>14. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything in it is real. A real broker, running in a container, with real offsets, and real consumer groups. Each demo uses its own topic, with a single partition, so every count you heard is exact.</p>
+<h2>15. When This Is Too Much</h2>
+<p>So, when is this too much? In a small system where every part is always up together, a direct call is simpler. A broker is another system to run, and another system to understand.</p>
+<h2>16. Thanks for Watching</h2>
+<p>That&#x27;s Event-Driven Architecture with Kafka. If you remember one sentence, make it this one. Kafka keeps the log, and each service&#x27;s place in it, and the price is a broker to run, and readers that may see an event twice. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a third reader, for a loyalty points service. And have it read the topic from the very start. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

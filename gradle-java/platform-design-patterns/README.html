@@ -5,10 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Platform Patterns</title>
 <style>
-:root {
+:root, [data-theme=dark] {
+  color-scheme: dark;
   --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
   --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
-  --ok: #34d399;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
 }
 * { box-sizing: border-box; }
 body {
@@ -24,7 +40,7 @@ h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
 h3 { font-size: 19px; margin: 32px 0 4px; }
 p { margin: 14px 0; }
 a { color: var(--link); }
-a:hover { color: #7dd3fc; }
+a:hover { color: var(--link-hover); }
 hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
 code {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
@@ -39,14 +55,14 @@ pre {
 pre code { background: none; border: 0; padding: 0; font-size: 14px; }
 blockquote {
   margin: 20px 0; padding: 4px 20px;
-  background: rgba(167, 139, 250, 0.08);
+  background: var(--quote);
   border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
 }
 table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
 th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
          vertical-align: top; }
 th { background: var(--panel-hi); font-weight: 600; }
-tr:nth-child(even) td { background: rgba(30, 41, 59, 0.55); }
+tr:nth-child(even) td { background: var(--stripe); }
 img {
   display: block; max-width: 100%; height: auto; margin: 24px auto;
   background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
@@ -61,19 +77,38 @@ footer {
   max-width: 860px; margin: 60px auto 0; padding-top: 20px;
   border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
 }
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
 </style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
 </head>
 <body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <main>
 <h1>Platform Patterns</h1>
 <p>The fifth category. Six patterns, in eight projects, whose subject is the platform around a service, or the shape of a system as it changes over time.</p>
 <p><strong>Status: all eight are built.</strong> Each has Tier 1 (offline, a JDK) and, for the Sidecar projects and Strangler Fig, a Tier 2 that runs the real thing (Docker Compose, or a <code>kind</code> cluster). The two documents below fixed what all eight are before any of them was written.</p>
-<ul><li><a href="docs/spec.md"><code>docs/spec.md</code></a> — the scenario each pattern is taught through, the naive version it must show failing, the cost it must admit to, and what its simulation cannot honestly claim.</li><li><a href="docs/implementation-plan.md"><code>docs/implementation-plan.md</code></a> — the order the eight get built in, and the rules that keep the build from having to redo itself.</li></ul>
+<ul><li><a href="docs/spec.html"><code>docs/spec.md</code></a> — the scenario each pattern is taught through, the naive version it must show failing, the cost it must admit to, and what its simulation cannot honestly claim.</li><li><a href="docs/implementation-plan.html"><code>docs/implementation-plan.md</code></a> — the order the eight get built in, and the rules that keep the build from having to redo itself.</li></ul>
 <h2>The eight projects</h2>
 <table><thead><tr><th>#</th><th>Pattern</th><th>Scenario</th></tr></thead><tbody><tr><td>38</td><td><a href="externalised-configuration-pattern">Externalised Configuration</a></td><td>The free-delivery threshold that changes without a deploy</td></tr><tr><td>39</td><td><a href="distributed-tracing-pattern">Distributed Tracing</a></td><td>Which of four services made the product page slow</td></tr><tr><td>40</td><td><a href="backends-for-frontends-pattern">Backends for Frontends</a></td><td>One response cannot serve a phone and a desktop</td></tr><tr><td>41</td><td><a href="sidecar-pattern">Sidecar</a></td><td>The retry code that lives outside the service</td></tr><tr><td>42</td><td><a href="sidecar-java-proxy-pattern">Sidecar with a Java proxy</a></td><td>The same service, with the proxy written in Java</td></tr><tr><td>43</td><td><a href="sidecar-on-kubernetes-pattern">Sidecar on Kubernetes</a></td><td>Two containers in one Pod, which is where sidecars live</td></tr><tr><td>44</td><td><a href="event-sourcing-pattern">Event Sourcing</a></td><td>Why is this customer&#x27;s loyalty balance 140?</td></tr><tr><td>45</td><td><a href="strangler-fig-pattern">Strangler Fig</a></td><td>Replacing the checkout without a cutover weekend</td></tr></tbody></table>
 <p>Sidecar is taught three times because the deployment <em>is</em> the pattern, and <strong>each version is a separate project</strong> — its own README, its own video, its own lesson. Project 41 is the default; 42 and 43 are additive and each says in one sentence what it adds over 41. A reader who only ever runs 41 has learned Sidecar.</p>
 <h2>Why these six, and why they were excluded before</h2>
-<p>All six were ruled out by the microservices category&#x27;s <a href="../micro-services-design-patterns/docs/spec.md"><code>spec.md</code></a> §8, and those reasons were correct for that category, whose binding rule is that everything runs in one JVM with no network, no broker and no container.</p>
+<p>All six were ruled out by the microservices category&#x27;s <a href="../micro-services-design-patterns/docs/spec.html"><code>spec.md</code></a> §8, and those reasons were correct for that category, whose binding rule is that everything runs in one JVM with no network, no broker and no container.</p>
 <p>This category does not overturn that rule. It changes what is simulated: the microservices projects simulate <strong>calls</strong>, and these simulate <strong>time, topology and change</strong> — a clock spanning months, a deployment that can be restarted and rolled back, and a topology the demo can reconfigure while it runs.</p>
 <p>That buys a great deal, but it does not turn one JVM into a cluster. So every project here carries an obligation the other categories do not: a named section in its explainer saying <strong>what its simulation does not show</strong>, repeated aloud in the video. A reader who finishes the Sidecar project believing they have seen a service mesh has been taught something false.</p>
 <h2>Two tiers</h2>
@@ -83,9 +118,9 @@ footer {
 <ul><li><strong>Tier 1</strong> is the core. Plain Java, offline, deterministic tests under two seconds. It holds the pattern, the naive version, the failure and the cost. The teaching video is built entirely from it. A viewer who never installs Docker gets the whole pattern.</li><li><strong>Tier 2</strong> is optional and additive: the same pattern at a real process boundary, with real HTTP endpoints you can call, in a <code>real/</code> subdirectory, never on the path of <code>./gradlew test</code>. It earns at most one scene near the end of the video.</li></ul>
 <p>Tier 2 is expected for five of the six patterns and explicitly discouraged for Event Sourcing, whose pattern is entirely in-process and would gain nothing but a database.</p>
 <p>The endpoints stay in the shop — <code>/api/products/{id}</code>, <code>/api/orders</code>, <code>/api/customers/{id}/points</code> — because the e-commerce rule governs the API surface just as it governs the code, and a reader who has watched the API Gateway video should recognise the paths.</p>
-<p><strong>Two projects are what these permissions rescue.</strong> In one JVM, a proxy you call through is just Decorator, so <strong>Sidecar</strong> was previously a candidate for being dropped; two containers sharing a network make its defining claims real — a service image containing no retry code, a proxy you can kill independently, and a boundary that does not care the service is Java. In project 41 the proxy is nginx rather than anything written here, because the real-world answer is a piece of infrastructure and hand-rolling it would teach the re-implementation instead of the pattern; its short commented config file ends up being the project&#x27;s most important artefact. Projects 42 and 43 then take the two choices that are worth arguing about and build them out properly: 42 swaps in a forty-line Java proxy under an unchanged service, which <em>demonstrates</em> language independence rather than claiming it, while warning that you would not deploy it; 43 moves the same two containers into a Kubernetes Pod, where sidecars actually live, and explains Kubernetes from scratch in its own <code>docs/dependencies.md</code> — including that skipping it loses none of the pattern. <strong>Backends for Frontends</strong> was the redundancy risk against API Gateway; with two real backends you can fetch the same product from each and see two differently shaped, visibly different-sized responses come back, which is the pattern&#x27;s entire argument and something a single gateway cannot show. <a href="docs/spec.md"><code>docs/spec.md</code></a> §2 and §2a give the full reasoning and rank all six honestly.</p>
+<p><strong>Two projects are what these permissions rescue.</strong> In one JVM, a proxy you call through is just Decorator, so <strong>Sidecar</strong> was previously a candidate for being dropped; two containers sharing a network make its defining claims real — a service image containing no retry code, a proxy you can kill independently, and a boundary that does not care the service is Java. In project 41 the proxy is nginx rather than anything written here, because the real-world answer is a piece of infrastructure and hand-rolling it would teach the re-implementation instead of the pattern; its short commented config file ends up being the project&#x27;s most important artefact. Projects 42 and 43 then take the two choices that are worth arguing about and build them out properly: 42 swaps in a forty-line Java proxy under an unchanged service, which <em>demonstrates</em> language independence rather than claiming it, while warning that you would not deploy it; 43 moves the same two containers into a Kubernetes Pod, where sidecars actually live, and explains Kubernetes from scratch in its own <code>docs/dependencies.md</code> — including that skipping it loses none of the pattern. <strong>Backends for Frontends</strong> was the redundancy risk against API Gateway; with two real backends you can fetch the same product from each and see two differently shaped, visibly different-sized responses come back, which is the pattern&#x27;s entire argument and something a single gateway cannot show. <a href="docs/spec.html"><code>docs/spec.md</code></a> §2 and §2a give the full reasoning and rank all six honestly.</p>
 <h2>Where this sits</h2>
-<p>Projects 38 to 45, after the twenty-five object-oriented patterns and the twelve microservices ones. See <a href="../README.md"><code>../README.md</code></a> for the full course.</p>
+<p>Projects 38 to 45, after the twenty-five object-oriented patterns and the twelve microservices ones. See <a href="../README.html"><code>../README.md</code></a> for the full course.</p>
 <h2>More platform patterns</h2>
 <ul><li><a href="blue-green-and-canary-pattern">Blue-Green and Canary</a></li><li><a href="feature-toggle-pattern">Feature Toggle</a></li><li><a href="service-mesh-pattern">Service Mesh</a></li><li><a href="consumer-driven-contract-pattern">Consumer-Driven Contract</a></li></ul>
 <h2>With real infrastructure</h2>

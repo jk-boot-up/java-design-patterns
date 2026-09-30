@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render a project's README.md as README.html, beside it.
+"""Render every Markdown file under a project or category as a themed HTML twin, beside it.
 
 GitHub renders Markdown and a browser does not. A reader who has cloned this
 repository, or who is handed a directory rather than a URL, opens README.md in
@@ -9,8 +9,11 @@ reader, and for the same reason `docs/spec.html` does: one source, two ways in.
     python3 docs/make_readme_html.py platform-design-patterns
     python3 docs/make_readme_html.py platform-design-patterns/sidecar-pattern
 
-Every README.md found underneath each argument is converted, which includes the
-`real/README.md` that a Tier 2 directory carries. Build outputs are skipped.
+Every .md found underneath each argument is converted (README, docs, YouTube
+documents, diagrams, the `real/` directory of a Tier 2 project, video notes):
+the rule is that every Markdown file has an HTML twin. Build outputs are
+skipped. Each page offers Light, Dim and Dark themes; it follows the system
+setting until the reader picks one, and remembers the choice.
 
 The Markdown-to-HTML converter is the one in `make_specs.py`, imported rather
 than copied. That is deliberate: the two kinds of page then look identical,
@@ -20,7 +23,7 @@ not know, extend the converter rather than working around it here — it is a
 small, readable function and it is the only Markdown implementation in the
 repository.
 
-**README.html is generated. Never edit it.** Edit README.md and run this.
+**The .html files are generated. Never edit them.** Edit the Markdown and run this.
 """
 
 import html
@@ -32,11 +35,8 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 
-#: Directories not to walk into. `build` and `.gradle` are output rather than
-#: documents. `video` is skipped for a different reason: its README is a
-#: maintainer's note about rendering a film, addressed to whoever next runs the
-#: pipeline, and giving it a styled HTML twin would imply it is for readers.
-SKIP = {"build", ".gradle", "node_modules", ".git", "video"}
+#: Directories not to walk into: output and tool caches rather than documents.
+SKIP = {"build", ".gradle", "node_modules", ".git", "__pycache__", "target"}
 
 
 def _make_specs():
@@ -58,8 +58,10 @@ def wrap(title, body, source):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>%s</title>
 <style>%s</style>
+%s
 </head>
 <body>
+%s
 <main>
 %s
 </main>
@@ -69,15 +71,16 @@ edit the Markdown, not this file.
 </footer>
 </body>
 </html>
-""" % (html.escape(title), MS.CSS, body, html.escape(source))
+""" % (html.escape(title), MS.CSS, MS.THEME_HEAD, MS.THEME_BAR, body, html.escape(source))
 
 
-def readmes(base):
+def markdown_files(base):
+    if os.path.isfile(base):
+        return [base] if base.endswith(".md") else []
     found = []
     for dirpath, dirnames, filenames in os.walk(base):
         dirnames[:] = [d for d in dirnames if d not in SKIP]
-        if "README.md" in filenames:
-            found.append(os.path.join(dirpath, "README.md"))
+        found += [os.path.join(dirpath, f) for f in filenames if f.endswith(".md")]
     return sorted(found)
 
 
@@ -89,15 +92,15 @@ def main():
     paths = []
     for a in args:
         base = a if os.path.isabs(a) else os.path.join(ROOT, a)
-        paths += readmes(base)
+        paths += markdown_files(base)
     if not paths:
-        sys.exit("no README.md found under: " + ", ".join(args))
+        sys.exit("no .md found under: " + ", ".join(args))
 
     # Register every page this run will produce before converting any of it.
     # A category README links to the project READMEs underneath it, and those
     # link back; without this, whichever page is written first would keep its
     # links pointing at Markdown because the twin did not exist yet.
-    MS.PLANNED.update(p[:-3] + ".html" for p in paths)
+    MS.PLANNED.update(os.path.normpath(p[:-3] + ".html") for p in paths)
 
     for md_path in paths:
         md = open(md_path).read()
@@ -106,7 +109,7 @@ def main():
             os.path.dirname(md_path))
         out = md_path[:-3] + ".html"
         MS.LINK_BASE = os.path.dirname(md_path)
-        open(out, "w").write(wrap(title, MS.to_html(md), "README.md"))
+        open(out, "w").write(wrap(title, MS.to_html(md), os.path.basename(md_path)))
         print("%-68s %d KB" % (os.path.relpath(out, ROOT),
                                os.path.getsize(out) // 1024))
 

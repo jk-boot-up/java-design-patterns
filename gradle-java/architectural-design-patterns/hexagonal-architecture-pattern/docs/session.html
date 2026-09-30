@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Hexagonal Architecture Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Hexagonal Architecture Pattern</h1>
+<p>A 60-minute session built around the question &quot;who is allowed to name whom?&quot;</p>
+<h2>Learning Objectives</h2>
+<p>By the end of the session a participant can:</p>
+<ol><li>Define a port and an adapter, and say which one names the other.</li><li>Explain the one-move difference between this project and Layered Architecture.</li><li>Distinguish a driving adapter from a driven one.</li><li>Read the ArchUnit rule and say what it forbids.</li><li>Perform, or trace by hand, both halves of the forced change.</li><li>State one honest reason this architecture is sometimes not worth it.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:08</td><td>Setup, and the naive service&#x27;s constructor</td></tr><tr><td>0:08–0:20</td><td>Ports and adapters, and the one-move difference</td></tr><tr><td>0:20–0:32</td><td>The driving side — HTTP and CLI, same core</td></tr><tr><td>0:32–0:42</td><td>The forced change, both halves</td></tr><tr><td>0:42–0:50</td><td>The rule, as a test</td></tr><tr><td>0:50–0:57</td><td>Exercises</td></tr><tr><td>0:57–1:00</td><td>When this is too much, and wrap-up</td></tr></tbody></table>
+<h2>0:00–0:08 — Setup</h2>
+<pre><code>cd architectural-design-patterns/hexagonal-architecture-pattern
+./gradlew -q run</code></pre>
+<p>Open <code>NaivePlaceOrderService</code>&#x27;s constructor. Ask: what would you have to construct to unit-test this class? Three concrete adapters, every time.</p>
+<h2>0:08–0:20 — Ports And Adapters</h2>
+<p>Open <code>core/port/OrderStore.java</code>, then <code>adapter/persistence/InMemoryOrderStore.java</code>. Ask which one was written first, conceptually — the answer the project insists on is the port, because the core should never be waiting on an adapter to know what it needs.</p>
+<p>Put <code>layered-architecture-pattern</code>&#x27;s <code>OrderTable</code> interface next to this project&#x27;s <code>OrderStore</code> side by side, if the room has seen that project. Same three methods. Different package. That is the whole move.</p>
+<h2>0:20–0:32 — The Driving Side</h2>
+<p>Open <code>HttpCheckoutAdapter</code> and <code>CliCheckoutAdapter</code>. Ask the room: which one does <code>PlaceOrderService</code> know about? Neither — it has no import of either class. Run:</p>
+<pre><code>./gradlew test --tests BothSidesAgreeTest</code></pre>
+<h2>0:32–0:42 — The Forced Change, Both Halves</h2>
+<p>Read act three and act four of the demo output together. Ask: how many lines of <code>PlaceOrderService.java</code> changed for either swap? Zero, both times. Put the count on the board: fourteen core classes, none of them opened, for two independent swaps.</p>
+<h2>0:42–0:50 — The Rule, As A Test</h2>
+<pre><code>./gradlew test --tests ArchitectureRuleCatchesTheShortcutTest</code></pre>
+<p>Read the failure and find <code>NaivePlaceOrderService</code> in it by name.</p>
+<h2>0:50–0:57 — Exercises</h2>
+<ol><li><strong>Write a third driving adapter.</strong> A <code>ConsoleMenuAdapter</code> that reads one hard-coded selection and calls the same <code>PlaceOrderService</code>. Confirm <code>PlaceOrderService.java</code> needs no change.</li><li><strong>Add a port on purpose, without an adapter yet.</strong> Declare <code>LoyaltyPoints</code> in <code>core.port</code> and leave it unimplemented. Discuss: is an unused port a cost, or a promise?</li><li><strong>Break the rule on purpose.</strong> Add an import of <code>InMemoryOrderStore</code> to <code>PlaceOrderService</code>, run the tests, read the failure, then revert it.</li></ol>
+<h2>0:57–1:00 — When This Is Too Much, And Wrap-Up</h2>
+<p>Ask directly: for an application that will only ever have one database and one caller, is this worth building? Push for &quot;often, no&quot; as the honest answer, and ask what has to be true for the answer to flip to yes — a real second adapter, on either side, that is actually going to be built.</p>
+<p>Close with the sentence worth remembering: hexagonal architecture is not about databases. It is about who is allowed to name whom.</p>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

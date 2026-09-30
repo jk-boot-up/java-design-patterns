@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Null Object Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Null Object Pattern — Video Narration Script</h1>
+<h2>1. Null Object</h2>
+<p>Hello, and welcome. This video explains the Null Object pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. Instead of returning nothing, return an object that does nothing. It implements the same interface as the real objects. So callers never have to check whether they got anything. Think of a blank voucher that is worth nothing. The till can accept it like any other voucher. It simply takes nothing off the price. In our online store, the thing that might not be there is a discount. In this video, null checks spread, and one gets forgotten. Then this pattern removes them. And we will hear the part most explanations leave out: how it can hide a real error. And when not to use it.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. In our online store, most customers have no discount. Some have a loyalty discount. And a few have a staff discount. Eight different places in the checkout work out an order&#x27;s price, after any discount. So here is the question. What should the discount lookup return, for a customer who has none?</p>
+<h2>3. Return Null</h2>
+<p>The obvious answer is null, meaning nothing. And it works, as long as everyone remembers to check. Customer one has a loyalty discount, and pays ninety pounds. Customer two has none, and pays one hundred pounds. But eight places work out the price. Seven remembered to check for null. The eighth, added last, in a hurry, did not. For customer two, it crashes with a null pointer exception. At checkout, in front of a customer.</p>
+<h2>4. The Check You Stop Seeing</h2>
+<p>There is another cost, beyond the crash. The same check, if the discount is not null, appears seven times. Seven identical blocks. After the third one, a reader stops noticing them. So the eighth method, the one without the check, hides in plain sight. It looks just like the others, minus four lines nobody notices are missing.</p>
+<h2>5. The Pattern</h2>
+<p>Now, the pattern: a No Discount object. It implements the same Discount interface as the loyalty and staff discounts. Its apply method simply returns the price, unchanged. And the lookup never returns null. For a customer with no discount, it returns this object.</p>
+<h2>6. Every Check Deleted</h2>
+<p>Third demo: every null check deleted. All eight methods lose their null checks. Then the same four customers run again. Ninety pounds. One hundred pounds. Seventy-five pounds. One hundred pounds. Exactly the same as before. And the eighth method, which crashed, now returns one hundred pounds. The forgotten check can no longer be forgotten, because there is nothing to remember.</p>
+<h2>7. The Bill: It Hides Errors</h2>
+<p>Now the cost, the part most explanations leave out. A null object can hide errors. Suppose the discount service is down. A well-meaning lookup catches the failure, and returns No Discount, to keep checkout running. Customer one is entitled to ten percent off. But is charged one hundred pounds, instead of ninety. No error. No log. No alert. Having no discount, and the service being down, now look exactly the same. That is a quieter bug than the crash it replaced, and a worse one.</p>
+<h2>8. Where The Line Is</h2>
+<p>So where is the line? If absence is a normal state in your business, a null object is right. Having no discount is normal. Most customers have none. But if absence means something went wrong, like the service being down, a null object is wrong. It turns a failure into a normal-looking result.</p>
+<h2>9. The Honest Alternatives</h2>
+<p>Fourth demo: the honest alternatives. First, Java&#x27;s Optional type. Absence is written into the return type itself. Customer one has a discount, and customer two has an empty optional. And a service that is down still throws an error. It never becomes an empty optional. So the two cases can no longer be confused. And every caller must decide what absence means. The second alternative: when absence means something went wrong, throw an error, clearly.</p>
+<h2>10. How To Recognise It</h2>
+<p>How can you spot this pattern in code someone else wrote? Java&#x27;s empty list is one: a list that is never null, and holds nothing. The null input stream reads nothing. A logger that does nothing, handed to code that would otherwise check whether logging is set up. And any class named no-op, or null something, with empty method bodies.</p>
+<h2>11. The Verdict</h2>
+<p>So, here is the verdict. Use a null object when absence is a normal state in your business. Never use one to hide a failure. And where the caller should decide what absence means, prefer Optional.</p>
+<h2>12. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything is plain Java. The discount service is simulated by a switch that makes it fail. But the crash, and the silent full-price order, both really happen, in the code you just heard about.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, when is this too much? For a value used in only one place, a single null check is simpler. A null object earns its place when the same check would be repeated. And when absence is normal.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s the Null Object pattern. If you remember one sentence, make it this one. Absence can be a normal state, but it must never be a place to hide a failure. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Write a test that would catch a lookup quietly hiding a service outage. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

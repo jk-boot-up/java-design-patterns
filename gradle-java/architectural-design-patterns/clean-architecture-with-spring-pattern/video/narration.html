@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clean Architecture with Spring Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Clean Architecture with Spring Pattern — Video Narration Script</h1>
+<h2>1. Clean Architecture with Spring</h2>
+<p>Hello, and welcome. This video explains Clean Architecture with Spring, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. Clean Architecture keeps the business rules in the middle of a program, and the technical details on the outside. Spring is a framework that builds your program&#x27;s objects, and connects them for you. Think of flat-pack furniture. You can assemble it yourself, by hand. Or a fitter can assemble it for you. The furniture is the same either way. What changes is who does the assembly, and when you find out a piece is missing. That is this video. We take the online shop from the Clean Architecture video, unchanged, and let Spring assemble it instead of a person. If you have not seen that video, watch it first. Here, we prove one thing. Wiring by hand fails while you are still typing. Wiring by Spring fails only when the program starts.</p>
+<h2>2. What This Video Owns, And What It Does Not</h2>
+<p>Before we begin, let&#x27;s be clear about what this video covers. It covers one comparison. A wiring mistake caught when the code compiles, against a wiring mistake caught when the program starts. It does not teach Clean Architecture again. The earlier video does that completely. And it does not teach Spring from the very beginning. That is a separate video. Everything that follows serves that one comparison.</p>
+<h2>3. What Spring Actually Does</h2>
+<p>So, what does Spring actually do? Spring builds your program&#x27;s objects for you, and connects them. You no longer write every &quot;new&quot; call yourself. At its centre is something called the application context. Think of it as a workshop with a list of instructions. In this project, the instructions are one class, with one method for each object to build. The context builds each object. Then it hands each one to whichever other object asked for that type. This is called dependency injection. If you have ever marked a class with the at Service or at Autowired annotation, you have already used it.</p>
+<h2>4. What This Project Installs</h2>
+<p>A practical note, if you want to run this yourself. You do not install anything by hand. The Gradle wrapper downloads everything the first time you build. The version is Spring Boot four point one point one. That was the newest full release when this was built. Early preview releases are not used. And only one Spring library is used: the core starter. There is no web library and no database library, because this project is not a web application.</p>
+<h2>5. Recognition: @Bean Is Those Twenty Lines</h2>
+<p>Here is the heart of the video. In the hand-wired version, one line creates the use case. It calls the constructor, and passes four things: the product store, the order store, the payment gateway, and the notification gateway. In the Spring version, the same constructor is called, with the same four things. The only difference is that the call sits inside a method marked with the at Bean annotation. So what really changed? Who makes the call, and when. By hand, the main method makes the call, as the program starts. With Spring, the container makes the call, once. It matches the four parameter types to the other bean methods, in whatever order works. So remember this. Spring&#x27;s annotations are not magic. They are those same twenty lines of wiring, found and called by the container, instead of typed by a person.</p>
+<h2>6. Seven Beans, The Same Seven Objects</h2>
+<p>Let&#x27;s run it, and list what Spring builds. Seven objects, which Spring calls beans. Four gateways. One use case. And two controllers. Each of those seven is exactly the same class the hand-wired project built. Connected to the same partners. The program itself has not changed at all. Only the one assembling it has.</p>
+<h2>7. The Forced Change Still Costs Nothing Extra</h2>
+<p>Next, a quick check. The earlier video added a new way in, and a new place to store orders. Does Spring make that change more expensive? No. It costs one more bean method, wired just like the others. The imported order still arrives, for two hundred and forty-nine pounds. Using a container did not change that cost.</p>
+<h2>8. Hand-Wiring Fails At Compile Time</h2>
+<p>Now, the comparison, in two parts. Part one: the hand-wired version. Remove one argument from the constructor call. Say, the notification gateway. What happens? The program does not start and then misbehave. It does not compile at all. Your editor warns you straight away, before you even save the file. The compiler catches the mistake before the program can ever run.</p>
+<h2>9. Container Wiring Fails At Startup</h2>
+<p>Part two: the Spring version. This time, delete the bean method that builds the notification gateway. The code compiles. The build succeeds, with no warnings at all. The mistake stays hidden until the program starts. Then Spring tries to build the use case. It needs a notification gateway, and finds none. So it stops, with a message: startup failed, no qualifying bean of type Notification Gateway. Not while typing. At startup, a few seconds into a run that looked completely normal.</p>
+<h2>10. Why The Container Cannot See It Coming</h2>
+<p>Why can&#x27;t Spring see this coming? A compiler checks the types at a call it can see, in the source code, while you type. A container checks the types against objects it has not built yet. And it only checks when something asks for them. Think of a hole in a floor, covered by a rug. Nothing seems wrong, until someone steps on that exact spot. By then, the program has already started, printed its banner, and looked perfectly healthy.</p>
+<h2>11. The Cost, Honestly Priced</h2>
+<p>Every convenience has a cost, so let&#x27;s name it honestly. One. Anyone running this project now needs to know what Spring is. The entities and use cases need nothing new, but the setup and the starting point do. Two. Startup is slower. Spring must build the context, call every bean method, and connect everything. The hand-wired version never pays for that. Three. A wiring mistake shows up when the program runs, not when it compiles. You just heard exactly that happen.</p>
+<h2>12. When This Is Worth The Extra Dependency</h2>
+<p>So when is a container worth it? When a real application has so many objects that wiring them all in one method becomes hard to read. Honestly, that is most real applications beyond a handful of classes. It is not worth it for learning the architecture. That lesson is clearer with no framework in the way. That is exactly why Clean Architecture has its own video, built first.</p>
+<h2>13. What This Project Deliberately Skips</h2>
+<p>One more thing, to keep this video focused. Every entity, use case and adapter here comes from the earlier video. None of it is taught again. Spring in general is a separate video. And there is no web application here. No web server, and no web library. This is a comparison of two ways to wire a program, and nothing more.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s Clean Architecture with Spring. If you remember one sentence, make it this one. Wiring by hand fails when you compile, and wiring by a container fails when the program starts. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Delete a different bean method from the one in this video. Run the project, and read the error it gives. Then check whether it says what you expected. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Client-Side Load Balancing</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Client-Side Load Balancing</h1>
+<p>A one-hour session. Its shape is unusual for a patterns session in a specific way: the naive version is the <em>fastest</em> thing in the project and every test written against it passes. Getting a room to feel uncomfortable about working code is the whole job of the first twenty minutes.</p>
+<p><strong>Audience:</strong> developers who know Java. No infrastructure experience assumed or required.</p>
+<p><strong>Format:</strong> laptops open. Everything runs offline with a JDK.</p>
+<h2>Learning Objectives</h2>
+<p>By the end, a participant can:</p>
+<ol><li>Say in one sentence what client-side load balancing is, without using the word &quot;balancing&quot;.</li><li>Explain why <code>instances.get(0)</code> is not slow, does not fail, and still has to go.</li><li>Explain why an even split is not automatically a good split.</li><li>Say what least-latency balancing knows that a balancer in the middle of the network cannot know.</li><li>Describe the two ways client-side balancing goes wrong — herding, and clients not being able to see each other — and say why neither is a bug.</li><li>Say when to stop doing this in the client and put one balancer in front of the cluster instead.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Setup check, and what this category is not</td></tr><tr><td>0:05–0:15</td><td>The problem: three instances, and a choice nobody noticed making</td></tr><tr><td>0:15–0:24</td><td>The pattern, from a row of supermarket tills</td></tr><tr><td>0:24–0:34</td><td>Code walkthrough: one interface, four implementations, an empty client</td></tr><tr><td>0:34–0:44</td><td>The half that is usually skipped: herding, and clients that cannot see each other</td></tr><tr><td>0:44–0:56</td><td>Exercises</td></tr><tr><td>0:56–1:00</td><td>Wrap-up</td></tr></tbody></table>
+<h2>0:00–0:05 — Setup Check, And An Honest Warning</h2>
+<pre><code>cd micro-services-design-patterns/load-balancing-pattern
+./gradlew test</code></pre>
+<p>21 tests, green, in about a second.</p>
+<p>Then say the honest thing up front, because it changes how people listen:</p>
+<blockquote><p>There is no network in this project. No Docker, no Kubernetes, no service mesh, no cloud account. A service instance is an object with a latency attached, a remote call is a method call that charges simulated time, and the clock only moves when we move it. What you will learn is the shape of the pattern — what objects exist, who decides what, and the two places the idea breaks. What you will not learn is how to operate a real cluster. Both are real, and they are different.</p></blockquote>
+<h2>0:05–0:15 — The Problem</h2>
+<p>Set the scene in words before showing any code, because the situation is the whole difficulty:</p>
+<blockquote><p>The Catalog service is busy, so it runs as three copies. Two of them answer in ten milliseconds. The third takes sixty, because it is older hardware nobody has got round to replacing. Ask any of the three for a product name and all three give the same answer. The checkout needs a product name. Which one does it ask?</p></blockquote>
+<p>Now run act one:</p>
+<pre><code>./gradlew run</code></pre>
+<pre><code>1. Always the first on the list
+    catalog-1   12 requests (100%)   10ms each
+    catalog-2    0 requests ( 0%)   10ms each
+    catalog-3    0 requests ( 0%)   60ms each
+  12 requests took 120ms in total</code></pre>
+<p><strong>Do not explain this yet. Ask the room what is wrong with it.</strong> Somebody will say &quot;it is slow&quot;. Point at the timing line: 120 milliseconds, and it will turn out to be the fastest number in the entire session. Let that sit.</p>
+<p>Then draw out the real costs, which are all outside the program:</p>
+<ul><li>two machines are billed, monitored, patched, and idle</li><li>the headroom the shop thinks it bought does not exist</li><li>when <code>catalog-1</code> dies, <em>everything</em> dies, with two healthy machines metres away</li><li>in a test environment there is one instance, so take-the-first and take-turns are indistinguishable</li></ul>
+<p>Land the sentence: <strong>this is not a mistake somebody made. It is three lines nobody thought of as a decision.</strong></p>
+<h2>0:15–0:24 — The Pattern, From A Row Of Tills</h2>
+<p>Six tills open, nobody directing anybody. You look along the row, see the shortest queue, and join it. Three things:</p>
+<ul><li><em>You</em> chose — no member of staff assigned you.</li><li>You chose with what you could see — queue length, not who the fastest cashier is.</li><li>You will choose again next week. It is a decision, not a setting.</li></ul>
+<p>Then the other shop, the one with a member of staff at the head of all six queues. Ask the room which is better. Steer towards: <strong>that person can see all six queues and every shopper, and no individual shopper can.</strong> Say you are coming back to it, and come back to it at 0:34.</p>
+<p>Now the interface, on screen:</p>
+<pre><code>public interface LoadBalancer {
+    ServiceInstance choose(List&lt;ServiceInstance&gt; candidates);
+    default void observed(ServiceInstance instance, long tookMillis) { }
+    String name();
+}</code></pre>
+<p>If the room has done <code>behavioural/strategy-pattern</code>, ask what this reminds them of before telling them. It is Strategy — same structure, one method, interchangeable implementations, a caller that does not ask which. What is new is the context: the decision is about machines, it is remade on every request, and the chooser knows something the network does not.</p>
+<h2>0:24–0:34 — Code Walkthrough</h2>
+<p>Go in this order, and keep it brisk — none of these classes is long.</p>
+<p><strong><code>CatalogClient.productName</code></strong> first, because it is the punchline.</p>
+<pre><code>List&lt;ServiceInstance&gt; candidates = cluster.instances();
+ServiceInstance chosen = balancer.choose(candidates);
+long startedAt = clock.millis();
+String name = cluster.call(chosen, sku);
+balancer.observed(chosen, clock.millis() - startedAt);</code></pre>
+<p>Ask: where is the policy? There is none. That is the property Strategy buys.</p>
+<p><strong><code>RoundRobinBalancer</code></strong> — a counter and a modulus. Run act two:</p>
+<pre><code>    catalog-1    4 requests (33%)   catalog-2    4 requests (33%)   catalog-3    4 requests (33%)
+  12 requests took 320ms in total</code></pre>
+<p>Even, and nearly three times act one. Say it plainly: <strong>fair is not the same as fast.</strong> Round-robin sent a third of the traffic to the slowest machine the shop owns, because it does not know what &quot;slow&quot; means.</p>
+<p><strong><code>LeastLatencyBalancer</code></strong> — the loop that tries every instance once before it starts preferring. Ask why that loop is there. Answer: a balancer that trusts a measurement it has not taken is round-robin with extra confidence.</p>
+<p>Act three: 170ms, and the line that matters most in the whole demo —</p>
+<pre><code>  the client now believes: catalog-1 10ms, catalog-2 10ms, catalog-3 60ms
+  it learned that on its own, from its own requests. Nothing told it.</code></pre>
+<p>Nobody configured those numbers, and a client in a different rack would have measured different ones. <strong>That is the entire argument for doing this in the caller.</strong></p>
+<p><strong><code>observed</code> is a default method.</strong> Ask why. Because round-robin does not care, and should not be forced to write an empty method to say so.</p>
+<h2>0:34–0:44 — The Half That Is Usually Skipped</h2>
+<p>Two problems, neither of which is a bug. Spend real time here; this is the part people remember.</p>
+<h3>One: the favourite</h3>
+<p>Back to act three&#x27;s numbers. <code>catalog-2</code> is <em>exactly as fast</em> as <code>catalog-1</code> — both 10ms — and it got one request out of twelve.</p>
+<p>Ask what happened. Ties broke towards whoever was measured first, so the client found a favourite and kept it. Harmless with one client.</p>
+<p>Now ask the room to imagine a thousand clients in front of the same cluster. Let them get there themselves: they all measure the same thing, all reach the same conclusion, all crowd the same instance, make it slow, then all leave it together. The cluster oscillates and no client did anything wrong.</p>
+<p><strong>A learning balancer needs a random tie-break or it will herd.</strong> This is the honest price of the clever strategy, and a large part of why round-robin is still the default.</p>
+<h3>Two: a client cannot see the other clients</h3>
+<p>Act four. Two clients, each with its own round-robin balancer, two requests each:</p>
+<pre><code>    catalog-1    2 requests (50%)
+    catalog-2    2 requests (50%)
+    catalog-3    0 requests ( 0%)</code></pre>
+<p>Ask which client made the mistake. Let the silence do the work. <strong>Neither.</strong> Each took perfect turns. The counter lives inside one client, so it counts one client&#x27;s requests, and two counters that each start at zero produce a pattern that is correct twice and wrong collectively.</p>
+<p>Then come back to the member of staff at the head of the six queues:</p>
+<blockquote><p>A client-side balancer can only balance the traffic it can see, and it can only see its own. When that is not good enough, the answer is not a cleverer client. It is one balancer in front of the cluster that sees every request.</p></blockquote>
+<p>Say the unpopular part out loud: server-side balancing is simpler, easier to operate, and the right answer more often than this pattern&#x27;s fans admit. The price is one more hop and one more thing to fail.</p>
+<h2>0:44–0:56 — Exercises</h2>
+<h3>Exercise 1 — Break least-latency&#x27;s fairness (everyone)</h3>
+<p>Delete the &quot;try each once&quot; loop from <code>LeastLatencyBalancer.choose</code>, so it goes straight to <code>min</code>. Run the tests.</p>
+<p><code>leastLatencyMeasuresBeforeItJudges</code> fails. Ask what the balancer now believes about an instance it has never called, and why that is worse than knowing nothing.</p>
+<h3>Exercise 2 — Give it a tie-break (everyone)</h3>
+<p>In <code>LeastLatencyBalancer</code>, when two instances are within a few milliseconds of each other, pick between them at random. Re-run act three.</p>
+<p>The total time should stay near 170ms, and <code>catalog-2</code> should now get a real share. Discuss: what did you have to give up to get that? (Reproducibility — unless you seed the random, which is exactly what <code>RandomBalancer</code> does and why.)</p>
+<h3>Exercise 3 — Make the cluster even (discussion, then code)</h3>
+<p>Change <code>catalog-3</code>&#x27;s latency from 60 to 10 in <code>LoadBalancingDemo.clusterOf</code>, so all three instances are identical. Run all four acts.</p>
+<p>Least-latency&#x27;s advantage evaporates. Ask the room what that tells them about when to reach for the clever strategy at all.</p>
+<h3>Exercise 4 — Stretch</h3>
+<p>Write a balancer that prefers the instance with the fewest requests <em>currently in flight</em> rather than the best average. Discuss what it would need that the current interface does not give it — a signal when a call <em>finishes</em>, not just how long it took. That is a real design conversation, and it is where the interface&#x27;s limits show.</p>
+<h2>0:56–1:00 — Wrap-Up</h2>
+<p>Six sentences, spoken, no slides:</p>
+<ol><li>Several identical instances means a choice, remade on every request.</li><li>Taking the first one is fast, correct, and runs the shop on one machine out of three.</li><li>The choice goes behind a one-method interface, and the caller then holds no policy at all. That interface is Strategy.</li><li>Round-robin is fair. Fair is not fast.</li><li>Least-latency is fast because the <em>caller</em> measured the latency — the one thing only the caller can do.</li><li>A client can only balance what it can see. When that is not enough, put one balancer in front of the cluster.</li></ol>
+<h2>Facilitator Notes</h2>
+<p><strong>Do not rescue act one.</strong> The temptation is to explain what is wrong with it immediately. Let the room look at 120 milliseconds and be puzzled. The discomfort is the teaching.</p>
+<p><strong>Someone will say &quot;just use a load balancer&quot;.</strong> They are right, and it is the ending of the session, not an interruption. Thank them, say you will get there at 0:34, and hold the line — the pattern still has to be understood before its limits mean anything.</p>
+<p><strong>Someone will ask about health checks and retries.</strong> Both are real and both are other patterns in this category. Note them on the board and move on; a chosen instance that does not answer is the retry pattern&#x27;s problem.</p>
+<p><strong>If the room is senior</strong>, spend the saved time on Exercise 4. The question of what signal an interface <em>fails</em> to provide is the most valuable half-hour in this project.</p>
+<h2>Materials Checklist</h2>
+<ul class="task"><li>JDK 21 on every laptop, verified with <code>./gradlew test</code> before the session</li><li><code>./gradlew run</code> output on screen, all four acts, large enough to read</li><li><code>docs/animation.html</code> open in a browser tab for 0:15–0:24</li><li><code>docs/images/class-diagram.png</code> to hand for the walkthrough</li><li>A whiteboard for the thousand-clients-herding sketch — it lands far better drawn than described</li></ul>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

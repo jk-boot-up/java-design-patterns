@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Guide — Publisher-Subscriber with Redis Pattern</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Session Guide — Publisher-Subscriber with Redis Pattern</h1>
+<p>A 60-minute session built around one question: once the topic is a real server that every subscriber reaches over its own connection, what does it keep, what does it tell the publisher, and what does it do with a subscriber that stops reading?</p>
+<h2>Learning Objectives</h2>
+<ol><li>Say, in plain words, what publishing, a channel, subscribing, a pattern subscription and the output buffer are.</li><li>Show one publish reaching a subscriber in a second Java process.</li><li>Read the number <code>PUBLISH</code> hands back, and say what it does not tell you.</li><li>Explain why a late subscriber sees nothing that was published before it joined.</li><li>Explain what Redis does with a subscriber that falls too far behind, and why.</li></ol>
+<h2>Timetable</h2>
+<table><thead><tr><th>Time</th><th>Section</th></tr></thead><tbody><tr><td>0:00–0:08</td><td>The live radio analogy, and the partner project recapped in two minutes</td></tr><tr><td>0:08–0:18</td><td>Acts one and two: calling by name, then one publish and a second process</td></tr><tr><td>0:18–0:28</td><td>Acts three and four: the late subscriber, and the star</td></tr><tr><td>0:28–0:42</td><td>Act five: the pile, the limit and the cut-off</td></tr><tr><td>0:42–0:50</td><td>Act six: the bill</td></tr><tr><td>0:50–0:55</td><td>The verdict</td></tr><tr><td>0:55–1:00</td><td>Exercises</td></tr></tbody></table>
+<h2>Walkthrough</h2>
+<p>Start Docker Desktop, or another container runtime, first.</p>
+<pre><code>cd micro-services-design-patterns/publisher-subscriber-with-redis-pattern
+./gradlew -q run</code></pre>
+<p>Act one: how many services does the order service know by name? Act two: what did Redis answer, and how many programs were listening? Act three: what did loyalty see, and how many keys did Redis store? Act four: why did the cancelled order reach only one receiver? Act five: how many listeners were cut off, what happened to the count on the next publish, and was the publisher ever told? Act six: what did email get when it came back?</p>
+<p>Then open <code>src/main/java/com/jk/explore/pubsubredis/Subscriber.java</code> and read <code>take</code> aloud. The subscriber that &quot;stops reading&quot; is only a handler that does not return; Redis cannot tell that apart from a service stuck on a slow database call.</p>
+<h2>Discussion</h2>
+<p>Ask the room which store events could be sent this way. A live &quot;3 people are viewing this item&quot; count, perhaps, where a missed update is replaced by the next one. An order that has to be picked, never.</p>
+<p>Then ask who should notice a cut-off. The publisher is never told and the subscriber only sees its connection end. The one place it is recorded is Redis&#x27;s own counter, <code>client_output_buffer_limit_disconnections</code>, which somebody has to be watching.</p>
+<h2>Exercises</h2>
+<ol><li>Raise the limit in the fifth act to <code>8mb</code> and predict whether analytics is still cut off. Then run it.</li><li>Leave analytics reading in the fifth act and confirm nobody is cut off. What stops the loop?</li><li>Change the sixth act so email subscribes before the publish, and predict the count Redis answers.</li><li>Subscribe analytics to <code>orders.*</code> and email to both <code>orders.placed</code> and <code>orders.cancelled</code>, and predict every count in act four.</li><li>Start the loyalty process twice in act two, and predict what <code>PUBLISH</code> answers.</li></ol>
+<p>Close with the verdict: subscribe before you need it, keep every listener reading and watch the cut-off counter, and use something that keeps a log if a missed order would matter.</p>
+</main>
+<footer>
+Generated from <code>session.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

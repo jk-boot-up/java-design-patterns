@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CQRS, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>CQRS, Explained</h1>
+<h2>In One Sentence</h2>
+<p>Stop asking the same question over and over: let the side that changes things announce what it did, and keep a copy of the answer permanently ready for the side that only reads.</p>
+<p>CQRS stands for Command Query Responsibility Segregation, which is a long name for a short idea. Commands change things. Queries read things. They are different jobs, they have different shapes, and this pattern stops pretending they are one job.</p>
+<h2>Everyday Analogy: The Departures Board</h2>
+<p>Stand in a railway station and look up at the departures board.</p>
+<p>It is a copy. The truth about which train leaves from which platform lives with the signal box and the control room, not on that board. Nobody built the board by ringing the control room every time somebody glanced at it — thousands of people glance at it, and the control room would spend its entire day answering the same question.</p>
+<p>Instead the board is <strong>told</strong>. When something changes, a message goes out, and the board updates. In between messages it simply sits there, already correct, costing nothing to read.</p>
+<p>Three things about that board are worth carrying into the code.</p>
+<p><strong>It can be a few seconds behind.</strong> A platform changes, and for a moment the board still says the old one. This is tolerable because it corrects itself almost immediately, and because everyone understands what a board is.</p>
+<p><strong>It is told, rather than guessing.</strong> This is the difference between a departures board and a printed timetable pinned to a wall. The timetable is a cache: it was right when it was printed, it has no idea what has happened since, and the only thing that will ever fix it is somebody printing a new one on a schedule.</p>
+<p><strong>Nobody boards a train because the board said so.</strong> The board says the train exists. The guard, and your ticket, decide whether you get on. If the board is wrong, the guard is still right. That is the single most important rule in this whole pattern, and act five exists to make it impossible to forget.</p>
+<p>Now the online shop.</p>
+<h2>Act One — Composing The Page On Every View</h2>
+<p>The order history page is assembled from two services: ask Orders what the customer bought, ask Catalog what the products are called, stitch the answers together. It is done properly — the catalog call is batched, there is no loop.</p>
+<p>Three views of that page:</p>
+<pre><code>  3 views cost 270ms and 6 service calls
+  every view rebuilt a page identical to the last one</code></pre>
+<p>Ninety milliseconds and two live service calls, each time, to rebuild something that did not change. And be clear about the scale: an order is placed once and its page is viewed by the customer, by the confirmation email, by a support agent, by the customer again next week. The facts changed once. The shop paid a thousand times.</p>
+<h2>Act Two — The Page Kept Ready By The Events</h2>
+<p>Now the write side announces what it does. An order is placed, and an event goes out saying so. Something listens, does the assembly work <strong>once</strong>, and keeps the finished rows.</p>
+<pre><code>     80ms -&gt;    85ms  ReadModel   SERVED   2 row(s), 0 other services called
+     85ms -&gt;    90ms  ReadModel   SERVED   2 row(s), 0 other services called
+     90ms -&gt;    95ms  ReadModel   SERVED   2 row(s), 0 other services called
+  3 views cost 15ms and 0 service calls</code></pre>
+<p>Five milliseconds, and — the number that matters more than the milliseconds — <strong>zero other services called.</strong> The order history page no longer depends on Catalog being up. <code>readsSurviveAnOutage</code> asserts exactly that: Orders goes down, and the page still renders.</p>
+<p>And then the demo says the honest thing, in the demo&#x27;s own words:</p>
+<pre><code>  the work did not vanish: Catalog was called 1 time when the order was placed</code></pre>
+<p>The work moved. It did not disappear. It is now paid once, at write time, instead of once per view — and <code>theCostMovesToTheWriteSide</code> is a test rather than a claim.</p>
+<p>That trade is only worth making because of the ratio. A shop places one order and shows the page a thousand times. Invert that ratio — write far more often than you read — and this pattern is a straightforward loss.</p>
+<h2>Act Three — Eventually Consistent, Shown Honestly</h2>
+<p>Here is the part most explanations mention in a sentence and move past.</p>
+<pre><code>  ord-5001 is placed, paid for, and final
+  events still in flight: 3
+  rows on the customer&#x27;s order history page: 0</code></pre>
+<p>The order is real. The money has moved. And the customer is looking at an order history page with nothing on it.</p>
+<p>That is not a bug, and no amount of careful coding removes it. It is the shape of the pattern: the copy is updated by a message, and for as long as the message is in flight, the copy is behind.</p>
+<pre><code>  events delivered -&gt; rows on the page: 2
+  the window is however long delivery takes, and it closes by itself</code></pre>
+<p>Two things make this survivable, and you need both. The window is short. And it closes <strong>by itself</strong> — nobody has to notice, intervene, or run anything. <code>theStalenessWindowIsReal</code> and <code>theWindowClosesByItself</code> are separate tests on purpose, because they are separate promises.</p>
+<p>What you must do is decide, page by page, whether that window is acceptable. For an order history page, almost certainly. For the screen a warehouse worker uses to decide what to put in a box, almost certainly not.</p>
+<h2>Act Four — The Cache That Cannot Know It Is Wrong</h2>
+<p>This is where a read model stops being &quot;a cache with extra steps&quot;.</p>
+<p>Catalog renames a product. Both copies of the page are asked what the kettle is called.</p>
+<pre><code>  cache says:      Stainless Steel Kettle
+  read model says: Brushed Steel Kettle
+  the cache will keep saying that for 300 seconds, because nothing tells it otherwise
+  the read model was corrected by the same event that made it wrong</code></pre>
+<p>Read those last two lines slowly, because they are the difference.</p>
+<p>The cache stored rows. It does not know what a product name is, it was never told about the rename, and there is no mechanism by which it could have been told. The only thing that will ever fix it is the clock running out — which <code>itIsCorrectedByATimerAndNothingElse</code> asserts, and <code>aRenameCannotInvalidateIt</code> asserts from the other side.</p>
+<p>The read model was corrected by the very same event that made it wrong. Not later. Not on a schedule. By the fact itself.</p>
+<p>And <code>thereIsNoFreeSetting</code> closes the escape route. You cannot tune your way out of this: a short expiry throws away the savings you bought the cache for, and a long expiry means confidently showing people things that stopped being true.</p>
+<p>A cache is a copy that cannot know it is wrong. A read model is a copy that is told.</p>
+<h2>Act Five — The Last Kettle</h2>
+<p>And now the rule that has to survive contact with production.</p>
+<pre><code>  read model still shows on the shelf: 1
+  the ledger actually has: 0
+  a second shopper arrives and the read model says yes
+  the ledger refused: cannot reserve 1 of SKU-KETTLE, only 0 left
+  it was the write side that saved the shop, because the sale was decided there</code></pre>
+<p>The read model is inside its staleness window and says a kettle is available. It is wrong. A second shopper tries to buy it, and nothing bad happens — because the sale was not decided by the read model. It was decided by the stock ledger, on the write side, which holds the actual number and refuses.</p>
+<blockquote><p><strong>Show a read model&#x27;s stock number. Never sell against it.</strong></p></blockquote>
+<p><code>theWriteSideIsWhereASaleIsDecided</code> is the test. It is the one to remember when somebody proposes reading a balance, a stock level or an entitlement from a projection in order to decide something.</p>
+<p>And then a last line that is easy to skim past:</p>
+<pre><code>  and a read model is throwaway: rebuilt from 6 events, 2 rows back</code></pre>
+<p>The read model is not data you have to protect. It is derived. Delete it, replay the events, and it comes back — which is what <code>itRebuilds</code> demonstrates. That is a genuinely liberating property: you can change the shape of a page, rebuild the projection from history, and you have lost nothing. The write side holds the truth, and <code>theWriteSideIsIndependent</code> asserts that it does not care whether anybody is projecting at all.</p>
+<h2>The Mechanism</h2>
+<p>There is less to it than the name suggests.</p>
+<pre><code>public void apply(ShopEvent event) {
+    // an order was placed, a product was renamed, stock changed
+    // -- update the rows we keep ready
+}</code></pre>
+<p>A write service that publishes what it did. An event bus. A listener that keeps a prepared answer. A query API that reads the prepared answer and calls nobody.</p>
+<p>There is no framework in this project, no message broker, and no database. The lesson is not in the plumbing.</p>
+<h2>What It Buys</h2>
+<ul><li><strong>Reads get cheap.</strong> Ninety milliseconds and two service calls become five milliseconds and none.</li><li><strong>Reads stop depending on other services.</strong> The page survives an outage in a service it used to need.</li><li><strong>The read shape is free.</strong> A projection can be shaped exactly like the page it serves, instead of being the shape the write side needed.</li><li><strong>Corrections arrive as facts</strong>, not as expiries.</li></ul>
+<h2>What It Costs</h2>
+<ul><li><strong>Eventual consistency, in public.</strong> Act three is the cost, and it is a cost you pay in front of customers.</li><li><strong>More moving parts.</strong> An event bus, a projection, and a second place where the same facts live.</li><li><strong>A rule you have to keep.</strong> Nothing in the type system stops somebody selling against a read model. Only a test, a review, and people remembering.</li><li><strong>Write-time work.</strong> You did not remove the composition; you moved it.</li></ul>
+<h2>When Not To Use It</h2>
+<ul><li><strong>Reads and writes are roughly balanced.</strong> The whole trade is funded by the ratio.</li><li><strong>The page cannot be stale, at all.</strong> Then you want the write side, not a copy.</li><li><strong>The composition is already cheap</strong> — one fast local query is not worth a projection.</li><li><strong>You want it for speed alone and have not measured.</strong> A read model is a permanent second copy of your data. That is a real commitment for a page nobody complained about.</li></ul>
+<h2>What To Remember</h2>
+<ol><li>Commands change things, queries read things, and they are different jobs.</li><li>Composing on every view is correct and gets more expensive the more popular you get — and nothing will ever alert you to it.</li><li>A cache is a copy that cannot know it is wrong. Its only correction is a timer.</li><li>A read model is a copy that is <strong>told</strong> — by the same events that changed the truth.</li><li>The work did not vanish. It moved to write time, and the ratio is what makes that a good deal.</li><li>The staleness window is real, and act three shows it at its most alarming: a paid order not yet on the page.</li><li>It closes by itself. That is what makes it survivable.</li><li>Reads stop depending on the services they used to compose from — which is availability, not just latency.</li><li><strong>Never sell against a read model.</strong> The write side is where a decision is made.</li><li>A read model is throwaway. Rebuild it from the events and you have lost nothing.</li></ol>
+</main>
+<footer>
+Generated from <code>cqrs-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

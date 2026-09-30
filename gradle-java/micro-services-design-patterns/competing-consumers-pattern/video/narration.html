@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Competing Consumers Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Competing Consumers Pattern — Video Narration Script</h1>
+<h2>1. Competing Consumers</h2>
+<p>Hello, and welcome. This video explains the Competing Consumers pattern in Java, and it is written and presented by Jayasekhar Konduru. The plain definition: competing consumers means several workers take messages from the same queue. Each message goes to exactly one of them, and the work is shared without the workers ever having to coordinate. This is another project in the microservices category, whose subject is how many small services stay reliable when they talk to each other. In our online store, the work waiting to be done is a queue of orders. By the end you will see one worker and three workers take from the same queue, see every message handled exactly once, see ordering given up, see a failed message taken over, and see the bills: duplicates, and workers that can only wait for a shared limit.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Orders wait in a queue to be processed. One worker cannot keep up. We want to add a second, and a third, without rewriting anything, and without handling an order twice. The question: how?</p>
+<h2>3. One Consumer, Then Three</h2>
+<p>First, one consumer, then three. Six slow jobs. With one consumer, one is in progress and five are waiting. With three consumers, three are in progress and three are waiting. The consumers do not talk to each other. They just take from the same queue.</p>
+<h2>4. The Pattern</h2>
+<p>The pattern. Several consumers read from one queue. Each message goes to exactly one of them. A message that is not finished goes back on the queue. And you add capacity by adding a consumer, without changing anything else.</p>
+<h2>5. Each Message Is Handled Once</h2>
+<p>Second, each message is handled once. A thousand orders, four consumers. The orders were handled a thousand times in all, and they were a thousand different orders. None twice, and none missed. Which consumer got which order is not defined, and does not matter.</p>
+<h2>6. The Order Is Not Kept</h2>
+<p>Third, the order is not kept. Orders one, two and three are published in that order. Order one&#x27;s consumer is slow. They finish as two, three, one. If order two depends on order one, that is a bug. Competing consumers give up ordering to gain capacity.</p>
+<h2>7. A Consumer Fails, Another Takes Over</h2>
+<p>Fourth, a consumer fails, and another takes over. The first attempt fails. The message is given back to the queue, and a second attempt succeeds. The message was not lost, because it was never really removed until it was finished.</p>
+<h2>8. At Least Once, So A Duplicate</h2>
+<p>Fifth, at least once, so a duplicate. A consumer charges the card, and crashes before it can say it finished. The message comes back, and the card is charged again: two charges. A consumer that remembers what it has done charges once. The queue cannot give you exactly once. The consumer has to.</p>
+<h2>9. The Bill: The Same Downstream</h2>
+<p>Last, the bill. Six consumers share a database that lets only two in at a time. Two are inside. Four are waiting for a place. Four of the six are doing nothing useful. Adding consumers only helps while the thing they share has room.</p>
+<h2>10. How To Recognise It</h2>
+<p>How do you recognise this in code you did not write? Several instances of a service reading the same queue or topic partition group. Kafka consumer groups, SQS with several pollers, RabbitMQ work queues. An acknowledge or delete call after the work is done. A thread pool whose tasks come from one shared queue.</p>
+<h2>11. The Verdict</h2>
+<p>Here is my verdict, plainly. Use competing consumers to scale work that can be done in any order, where each item is independent. Acknowledge only when finished, make every consumer safe to run twice on the same message, and size the pool for the slowest thing they share. Do not use it where order matters, unless the queue is partitioned by the key that carries the order.</p>
+<h2>12. What Is Real Here</h2>
+<p>The same honest admission as everywhere in this course. Everything is plain Java. Every number quoted comes from this program&#x27;s own output. Nothing depends on a clock, so every run is the same.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So when is it too much? When one consumer keeps up, extra consumers are cost and risk. When order matters, competing consumers are wrong until the queue is partitioned.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s Competing Consumers. If you take one sentence away, take this one: competing consumers share the work by giving up ordering, and the duplicate they cannot avoid must be handled by the consumer. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, make the consumer safe to run twice, and prove it by delivering every message twice. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

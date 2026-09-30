@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Future/Promise, Explained</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Future/Promise, Explained</h1>
+<h2>The pattern in one sentence</h2>
+<p>Each unit of work is submitted and immediately returns a handle to a result that does not exist yet, so independent work can run at once instead of one call waiting out the last before it even starts.</p>
+<h2>Two halves, one object</h2>
+<p>A beginner hears &quot;Future&quot; and &quot;Promise&quot; used almost interchangeably, and the confusion is reasonable: <code>java.util.concurrent.CompletableFuture</code> is both at once, which is exactly why <code>FutureAndPromise.handOff</code> in this project keeps them on two different threads on purpose.</p>
+<p><strong>The Future is the reader&#x27;s half.</strong> Whoever holds it calls <code>get()</code> and blocks until a value shows up. <strong>The Promise is the writer&#x27;s half.</strong> Whoever holds it calls <code>complete(value)</code> once its own work is done — and nothing about that writer needs to know who is reading, or how many readers there are.</p>
+<pre><code>THREE. Future and Promise — the two halves, made explicit.
+  the writer thread completed the promise: £129.99
+  the reader thread was blocked on the future until it did.</code></pre>
+<p>One piece of code completes exactly what another piece is waiting on, and the object standing between them is the only thing either side needs to agree on.</p>
+<h2>The bill, paid honestly</h2>
+<p><strong>Exceptions move.</strong> A task that throws does not throw where it was called — it throws on whatever worker thread happened to run it, and the failure only surfaces later, wrapped in an <code>ExecutionException</code>, when something calls <code>get()</code>. The stack trace attached to that wrapped exception belongs entirely to the worker thread; the frame for the code that submitted the doomed task is not, and cannot be, part of it.</p>
+<pre><code>FOUR. Exceptions move — surfacing wrapped, on get().
+  cause: catalogue unavailable for ESP-001
+  stack top: com.jk.explore.futurepromise.ProductPageDemo.lambda$actFour$4(ProductPageDemo.java:107)
+  the call site that submitted this task appears nowhere above: true</code></pre>
+<p><strong><code>get()</code> with no timeout is a hang, not a wait.</strong> A task that never completes — this project parks one forever on a closed <code>Gate</code> — leaves a bare <code>future.get()</code> blocked for as long as the caller is willing to sit there, which by default is forever. <code>get(timeout, unit)</code> is not a nicety; it is the only thing standing between &quot;waiting&quot; and &quot;hung&quot;.</p>
+<pre><code>FIVE. get() with no timeout is a hang.
+  a task parked forever, waited on with a 200ms rescue timeout:
+  timed out: true, after 205ms
+  a bare get() with no timeout does not time out — it just never returns.</code></pre>
+<p><strong>Cancellation is cooperative, and may do nothing.</strong> <code>Future.cancel(true)</code> interrupts the thread running the task — it does not stop the task. A task that catches <code>InterruptedException</code> and carries on, the way this project&#x27;s own demonstration task deliberately does, keeps running to completion regardless of <code>cancel</code> ever having been called.</p>
+<pre><code>SIX. Cancellation is cooperative, and may do nothing.
+  cancel(true) reported: true
+  the task ran to completion anyway: true
+  it caught every interrupt and carried on — cancel asked; the task said no.</code></pre>
+<p><strong>Chained callbacks can reach a depth that is unreadable.</strong> Nesting <code>thenApply</code>, <code>thenCompose</code> and <code>thenCombine</code> calls to assemble one final result from several futures is exactly as powerful as it looks in a small example, and exactly as illegible once four or five steps are chained — each level adds another closure, another indentation, and another place an exception can be swallowed silently if <code>exceptionally</code> is forgotten at that one level. <code>CompletableFuture</code>&#x27;s callback API is real and useful; it is also the single easiest way in this whole category to write code nobody, including its author, can read back a month later.</p>
+<h2>What the scheduler really does</h2>
+<p>Every deterministic outcome above is bought by pinning one specific fact with a <code>Gate</code>, a <code>CountDownLatch</code>, or — for the unbounded wait and the cooperative cancellation — a real, bounded, named delay standing in for &quot;this genuinely never finishes&quot; or &quot;this genuinely takes a moment&quot;. The real JVM scheduler decides freely which worker thread runs which submitted task, and in what order, everywhere this project does not pin it directly. A passing test here proves the forced scenario behaves as shown — not that every possible scheduling of concurrent futures does.</p>
+<h2>When this is too much</h2>
+<p>Worth it the moment two or more units of work are genuinely independent and each takes real, measurable time — exactly this project&#x27;s three catalogue lookups. Not worth it for two calls that are already fast, or for two calls where the second genuinely needs the first&#x27;s result: there is nothing to overlap, and a <code>Future</code> around work that was never going to run concurrently with anything is ceremony with no payoff behind it.</p>
+</main>
+<footer>
+Generated from <code>future-promise-pattern-explained.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

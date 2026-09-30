@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Determinism — How This Project&#x27;s Failures Are Forced</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Determinism — How This Project&#x27;s Failures Are Forced</h1>
+<p>Every test and every demo act in this project is deterministic. No test under <code>src/test</code> contains a <code>Thread.sleep</code> anywhere, for any reason — this is the first project in the category where even a named delay was not needed, because the &quot;work&quot; being measured in acts two, three and six is real, unpadded reads, not a simulated wait.</p>
+<h2>The three harness pieces, reused unchanged from §46</h2>
+<p><strong><code>Gate</code></strong>, <strong><code>Rendezvous</code></strong> and <strong><code>StepExecutor</code></strong> are copied verbatim from <code>producer-consumer-pattern</code>, proven again in this project&#x27;s own <code>HarnessSelfTest</code> before anything else relies on them.</p>
+<h2>How each specific scenario in this project is forced</h2>
+<p><strong>&quot;A read lands in the gap between the two field writes, and sees a price that was never true&quot;</strong> (<code>UnsynchronizedCatalogueTest</code>, and demo act one) — the writer&#x27;s own <code>midWrite</code> hook counts down a <code>CountDownLatch</code> right after setting the new amount, then parks on a <code>Gate</code>. The test waits on that latch before reading, so the read is proven to land after the amount changed and before the currency did — not hoped to, by luck of scheduling.</p>
+<p><strong>&quot;Several readers hold the read lock at the exact same moment&quot;</strong> (<code>ReadWriteCatalogueTest</code>) — four reader threads each acquire the read lock and then park on a shared <code>Gate</code>; a <code>CountDownLatch</code> confirms all four are holding it before the test asserts <code>ReentrantReadWriteLock.getReadLockCount()</code> equals four. The assertion checks a fact the lock itself reports, confirmed true at a moment the test controls, not inferred from timing.</p>
+<p><strong>&quot;A queued writer is barged by a fresh reader&#x27;s <code>tryLock()</code>&quot;</strong> (<code>WriterBargingTest</code>) — <code>ReentrantReadWriteLock.hasQueuedThreads()</code> is polled in a spin-wait with no deadline until it reports true, which proves the writer thread is genuinely parked in the lock&#x27;s own AQS queue before the barge is even attempted. The barge itself needs no forcing: <code>tryLock()</code>&#x27;s behaviour here is documented in the JDK, not a race.</p>
+<p><strong>&quot;Upgrading a read lock to a write lock always deadlocks&quot;</strong> (<code>UpgradeDeadlockTest</code>) — this scenario needs no forcing at all. A thread already holding the read lock can never be granted the write lock while any read lock — including its own — is held, on any scheduler, every time. The <code>timeoutMillis</code> argument is not synchronization; it is the only thing that ends the test, and the assertion that the elapsed wait is at least that long is itself part of the proof.</p>
+<p><strong>&quot;Neither <code>SingleLockCatalogue</code> nor <code>SnapshotCatalogue</code> ever produces a torn read, under real concurrent writes&quot;</strong> (<code>SingleLockCatalogueTest</code>, <code>SnapshotCatalogueTest</code>) — a reader thread spins continuously, checking every value it reads against the two prices actually in use, while the main thread performs five thousand real writes. Any value that matches neither price is a torn read; the assertion is a simple boolean that stays false because the lock, or the atomic reference, structurally prevents a torn read from ever being constructible in the first place — not because five thousand writes happened to avoid one.</p>
+<h2>What the scheduler really does</h2>
+<p>Most of what this project measures does not need forcing, because the scenario is either a documented API contract (<code>tryLock()</code>&#x27;s barging, the upgrade deadlock) or a structural guarantee (an <code>AtomicReference</code> cannot publish half a value). The throughput numbers in acts two, three and six are the exception: they are real, unforced measurements of how eight genuine reader threads actually interleaved on one real machine, and the scheduler chose every detail of that. A different machine, under different load, will report different milliseconds — the shape the numbers take relative to each other is the lesson, not the exact figures.</p>
+</main>
+<footer>
+Generated from <code>determinism.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

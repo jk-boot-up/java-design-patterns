@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Observer Pattern Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Observer Pattern Pattern — Video Narration Script</h1>
+<h2>1. The Observer Pattern</h2>
+<p>Hello, and welcome. This video explains the Observer pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. The Observer pattern lets one object announce that something happened. Any number of other objects can react to it. And the announcer does not need to know who they are. Listeners sign up with the announcer, which is called the subject. When the event happens, the subject notifies everyone on its list. And the list can change, without the subject changing. This is the pattern behind every notification you have ever received. In this video, an online order changes status, and four separate systems care: inventory, email, analytics, and the warehouse. By the end, you will know how to add a fifth reaction without editing any code that already works. And what that costs you.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. An order in an online store moves from placed, to paid, to shipped, to delivered. And every change matters to someone. Inventory must release the reserved stock once the parcel ships. The email system must tell the customer it is on its way. Analytics counts it for the sales report. And the warehouse feed writes the line that gets the parcel picked from the shelf. Four unrelated reactions to one small change. And the list keeps growing: loyalty points, fraud checks, and more.</p>
+<h2>3. The Obvious First Move</h2>
+<p>The obvious first approach is simple. Give the order service the four systems it must tell, and call each one in turn. Four lines, one after another. To be fair, this is good code. You can read it top to bottom, and see exactly what happens when an order ships. For four reactions that never change, it is the right answer. So far, this is only a design complaint. Until the network gets involved.</p>
+<h2>4. The Naive Approach — Four Calls, No Net</h2>
+<p>Here is the day it goes wrong. The second call, to email, talks to a mail server over the network. One afternoon, that mail server times out. Let&#x27;s follow what happens. The order is already marked shipped. Inventory has already released the stock. Then the email call throws an error. So analytics never runs, and the warehouse feed is never written. The customer&#x27;s order says shipped, the stock is gone, and nobody ever picks the parcel. The error message talks about a mail server timeout. It says nothing at all about a parcel. That is a real incident, and it passed code review, because those four lines look perfectly reasonable.</p>
+<h2>5. Why That Hurts</h2>
+<p>And it gets worse as the system grows. One failing reaction stops all the ones after it. Adding a fifth reaction means editing a method that four working systems depend on. Plus a new field, and a new constructor parameter, which breaks every test that builds this class. Analytics wants every status change. So every new status method must remember to call it. The one that forgets leaves a quiet hole in the report. You cannot test shipping without faking all four systems. And a plugin cannot add a reaction of its own, because there is nowhere to put one.</p>
+<h2>6. The Observer Pattern</h2>
+<p>The Observer pattern fixes exactly this. Here is its definition, from the famous Gang of Four book. Define a one-to-many dependency between objects, so that when one object changes state, all its dependents are notified automatically. In plain words: let the thing that changed announce it. And let whoever cares sign up.</p>
+<h2>7. Remember It With a Newsletter</h2>
+<p>Here is an easy way to remember it: a shop&#x27;s newsletter. The shop writes one email, and sends it to everyone on the list. How much does the shop know about what you do with it? Nothing. You might read it, forward it, or delete it unopened. That is exactly why one subscriber and a hundred thousand subscribers take the same amount of code. And who owns the relationship? You do. You subscribed, and you can unsubscribe, without the shop changing at all. That is the Observer pattern. The publisher knows nothing about its subscribers. The subscribers know the publisher.</p>
+<h2>8. The Roles</h2>
+<p>Every Observer design has the same few roles. The subject is the Order. It changes, and it keeps the list of listeners. The observer interface is called Order Listener. It is the only type the order depends on. The concrete observers are the four listeners: inventory, email, analytics, and the warehouse feed. And the event, called Order Event, is what actually travels from the order to the listeners. Now notice what is missing. No listener knows that any other listener exists. And the order has no field for email, inventory, or the warehouse. Here is the key idea. The order cannot behave differently depending on who is listening, because it has no way to find out who is listening. That is why the thousandth listener costs nothing extra.</p>
+<h2>9. The Observer — One Small Interface</h2>
+<p>The observer interface, Order Listener, has just two methods. On Status Changed does the work. And name gives each listener a name, so that when one fails, the error says which one. The interesting part is what is deliberately left out. No priority. No ordering. No filter that decides whether to handle an event. Each of those would let one listener make claims about the others. And then they would no longer be independent. The event itself is a simple value. It holds the order I D, the old status, and the new status. Not the order itself.</p>
+<h2>10. A Concrete Observer — It Knows Only Its Own Job</h2>
+<p>Now one real listener: the inventory listener. It reacts to two statuses. When an order ships, it releases the reserved stock. When an order is cancelled, it puts the stock back. For every other status, it simply does nothing. Compare it with the analytics listener, which wants every single status change. The two have completely different needs. The only thing they share is the interface. The inventory listener never mentions email, the warehouse, or even the order class. So it can be tested on its own, without ever creating an order.</p>
+<h2>11. The Subject — Search It for the Word &#x27;Email&#x27;</h2>
+<p>Now the subject, the Order class. Search it for the word email. Then inventory. Then warehouse. None of them appear. The list of reactions is not in the class that causes them. The method that changes the status makes three deliberate decisions. First, if the status did not really change, no event is sent. Otherwise every listener must guard against duplicates, and one that forgets sends a second shipping email. Second, the status is updated before any listener is told. So a listener always sees the world the event describes. Third, and this is the fix for our incident. Each listener is called inside its own try and catch. If one fails, the failure is recorded under its name, and the next listener still runs. And the list is a special copy-on-write list. That lets a listener unsubscribe itself while it is being notified, without breaking the loop.</p>
+<h2>12. The Test That Actually Proves It</h2>
+<p>Here is a subtle point about testing. A test that says the inventory listener released the stock would pass for the naive design too. It shows the reaction is correct. It proves nothing about the pattern. This test does. It creates a brand new loyalty listener, entirely inside the test file. Nothing in the main code knows it exists. It is added to an order, and it simply works. The order class was written long before, and did not need changing. If someone replaced the listener list with four fixed fields, this is the test that would fail.</p>
+<h2>13. Running It</h2>
+<p>Let&#x27;s run the demo. The same broken mail server is used twice. First, with the naive service. Inventory releases the stock, the email call throws, and the warehouse feed stays empty. The order shipped, and nobody was told to pick it. Then, the same failure with the Observer pattern. Inventory runs. Analytics runs. The warehouse feed is written. And the email failure is not hidden either. It comes back as a named listener failure, so someone can retry it. The same error, and two very different afternoons.</p>
+<h2>14. Wrap Up</h2>
+<p>So, to recap. Use Observer when one change has several independent reactions, and the list of them keeps growing. Now the honest cost. Reading the order class no longer tells you what happens when an order ships. You must find every place a listener is added, across the codebase. That is a real loss of clarity, traded for real independence. Two more warnings. The order in which listeners are called is not a promise. If two reactions must happen in sequence, they are really one reaction. And a long-lived subject holding a short-lived listener is a classic memory leak. Someone must remember to remove the listener. Java once had a built-in version of this pattern, but it was deprecated in Java nine. The pattern was never the problem, that implementation was. So write your own small interface, as this project does. And one sentence to remember. Observer separates, Mediator centralises. In Observer, the publisher knows nobody. In Mediator, a hub knows everyone, on purpose, so it can coordinate them.</p>
+<h2>15. Thanks for Watching</h2>
+<p>That&#x27;s the Observer pattern. If you remember one sentence, make it this one. Let the thing that changed announce it, let whoever cares sign up, and one failing listener no longer stops the rest. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. If there is a pattern you would like to see covered, suggest it in the comments. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

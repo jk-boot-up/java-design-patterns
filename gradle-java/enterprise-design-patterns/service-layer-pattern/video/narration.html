@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Service Layer Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Service Layer Pattern — Video Narration Script</h1>
+<h2>1. Service Layer</h2>
+<p>Hello, and welcome. This video explains the Service Layer pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A service layer puts the operations your application offers into one layer. So every way of reaching the application calls the same code. Think of a bank. Whether you use the app, the cash machine, or the counter, the same rules for a withdrawal apply. In our online store, the question is: where should placing an order live? By the end, you will know what goes wrong when a second way in appears. What the service owns, and what the business objects own. And where the line between them is hard to draw.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Placing an order takes five steps. Check the cart. Check the stock. Take the payment. Save the order. And send the confirmation email. So here is the question. Where does that code live?</p>
+<h2>3. The Logic In The Controller</h2>
+<p>The natural place to start is the web controller. It checks the cart, reserves stock, takes payment, saves the order, and sends the email. A good order is placed. Two hundred pounds is charged. One email is sent. With only one way into the application, this is fine. Nothing in this video says it is wrong.</p>
+<h2>4. A Second Door</h2>
+<p>Then support asks for a command-line tool, to place orders taken by phone. The quickest thing is to copy the logic. Later, someone fixes the web version. Reserve the stock first, and only then take the payment. Nobody remembers the copy. Now, the same request: five mice, when only three are in stock. Through the web, it is refused, and nothing is charged. Through the command line, it is refused too. But the customer was already charged sixty pounds. Charged, or not, depending on which way they came in.</p>
+<h2>5. Put It All In The Domain Object</h2>
+<p>The other tempting answer is to put everything into the order object itself. An order dot place method. It looks tidy. But now the order needs a payment gateway, an email service, a database, and the product list. Its constructor takes six things. It is no longer a business object. It is a whole application, in disguise.</p>
+<h2>6. The Pattern</h2>
+<p>Now, the pattern: a service layer. There is one place order operation. And every way in calls it. The service owns the order of the steps, and the transaction. Begin, do the work, then commit or roll back. The business objects keep the rules. An order must not be empty. Stock must not go below zero.</p>
+<h2>7. One placeOrder, Two Doors</h2>
+<p>Fourth demo: one place order, two ways in. The same request: five mice, with three in stock. Through the web: refused, and nothing charged. Through the command line: refused, and nothing charged. The same answer. Not because anyone was careful. Because both call the same place order operation, so they cannot disagree.</p>
+<h2>8. Cost One: The Anemic Domain</h2>
+<p>Now the costs. The first needs a name: the anemic domain model. Push too much into services, and the business objects become bags of getters and setters, with no behaviour of their own. This anemic order has eight methods, and every single one is a getter or a setter. It is the most common shape in business Java code. And it is widely considered an anti-pattern.</p>
+<h2>9. Cost Two: The Line Is Hard To Draw</h2>
+<p>The second cost: the line is hard to draw. The honest rule is this. Business rules go in the business objects. The sequence of steps goes in the service. But consider free delivery over fifty pounds. Is that a rule about the order, or about shipping? Here, it is on the order. Another team could put it in a shipping service, and be just as right. Reasonable teams draw the line differently.</p>
+<h2>10. Other Ways To Organise It</h2>
+<p>Two other ways of organising this logic are worth naming. Transaction Script: one procedure for each operation. That is roughly what the naive controller was. Table Module: one class for each database table. This video names them, but does not teach them. Both are good answers, in the right place.</p>
+<h2>11. The Toy Database</h2>
+<p>A word about what is real in this demo. The database is a toy, with transactions you can begin, and roll back. The payment gateway and the email service are fakes. They remember what they were asked to do. That is how the demo can tell you exactly how much a customer was charged.</p>
+<h2>12. Where You Have Met This</h2>
+<p>You have met this pattern before. A class marked with the at Service annotation. With the at Transactional annotation on its place order method. That annotation draws the transaction boundary at the service. Exactly what this project does by hand.</p>
+<h2>13. What Is Real Here</h2>
+<p>A quick, honest note about this demo. The pattern is real. The payment gateway and the email service are fakes. But the drift is real. Copied logic drifting apart is one of the most ordinary things that happens in a team.</p>
+<h2>14. When This Is Too Much</h2>
+<p>So, when is this too much? For one way in, and one operation, a service layer is just an extra class. It earns its place the moment a second way in appears.</p>
+<h2>15. Thanks for Watching</h2>
+<p>That&#x27;s the Service Layer pattern. If you remember one sentence, make it this one. Rules live in the business objects, the sequence of steps lives in the service, and every way in calls the service. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a third way in: a batch import of orders. And count how many files had to change. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

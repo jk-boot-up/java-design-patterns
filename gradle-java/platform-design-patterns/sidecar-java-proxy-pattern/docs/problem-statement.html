@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Problem</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>The Problem</h1>
+<p><strong>A sentence the configuration language has no words for.</strong></p>
+<p>This is a follow-on project. The pattern it is built on — Sidecar — belongs to <a href="../../sidecar-pattern"><code>sidecar-pattern</code></a>, and that is the one to read first. What happens here only makes sense if you already know why the retry code was taken out of the service and put in a proxy next door.</p>
+<p>Assume you know that, and the problem starts one step later.</p>
+<hr>
+<h2>Where the last project left off</h2>
+<p>Checkout takes payments. The code that knows how to talk to the payment provider is not in it any more; it moved next door into a proxy, and everything the shop had decided about that provider — how many times to try, when to give up, what certificate to present, what to call the counters — is written down once, in one configuration file, which every proxy in the shop reads.</p>
+<p>The service&#x27;s entire configuration for reaching the provider is one line:</p>
+<pre><code>http://localhost:8081/pay</code></pre>
+<p>An address on its own machine. Not a provider hostname, not a certificate, not a retry count. Whatever is listening there answers, and checkout has no way to find out what it is.</p>
+<p>Today it is nginx. Twenty-two lines of configuration in a container somebody else wrote, tested, hardened and has been patching for twenty years. That was a good decision and this project does not undo it.</p>
+<hr>
+<h2>The letter from the provider</h2>
+<p>In March the provider wrote to every merchant asking for two things:</p>
+<blockquote><p>At most three attempts per payment, <strong>and wait properly between them.</strong></p></blockquote>
+<p>The shop agreed to both. The configuration says three attempts. Everybody went home.</p>
+<p>Read the second half of that sentence again, because it is the whole problem.</p>
+<hr>
+<h2>What happens the next time the provider wobbles</h2>
+<p>The provider has a bad three hundred milliseconds. Nothing is broken and nobody needs paging — it declines everything, and then it is fine again.</p>
+<p>A customer buys a coffee maker for £47.99. The proxy makes its three allowed attempts. Here is what the provider itself recorded, with the times taken at its end rather than the shop&#x27;s:</p>
+<pre><code>  attempt at    1ms   declined
+  attempt at    2ms   declined
+  attempt at    3ms   declined
+  3 attempts, first to last: 2ms</code></pre>
+<p>Three attempts, spanning two milliseconds, against a provider that did not recover until three hundred. Every one of them landed inside the bad window, because they were all made inside the bad window. The shop spent its entire allowance for that payment before the provider had time to get better, and the customer got nothing.</p>
+<p><strong>The half of the agreement that limits the shop was kept. The half that would have helped was not.</strong></p>
+<hr>
+<h2>Nobody wrote a bug</h2>
+<p>This is the part that makes it a design problem rather than a defect.</p>
+<p>nginx retries by moving to the <strong>next server in its upstream group</strong>. That is why §41&#x27;s configuration lists the provider&#x27;s address three times — three entries is how &quot;up to three attempts&quot; is spelled when the upstream is a single address. Moving to the next server happens immediately.</p>
+<p>That was a good decision for the case nginx was built for. In a pool of machines, the next machine is a <em>different</em> machine and is probably fine, so waiting first would only make every request slower for no reason. It stops being a good decision the moment every entry in the pool is the one address that is currently unwell, which is exactly the shape of a sidecar in front of a single supplier.</p>
+<p>So there is nothing to fix. There is no directive anywhere in nginx&#x27;s http proxy module that says &quot;wait two hundred milliseconds before the next attempt&quot;. The sentence the provider asked for does not exist in the language the shop&#x27;s policy is written in.</p>
+<hr>
+<h2>The three ways out, and why two of them are bad</h2>
+<p><strong>Put the waiting back in the service.</strong> This undoes the entire previous project. Four services, four copies of the waiting, and the next policy change lands in three of them. That was the problem §41 existed to solve.</p>
+<p><strong>Script the proxy.</strong> nginx will run Lua, and njs will run JavaScript, and either one can express a delay. But then you are writing code inside a proxy you chose <em>because</em> it was configured rather than programmed, in a language most of your team does not use, with worse tooling and nowhere obvious to put a test.</p>
+<p><strong>Put a different proxy on the port.</strong> Which is this project.</p>
+<hr>
+<h2>Why the third option exists at all</h2>
+<p>Only because of a decision made in the last project, and it is worth saying plainly because it is easy to walk past.</p>
+<p>The contract between the service and its proxy is <strong>an address</strong>. Not a library, not a language, not a shared build, not a version of anything. The service sends an HTTP request to <code>localhost:8081</code> and something answers. Nothing about that is Java, and nothing about it is nginx.</p>
+<p>That is a far weaker promise than a library dependency, and it is exactly as sufficient. Replace what is bound to the port and the service is already talking to the new thing — without being told, rebuilt, restarted, or paused.</p>
+<p>§41 made that claim, in one sentence, and moved on. <strong>A claim is not a demonstration.</strong></p>
+<hr>
+<h2>What this project has to deliver</h2>
+<ol><li><strong>The same three attempts, spread out.</strong> Not more attempts — the provider&#x27;s allowance is not the thing to renegotiate. The same three, arriving far enough apart that the last one lands after the wobble has passed.</li></ol>
+<ol><li><strong>The service untouched.</strong> Not rebuilt, not restarted, not told, and not modified. Proved by identity rather than by behaviour, because a service that merely <em>behaves</em> the same afterwards is a service somebody carefully rebuilt.</li></ol>
+<ol><li><strong>The claim demonstrated.</strong> Two proxies, two languages, one port, and a service whose source file is byte-for-byte the same in both runs.</li></ol>
+<ol><li><strong>The bill, in full.</strong> Twenty-two lines of somebody else&#x27;s configuration becoming forty lines of your own code is a trade, and most of the time it is a bad one. A project that showed only the win would be an advertisement for writing your own proxy, which is very rarely the right thing to do.</li></ol>
+<p>The rule this lands on is narrow, and it is the thing to remember when the demo has faded: <strong>swap the proxy when the thing you need cannot be said in the configuration language at all.</strong> Not when it is awkward. Not when you would rather write Java. Here the missing sentence was the difference between a payment going through and a payment failing, and that clears the bar. Very little else does.</p>
+</main>
+<footer>
+Generated from <code>problem-statement.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

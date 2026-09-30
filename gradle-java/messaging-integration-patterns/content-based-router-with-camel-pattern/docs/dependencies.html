@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dependencies</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Dependencies</h1>
+<p>This project uses Apache Camel and a real RabbitMQ broker, which the hand-built projects do not. This page says what they are, why they are here, and what they cost. It comes before the first line of framework code on purpose.</p>
+<p><strong>Skipping this project loses none of the pattern.</strong> <a href="../content-based-router-pattern">Content-Based Router</a> teaches all of it with plain Java and nothing installed.</p>
+<h2>What Apache Camel is</h2>
+<p>Apache Camel is a library for moving messages between things. You write a <em>route</em>: a short description that says where messages come from, what should be asked about each one, and where each answer sends it. Camel reads that description and runs it.</p>
+<p>Four of Camel&#x27;s words are worth saying in plain language once.</p>
+<ul><li>A <strong>route</strong> is the written description just mentioned. It is a rule, not a running loop you have to write.</li><li>An <strong>endpoint</strong> is one end of a route: a queue to read from, or a queue to write to. It is written as a short piece of text, which is why you will see the destination look like an address.</li><li>An <strong>exchange</strong>, in Camel&#x27;s sense, is the message while it is travelling, together with anything learned about it on the way.</li><li>A <strong>predicate</strong> is a yes-or-no question asked about that message. Camel&#x27;s <code>choice</code> asks a list of predicates in order and takes the first branch whose question is answered yes. If none is, it takes the <code>otherwise</code> branch, and if there is no <code>otherwise</code> branch it takes none of them and the route ends.</li></ul>
+<p>That last sentence is the whole reason this project exists.</p>
+<h2>What RabbitMQ is</h2>
+<p>RabbitMQ is a message broker: a separate program that holds messages for you.</p>
+<ul><li>A <strong>queue</strong> is a named line that messages wait in until somebody takes them.</li><li>An <strong>exchange</strong>, in RabbitMQ&#x27;s sense — a different sense from Camel&#x27;s — is the post box a sender drops a message into. It never keeps anything. It looks at the message&#x27;s label and hands the message to the queue or queues that label belongs to.</li><li>A <strong>routing key</strong> is that short label, written on the message when it is posted.</li></ul>
+<p>This demo uses one exchange, named <code>shop</code>, and ten queues. Every queue is reached by a routing key that is simply the queue&#x27;s own name, so the topology stays out of the way and the route is the only thing making decisions.</p>
+<h2>Why this project uses them</h2>
+<p>Because the interesting question is not &quot;how would I write a router&quot; — the partner project answers that in about forty lines. The interesting question is &quot;what does the tool make me deal with that the hand-written version quietly skipped&quot;, and only a real tool over a real broker can answer it.</p>
+<h2>What to install</h2>
+<p>Only a JDK, version 21, and a container runtime. Gradle downloads the rest, and the versions are pinned:</p>
+<table><thead><tr><th>Tool</th><th>Version</th></tr></thead><tbody><tr><td>Docker</td><td>running; 24 or later</td></tr><tr><td>RabbitMQ broker image</td><td><code>rabbitmq:4.3.6-alpine</code></td></tr><tr><td>Apache Camel</td><td>4.20.0 (<code>camel-core</code>, <code>camel-spring-rabbitmq</code>)</td></tr><tr><td>RabbitMQ Java client</td><td>5.36.0</td></tr><tr><td>Testcontainers</td><td>2.0.5</td></tr></tbody></table>
+<p>RabbitMQ 4 no longer permits transient non-exclusive queues, so every queue this demo declares is durable. That is not a workaround; it is what the current broker requires.</p>
+<h2>What it costs</h2>
+<p>The first run pulls the broker image, about seventy megabytes to download and about a hundred and sixty once unpacked, and the Testcontainers helper image. After that the demo takes about twenty seconds end to end, and the broker uses a couple of hundred megabytes of memory while it runs. Camel itself adds a library and, more to the point, a second way of describing behaviour that a reader of the codebase has to learn.</p>
+<h2>Where this pattern lives</h2>
+<p>In an integration layer: Camel routes, Spring Integration flows, an enterprise service bus, or a broker&#x27;s own exchange and binding rules. Anywhere one stream of messages carries several kinds of work.</p>
+</main>
+<footer>
+Generated from <code>dependencies.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

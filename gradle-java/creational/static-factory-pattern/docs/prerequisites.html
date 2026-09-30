@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>What to know, and what to install, before working through this project.</p>
+<h2>What You Should Already Know</h2>
+<table><thead><tr><th>Topic</th><th>How much</th><th>Where it shows up</th></tr></thead><tbody><tr><td>Classes and objects</td><td>Comfortable</td><td>Everywhere</td></tr><tr><td>Constructors and <code>new</code></td><td>Comfortable — this project is about their limits</td><td><code>docs/problem-statement.md</code></td></tr><tr><td>Interfaces</td><td>Comfortable</td><td><code>Discount</code></td></tr><tr><td><code>static</code> members</td><td>Basic — a method on the class, not on an instance</td><td>Every factory method</td></tr><tr><td>Access modifiers</td><td>Basic — the difference between <code>public</code> and no modifier</td><td>The whole point of the hidden classes</td></tr><tr><td><code>record</code></td><td>None needed — 60-second primer below</td><td><code>Order</code>, <code>Receipt</code></td></tr><tr><td><code>switch</code> expressions</td><td>None needed — read <code>-&gt;</code> as &quot;gives back&quot;</td><td><code>Discount.forCoupon</code></td></tr><tr><td>JUnit 5</td><td>Helpful, not required</td><td><code>src/test</code></td></tr></tbody></table>
+<p>If you can read a Java class and know what <code>new</code> does, you have enough.</p>
+<h2>60-Second <code>static</code> Primer</h2>
+<p>An instance method belongs to an object, so you need one before you can call it:</p>
+<pre><code>String name = &quot;hello&quot;;
+name.toUpperCase();        // needs the object &quot;hello&quot;</code></pre>
+<p>A <strong>static</strong> method belongs to the class itself, so you call it on the class and you need no object at all:</p>
+<pre><code>Integer.parseInt(&quot;42&quot;);    // no Integer exists yet — that is the point
+Money.pounds(5.00);        // no Money exists yet either</code></pre>
+<p>That is why a static method can be the thing that <em>creates</em> the first instance. An instance method could not: you would already need the object you were trying to make.</p>
+<h2>60-Second Access Modifier Primer</h2>
+<p>Java has four levels of visibility. This project only cares about two:</p>
+<pre><code>public class PercentageDiscount { ... }   // anyone, anywhere, can use this
+class PercentageDiscount { ... }          // only this package can see it</code></pre>
+<p>The second one — no keyword at all — is called <strong>package-private</strong>. Miss the <code>public</code> and you get it by accident; use it deliberately and it becomes a wall. Five classes in this project are package-private, so code in any other package genuinely cannot name them. Not &quot;should not&quot;. <em>Cannot</em> — it is a compile error.</p>
+<p>Check it for yourself: <code>NoDiscount.java</code> and <code>PercentageDiscount.java</code> start with <code>final class</code>, not <code>public final class</code>.</p>
+<h2>60-Second <code>record</code> Primer</h2>
+<p>A <code>record</code> is a short way of writing a class that only carries data:</p>
+<pre><code>public record Order(String orderId, String customerId, Money subtotal, Money shipping) { }</code></pre>
+<p>That one line gives you a constructor, a getter per field (called <code>order.subtotal()</code>, with no <code>get</code> prefix), plus <code>equals</code>, <code>hashCode</code> and a readable <code>toString</code>.</p>
+<p>Records are used here for <code>Order</code> and <code>Receipt</code> — things with nothing to decide. <code>Discount</code> and <code>Money</code>, which <em>do</em> have something to decide, are not records, and that contrast is deliberate.</p>
+<h2>60-Second Private Constructor Primer</h2>
+<pre><code>public final class Money {
+
+    private Money(long pence) { ... }         // nobody outside can call this
+
+    public static Money pounds(double p) {    // ...so this is the only way in
+        return new Money(Math.round(p * 100));
+    }
+}</code></pre>
+<p><code>private</code> on a constructor means only code inside <code>Money</code> may run it. From outside, <code>new Money(500)</code> is a compile error, and <code>Money.pounds(5)</code> is the door. Once every caller has to come through that door, the class controls everything about what comes out — including whether anything new is created at all.</p>
+<h2>What You Need Installed</h2>
+<table><thead><tr><th>Tool</th><th>Version</th><th>Check with</th></tr></thead><tbody><tr><td>JDK</td><td>21 or newer</td><td><code>java -version</code></td></tr><tr><td>Gradle</td><td>Not needed — use the wrapper</td><td>—</td></tr></tbody></table>
+<p>The Gradle wrapper (<code>./gradlew</code>) downloads the right Gradle for you on first run, so a JDK is genuinely the only requirement.</p>
+<p>If <code>java -version</code> prints something older than 21, install a current JDK (Temurin, Zulu and Oracle builds are all fine) and try again.</p>
+<h3>A note on <code>£</code></h3>
+<p>Every amount in this project prints with a pound sign. On macOS and Linux that just works. On Windows, if you see <code>?</code> or mojibake instead, run:</p>
+<pre><code>chcp 65001</code></pre>
+<p>before <code>gradlew.bat run</code>, which switches the console to UTF-8.</p>
+<h2>Verify Your Setup</h2>
+<p>From the project directory:</p>
+<pre><code>./gradlew build</code></pre>
+<p>The first run downloads Gradle and JUnit, so give it a minute. You should finish with <code>BUILD SUCCESSFUL</code>.</p>
+<p>Then:</p>
+<pre><code>./gradlew test</code></pre>
+<p><strong>Thirty-four tests should pass.</strong> They are the fastest way to check that your JDK is happy before you start reading code.</p>
+<p>And to watch it work:</p>
+<pre><code>./gradlew run</code></pre>
+<p>You should see the same order priced five different ways, then a short section proving the two things constructors cannot do — shared instances, and a substituted class — and finally a rejected coupon code.</p>
+<h2>Troubleshooting</h2>
+<table><thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead><tbody><tr><td><code>Unsupported class file major version</code></td><td>JDK older than 21</td><td>Install JDK 21+</td></tr><tr><td><code>./gradlew: Permission denied</code></td><td>Wrapper not executable</td><td><code>chmod +x gradlew</code></td></tr><tr><td>Download hangs on first run</td><td>Offline or behind a proxy</td><td>Connect, or install Gradle and use <code>gradle</code> instead of <code>./gradlew</code></td></tr><tr><td><code>?</code> instead of <code>£</code></td><td>Console is not UTF-8</td><td><code>chcp 65001</code> on Windows</td></tr><tr><td><code>error: PercentageDiscount is not public</code></td><td>You tried to use a hidden class from outside the package</td><td>That is the pattern working. Use <code>Discount.percentage(...)</code></td></tr></tbody></table>
+<h2>Where to Go Next</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — why constructors run out of road</li><li><a href="static-factory-pattern-explained.html"><code>static-factory-pattern-explained.md</code></a> — the technique, and the code</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> and <a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the two pictures</li><li><a href="animation.html"><code>animation.html</code></a> — step through it in a browser</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

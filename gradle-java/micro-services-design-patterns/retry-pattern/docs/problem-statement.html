@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Problem Statement</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Problem Statement</h1>
+<h2>Scenario</h2>
+<p>The shop takes card payments through an external payment gateway. It is somebody else&#x27;s service, on the other side of the internet, and it behaves the way such services behave: it works almost all the time, and about one call in five fails for a reason that has nothing to do with the payment. A dropped connection. A router that reset. A load balancer that closed a socket a fraction early.</p>
+<p>None of those are the bank refusing the card. The bank is fine. The money is there. The request simply did not make the round trip.</p>
+<p>The checkout calls the gateway, does not get an answer, and has to decide what to tell the shopper.</p>
+<h2>Attempt One: Tell The Shopper It Failed</h2>
+<p>The first version of the checkout does the obvious thing. It calls the gateway once, and if the call throws, the checkout fails.</p>
+<pre><code>Receipt receipt = payments.charge(request);   // one attempt, and that is that</code></pre>
+<p>This is not lazy code. It is honest code: something went wrong, so it says so.</p>
+<p>The trouble is what it says so <em>about</em>. One call in five is failing for a reason that will very probably not happen again in a hundred milliseconds, and every one of those is a shopper who filled a basket, entered a card, and got an error page. Most of them do not come back and try again. The shop is throwing away a fifth of its revenue to a network blip.</p>
+<h2>Attempt Two: Just Try Again</h2>
+<p>So somebody writes the loop everybody writes first. Three attempts, in a loop, and give up if all three fail.</p>
+<pre><code>for (int attempt = 1; attempt &lt;= 3; attempt++) {
+    try {
+        PaymentRequest request = new PaymentRequest(orderId, amount,
+                &quot;key-&quot; + orderId + &quot;-attempt-&quot; + attempt);
+        return payments.charge(request);
+    } catch (RuntimeException e) {
+        // try again
+    }
+}</code></pre>
+<p>That is <code>NaiveCheckoutService</code> in this project, and it is worth being fair to it. It works. It rescues checkouts that would have failed. It has no dependencies, it is three lines long, and every reviewer who has ever looked at it has approved it.</p>
+<h2>Why That Hurts</h2>
+<p>It has three faults, and the important thing about all three is that <strong>not one of them produces a failing test, an exception, or a line in an error log</strong>.</p>
+<p><strong>One — it charges the shopper twice.</strong> The request is built <em>inside</em> the loop, so each attempt carries a different idempotency key. Now consider the failure that actually happens most often on a real payment gateway: the request arrives, the card <em>is</em> charged, and the reply is lost on the way back. The caller sees a timeout. It cannot tell that case apart from &quot;the request never arrived&quot;, because from its side they are identical. So it tries again, with a new key, and the gateway — behaving perfectly correctly — treats it as a new order and takes the money a second time.</p>
+<p>The demo&#x27;s fourth act prints exactly that: <code>card charged 2 times, £899.98 in total</code>. The order looks perfect. Nothing threw. The only evidence is on a bank statement, and it arrives as a phone call two days later.</p>
+<p><strong>Two — it waits not at all.</strong> It retries as fast as the network allows. When the gateway is slow because it is overloaded, a thousand callers each firing three immediate attempts <em>are</em> the overload. The retry makes the outage worse and then fails anyway.</p>
+<p><strong>Three — it cannot tell a timeout from a declined card.</strong> A refused card is refused for a reason: no funds, wrong expiry, a block on the account. That reason is still true a hundred milliseconds later. The naive loop asks the bank three times and is told &quot;no&quot; three times, which costs the shopper three delays and turns one clear answer into a vague one.</p>
+<h2>The Question This Project Answers</h2>
+<p>Trying again is obviously right and obviously dangerous at the same time. So:</p>
+<ul><li>Which failures are worth retrying, and which are a definite &quot;no&quot; that no amount of persistence will change?</li><li>How long should you wait between attempts, and why is waiting <em>longer each time</em> the rule rather than waiting a fixed amount?</li><li>Why does every caller need to wait a slightly <em>different</em> amount?</li><li>And the one that costs real money: what has to be true about the operation before repeating it is safe at all — and why can no retrier, however carefully written, supply that itself?</li></ul>
+<h2>The Goal</h2>
+<p>A checkout that survives a flaky network without ever charging a card twice, that reports a declined card immediately rather than after three delays, and that gives a struggling gateway room to recover instead of piling on.</p>
+<p>The difference between that and the naive loop turns out to be one line moved and one question asked about each failure. Both are in <a href="retry-pattern-explained.html"><code>retry-pattern-explained.md</code></a>.</p>
+</main>
+<footer>
+Generated from <code>problem-statement.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

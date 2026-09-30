@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pessimistic Offline Lock Pattern — Video Narration Script</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Pessimistic Offline Lock Pattern — Video Narration Script</h1>
+<h2>1. Pessimistic Offline Lock</h2>
+<p>Hello, and welcome. This video explains the Pessimistic Offline Lock pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A pessimistic lock makes a person take a lock on a record before editing it. Nobody else can edit it until the lock is released. So a clash is prevented, instead of detected. Think of a meeting room booking. Once you have booked the room, nobody else can use it until your booking ends. In our online store, two clerks want to edit the same product. And we would rather they did not clash at all. In this video, a lock stops a clash before it starts. Then we hear the costs: waiting, a forgotten lock, and two people each waiting for the other. And we learn how much to lock.</p>
+<h2>2. The Scenario</h2>
+<p>Here is the scenario. Two clerks want to edit the same product. An edit takes several minutes. And a clash would throw away a lot of work. So here is the question. Can we stop the clash before it even starts?</p>
+<h2>3. Lock First, Then Edit</h2>
+<p>First demo: lock first, then edit. Clerk A asks for the lock on the blue mug, and gets it. Clerk B asks, and is refused. And B is told who holds the lock: clerk A. Clerk B never starts an edit that might have been thrown away.</p>
+<h2>4. The Pattern</h2>
+<p>Now, the pattern. Take a lock before you edit. Only the lock holder may save changes. Everyone else is refused, and told who holds it. Release the lock when you are done. Or it expires by itself.</p>
+<h2>5. No Lost Update</h2>
+<p>Second demo: no lost update. Clerk A raises the price, and releases the lock. Then clerk B takes the lock, and reads the product. It already shows the new price, twelve pounds. Clerk B saves the stock count, on top of it. Nothing was overwritten. And nothing needed retrying.</p>
+<h2>6. The Bill: Waiting</h2>
+<p>Third demo: the first cost, waiting. While clerk A edits, clerk B tries once a minute. And is refused three times. In all that time, clerk B has done nothing useful. A lock swaps lost updates for waiting.</p>
+<h2>7. The Bill: A Lock Nobody Let Go Of</h2>
+<p>Fourth demo: a lock nobody released. Clerk A goes to lunch, without releasing the lock. Clerk B is refused straight away. And again, after ten minutes. After sixteen minutes, the lock has expired, and clerk B gets it. When clerk A comes back and saves, A is refused. Because A no longer holds the lock. An expiry solves the lunch problem, but creates a new problem for clerk A.</p>
+<h2>8. The Bill: Each Waiting For The Other</h2>
+<p>Fifth demo: two clerks, each waiting for the other. Clerk A holds the lock on the mug, and now needs the tea. Clerk B holds the lock on the tea, and now needs the mug. Neither can move, until a lock expires. That is called a deadlock. The fix is a simple rule: everyone takes locks in the same order. Then clerk A takes both. And clerk B is stopped at the first one, holding nothing, and simply waits.</p>
+<h2>9. How Much To Lock</h2>
+<p>Last demo: how much to lock. With one lock on the whole catalogue, clerk A gets it. And clerk B, editing a completely different product, is refused. With one lock per product, clerk A gets the mug, and clerk B gets the tea. Both can work. The smaller the thing you lock, the fewer people wait. But the more locks you have, the more there are to forget, and to deadlock on.</p>
+<h2>10. How To Recognise It</h2>
+<p>How can you spot this pattern in code someone else wrote? Look for a lock, or check-out step, before an edit, and an unlock, or check-in, after. Look for a locks table, or columns saying who locked a record, and until when. Look for a database lock held across a long session, which is a warning sign. And a message like: this record is being edited by someone else.</p>
+<h2>11. The Verdict</h2>
+<p>So, here is the verdict. Use a pessimistic lock when a conflict would throw away a lot of work. When edits take a long time. And when it is acceptable for people to wait sometimes. Lock the smallest thing that keeps the data safe. Always give a lock an expiry. Take locks in a fixed order. And refuse a save from anyone who no longer holds the lock. Use an optimistic lock instead, where clashes are rare, and retrying is cheap.</p>
+<h2>12. What Is Real Here</h2>
+<p>A quick, honest note about this demo. Everything is plain Java. Every result you heard comes from the program&#x27;s own output. Time is simulated, not read from the clock, so every run gives the same result.</p>
+<h2>13. When This Is Too Much</h2>
+<p>So, when is this too much? Where conflicts are rare and edits are short, a lock is waiting and bookkeeping for nothing. And a database lock held while a person thinks is almost always a mistake.</p>
+<h2>14. Thanks for Watching</h2>
+<p>That&#x27;s the Pessimistic Offline Lock. If you remember one sentence, make it this one. A pessimistic lock prevents the clash, and the price is waiting, forgotten locks, and deadlocks. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a way for a lock holder to renew their lock. And decide how many times they may do it. If this helped, a like really does help other people find it. And subscribe, if you&#x27;d like the rest of the series. Thanks for watching.</p>
+</main>
+<footer>
+Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

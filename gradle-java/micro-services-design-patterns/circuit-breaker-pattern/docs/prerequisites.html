@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites</h1>
+<p>What you need before starting this project, what you can pick up as you go, and what you explicitly do not need to know. The short version: if you can read a <code>try</code>/<code>catch</code> and an <code>enum</code>, you are ready.</p>
+<h2>Knowledge Prerequisites</h2>
+<h3>Required</h3>
+<ul><li><strong>Java basics</strong> — classes, <code>final</code> fields, constructors, enums.</li><li><strong>Exceptions</strong> — <code>throw</code>, <code>catch</code>, and the idea that two different exception types can mean two different things. This project turns on exactly that: one exception means &quot;a call was made and it timed out&quot;, the other means &quot;no call was made at all&quot;.</li><li><strong>Lambdas, loosely.</strong> <code>CircuitBreaker.call</code> takes a <code>Supplier&lt;T&gt;</code>, which in practice means you pass it <code>() -&gt; recommendations.suggestionsFor(sku)</code>. You need to be able to read that line, not to write functional interfaces from scratch.</li><li><strong>Reading a JUnit test</strong> — <code>assertEquals</code>, <code>assertThrows</code>. You will be invited to write one, but you do not need to arrive able to.</li></ul>
+<h3>Helpful, but explained as we go</h3>
+<ul><li><strong>The Retry pattern</strong> (<a href="../retry-pattern"><code>../retry-pattern</code></a>). This project is partly an argument about when retrying is the <em>wrong</em> tool, and act one is retry applied to an outage. You can do this project first without difficulty — the comparison is spelled out in full — but doing retry first makes act one land harder.</li><li><strong>Timeouts.</strong> &quot;The call gives up after three seconds and throws&quot; is entirely sufficient. There is no configuration to learn.</li><li><strong>What a thread pool is.</strong> Useful for the deepest version of the argument — why an outage in an optional feature can take down checkout — but the project explains the idea in words when it needs it.</li></ul>
+<h3>Explicitly NOT required</h3>
+<ul><li><strong>Resilience4j or Hystrix.</strong> Neither appears here. The whole breaker is about a hundred lines of plain Java, and reading it once is worth more than configuring a library twice.</li><li><strong>Threads or concurrency.</strong> Everything runs on one thread, in a fixed order, so every number in the output is reproducible. The <em>argument</em> is about threads; the code is not.</li><li><strong>A network.</strong> There is none. There is nothing to be offline from.</li><li><strong>Spring, Docker, Kubernetes or a service mesh.</strong> None of them. A JDK is the whole toolchain.</li></ul>
+<h2>A 60-Second &quot;Circuit Breaker&quot; Primer</h2>
+<p>The name comes from the fuse box in a house, and so do the three states.</p>
+<p><strong>CLOSED</strong> is the healthy state, and this is the one piece of vocabulary that trips everybody up. A closed circuit is one where current flows, so calls go through. An <strong>OPEN</strong> circuit is a broken one, so calls do not. If that feels the wrong way round, you are thinking of a door instead of a wire.</p>
+<p><strong>HALF_OPEN</strong> is the moment somebody is standing at the fuse box with a finger on the switch: exactly one call is let through, to see what happens.</p>
+<p>The rule in one breath: count consecutive failures while closed; at the threshold, open; while open, refuse instantly without calling; after the reset wait, let one call through — if it works, close; if it fails, open again for another full wait.</p>
+<p>In this project the threshold is <strong>3</strong> and the reset wait is <strong>5000ms</strong>.</p>
+<h2>A 60-Second &quot;Why Not Just Retry&quot; Primer</h2>
+<p>Retry asks: <em>did that call fail?</em></p>
+<p>A breaker asks: <strong>is the next attempt plausibly going to work?</strong></p>
+<p>For a dropped connection the answer is yes, so retry. For a service that has failed the last twenty calls in a row the answer is no, and retrying is three more seconds gone, one more thread held open, and one more call aimed at something already struggling.</p>
+<p>Act one of the demo measures it: nine seconds of waiting, three calls into a service that is down, and a page identical to the one you would have got immediately.</p>
+<h2>A 60-Second &quot;Fallback&quot; Primer</h2>
+<p>A breaker does not make failures disappear. It makes them fail <strong>fast</strong>. What that speed buys you depends entirely on what you were calling.</p>
+<p>Suggestions are <strong>optional</strong>, so there is something true to say instead: the shop has no suggestions to show right now. The page goes out without them and the shopper can still buy the espresso machine.</p>
+<p>Payment is <strong>essential</strong>. There is nothing a shop can substitute for taking the money, so the breaker buys no fallback there — it buys a fast, honest &quot;no&quot; instead of a three-second spinner, which is still a better product.</p>
+<p>And if you invent a fallback anyway, you get act five: a receipt for money that never moved, no exception, no alert, and a warehouse shipping an espresso machine nobody paid for. The test for whether a fallback is legitimate is simply <strong>is it true?</strong></p>
+<h2>A 60-Second &quot;Simulated Network&quot; Primer</h2>
+<p>There is no network in this project, and there is no waiting.</p>
+<p><code>SimulatedClock</code> is a <code>long</code> with a method to move it forward; it never advances on its own. When a call to Recommendations &quot;takes three seconds&quot;, it pushes the clock forward by 3000 and returns immediately. When the breaker waits five seconds before probing, nothing waits — the next call simply reads a clock that says 14000.</p>
+<p>So when act two reports a total of 9000ms, that is arithmetic rather than a measurement. It is identical on every machine, and all 26 tests finish in about a second.</p>
+<p><code>CallLog</code> keeps the timeline: who called whom, when, and what happened. In act two the timestamps <em>are</em> the argument — watch the left-hand column stop moving.</p>
+<h2>Software Prerequisites</h2>
+<ul><li><strong>JDK 21 or newer.</strong> Nothing else.</li><li><strong>Gradle:</strong> not needed globally. The project ships a wrapper.</li></ul>
+<h3>Installing JDK 21</h3>
+<p>macOS, with Homebrew:</p>
+<pre><code>brew install openjdk@21
+sudo ln -sfn $(brew --prefix)/opt/openjdk@21/libexec/openjdk.jdk \
+    /Library/Java/JavaVirtualMachines/openjdk-21.jdk</code></pre>
+<p>Linux (Debian or Ubuntu):</p>
+<pre><code>sudo apt install openjdk-21-jdk</code></pre>
+<p>Windows: install the Microsoft Build of OpenJDK 21 or Temurin 21 from the installer, and let it set <code>JAVA_HOME</code>.</p>
+<h3>Verify Your Setup</h3>
+<pre><code>java -version          # expect 21 or newer
+cd micro-services-design-patterns/circuit-breaker-pattern
+./gradlew test         # expect BUILD SUCCESSFUL, 26 tests
+./gradlew run          # expect five acts</code></pre>
+<p>If <code>./gradlew</code> will not execute on macOS or Linux, make it executable:</p>
+<pre><code>chmod +x gradlew</code></pre>
+<p>The first <code>./gradlew</code> command downloads Gradle itself and needs a network connection. Everything after that works offline, including the demo — because the demo has no network to use.</p>
+<h2>Troubleshooting</h2>
+<p><strong>&quot;Unsupported class file major version&quot;</strong> — Gradle is using an older JDK than the toolchain asks for. Check <code>java -version</code>, and set <code>JAVA_HOME</code> to a 21 install.</p>
+<p><strong>Every test in <code>RetryingProductPageServiceTest</code> passes</strong> — that is correct, and it is the point of the file. Retry applied to an outage is not a bug. It compiles, it returns a correct page, and it costs nine seconds. Its tests assert the nine seconds.</p>
+<p><strong>Act five succeeds, and that bothers you</strong> — good. It is supposed to. The shopper is thanked, the receipt looks real, nothing throws and no alert fires. The damage is that zero cards were charged and the warehouse is shipping anyway.</p>
+<p><strong>&quot;Open&quot; sounds like it should mean working</strong> — you are not alone, and it is the one thing worth memorising before the rest makes sense. Think of a wire, not a door. A closed circuit carries current; an open one is broken.</p>
+<p><strong>The clock jumps from 9000 to 14000 with nothing in between</strong> — that is the reset wait, and nothing happened during it because nothing needed to. The breaker has no scheduler; it just compares the clock on the next call that arrives.</p>
+<p><strong>The numbers differ from the ones in the docs</strong> — they should not. Every millisecond comes from <code>SimulatedClock</code>. If your output differs from <code>README.md</code>, something has genuinely changed in the source.</p>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — a service that stopped answering, and the retry loop that turns a broken feature into a nine-second page</li><li>Run <code>./gradlew run</code> and read all five acts, in order. In act two, read the <strong>left-hand column</strong> — the timestamps are the argument.</li><li><a href="circuit-breaker-pattern-explained.html"><code>circuit-breaker-pattern-explained.md</code></a> — the pattern from a fuse box, and the half that gets left out</li><li><a href="class-diagram.html"><code>class-diagram.md</code></a> and <a href="uml-diagram.html"><code>uml-diagram.md</code></a> — the structure, the state machine, then the five acts as sequences</li><li><a href="animation.html"><code>animation.html</code></a> — the states, the refusals and the probe, one step at a time</li><li>The tests, which are the specification: <code>CircuitBreakerTest</code> first, then <code>FallbackChoiceTest</code> — which is where the interesting argument lives</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prerequisites — Chain of Responsibility</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Prerequisites — Chain of Responsibility</h1>
+<p>What you need before starting, and the two comparisons that cause the most trouble.</p>
+<h2>Tools</h2>
+<table><thead><tr><th>Tool</th><th>Version</th><th>Check</th></tr></thead><tbody><tr><td>JDK</td><td>21</td><td><code>java -version</code></td></tr><tr><td>Gradle</td><td>wrapper, no install needed</td><td><code>./gradlew --version</code></td></tr></tbody></table>
+<p>Everything else — JUnit 5, the test runner — is fetched by the wrapper on the first build.</p>
+<pre><code>./gradlew run     # the walkthrough
+./gradlew test    # 21 tests</code></pre>
+<h2>Java You Should Recognise</h2>
+<table><thead><tr><th>Feature</th><th>Where it appears</th><th>Why it is there</th></tr></thead><tbody><tr><td><code>abstract class</code> with a <code>final</code> method</td><td><code>ScreeningHandler.screen</code></td><td>walking the chain is written once, and a subclass cannot skip the next link</td></tr><tr><td><code>protected abstract</code></td><td><code>ScreeningHandler.check</code></td><td>the only thing a link author writes</td></tr><tr><td><code>Optional&lt;Decision&gt;</code></td><td>every <code>check</code></td><td>&quot;I am deciding&quot; and &quot;pass it on&quot; are two states, and <code>null</code> is neither</td></tr><tr><td><code>record</code></td><td><code>CheckoutRequest</code>, <code>BasketItem</code>, <code>Decision</code>, <code>ScreeningReport</code></td><td>value objects, equality for free, no setters</td></tr><tr><td><code>enum</code></td><td><code>Outcome</code></td><td>three answers, not two — see below</td></tr><tr><td>varargs</td><td><code>new ScreeningChain(name, fallback, links...)</code></td><td>the wiring reads as a list</td></tr><tr><td>anonymous subclass</td><td>the <code>no-mondays</code> link in <code>ScreeningChainTest</code></td><td>proves a new link needs no change to anything that exists</td></tr></tbody></table>
+<p>If <code>Optional</code> is new, read it as a two-state box before reading the code: an empty <code>Optional</code> here means <em>this handler has no opinion</em>, and that is a different thing from a handler that decided the answer is &quot;no&quot;.</p>
+<h2>Why Three Outcomes, Not a Boolean</h2>
+<p><code>Outcome</code> has <code>APPROVED</code>, <code>REJECTED</code> and <code>REFERRED</code>. The third exists because a fraud model produces a score, not a verdict, and the band in the middle is the whole reason anyone buys one. A method returning <code>boolean</code> cannot express it, so the naive version guesses — and the tests in <code>NaiveScreeningTest</code> pin down which way it guesses.</p>
+<p>This is worth internalising before the pattern itself: <strong>the shape of the return type decides what a check is allowed to say.</strong></p>
+<h2>Chain of Responsibility vs Decorator</h2>
+<p>These two are the pair people confuse, and it is not carelessness — both are objects that hold a reference to the next object and pass work along it. If you have already worked through <a href="../../../structural/decorator-pattern"><code>decorator-pattern</code></a>, the <code>ShippingQuote</code> wrappers there and the <code>ScreeningHandler</code> links here look almost identical on a class diagram.</p>
+<p><strong>The question to ask yourself:</strong> <em>does every layer have to run?</em></p>
+<table><thead><tr><th></th><th>Decorator</th><th>Chain of Responsibility</th></tr></thead><tbody><tr><td>Delegates onward</td><td>always</td><td>only if it has no answer</td></tr><tr><td>Purpose of a layer</td><td>add something on the way through</td><td>decide, or step aside</td></tr><tr><td>Can a layer end the run?</td><td>no</td><td>yes, and that is the point</td></tr><tr><td>What you get at the end</td><td>the accumulated result of every layer</td><td>the answer of one layer</td></tr><tr><td>Removing a layer changes</td><td>the result</td><td>possibly nothing at all</td></tr></tbody></table>
+<p>A decorator that stopped delegating would be a bug — a gift-wrap decorator that declined to call the thing it wraps returns no shipping quote at all. A handler that stops delegating is doing its job. Concretely, in this project: <code>AddressCheck</code> rejecting a Jersey postcode means <code>StockCheck</code>, <code>FraudScoreCheck</code> and <code>PaymentLimitCheck</code> <strong>never run</strong>, and the report says so out loud.</p>
+<p>That is also the practical tell in a codebase you did not write: if the class has a field for the next object and its method always ends by calling it, it is a decorator. If the call to the next object is inside a conditional, it is a handler.</p>
+<h2>Chain of Responsibility vs a <code>List&lt;Check&gt;</code> and a <code>for</code> Loop</h2>
+<p>The honest alternative, and worth sitting with, because it is not obviously worse:</p>
+<pre><code>for (Check check : checks) {
+    Optional&lt;Decision&gt; decision = check.apply(request);
+    if (decision.isPresent()) return decision.get();
+}</code></pre>
+<p>Same independence, same reordering-by-configuration, same testability in isolation, and the traversal is visible in one place instead of distributed across the links. What the loop cannot do is let a link decide <em>what comes next</em> — dispatch to a different branch, skip two links, or hand off to a chain it was given. Nothing in this project needs that, and the notes say so.</p>
+<p>Use the loop when every element gets the same request and the sequence is linear. Reach for the linked version when a handler needs a say in where the request goes after it.</p>
+<h2>Recommended Reading Order</h2>
+<ol><li><a href="problem-statement.html"><code>problem-statement.md</code></a> — the method, and its three bugs</li><li><code>NaiveScreening.java</code> — read <code>validate</code> and <code>validateTradeAccount</code> side by side</li><li><code>ScreeningHandler.java</code> — twenty lines, and the whole pattern is in <code>screen</code></li><li><a href="chain-of-responsibility-pattern-explained.html"><code>chain-of-responsibility-pattern-explained.md</code></a></li><li><code>./gradlew run</code>, with <a href="class-diagram.html"><code>class-diagram.md</code></a> open</li><li><a href="animation.html"><code>animation.html</code></a> — the runtime view, step by step</li></ol>
+</main>
+<footer>
+Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

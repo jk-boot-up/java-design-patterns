@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Publisher-Subscriber with Redis Pattern — Teaching Video</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Publisher-Subscriber with Redis Pattern — Teaching Video</h1>
+<p>A narrated, slide-based video that teaches Publisher-Subscriber on a real Redis server — one publish reaching a listener in another process, the count Redis hands back, nothing kept for a latecomer, and a listener cut off for falling behind — and argues for when not to use it, using this project&#x27;s online store.</p>
+<h2>Output Files</h2>
+<table><thead><tr><th>File</th><th>What it is</th></tr></thead><tbody><tr><td><code>publisher-subscriber-with-redis-pattern-explained.mp4</code></td><td>The video — 1920×1080, H.264, 30 fps, stereo AAC.</td></tr><tr><td><code>publisher-subscriber-with-redis-pattern-explained.m4a</code></td><td>Audio-only version.</td></tr><tr><td><code>publisher-subscriber-with-redis-pattern-explained.srt</code></td><td>Subtitles.</td></tr><tr><td><code>poster.png</code></td><td>The video&#x27;s opening frame.</td></tr></tbody></table>
+<p>None of these except <code>poster.png</code> is committed; <code>./build_video.sh</code> rebuilds them.</p>
+<p><strong>Narration:</strong> female voice (macOS <code>Samantha</code>, US English), 145 words per minute.</p>
+<h2>Rebuilding</h2>
+<pre><code>./build_video.sh</code></pre>
+<h3>What the script does, step by step</h3>
+<ol><li><strong>Slides.</strong> <code>make_slides.py</code> draws one 1920×1080 PNG per scene into <code>build/</code>.</li><li><strong>Narration.</strong> Each scene&#x27;s narration from <code>scenes.py</code> is spoken by macOS <code>say</code> with the <code>Samantha</code> voice at 145 words per minute.</li><li><strong>Clean-up, per scene.</strong> The speech is resampled to 48 kHz with a long filter, a high-pass at 75 Hz removes rumble, and a small lift around 3 kHz makes consonants clearer. There is deliberately <strong>no denoiser</strong>: synthesised speech has almost no noise floor, and a spectral denoiser subtracts parts of the voice instead, leaving it warbling. Each scene gets 0.9 seconds of silence at the end, and its audio is padded to a whole number of video frames so slides and speech cannot drift apart.</li><li><strong>Joining.</strong> Scene audio is kept as lossless WAV and joined losslessly. AAC is encoded exactly once, over the whole narration, because separately encoded AAC clips each carry priming samples that leave a hole at every join.</li><li><strong>Levelling.</strong> Loudness is normalised once, over the whole narration, to −16 LUFS with a true peak of −1.5 dB, in two passes: the first measures, the second applies one constant gain. Levelling per scene would pump the volume at every cut.</li><li><strong>Checks.</strong> Subtitles are timed from the encoded scene clips, and the script reads every audio packet of the finished video and prints <code>audio timeline continuous: N packets, no gaps</code>. If that line is missing or reports a gap, the build has failed even if an mp4 exists.</li></ol>
+<h3>Requirements</h3>
+<ul><li><strong>macOS</strong> (for <code>say</code>), <strong>ffmpeg</strong>, <strong>Python 3</strong> with <code>pillow</code> and <code>matplotlib</code></li></ul>
+<p>The video itself needs no container runtime; only the demo does.</p>
+<h2>Scene List</h2>
+<table><thead><tr><th>#</th><th>Scene</th><th>Covers</th></tr></thead><tbody><tr><td>1</td><td>Publisher-Subscriber with Redis</td><td>Title card and the definition</td></tr><tr><td>2</td><td>The Scenario</td><td>One order, four services that care</td></tr><tr><td>3</td><td>The Order Service Calls Each One</td><td>Act one</td></tr><tr><td>4</td><td>Redis&#x27;s Words</td><td>Publish, channel, subscribe, through live radio</td></tr><tr><td>5</td><td>Publish Once, Redis Fans It Out</td><td>Act two, with a listener in a second Java process</td></tr><tr><td>6</td><td>The Publisher Gets A Number</td><td>What <code>PUBLISH</code> answers</td></tr><tr><td>7</td><td>A Subscriber That Arrives Late</td><td>Act three</td></tr><tr><td>8</td><td>Each Takes What It Wants</td><td>Act four: exact names and a star</td></tr><tr><td>9</td><td>A Pile For Every Listener</td><td>The output buffer and its limit, through a kitchen</td></tr><tr><td>10</td><td>A Subscriber That Cannot Keep Up</td><td>Act five: the cut-off</td></tr><tr><td>11</td><td>Why Redis Cuts It Off</td><td>The two worse choices</td></tr><tr><td>12</td><td>The Bill</td><td>Act six</td></tr><tr><td>13</td><td>What The Simulation Left Out</td><td>The contrast with the partner project</td></tr><tr><td>14</td><td>The Verdict</td><td></td></tr><tr><td>15</td><td>What Is Real, And When Not</td><td>Redis 8.10.2 in a container the demo owns</td></tr><tr><td>16</td><td>Thanks for Watching</td><td>The exercise</td></tr></tbody></table>
+<p>Scene 16 deliberately does not name whichever pattern comes next.</p>
+<h2>Editing the Script</h2>
+<p>Narration lives in <code>scenes.py</code>. Edit it, regenerate <code>narration.md</code> with the shared narration generator, then re-run <code>./build_video.sh</code>.</p>
+<p>Every narration line speaks its counts and outcomes in words, explains each term Redis introduces before using Redis&#x27;s name for it, and never points at a picture the listener cannot see. Every figure comes from <code>./gradlew run</code>.</p>
+<h2>Publishing Notes</h2>
+<p>Upload <code>publisher-subscriber-with-redis-pattern-explained.mp4</code>, with <code>../docs/thumbnail.png</code> as the thumbnail and the <code>.srt</code> as the captions. Title, description, chapters and tags live in <code>../docs/youtube.md</code>.</p>
+<p>Suggested description:</p>
+<blockquote><p>Publisher-Subscriber pattern in Java, explained with a real Redis server. One part of a system announces something once to a named channel, any number of others listen there, and the announcer never learns who they are. In our online store the order service announces each order once, and inventory, email, analytics and loyalty points each do their own work. We hear Redis copy an order to a program in a different process, tell the publisher how many heard it, keep nothing for a listener that arrives late, and cut off a listener that falls too far behind, and we explain why.</p></blockquote>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>
