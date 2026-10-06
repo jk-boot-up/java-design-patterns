@@ -2,64 +2,64 @@
 
 ## 1. Strangler Fig
 
-Hello, and welcome. This video explains the Strangler Fig pattern, in Java, and it is written and presented by Jayasekhar Konduru. The plain definition: replace a system by growing the new one around the old, one piece at a time, behind a router that can send each piece to either. This is the last project in the platform category, whose subject is the shape of a system as it changes over time. In our online store, the thing being replaced is the checkout. By the end you will see why the big rewrite fails on a Monday, how a router and shadow reads let you move a piece at a time on evidence, and the outcome that nobody warns you about: the migration that stalls half finished.
+Hello, and welcome. This video explains the Strangler Fig pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. You replace an old system by growing the new one around it, one piece at a time. A router sits in front, and can send each piece to either the old system or the new. The name comes from a kind of fig tree that slowly grows around a host tree, until it replaces it. In our online store, the thing being replaced is the checkout. By the end, you will hear why a big rewrite fails on a Monday. How a router, and quiet side-by-side comparisons, let you move one piece at a time, on evidence. And the outcome nobody warns you about: the migration that stops halfway.
 
 ## 2. The Scenario
 
-Here is the scenario. The legacy checkout is one large class. It does pricing, stock, payment, and email. It works. It is also where every change is slow, and every incident starts. So the business wants it replaced. The question: how do you replace something that must keep taking orders while you do it?
+Here is the scenario. The old checkout is one large class. It handles pricing, stock, payment, and email. It works. But it is where every change is slow, and every incident starts. So the business wants it replaced. So here is the question. How do you replace something that must keep taking orders while you do it?
 
 ## 3. The Big-Bang Rewrite
 
-The obvious answer is a rewrite. Build the new checkout beside the old one, and switch over. Twenty-six weeks of work, in parallel with production. In that time, the new code serves no real orders at all, so there is no feedback from real traffic for half a year. Then a cutover weekend. And on Monday, one of the four capabilities is faulty: payment declines large orders. There is one switch, so the only rollback is all of it. All four capabilities go back, including the three that were fine.
+First demo: the big rewrite. Build a new checkout beside the old one, and switch over. Twenty-six weeks of work. In all that time, the new code serves no real orders at all. So there is no feedback from real customers for half a year. Then a switch-over weekend. And on Monday, one of the four parts is faulty. Payment declines large orders. There is only one switch. So the only way back is to undo everything. All four parts go back, including the three that were fine.
 
 ## 4. An Analogy: The Strangler Fig
 
-An analogy. A strangler fig begins as a seed, high in a tree. It sends roots down the trunk, and grows around the host, a little at a time. For years, both are alive, and the old tree is still doing its job. One day the fig is complete, and the tree inside it is gone. At no point in all that time did the forest have no tree. That is the pattern, and the name.
+Here is the analogy. A strangler fig starts as a seed, high up in another tree. It sends roots down the trunk. And it grows around the host tree, a little at a time. For years, both trees are alive. And the old tree still does its job. One day, the fig is complete, and the old tree inside is gone. At no point was the forest left without a tree. That is the pattern, and the name.
 
 ## 5. A Router, And A Switch Per Capability
 
-The pattern. Put a router in front of the legacy checkout. Every capability, pricing, stock, payment, email, has its own switch. They all start on legacy. Move pricing first. Now pricing is served by the new code, and the other three still by legacy. An order goes through, and it succeeds. The customer saw no cutover. The checkout never stopped.
+Second demo: a router, with a switch for each part. A router sits in front of the old checkout. Each part, pricing, stock, payment, and email, has its own switch. They all start on the old code. Pricing moves first. Now pricing uses the new code. The other three still use the old. An order goes through, and it succeeds. The customer noticed no switch-over. The checkout never stopped.
 
 ## 6. Shadow Reads
 
-Before pricing moves, shadow it. Legacy serves the customer. The new code is called as well, and the two answers are compared. Two hundred and one orders. They disagreed on twenty-nine. Two causes. Legacy rounds the V A T on each line. The new code rounds it once, on the total. And legacy gives free delivery only when the goods cost more than fifty pounds. The new code gives it from fifty pounds. Both are reasonable. Both differ from what customers have paid for years. Found before any customer paid a penny differently. The team decides to reproduce legacy exactly, and shadows again: zero differences in two hundred and one. Now pricing can move.
+Third demo: quiet comparisons. Before pricing moves, it is run in shadow. The old code serves the customer. The new code is also asked, quietly, and the two answers are compared. Two hundred and one orders. They disagreed on twenty-nine. There were two causes. The old code rounds the tax on each line. The new code rounds it once, on the total. And the old code gives free delivery only above fifty pounds. The new code gives it from fifty pounds. Both are reasonable. But both differ from what customers have paid for years. And this was found before any customer paid a penny differently. The team makes the new code match the old one exactly. They compare again: no differences in two hundred and one orders. Now pricing can move.
 
 ## 7. One Capability Rolls Back
 
-Now the Monday, done differently. Pricing and payment are on the new code. Payment misbehaves on a large order, and the order fails. Flip one switch. Payment alone goes back to legacy, and the order succeeds. Pricing never moved back. A fault in one capability is answered by moving one capability.
+Fourth demo: the Monday, done differently. Pricing and payment now use the new code. Payment misbehaves on a large order, and the order fails. Flip one switch. Payment alone goes back to the old code. And the order succeeds. Pricing stays on the new code. A fault in one part is fixed by moving just that one part.
 
 ## 8. The Bill: Two Systems
 
-Now the bill. First, two systems are live for months, and both must be maintained. Every business rule that changes while both are live is changed twice: in legacy, and in the new code. There are two on-call rotas, two deployment pipelines. That is a cost, and it is paid every week until legacy is gone.
+Now the bill. First cost: two systems. Both are live for months, and both must be kept running. Every business rule that changes during that time must be changed twice. Once in the old code, and once in the new. There are two teams on call, and two release pipelines. That cost is paid every week, until the old system is gone.
 
 ## 9. The Bill: Two Truths
 
-Second cost. Data. Stock has moved to the new service, and an order takes five of one product. The new service says three hundred and ninety-five on hand. The legacy table, which its reports and its invoices still read, says four hundred. Two tables claim to be the truth. Someone must decide which, and keep them in step until legacy is gone.
+Fifth demo, and the second cost: data. Stock has moved to the new service. An order takes five of one product. The new service says three hundred and ninety-five are left. But the old stock table, which old reports and invoices still read, says four hundred. Two tables both claim to be the truth. Someone must decide which is right. And keep them in step, until the old system is gone.
 
 ## 10. The Failure That Actually Happens
 
-And the failure that actually happens in the field. The migration stalls. Two capabilities move, and then the budget goes elsewhere. Nobody decides to stop. It just stops. Here is a cost model, and it is a model, stated as one. All legacy costs a hundred a quarter. All new costs sixty. While both are live, there is a fixed extra thirty-five for running two. The stalled state costs a hundred and fifteen a quarter. More than all legacy. More than all new. Two checkouts, forever, is worse than either endpoint. And it is the most likely outcome, and nobody warns you.
+Sixth demo: the failure that actually happens. The migration stalls. Two parts move, and then the budget goes elsewhere. Nobody decides to stop. It just stops. Here is a simple cost model. All on the old system costs a hundred a quarter. All on the new costs sixty. Running both adds a fixed thirty-five. So the stalled, half-moved state costs a hundred and fifteen a quarter. More than all old. More than all new. Two checkouts, forever, is worse than either end. And it is the most likely outcome. Nobody warns you.
 
 ## 11. The Verdict
 
-My verdict, plainly. Use it. It is how systems that must keep running get replaced. But treat the end date, and the decommissioning of legacy, as part of the migration, not a later job. A strangler you do not finish is worse than the big bang you should have avoided, and worse than not starting at all.
+So, here is the verdict. Use this pattern. It is how systems that must keep running get replaced. But treat the end date, and switching off the old system, as part of the migration. Not as a later job. A strangler fig you never finish is worse than the big rewrite. And worse than not starting at all.
 
 ## 12. How To Recognise It
 
-How do you recognise this in code you did not write? A gateway with routes, sending one path to an old service, and another to a new one. A feature flag for each capability, with a name like use new pricing. Two implementations of one interface, a selector between them, and a ticket, somewhere, to delete one. And a package called legacy that has been temporary for years.
+How can you spot this pattern in a system someone else built? Look for a gateway that sends one path to an old service, and another to a new one. Look for a switch for each part, named something like: use new pricing. Look for two versions of one interface, a selector between them, and a ticket somewhere to delete one. And a folder called legacy that has been temporary for years.
 
 ## 13. What This Model Does Not Show
 
-What this model does not show. Two real deployments, and a real network between the router and the systems. Moving real data, rather than comparing two maps. And the organisational part, priorities, budgets, and people, which is where most of these migrations actually stall. The costs are assumptions, chosen to show a shape.
+What this model does not show. Two real running systems, with a real network between the router and each one. Moving real data, rather than comparing two lists. And the human side: priorities, budgets, and people. That is where most migrations actually stall. The costs are assumptions, chosen to show a shape.
 
 ## 14. Where You Have Met This
 
-You have met this in every migration that says we are moving to the new platform, one team at a time. And in every slash A P I slash v two, running next to a slash v one.
+Where have you met this before? In every migration that says: we are moving to the new platform, one team at a time. And in every version two of an A P I, running beside version one.
 
 ## 15. When This Is Too Much
 
-So when is it too much? For a system small enough to rewrite in a few weeks, the seam and the router cost more than they save.
+So, when is this too much? For a system small enough to rewrite in a few weeks, the router and the switches cost more than they save.
 
 ## 16. Thanks for Watching
 
-That's the Strangler Fig. If you take one sentence away, take this one: move one piece at a time, on evidence, and finish, because two systems forever is worse than either. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, change the both-live overhead in the cost model to ten, and see whether stalling stops being worse than the endpoints. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's the Strangler Fig pattern. If you remember one sentence, make it this one. Move one piece at a time, on evidence, and finish, because two systems forever is worse than either one. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. In the cost model, change the cost of running both systems to ten. Then see whether stalling halfway is still worse than either end. If you found this useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps the channel grow and bring you more content. Thanks for watching!

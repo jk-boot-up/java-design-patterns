@@ -546,9 +546,7 @@ Act 1 - one database, one query
             '[[slnc 300]] Take a database you work on, and draw one line '
             'through it. [[slnc 300]] Which tables end up on each side? '
             '[[slnc 300]] And which query would stop working? [[slnc '
-            '500]] If this helped, a like really does help other people '
-            "find it. [[slnc 300]] And subscribe, if you'd like the rest "
-            'of the series. [[slnc 400]] Thanks for watching.'
+            '500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

@@ -2,64 +2,64 @@
 
 ## 1. Consumer-Driven Contract with Pact
 
-Hello, and welcome. This video explains the Consumer-Driven Contract pattern with Pact, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the Consumer-Driven Contract video. That one let each consumer write its contract as data, and let the provider check its real answer against every contract, naming the consumer and the field. It also showed that a contract cannot see a change of meaning. This one shows the same idea inside Pact. The plain definition, in short: with Pact, a consumer's test writes a pact file. The provider's build replays that file against the real service, and fails on any difference. By the end you will see a rename break checkout in production, see two consumers write real pact files, see the provider replay them over real HTTP and pass, see a rename caught before release with a name attached, see that adding a field is safe, and see what a pact cannot catch.
+Hello, and welcome. This video explains the Consumer-Driven Contract pattern in Java, using a library called Pact. This video is presented by Jayasekhar Konduru. First, a simple definition. Each consumer of a service writes down exactly what it needs from the service's answers. And the service checks every new release against those needs, before it goes out. With Pact, a consumer's test writes those needs into a file, called a pact. The service's build replays that file against the real service, and fails on any difference. In our online store, a renamed field in the catalog's price service broke checkout. By the end, you will hear that break happen for real customers. Two consumers write real pact files. The service replays them, and passes. A rename caught before release, with a name attached. And what a pact cannot catch.
 
 ## 2. The Partner Project
 
-This video assumes the Consumer-Driven Contract video. If you have not seen it, start there. It writes each consumer's contract as data, and shows a verifier that names the consumer and the field when a release breaks one. This one uses the same example. It does not teach the pattern again. It shows what Pact does with it.
+This video builds on the plain Java Consumer-Driven Contract video. If you have not seen it, start there. That video writes each consumer's contract as simple data. And it shows a checker that names the consumer and the field when a release breaks one. This video uses the same example. It does not teach the pattern again. It shows what Pact does with it.
 
 ## 3. Before The First Line
 
-Before the first line of code, what Pact is. Pact is a library for contract testing. A consumer test uses it to write down what the consumer needs, into a pact file. The provider's build uses it to replay the file against the real service, and fail if the answer differs. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.
+Before any code, what is Pact? Pact is a library for contract testing. A consumer's test uses it to write down what the consumer needs, into a pact file. The service's build uses it to replay that file against the real service. And the build fails if the answer is different. You only need Java. There is no server, no container, and no account. And a promise. Skipping this video loses none of the pattern. The plain Java video teaches all of it.
 
 ## 4. Nobody Told The Consumer
 
-First, nobody told the consumer. The catalog renamed price cents to price, and released. Checkout, two mugs: the order failed. It was found in production, by a customer.
+First demo: nobody told the consumer. The catalog renamed the field price cents, to just price, and released it. A customer checks out two mugs. The order fails. It was found in production, by a customer.
 
 ## 5. The Consumer Writes A Pact
 
-Second, the consumer writes a pact. Each consumer's own client is run against Pact's mock of the catalog, and agrees. Two pact files are written. Checkout's pact: price cents, an integer, and sku, a string. Reports' pact: sku, a string.
+Second demo: each consumer writes a pact. Each consumer's own code is run against a fake catalog that Pact provides. And it works. As a result, two pact files are written. Checkout's pact says: price cents, a whole number, and product code, some text. Reports' pact says: product code, some text.
 
 ## 6. The Provider Replays The Pacts
 
-Third, the provider replays the pacts. Pact replays each pact against the real catalog, over HTTP. Two interactions checked, no problems. Safe to release.
+Third demo: the service replays the pacts. Pact replays each pact against the real catalog service, over real web requests. Two checks, and no problems. It is safe to release.
 
 ## 7. The Rename Is Caught
 
-Fourth, the rename is caught. On the renamed release: two interactions checked, one failed. Checkout: the actual map is missing the following keys: price cents. The build fails, and Pact names the consumer and the field. Reports' pact still passes.
+Fourth demo: the rename is caught. The pacts are replayed against the renamed release. Two checks, and one fails. For checkout, Pact reports that the answer is missing price cents. The build fails, and names the consumer and the field. The reports pact still passes.
 
 ## 8. Adding Is Safe
 
-Fifth, adding is safe. A release that adds a stock field: two interactions checked, no problems. Adding a field breaks nobody.
+Fifth demo: adding is safe. A new release adds a stock field. Two checks, and no problems. Adding a field breaks nobody.
 
 ## 9. The Bill
 
-Last, the bill. A release that now sends pounds, not pence, in the same field: no problems. It passes. Checkout, two mugs: total thirty two, where it should be thirty two hundred. A pact checks the shape, and not the meaning. And every consumer must keep its pact up to date, or the check protects nobody.
+Finally, the bill. A new release sends the price in pounds, not pence, in the same field. The field is still there, and still a number. So the check passes. A customer checks out two mugs. The total comes out as thirty-two, when it should be thirty-two hundred pence. A pact checks the shape of the answer, not its meaning. And every consumer must keep its pact up to date. Otherwise the check protects nobody.
 
 ## 10. The Verdict
 
-My verdict, plainly. Let each consumer write a pact for what it reads, and only that. Run the provider's verification in its build, against the real service. Keep pact files where the provider's build can find them, or in a broker. And add tests for meaning, since a pact checks only shape.
+So, here is the verdict. Let each consumer write a pact for what it reads, and only that. Run the service's check in its own build, against the real service. Keep the pact files where that build can find them, or in a shared store called a pact broker. And add separate tests for meaning, because a pact only checks shape.
 
 ## 11. How To Recognise It
 
-How do you recognise this in code you did not write? A @Pact method or ConsumerPactBuilder in a consumer's tests. @Provider and @PactFolder or @PactBroker in a provider's tests. A pacts folder of JSON files.
+How can you spot this in code someone else wrote? In a consumer's tests, look for Pact annotations, or a pact builder. In a service's tests, look for annotations naming the provider, and where the pacts are kept. Or look for a folder of pact files.
 
 ## 12. Where You Have Met This
 
-You have met this in many microservice teams, and pact broker or pactflow in their pipelines.
+Where have you met this before? In many microservice teams, using a pact broker, or the hosted service PactFlow, in their build pipelines.
 
 ## 13. What Was Used
 
-For the record. Pact JVM, 4.7.5. JUnit, 5.10.2. Java, 21.
+For the record, here is what was used. Pact for Java, version four point seven point five. JUnit, version five point ten. And Java twenty-one.
 
 ## 14. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is real: real pact files, Pact's own mock, and a real HTTP server for the provider. The consumers and the catalog are small, and made for the demo.
+A quick, honest note about this demo. Everything is real: real pact files, Pact's own fake service, and a real web server for the catalog. The consumers and the catalog are small, and made just for this demo.
 
 ## 15. When This Is Too Much
 
-So when is it too much? If provider and consumer are one team with one release, an ordinary test is enough. Pact pays off across teams that release apart.
+So, when is this too much? If the service and its consumer belong to one team, released together, an ordinary test is enough. Pact pays off between teams that release separately.
 
 ## 16. Thanks for Watching
 
-That's Consumer-Driven Contract with Pact. If you take one sentence away, take this one: Pact lets a provider learn who a change breaks before it ships, and it still cannot tell a change of meaning. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, add a third consumer that reads the currency, and see its pact pass. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's Consumer-Driven Contract, with Pact. If you remember one sentence, make it this one. Pact tells a service who a change will break before it ships, but it still cannot see a change of meaning. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a third consumer that reads the currency. And check that its pact passes. If you found this useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps the channel grow and bring you more content. Thanks for watching!

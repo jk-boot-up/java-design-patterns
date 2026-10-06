@@ -62,4 +62,4 @@ So, to wrap up. Use the Abstract Factory when several objects must agree with ea
 
 ## 16. Thanks for Watching
 
-That's the Abstract Factory pattern. If you remember one sentence, make it this one. Choose a whole family of objects at once, and a mismatched family becomes impossible. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. If there is a pattern you would like to see covered, suggest it in the comments. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.
+That's the Abstract Factory pattern. If you remember one sentence, make it this one. Choose a whole family of objects at once, and a mismatched family becomes impossible. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. If there is a pattern you would like to see covered, suggest it in the comments. If you found this useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps the channel grow and bring you more content. Thanks for watching!

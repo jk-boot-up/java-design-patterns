@@ -493,5 +493,5 @@ narration = """
 That's the Message Translator, with Apache Camel. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Each format gets its own route, and the receiver only ever sees one shape. [[slnc 500]]
 The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
 Here is one exercise to try. [[slnc 300]] Send orders in an unknown format to a dead-letter route. [[slnc 500]]
-If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!
 """

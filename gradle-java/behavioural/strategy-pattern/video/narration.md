@@ -58,4 +58,4 @@ So, to recap. Use Strategy when a switch branches on a type or mode, and each br
 
 ## 15. Thanks for Watching
 
-That's the Strategy pattern. If you remember one sentence, make it this one. Pass in the behaviour, instead of branching on a flag. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. If there is a pattern you would like to see covered, suggest it in the comments. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.
+That's the Strategy pattern. If you remember one sentence, make it this one. Pass in the behaviour, instead of branching on a flag. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. If there is a pattern you would like to see covered, suggest it in the comments. If you found this useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps the channel grow and bring you more content. Thanks for watching!

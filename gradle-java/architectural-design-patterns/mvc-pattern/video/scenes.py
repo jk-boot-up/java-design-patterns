@@ -432,9 +432,7 @@ Class <...naive.view.RoundedEmailView>
             'change the shortcut email to use it, instead of reading the '
             'catalogue. [[slnc 300]] Both totals will agree, because '
             'there is no arithmetic left in the view to get wrong. [[slnc '
-            '500]] If this helped, a like really does help other people '
-            "find it. [[slnc 300]] And subscribe, if you'd like the rest "
-            'of the series. [[slnc 400]] Thanks for watching.'
+            '500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

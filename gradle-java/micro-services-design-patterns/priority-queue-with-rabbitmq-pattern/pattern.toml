@@ -476,5 +476,5 @@ narration = """
 That's the Priority Queue, with RabbitMQ. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Urgent first, but only for what is still waiting, and never at the cost of everything else. [[slnc 500]]
 The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It needs Docker running, and starts the broker for you. [[slnc 500]]
 Here is one exercise to try. [[slnc 300]] Try a prefetch of ten, and find where the same-day orders land. [[slnc 500]]
-If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!
 """

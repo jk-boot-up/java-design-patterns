@@ -237,10 +237,7 @@ SCENES = [
             'code, written notes, diagrams, and an animated walkthrough '
             'are all in the repository. [[slnc 500]] Here is one exercise '
             'to try. [[slnc 300]] Run only the second leak test, on its '
-            'own. [[slnc 300]] And watch it fail. [[slnc 500]] If this '
-            'helped, a like really does help other people find it. [[slnc '
-            "300]] And subscribe, if you'd like the rest of the series. "
-            '[[slnc 400]] Thanks for watching.'
+            'own. [[slnc 300]] And watch it fail. [[slnc 500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

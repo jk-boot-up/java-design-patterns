@@ -54,4 +54,4 @@ So, when is this too much? For a value used in only one place, a single null che
 
 ## 14. Thanks for Watching
 
-That's the Null Object pattern. If you remember one sentence, make it this one. Absence can be a normal state, but it must never be a place to hide a failure. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Write a test that would catch a lookup quietly hiding a service outage. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.
+That's the Null Object pattern. If you remember one sentence, make it this one. Absence can be a normal state, but it must never be a place to hide a failure. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Write a test that would catch a lookup quietly hiding a service outage. If you found this useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps the channel grow and bring you more content. Thanks for watching!

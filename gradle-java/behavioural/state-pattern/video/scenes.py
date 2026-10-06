@@ -499,10 +499,7 @@ void theSameScenarioIsRefusedByTheStateVersion() {
             '300]] Add a return requested state, between delivered and '
             'refunded. [[slnc 300]] Add it to the State version, and then '
             'to the status field version. [[slnc 300]] And count how many '
-            'places you had to edit in each. [[slnc 500]] If this helped, '
-            'a like really does help other people find it. [[slnc 300]] '
-            "And subscribe, if you'd like the rest of the series. [[slnc "
-            '400]] Thanks for watching.'
+            'places you had to edit in each. [[slnc 500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

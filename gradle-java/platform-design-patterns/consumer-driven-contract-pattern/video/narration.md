@@ -2,56 +2,56 @@
 
 ## 1. Consumer-Driven Contract
 
-Hello, and welcome. This video explains the Consumer-Driven Contract pattern in Java, and it is written and presented by Jayasekhar Konduru. The plain definition: a consumer driven contract lets each consumer of a service write down exactly what it needs. The provider then checks every release against those contracts, before it goes out. This is another project in the platform category, whose subject is how software is shipped, run and operated. In our online store, the catalog team renamed a field in the price service, and the checkout broke in production. By the end you will see a rename break checkout in production, see consumers write down what they read, see the provider check itself and pass, see a rename caught before release with a name attached, see that adding a field is safe, and see the bill, which is that a contract checks shape and not meaning.
+Hello, and welcome. This video explains the Consumer-Driven Contract pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A service has consumers: other services that call it and read its answers. With consumer-driven contracts, each consumer writes down exactly what it needs from the answer. And the service checks every new release against those written needs, before it goes out. Think of a restaurant supplier. Each restaurant writes down exactly what it relies on. Before the supplier changes a product, it checks every restaurant's list. In our online store, the catalog team renamed a field in the price service, and checkout broke. By the end, you will hear a rename break checkout for real customers. Consumers write down what they read. A rename caught before release, with a name attached. Why adding a field is safe. And the bill: a contract checks shape, not meaning.
 
 ## 2. The Scenario
 
-Here is the scenario. The checkout reads a price and a sku from the catalog's price service. The reports service reads only the sku. The catalog team wants to change the shape of the answer. The question: how do they know who will break?
+Here is the scenario. The catalog's price service answers with a few fields. Checkout reads two of them: the product code, and the price in pence. The reports service reads only the product code. The catalog team wants to change the shape of the answer. So here is the question. How do they know who will break?
 
 ## 3. Nobody Told The Consumer
 
-First, nobody told the consumer. The catalog renamed price cents to price, and released. Checkout, two mugs: the order failed. It was found in production, by a customer.
+First demo: nobody told the consumer. The catalog renamed the field price cents, to just price. And released it. A customer checks out two mugs. The order fails. The problem was found in production, by a customer.
 
 ## 4. The Pattern
 
-The pattern. Each consumer writes down what it reads: field names, and types. The provider runs its real answer against every contract, before a release. A break names who, and what.
+Now, the pattern. Each consumer writes down what it reads: the field names, and their types. That written list is the contract. Before every release, the service checks its real answer against every contract. If something breaks, the check names which consumer, and which field.
 
 ## 5. The Consumer Writes It Down
 
-Second, the consumer writes it down. Checkout's contract: price cents, an integer, and sku, a string. Reports' contract: sku, a string. Each lists only the fields it reads, and their types.
+Second demo: consumers write it down. Checkout's contract says: price cents, a whole number, and product code, some text. Reports' contract says: product code, some text. Each lists only the fields it actually reads, and their types.
 
 ## 6. The Provider Checks Itself
 
-Third, the provider checks itself. The catalog's real answer is checked against both contracts. No problems. Safe to release.
+Third demo: the service checks itself. The catalog's real answer is checked against both contracts. No problems. It is safe to release.
 
 ## 7. The Rename Is Caught
 
-Fourth, the rename is caught. The same check on the renamed release reports: checkout expects price cents, an integer, and it is missing. The build fails, and it names the consumer and the field.
+Fourth demo: the rename is caught. The same check runs on the renamed release. It reports: checkout expects price cents, a whole number, and it is missing. The build fails. And it names the consumer, and the field.
 
 ## 8. Adding Is Safe
 
-Fifth, adding is safe, and only the affected are named. A release that adds a stock field: no problems. And the rename again, per consumer: checkout, one problem; reports, none. Reports never used that field.
+Fifth demo: adding is safe. A release adds a new stock field. No problems, because nobody's contract is broken. And the rename again, checked one consumer at a time. Checkout: one problem. Reports: none. Reports never used that field.
 
 ## 9. The Bill
 
-Last, the bill. A release that now sends pounds, not pence, in the same field: no problems. It passes. Checkout, two mugs: total thirty two, where it should be thirty two hundred. A contract checks the shape, and not the meaning. And every consumer must keep its contract up to date, or the check protects nobody.
+Finally, the bill. A new release sends the price in pounds, not pence, in the same field. The field is still there, and still a number. So the check passes. A customer checks out two mugs. The total comes out as thirty-two, when it should be thirty-two hundred pence. A contract checks the shape of the answer, not its meaning. And every consumer must keep its contract up to date. Otherwise the check protects nobody.
 
 ## 10. How To Recognise It
 
-How do you recognise this in code you did not write? Pact files, or Spring Cloud Contract stubs. A provider build that fails with a consumer's name in the message. A consumer test that runs against a stub generated from its own contract. A broker or folder of contracts that the provider's pipeline reads.
+How can you spot this in a system someone else built? Look for contract files from tools like Pact, or Spring Cloud Contract. Look for a service's build that fails with a consumer's name in the message. Look for a consumer test that runs against a fake service, generated from its own contract. Or a shared folder of contracts that the service's build reads.
 
 ## 11. The Verdict
 
-Here is my verdict, plainly. Let consumers state what they use, and let providers check against it before every release. Keep contracts small: only the fields read. Share them where the provider's build can find them. Add tests for meaning where shape is not enough.
+So, here is the verdict. Let consumers state what they use. Let the service check against those contracts before every release. Keep contracts small: only the fields actually read. Keep them where the service's build can find them. And add tests for meaning, where shape is not enough.
 
 ## 12. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is plain Java. Every number quoted comes from this program's own output. Nothing depends on a clock, so every run is the same.
+A quick, honest note about this demo. Everything is plain Java. Every number you heard comes from the program's own output. Nothing depends on a real clock, so every run gives the same result.
 
 ## 13. When This Is Too Much
 
-So when is it too much? If provider and consumer are one team with one release, an ordinary test is enough. Contracts pay off across teams that release apart.
+So, when is this too much? If the service and its consumer belong to one team, released together, an ordinary test is enough. Contracts pay off between teams that release separately.
 
 ## 14. Thanks for Watching
 
-That's Consumer-Driven Contract. If you take one sentence away, take this one: a consumer driven contract lets a provider learn who a change breaks before it ships, and the price is keeping contracts up to date, and their blindness to meaning. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, add a contract for a third consumer that reads the currency, and see it pass. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's the Consumer-Driven Contract pattern. If you remember one sentence, make it this one. A consumer-driven contract tells a service who a change will break before it ships, and the price is keeping contracts up to date, and their blindness to meaning. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Add a contract for a third consumer that reads the currency. And check that it passes. If you found this useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps the channel grow and bring you more content. Thanks for watching!

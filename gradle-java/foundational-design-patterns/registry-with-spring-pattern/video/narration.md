@@ -54,4 +54,4 @@ So, when is this too much? Never, for the context itself, because you already ha
 
 ## 14. Thanks for Watching
 
-That's the Registry, with Spring. If you remember one sentence, make it this one. The registry done well is one you rarely call, and even then, whatever it holds is shared. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Run only the second leak test, on its own. And watch it fail. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.
+That's the Registry, with Spring. If you remember one sentence, make it this one. The registry done well is one you rarely call, and even then, whatever it holds is shared. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Run only the second leak test, on its own. And watch it fail. If you found this useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps the channel grow and bring you more content. Thanks for watching!

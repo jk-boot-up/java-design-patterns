@@ -1,57 +1,57 @@
-# Proxy Pattern — Video Narration Script
+# The Proxy Pattern Pattern — Video Narration Script
 
 ## 1. The Proxy Pattern
 
-Hello, and welcome. This video explains the Proxy pattern in Java, and it is written and presented by Jayasekhar Konduru. Let's start with the simple definition. The proxy pattern puts a stand-in in front of a real object, with the same interface as the real thing. The caller cannot tell the difference, but the stand-in is free to delay the expensive work, check who is asking, or count the calls, before it passes anything along. That's the idea in a sentence — controlling when an object gets built, and who is allowed to touch it. The rest of the video does it properly, by building a real working Java project: an online store's category page, where loading a product's full-resolution image is expensive and not every asset is one a shopper may see. By the end you'll know how to delay expensive work until it is actually needed, and how to put an access check in one place that no caller can forget.
+Hello, and welcome. This video explains the Proxy pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A proxy is a stand-in, placed in front of a real object, with exactly the same shape. The caller cannot tell the difference. But the stand-in can delay expensive work, check who is asking, or count calls, before passing anything along. Think of a bouncer at the door of a club. You ask the bouncer to come in, and the bouncer decides. In our online store, a category page shows product images. Loading a full-size image is expensive. And some images only certain staff may see. By the end, you will know how to delay expensive work until it is needed. And how to put an access check in one place that no caller can forget.
 
 ## 2. The Scenario
 
-So, imagine a product listing backed by full-resolution images. Loading a single one of those is expensive — decoding the file, allocating the memory, reading from disk. And there are two things the listing needs that the image itself really shouldn't have to know anything about. First, don't load an image until it is actually rendered. And second, don't let a non-admin render a restricted image at all.
+Here is the scenario. A product listing uses full-size images. Loading just one is expensive: reading the file, decoding it, and holding it in memory. And the listing needs two things that the image itself should not have to care about. First: do not load an image until it is actually shown. Second: do not let an ordinary shopper see a restricted image at all.
 
 ## 3. Where Those Checks End Up
 
-Without a stand-in, both of those concerns land in the caller. The listing builds every image up front in its constructor, because that's the simplest thing that works. And every screen that shows an image re-implements the same role check inline. Now add a thumbnail grid, a slideshow, a search results page — and each one of those has to remember to do both of those things, and to do them correctly.
+Without a stand-in, both jobs land on the caller. The listing loads every image up front, when it is created, because that is simplest. And every screen that shows an image repeats the same access check. Now add a thumbnail grid, a slideshow, and a search results page. Each one must remember to do both jobs, and do them correctly.
 
 ## 4. The Naive Approach — Eager Loading and Inline Checks
 
-So here's the naive approach. NaiveProductListing takes a list of SKUs and, in its constructor, builds a HighResolutionProductImage for every single one — before anything has been rendered at all. And NaiveAdminImageViewer has the role check written directly inside its view method. That check is correct. The problem is that it's correct in exactly one place, and the next screen has to copy it.
+Here is the naive approach. The naive listing receives a list of product codes. And straight away, it loads a full-size image for every one, before anything is shown. And a separate admin viewer has the access check written directly inside it. That check is correct. But it is correct in only one place. The next screen has to copy it.
 
 ## 5. Why That Hurts
 
-And that does real damage as the system grows. You pay the full loading cost for images that are never shown — build a listing of ten and render one, and nine loads were wasted. The access rule is duplicated in every screen that renders an image. And worse than duplication: a screen that simply forgets the check isn't a compile error, it's a silent security hole. None of this is a bug. Each naive class does exactly what it says. The waste is structural — access control and lifetime management pushed out into every caller.
+That does real damage as the system grows. You pay the full loading cost for images that are never shown. Load a listing of ten, show one, and nine loads were wasted. The access rule is copied into every screen that shows an image. And worse, a screen that forgets the check does not fail to build. It becomes a silent security hole. None of this is a bug. The waste is in the structure: access and timing pushed out into every caller.
 
 ## 6. The Proxy Pattern
 
-The proxy pattern fixes exactly this. In Gang of Four terms, proxy provides a surrogate or placeholder for another object in order to control access to it. In plain language? Same interface, but it decides whether, and when, the call actually gets through.
+The Proxy pattern fixes exactly this. The classic book on design patterns, by the authors known as the Gang of Four, describes it like this. Provide a stand-in, or placeholder, for another object, to control access to it. In plain words: the same shape, but it decides whether, and when, the call gets through.
 
 ## 7. Remember It With the Bouncer on the Door
 
-Here's how to remember it forever. Think about the bouncer on the door of a club. The bouncer stands in front of the club, not inside it. You talk to the bouncer exactly the way you'd talk to the club itself — you ask to come in. And the bouncer decides whether that request gets through. Here's the part that matters. The club is the same club either way. Nothing was added to it, nothing was changed about it. Somebody just controls the door.
+Here is how to remember it. Think about the bouncer at the door of a club. The bouncer stands in front of the club, not inside it. You talk to the bouncer just as you would to the club. You ask to come in. And the bouncer decides whether you get through. Here is the part that matters. The club is the same club either way. Nothing was added to it. Someone just controls the door.
 
 ## 8. The Four Roles
 
-Every proxy setup has four roles. The subject, ProductImage, the interface the real thing and every stand-in share. The real subject, HighResolutionProductImage, the expensive object we're protecting. The proxies — LazyProductImage, which delays construction until the first render call, and RestrictedProductImage, which checks the caller's role first. And the client, ProductImageDemo, which holds only a ProductImage and never learns which of those it actually has. Here's the single most important idea in this whole video. The proxy exposes exactly the same interface as the real subject, and returns exactly the same result. Nothing new is added. That is what makes it a proxy and not a decorator.
+Every proxy has four roles. The subject: the shared interface, here called product image. The real subject: the full-size image, the expensive object being protected. The proxies: a lazy image, which waits until the first time it is shown. And a restricted image, which checks the caller's role first. And the client: the demo code, which only ever holds a product image, and never learns which kind it has. Here is the most important idea in this video. A proxy has exactly the same shape as the real object, and gives exactly the same result. Nothing new is added. That is what makes it a proxy, and not a decorator.
 
 ## 9. The Subject — The Shared Shape
 
-This is the subject, ProductImage. It's the shared interface the real image and every proxy implement — just render, and S K U. And this is the real subject, HighResolutionProductImage. Its constructor bumps a static load count, which is our stand-in for expensive work. Notice it knows nothing about proxies, or roles, or laziness. It just is an image.
+Here is the subject: the product image interface. It has just two questions. Show yourself. And what is your product code? And here is the real subject: the full-size image. Every time one is created, it adds one to a load counter. That counter stands for expensive work. It knows nothing about proxies, roles, or waiting. It just is an image.
 
 ## 10. The Virtual Proxy — Build It Late, Build It Once
 
-And this is the virtual proxy, LazyProductImage. It holds a S K U, and a realImage field that stays null until somebody actually calls render. First call, it builds the real image and caches it. Every call after that reuses the cached one. And look at the S K U method. It answers straight from the proxy's own field, without loading anything. That detail matters — a proxy that has to build the real subject just to answer a cheap question has defeated its own purpose.
+Here is the lazy proxy. It holds a product code, and an empty space for the real image. The first time it is asked to show itself, it loads the real image, and keeps it. Every time after that, it reuses the one it kept. And when asked for its product code, it answers from its own record. Without loading anything. That matters. A proxy that loads the real thing just to answer a cheap question has defeated its own purpose.
 
 ## 11. The Protection Proxy — And Why It Takes a ProductImage
 
-Here's the subtlety worth pausing on. RestrictedProductImage takes a ProductImage in its constructor. Not a HighResolutionProductImage — a ProductImage. That one detail is what lets it wrap a LazyProductImage, so you get the role check and the lazy loading together, from two small classes that were never written with each other in mind. And notice the order. If the role check fails, it throws before it ever calls render on the image it wraps — so a denied shopper never causes a load at all. The expensive work is skipped because the access decision came first.
+Here is a detail worth pausing on: the restricted proxy. It wraps any product image, not just a full-size one. That is what lets it wrap a lazy image. So you get the role check and the lazy loading together. From two small classes that were never written with each other in mind. And notice the order. If the role check fails, it refuses before touching the image it wraps. So a refused shopper never causes a load at all. The expensive work is skipped, because the access decision came first.
 
 ## 12. Running It
 
-When we run the project, the numbers tell the whole story. The naive listing has loaded three images before rendering anything. The virtual proxy has loaded zero — the real subject hasn't been touched. After the first render it's one. After the second render it's still one, because the instance was cached. Then the protection proxy lets an admin through and refuses a shopper. And in the composed section, S K U nine thousand one stays unloaded right up until an admin passes the role check — one proxy wrapped in the other, doing both jobs at once.
+Let's run the project. The naive listing has loaded three images before showing anything. The lazy proxy has loaded none. The real image has not been touched. After the first time it is shown, one image is loaded. After the second time, still only one, because it was kept. Then the restricted proxy lets an admin through, and refuses a shopper. And in the combined example, the restricted image stays unloaded, right up until an admin passes the check. One proxy wrapped in the other, doing both jobs at once.
 
 ## 13. Wrap Up
 
-So, to recap. Use proxy when a client shouldn't have to manage when an object gets created, or whether it's allowed to be used at all. Keep the proxy's interface identical to the subject, and keep the cheap questions cheap — never load the real thing just to answer one. And if you remember one sentence from today, make it this one. Proxy keeps the same interface and delegates in order to control access — when to create, whether to allow, where the real thing lives. Decorator keeps the same interface and delegates in order to add new behaviour on top. Same shape, different intent.
+So, to recap. Use a proxy when the caller should not have to manage when an object is created. Or whether it may be used at all. Keep the proxy's shape identical to the real object. And keep cheap questions cheap. Never load the real thing just to answer one. And one comparison worth knowing. A proxy and a decorator look the same: same shape, passing calls along. But a proxy controls access: when to create, and whether to allow. A decorator adds new behaviour on top. Same shape, different purpose.
 
 ## 14. Thanks for Watching
 
-And that's the proxy pattern. If you got something out of this, do give it a thumbs up, and subscribe. It genuinely helps the channel, and it's what makes more of these possible. And if there's a pattern you'd like me to cover next, drop it in the comments. I read every one. All the source code, the written notes and an interactive animation are in the repository. Thanks for watching, and I'll see you in the next one.
+That's the Proxy pattern. If you remember one sentence, make it this one. A proxy is a stand-in with the same shape as the real thing, deciding when it is built, and who may use it. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Add a third proxy that counts how often each image is shown. And notice the caller does not change. If you found this useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps the channel grow and bring you more content. Thanks for watching!

@@ -291,9 +291,7 @@ SCENES = [
             'one exercise to try. [[slnc 300]] Write a test that saves a '
             'customer, loads it back, and compares every field. [[slnc '
             '300]] It would have caught the missing postcode. [[slnc '
-            '500]] If this helped, a like really does help other people '
-            "find it. [[slnc 300]] And subscribe, if you'd like the rest "
-            'of the series. [[slnc 400]] Thanks for watching.'
+            '500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

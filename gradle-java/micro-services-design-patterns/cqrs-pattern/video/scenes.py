@@ -571,10 +571,7 @@ void apply(ShopEvent event) {
             '300]] Pick a page in your own system. [[slnc 300]] How many '
             'times is it read, for every time its facts change? [[slnc '
             '300]] If that number is small, is a second copy of the data '
-            'really worth keeping? [[slnc 500]] If this helped, a like '
-            'really does help other people find it. [[slnc 300]] And '
-            "subscribe, if you'd like the rest of the series. [[slnc "
-            '400]] Thanks for watching.'
+            'really worth keeping? [[slnc 500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

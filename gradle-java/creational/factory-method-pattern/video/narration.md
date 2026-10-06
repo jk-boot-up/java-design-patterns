@@ -58,4 +58,4 @@ So, to recap. Use a factory method when you have shared steps, with one step tha
 
 ## 15. Thanks for Watching
 
-That's the Factory Method pattern. If you remember one sentence, make it this one. Write the shared steps once, leave a gap, and let each subclass fill it. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. If there is a pattern you would like to see covered, suggest it in the comments. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.
+That's the Factory Method pattern. If you remember one sentence, make it this one. Write the shared steps once, leave a gap, and let each subclass fill it. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. If there is a pattern you would like to see covered, suggest it in the comments. If you found this useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps the channel grow and bring you more content. Thanks for watching!

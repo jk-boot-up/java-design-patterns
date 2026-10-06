@@ -477,9 +477,7 @@ void stepsRunInTheOrderTheTemplateDefines() {
             'between validate and reserve. [[slnc 300]] Add it first to '
             'the template, and then to the three hand-written copies. '
             '[[slnc 300]] And count how many edits each one takes. [[slnc '
-            '500]] If this helped, a like really does help other people '
-            "find it. [[slnc 300]] And subscribe, if you'd like the rest "
-            'of the series. [[slnc 400]] Thanks for watching.'
+            '500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

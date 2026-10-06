@@ -396,9 +396,7 @@ new PasswordResetNotification(email, "384920").send("alex@example.com");
             'kit. [[slnc 500]] Here is one exercise to try. [[slnc 300]] '
             'Add a back-in-stock alert. [[slnc 300]] And check that it '
             'works on all three channels, with no other change. [[slnc '
-            '500]] If this helped, a like really does help other people '
-            "find it. [[slnc 300]] And subscribe, if you'd like the rest "
-            'of the series. [[slnc 400]] Thanks for watching.'
+            '500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

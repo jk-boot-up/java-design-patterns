@@ -1,57 +1,57 @@
-# Decorator Pattern — Video Narration Script
+# The Decorator Pattern Pattern — Video Narration Script
 
 ## 1. The Decorator Pattern
 
-Hello, and welcome. This video explains the Decorator pattern in Java, and it is written and presented by Jayasekhar Konduru. Let's start with the simple definition. The decorator pattern adds behaviour to an object by wrapping it in another object with the same interface. Each wrapper does its own small piece of work and then passes the call along, so features can be combined at runtime, in any order, without writing a class for every combination. That's the idea in a sentence. The rest of the video does it properly, by building a real working Java project: checkout pricing in an online store, with stackable extras like gift wrapping and insurance. By the end you'll know how to make any combination of optional features work together, in any order, with one small class per feature.
+Hello, and welcome. This video explains the Decorator pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. The Decorator pattern adds behaviour to an object by wrapping it in another object with the same shape. Each wrapper does its own small job, and then passes the call along. So features can be combined while the program runs, in any order, without a class for every combination. Think of dressing for the weather, one layer at a time. In our online store, checkout pricing has optional extras, like gift wrapping and insurance. By the end, you will know how to make any combination of optional features work together, with one small class per feature.
 
 ## 2. The Scenario
 
-So, imagine checkout pricing for an online store. A product has a base price, but customers can add optional extras: gift wrapping, shipment insurance, and express handling. And any combination of these should be selectable — gift wrap alone, insurance alone, all three together, or none at all.
+Here is the scenario. A product has a base price. But customers can add optional extras. Gift wrapping, shipping insurance, and express handling. Any combination should be possible. Gift wrap alone, insurance alone, all three together, or none.
 
 ## 3. One Class Per Combination
 
-The obvious first move is a class for each combination you need today. Two optional features already need up to three classes — one for gift wrap, one for insurance, one for both together. Add a third feature, express handling, and covering every combination needs four more classes on top of that.
+The obvious first move is a class for each combination. Two optional features already need three classes. One for gift wrap, one for insurance, and one for both. Add a third feature, express handling, and you need four more classes to cover every combination.
 
 ## 4. The Naive Approach — One Class Per Combination
 
-So here's the naive approach. NaiveGiftWrappedInsuredProduct adds a flat gift-wrap fee, then computes an insurance premium on top of that. And here's the problem. Both the gift-wrap fee and the insurance premium calculation are already duplicated from the single-feature classes elsewhere in the codebase — copy-pasted, not shared.
+Here is the naive approach. One class handles a gift-wrapped, insured product. It adds a fixed gift-wrap fee. Then it works out an insurance charge on top. And here is the problem. The gift-wrap fee, and the insurance calculation, are both copied from the single-feature classes. Copied and pasted, not shared.
 
 ## 5. Why That Hurts
 
-And that does real damage as the system grows. The number of classes grows combinatorially — four optional features would need fifteen classes just to cover every subset. Every fee calculation is copy-pasted into every class that needs that feature. Fix a pricing bug, like changing the insurance rate, and you have to hunt down every copy individually. None of this is a bug — each naive class computes a correct price. The waste is structural: combinable behavior modeled as a fixed set of subclasses.
+That does real damage as the system grows. The number of classes explodes. Four optional features would need fifteen classes, just to cover every mix. And every fee calculation is copied into every class that needs it. Fix a pricing bug, like changing the insurance rate, and you must find every copy. None of this is a bug. Each naive class gives the correct price. The waste is in the structure.
 
 ## 6. The Decorator Pattern
 
-The decorator pattern fixes exactly this. In Gang of Four terms, decorator attaches additional responsibilities to an object dynamically, providing a flexible alternative to subclassing for extending functionality. In plain language? Wrap it, don't subclass it.
+The Decorator pattern fixes exactly this. The classic book on design patterns, by the authors known as the Gang of Four, describes it like this. Attach extra responsibilities to an object while the program runs. A flexible alternative to creating subclasses. In plain words: wrap it, do not subclass it.
 
 ## 7. Remember It With Dressing for Weather
 
-Here's how to remember it forever. Think about dressing for weather. A base shirt can have a sweater put on over it, and a raincoat put on over the sweater. Each layer adds its own effect — warmth, then water resistance. The shirt never needs to know a raincoat exists, and the raincoat never needs to know what's underneath it. You can wear any subset of layers, in any order, without owning a distinct garment for every combination.
+Here is how to remember it. Think about dressing for the weather. Put a jumper over your shirt. Then a raincoat over the jumper. Each layer adds its own effect: first warmth, then keeping dry. The shirt does not need to know the raincoat exists. And the raincoat does not care what is underneath. You can wear any mix of layers, in any order. Without owning a separate garment for every combination.
 
 ## 8. The Four Roles
 
-Every decorator setup has four roles. The component, PricedItem, the interface both plain and decorated products share. The concrete component, Product, a plain item with no extras. The abstract decorator, ProductDecorator, which implements the component and holds another component by composition. And the concrete decorators — GiftWrapDecorator, InsuranceDecorator, ExpressHandlingDecorator — each adding exactly one fee. Here's the single most important idea in this whole video. Every decorator exposes exactly the same interface as the thing it wraps, so decorators nest arbitrarily deep, and the client never has to know how many layers it's calling into.
+Every decorator has four roles. The component: the shared interface that plain and decorated products both follow. Here, it is called priced item. The concrete component: a plain product, with no extras. The abstract decorator: it follows the same interface, and holds another priced item inside it. And the concrete decorators: gift wrap, insurance, and express handling. Each adds exactly one charge. Here is the most important idea in this video. Every decorator has exactly the same shape as the thing it wraps. So decorators can be nested as deep as you like. And the caller never needs to know how many layers there are.
 
 ## 9. The Component — The Shared Shape
 
-This is the component, PricedItem. It's the shared interface both plain products and decorated products implement — just cost, and description. And this is the concrete component, Product. A plain item with a name and a price, no extras, no decorators involved at all.
+Here is the component, the priced item interface. It is shared by plain products and decorated ones. It has just two questions: what is your cost, and what is your description? And here is the concrete component: a plain product. A name and a price, with no extras at all.
 
 ## 10. A Concrete Decorator — Delegate, Then Add
 
-And this is a concrete decorator, InsuranceDecorator. It extends ProductDecorator, which holds a wrapped PricedItem by composition. cost calls wrapped-dot-cost first, then adds a two percent premium on top of whatever comes back. It has no idea whether wrapped is a plain Product or another decorator underneath it.
+Here is one concrete decorator: insurance. It holds a wrapped priced item inside it. When asked for its cost, it first asks the wrapped item for its cost. Then it adds a two percent insurance charge on top. It has no idea whether the wrapped item is a plain product, or another decorator.
 
 ## 11. Stacking Order Changes the Result
 
-Here's the subtlety worth pausing on. Because InsuranceDecorator prices a percentage of whatever it wraps, wrapping order changes the total. Gift-wrap then insure comes to eighty five dollars and sixteen cents, because the premium includes the gift-wrap fee. Insure then gift-wrap comes to eighty five dollars and nine cents, because the flat fee is added after insurance is already computed. Both are legitimate prices for different policies — decorator makes that an explicit, visible choice, not a decision buried in one combination class.
+Here is a detail worth pausing on. Insurance charges a percentage of whatever it wraps. So the order of wrapping changes the total. Gift wrap first, then insure: eighty-five dollars sixteen. Because the insurance also covers the gift-wrap fee. Insure first, then gift wrap: eighty-five dollars nine. Because the fixed fee is added after the insurance is worked out. Both are fair prices, for two different policies. The Decorator pattern makes that choice clear and visible. Instead of burying it inside one combination class.
 
 ## 12. Running It
 
-When we run the project, each decorator stacks cleanly on top of the last, one feature at a time, up to ninety five dollars and fifteen cents with all three extras. Reverse the gift-wrap and insurance order and the total shifts to eighty five dollars and nine cents — exactly the difference we just walked through. And down at the bottom, the naive combination class produces the exact same number as the matching decorator stack — it isn't wrong, it's just one more class than the pattern ever needed.
+Let's run the project. Wireless headphones cost seventy-nine dollars ninety-nine. With gift wrap, eighty-three forty-nine. Then insured, eighty-five sixteen. Then with express handling, ninety-five fifteen. Swap the gift-wrap and insurance order, and the total becomes eighty-five dollars nine. Exactly the difference we just described. And the naive combination class gives the same number as the matching stack of decorators. It is not wrong. It is just one more class than the pattern needs.
 
 ## 13. Wrap Up
 
-So, to recap. Use decorator when optional, combinable behavior would otherwise mean one class per combination. Keep every decorator's interface identical to the component it wraps — the moment a decorator adds a new method, callers can no longer treat it interchangeably with the plain component. And if you remember one sentence from today, make it this one. Decorator keeps the same interface in and out so wrapped and unwrapped objects stay interchangeable. Adapter deliberately changes the interface to reconcile two shapes that disagree.
+So, to recap. Use a decorator when optional, combinable features would otherwise need a class for every combination. Keep every decorator's shape identical to the thing it wraps. The moment a decorator adds a new method, callers can no longer treat it like the plain item. And one comparison worth knowing. A decorator keeps the same shape, so wrapped and unwrapped items can be swapped. The Adapter pattern deliberately changes the shape, to fit two things that disagree.
 
 ## 14. Thanks for Watching
 
-And that's the decorator pattern. If you got something out of this, do give it a thumbs up, and subscribe. It genuinely helps the channel, and it's what makes more of these possible. And if there's a pattern you'd like me to cover next, drop it in the comments. I read every one. All the source code, the written notes and an interactive animation are in the repository. Thanks for watching, and I'll see you in the next one.
+That's the Decorator pattern. If you remember one sentence, make it this one. Wrap an object in layers with the same shape, one feature per layer, instead of writing a class for every combination. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Add a fourth extra, like a gift message. And notice you only need one new class. If you found this useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps the channel grow and bring you more content. Thanks for watching!

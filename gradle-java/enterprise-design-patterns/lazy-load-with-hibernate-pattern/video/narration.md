@@ -58,4 +58,4 @@ So, when is lazy loading too much? If you almost always need the related data, i
 
 ## 15. Thanks for Watching
 
-That's Lazy Load with Hibernate. If you remember one sentence, make it this one. A lazy field is a promise, and it needs an open session to keep it. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a batch size setting to the order lines. Then count the queries again. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.
+That's Lazy Load with Hibernate. If you remember one sentence, make it this one. A lazy field is a promise, and it needs an open session to keep it. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a batch size setting to the order lines. Then count the queries again. If you found this useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps the channel grow and bring you more content. Thanks for watching!

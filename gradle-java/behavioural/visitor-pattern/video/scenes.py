@@ -530,10 +530,7 @@ void aVisitorSeesTheWholeTree() {          // the cost, asserted
             '300]] Add a gift card item type. [[slnc 300]] Then fix every '
             'visitor the compiler complains about. [[slnc 300]] And count '
             'how many needed a real rule, and how many just got an empty '
-            'method. [[slnc 500]] If this helped, a like really does help '
-            "other people find it. [[slnc 300]] And subscribe, if you'd "
-            'like the rest of the series. [[slnc 400]] Thanks for '
-            'watching.'
+            'method. [[slnc 500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

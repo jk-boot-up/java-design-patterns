@@ -527,10 +527,7 @@ return running;
             'bug a different way. [[slnc 300]] Instead of changing how '
             'the log is read, add a new event that takes the extra points '
             'back. [[slnc 300]] Then ask: which repair would you rather '
-            'explain to an auditor? [[slnc 500]] If this helped, a like '
-            'really does help other people find it. [[slnc 300]] And '
-            "subscribe, if you'd like the rest of the series. [[slnc "
-            '400]] Thanks for watching.'
+            'explain to an auditor? [[slnc 500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

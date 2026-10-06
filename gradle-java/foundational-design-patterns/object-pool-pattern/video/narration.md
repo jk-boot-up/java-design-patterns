@@ -58,4 +58,4 @@ So, when is a pool too much? For anything that is cheap to create. Which is near
 
 ## 15. Thanks for Watching
 
-That's the Object Pool pattern. If you remember one sentence, make it this one. Pool what is expensive outside Java, and nothing else. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Change the receipt so it holds a large array. Then see whether the winner changes, and work out why. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.
+That's the Object Pool pattern. If you remember one sentence, make it this one. Pool what is expensive outside Java, and nothing else. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Change the receipt so it holds a large array. Then see whether the winner changes, and work out why. If you found this useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps the channel grow and bring you more content. Thanks for watching!

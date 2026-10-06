@@ -1,163 +1,61 @@
-# Video Narration Script
+# The Flyweight Pattern Pattern — Video Narration Script
 
-Narration for the Flyweight pattern teaching video. Each scene below maps to
-one slide. The narration is spoken by macOS `Samantha`, a female US English
-voice, at 145 words per minute.
+## 1. The Flyweight Pattern
 
-Total scenes: 15. Approximate runtime: about 7 minutes.
+Hello, and welcome. This video explains the Flyweight pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. The Flyweight pattern stops you paying for the same data twice. The parts of an object that are identical across thousands of copies are stored once, and shared. And the parts that differ are passed in, at the moment they are needed. Think of a rubber stamp. One stamp, used again and again, in a different place each time. In our online store, we look at the small badges shown on product listings. By the end, you will know what a flyweight is, what shared and passed-in state mean, and how to write one yourself.
 
-The first and last scenes carry the channel branding: scene 1 credits
-the author out loud over the poster, and the final scene asks for the
-thumbs up and the subscribe.
+## 2. The Scenario
 
-The script is written to be spoken rather than read, and carries `[[slnc NNN]]`
-pause markers in [`scenes.py`](scenes.py) that insert NNN milliseconds of
-silence. Those are instructions to the synthesiser, not words: they are
-stripped from the text below and from the subtitles.
+Here is the scenario. The store lists one hundred thousand products. Every listing shows a small badge in the corner. New. Sale. Bestseller. Or low stock. Notice this already. There are only four different badge designs. But a hundred thousand listings each need one.
 
----
+## 3. What a Badge Design Actually Is
 
-## Scene 1 — The Flyweight Pattern
+Here is what makes up one badge design. An icon. A background colour. A text colour. Whether the text is bold. And a picture, sixty-four kilobytes in size. And here is the key point. Every sale badge in the whole catalog looks exactly the same. Same icon, same colours, same picture. Only the listing underneath it changes.
 
-Hello, and welcome. This video explains the Flyweight pattern in Java, and
-it is written and presented by Jayasekhar Konduru. Let's start with the
-simple definition. The flyweight pattern stops you paying for the same data
-twice. The parts of an object that are identical across thousands of
-instances are stored once and shared between all of them, and everything
-that actually differs is passed in from outside at the moment it is needed.
-That's the idea in a sentence, and it's a pattern that only shows up once
-your object count gets large. The rest of the video does it properly, by
-building a real working Java project: badge rendering across an e-commerce
-catalog. By the end you'll know what a flyweight is, what intrinsic and
-extrinsic state actually mean, and how to write one yourself.
+## 4. The Naive Approach — One Badge Object Per Listing
 
-## Scene 2 — The Scenario
+Here is the naive approach. Every time a badge is made for a listing, a brand new sixty-four-kilobyte picture is created. And the icon and colours are rebuilt from scratch. That happens once per listing. One hundred thousand times. So every sale badge holds its own private copy of exactly the same data.
 
-So, imagine an online store with one hundred thousand product listings.
-Every single listing shows a small badge in the corner. New. Sale.
-Bestseller. Low stock. Here's the thing to notice already. There are only
-four distinct badge designs in the whole catalog. But a hundred thousand
-listings each need one drawn.
+## 5. Why That Hurts
 
-## Scene 3 — What a Badge Design Actually Is
+That does real damage, to memory. One hundred thousand listings, each with a sixty-four-kilobyte picture, adds up to about six gigabytes. For just four different designs. Almost every one of those bytes is a duplicate. And Java's memory cleaner has to work through all those repeated copies. To be clear, no single badge is wrong. Each one displays correctly. The waste is in the structure, not a bug.
 
-Look at what actually makes up one badge design. An icon. A background
-colour. A text colour. Whether it's bold. And a rendered artwork bitmap,
-sixty four kilobytes. And here's the key observation. Every single SALE
-badge in the entire catalog looks completely identical. Same icon, same
-colours, same artwork. Only the listing underneath it changes.
+## 6. The Flyweight Pattern
 
-## Scene 4 — The Naive Approach — One Badge Object Per Listing
+The Flyweight pattern fixes exactly this. The classic book on design patterns, by the authors known as the Gang of Four, describes it like this. Use sharing to support large numbers of small objects efficiently. By separating the state that is shared, called intrinsic, from the state the caller supplies, called extrinsic. In plain words: stop paying for the same data twice.
 
-So here's the naive approach. Every time we build a badge for a listing, we
-allocate a brand new sixty four kilobyte artwork array, and we rebuild the
-icon and the colours from scratch, based on a switch over the type. That
-constructor runs once per listing. One hundred thousand times. And every
-single SALE badge ends up holding its own private, identical copy of the
-exact same data.
+## 7. Remember It With a Rubber Stamp
 
-## Scene 5 — Why That Hurts
+Here is how to remember it. Think about a rubber stamp. The stamp carries its ink and its shape. That never changes, however many times you use it. But where you press it on the page is different every time. The stamp is the flyweight. It is shared. The position on the page is extrinsic. You supply it fresh, each time.
 
-And that does real damage, purely on memory. One hundred thousand listings,
-each with a sixty four kilobyte artwork, comes to roughly six point two
-five gigabytes. For four distinct designs. Every one of those bytes past
-the first four copies is a pure duplicate. And the garbage collector has to
-work through all those repeated allocations. To be clear, no individual
-badge object is wrong. It renders correctly. The waste is structural, not a
-bug.
+## 8. The Four Roles
 
-## Scene 6 — The Flyweight Pattern
+Every flyweight has four roles. The flyweight itself: here, the badge style. The factory: the only place a badge style is ever built. The context: a catalog badge, cheap and plentiful, one per listing. And the client: the demo code, which asks the factory for styles. Here is the most important idea in this video. The factory hands out the same shared style to everyone who asks for the same type. One badge style object. A hundred thousand listings pointing at it.
 
-The flyweight pattern fixes exactly this. And the definition, in Gang of
-Four terms, is that a flyweight uses sharing to support large numbers of
-fine grained objects efficiently, by factoring out state that is shared,
-called intrinsic, from state supplied by the caller, called extrinsic. In
-plain language? Stop paying for the same data twice.
+## 9. The Flyweight — Only Intrinsic State, No Setters
 
-## Scene 7 — Remember It With a Rubber Stamp
+Here is the flyweight: the badge style. Everything it holds is shared state. The icon, the colours, the bold setting, and the picture. Identical for every sale badge, whichever listing asks. Now look at how it draws itself. The listing's I D, and any custom label, are passed in each time. That is the extrinsic state, and it is never stored on the shared object. And the style can never be changed after it is built, on purpose. Changing a shared object would change every listing that uses it.
 
-Here's how to remember it forever. Think about a rubber stamp. The stamp
-itself carries fixed ink, and a fixed shape. That never changes, no matter
-how many times you use it. But where you press it down on the page? That's
-different every single time. The stamp is the flyweight. It gets shared.
-The position on the page is extrinsic. You supply it fresh, every time you
-stamp.
+## 10. The Factory — computeIfAbsent Does All the Work
 
-## Scene 8 — The Four Roles
+Here is the factory. It keeps a small cache, one entry per badge type. The first time anyone asks for the sale style, it is built, and stored in the cache. Every request after that, for any listing, gets back that exact same object. The cache is a map built for many threads at once. So it is safe to use from anywhere, with no extra locking.
 
-Every flyweight setup has four roles. The flyweight itself, which here is
-BadgeStyle. The flyweight factory, BadgeStyleFactory, which is the only
-place a BadgeStyle ever gets built. The context, CatalogBadge, which is
-cheap and plentiful, one per listing. And the client, BadgeDemo, which asks
-the factory for styles. Here's the single most important idea in this
-whole video. The factory hands out the same shared instance to every
-caller asking for the same type. One BadgeStyle object. A hundred thousand
-listings pointing at it.
+## 11. What the Flyweight Gives You
 
-## Scene 9 — The Flyweight — Only Intrinsic State, No Setters
+So the flyweight gives us three things. Sharing: one badge style per type, not per listing. Safety: a thread-safe cache, with no locks to write ourselves. And separation: shared data stored, and per-listing data passed in, never mixed. Now notice what the badge style does not contain. Nothing about any particular listing. A flyweight shares. It never remembers who asked.
 
-This is the flyweight itself, BadgeStyle. Every field on it — the icon, the
-colours, the bold flag, the artwork — is intrinsic. Identical for every
-SALE badge, no matter which listing is asking. And look closely at render.
-listingId and customLabel arrive as parameters, not fields. That's
-extrinsic state, supplied fresh by the caller every time, and never stored
-on the shared object. There are no setters here, on purpose. Mutating a
-shared instance would corrupt every listing sharing it.
+## 12. The Client — This Is the Whole Thing
 
-## Scene 10 — The Factory — computeIfAbsent Does All the Work
+Here is the context object: the catalog badge. When it is created, it does not build a style. It asks the factory for one, and keeps a reference to the shared style. It only owns two things itself: the listing I D, and an optional custom label. Everything else, it borrows. So you can create a hundred thousand catalog badges. And behind them, just four badge styles do all the heavy lifting.
 
-And this is the factory. One line does the entire pattern's work. Cache
-dot computeIfAbsent, keyed by badge type. The very first time anyone asks
-for SALE, the lambda runs, build constructs a brand new BadgeStyle, and it
-goes into the cache. Every single call after that — for any listing, from
-any thread — finds SALE already there, and gets back that exact same
-instance. Using a ConcurrentHashMap means this is safe under concurrent
-access with no extra locking at all.
+## 13. Running It
 
-## Scene 11 — What the Flyweight Gives You
+Let's run the project. Ask the factory for the sale style twice, and you get the very same object, both times. Two different listings share one style. Only four badge styles were ever created. Now the naive version. Two identical sale badges are two separate objects. And the memory numbers. About six gigabytes with the naive version. About two hundred and fifty-six kilobytes with the flyweight. Just by sharing four objects, instead of a hundred thousand.
 
-So the flyweight is giving us three things. Sharing — one BadgeStyle per
-badge type, not per listing. Correctness — thread-safe caching, with no
-locks we had to write ourselves. And separation — intrinsic fields and
-extrinsic parameters, cleanly kept apart. Now notice what it doesn't
-contain. There is no per-listing state anywhere on BadgeStyle. A flyweight
-shares. It never remembers who asked.
+## 14. Wrap Up
 
-## Scene 12 — The Client — This Is the Whole Thing
+So, to recap. Use a flyweight when you have a huge number of objects, and most of each one's data repeats. Store shared data inside the flyweight. Pass per-use data in, each time. And never let a flyweight be changed. It is only worth it at scale. Five listings do not need a cache. And one comparison worth knowing. The Prototype pattern hands out copies. A flyweight hands out the same object, again and again.
 
-And here's the context object that ties it together, CatalogBadge. Its
-constructor doesn't build a style. It asks the factory for one, and holds
-a shared reference. It owns exactly two things itself: the listing id and
-an optional custom label. Everything else, it borrows. So you can create a
-hundred thousand of these CatalogBadge objects, and behind them, as few as
-four actual BadgeStyle instances doing all the heavy lifting.
+## 15. Thanks for Watching
 
-## Scene 13 — Running It
-
-When we run the project, the proof is right there in the output. styleFor
-SALE, called twice, returns true for equals equals — the exact same
-object, both times. Two different listings share one style instance. Now
-compare that to the naive alternative. naive A equals naive B, for two
-identical SALE badges, is false. Same input, opposite identity. And at the
-bottom, the arithmetic that makes it matter. Six thousand two hundred fifty
-megabytes, down to two hundred fifty six kilobytes, just by sharing four
-instances instead of a hundred thousand.
-
-## Scene 14 — Wrap Up
-
-So, to recap. Use a flyweight when your object count is huge, and most of
-each object's state repeats across instances. Keep intrinsic state as
-fields, extrinsic state as parameters, and never give a flyweight a
-setter. And remember, this pattern is only worth it at scale — five
-listings do not need a cache. And if you remember one sentence from today,
-make it this one. Prototype hands out copies. Flyweight hands out the same
-instance, again and again.
-
-## Scene 15 — Thanks for Watching
-
-And that's the flyweight pattern. If you got something out of this, do
-give it a thumbs up, and subscribe. It genuinely helps the channel, and
-it's what makes more of these possible. And if there's a pattern you'd
-like me to cover next, drop it in the comments. I read every one. All the
-source code, the written notes and an interactive animation are in the
-repository. Thanks for watching, and I'll see you in the next one.
+That's the Flyweight pattern. If you remember one sentence, make it this one. Store the shared part once, pass the changing part in, and a hundred thousand objects can share four. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. It runs offline, with nothing installed except a Java development kit. Here is one exercise to try. Add a fifth badge type, like free delivery. And check that still only one style is built for it. If you found this useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps the channel grow and bring you more content. Thanks for watching!

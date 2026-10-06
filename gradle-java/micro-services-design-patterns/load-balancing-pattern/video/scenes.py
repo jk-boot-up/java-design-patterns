@@ -556,10 +556,7 @@ SCENES = [
             'copy once. [[slnc 300]] Then run the tests. [[slnc 300]] One '
             'test fails, and its name tells you what you broke. [[slnc '
             '300]] Ask yourself: what does the balancer now believe about '
-            'a machine it has never called? [[slnc 500]] If this helped, '
-            'a like really does help other people find it. [[slnc 300]] '
-            "And subscribe, if you'd like the rest of the series. [[slnc "
-            '400]] Thanks for watching.'
+            'a machine it has never called? [[slnc 500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

@@ -375,10 +375,7 @@ SCENES = [
             'in the repository. [[slnc 500]] Here is one exercise to try. '
             '[[slnc 300]] Remove the error handler from the broken fraud '
             'check, and run it again. [[slnc 300]] Then find out where '
-            'the order went. [[slnc 500]] If this helped, a like really '
-            'does help other people find it. [[slnc 300]] And subscribe, '
-            "if you'd like the rest of the series. [[slnc 400]] Thanks "
-            'for watching.'
+            'the order went. [[slnc 500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

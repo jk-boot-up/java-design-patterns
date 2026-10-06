@@ -102,37 +102,37 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <main>
 <h1>Retry with Resilience4j Pattern — Video Narration Script</h1>
 <h2>1. Retry with Resilience4j</h2>
-<p>Hello, and welcome. This video explains the Retry with Backoff pattern with Resilience4j, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the Retry with Backoff video. That one retried a flaky payment gateway with a growing wait between attempts, and showed why a retry is safe only when the failure is temporary and doing the operation twice cannot do it twice. This one shows the same idea inside Resilience4j. The plain definition, in short: in Resilience4j, a retry is an annotation on a method, and the attempts and the waits are configuration. By the end you will see the retry as an annotation and four settings, then see the three ways it goes wrong: retrying what should not be retried, charging twice, and retries that multiply.</p>
+<p>Hello, and welcome. This video explains the Retry with Backoff pattern in Java, using a library called Resilience four J. This video is presented by Jayasekhar Konduru. First, a simple definition. When a call fails for a reason that might not happen again, you try again. Each time, you wait a little longer first. And you only do it if doing the job twice cannot do it twice. In Resilience four J, a retry is an annotation on a method. The number of attempts, and the waits, are settings. In our online store, checkout calls a flaky payment gateway. By the end, you will hear the retry built from one annotation and a few settings. Then the three ways it goes wrong. Retrying what should not be retried. Charging a customer twice. And retries that multiply.</p>
 <h2>2. The Partner Project</h2>
-<p>This video assumes the Retry with Backoff video. If you have not seen it, start there. It retries a flaky payment gateway, waiting longer each time, and shows that a retry is safe only when the failure is temporary and doing the operation twice cannot do it twice. This one uses the same example. It does not teach the pattern again. It shows what Resilience4j does with it.</p>
+<p>This video builds on the plain Java Retry with Backoff video. If you have not seen it, start there. That video retries a flaky payment gateway, waiting longer each time. And it shows that a retry is only safe when the failure is temporary. And when doing the operation twice cannot do it twice. This video uses the same example. It does not teach the pattern again. It shows what Resilience four J does with it.</p>
 <h2>3. Before The First Line</h2>
-<p>Before the first line of code, what Resilience4j is. Resilience4j is a library of resilience patterns for Java. It contains a retry with configurable waits and exception lists, and a Spring Boot module that turns it into an annotation. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.</p>
+<p>Before any code, what is Resilience four J? It is a library of resilience patterns for Java. It includes a retry, with settings for the waits, and lists of which errors to retry. It also has a Spring Boot module that turns the retry into an annotation. And a promise. Skipping this video loses none of the pattern. The plain Java video teaches all of it.</p>
 <h2>4. A Flaky Call, Retried</h2>
-<p>First, the good case. The gateway times out twice. The third attempt works. The caller receives a receipt, and never sees the two failures. Three calls reached the gateway.</p>
+<p>First demo: the good case. The gateway times out twice. The third attempt works. The caller receives a receipt. And it never sees the two failures. Three calls reached the gateway.</p>
 <h2>5. Backoff</h2>
-<p>Second, backoff. Before the first retry, one millisecond. Before the second, two. Each wait doubles. In production the numbers would be larger, but the shape is the same. A struggling gateway is given room to recover.</p>
+<p>Second demo: backoff. Before the first retry, the wait is one millisecond. Before the second, two milliseconds. Each wait doubles. In a real system, the numbers would be bigger, but the shape is the same. A struggling gateway is given room to recover.</p>
 <h2>6. Giving Up</h2>
-<p>Third, giving up. If the gateway never answers, the retry stops after three attempts. The caller gets the timeout exception. A retry has to end, and this is how.</p>
+<p>Third demo: giving up. This time, the gateway never answers. The retry stops after three attempts. And the caller gets the timeout error. A retry has to end somewhere. And this is how.</p>
 <h2>7. Not Everything Is Worth Retrying</h2>
-<p>Fourth, what to retry. A declined card will decline again. With a list that retries only timeouts, there is one attempt. With the default, which retries everything, there are three. Three attempts against a card that will not change its mind, and a customer waiting.</p>
+<p>Fourth demo: what is worth retrying? A declined card will be declined again. With a setting that retries only timeouts, there is one attempt. With the default, which retries every error, there are three. Three attempts, against a card that will not change its mind. And a customer left waiting.</p>
 <h2>8. A Retry Can Charge Twice</h2>
-<p>Fifth, the danger the partner video warned about. The charge went through, but the answer was lost, so the retry charged again. Without a key, two charges of forty nine ninety nine. With an idempotency key, the gateway recognises the repeat and charges once. The library cannot supply this. You must.</p>
+<p>Fifth demo: the danger the plain Java video warned about. The charge went through, but the reply was lost. So the retry charged again. Without a key, there are two charges of forty-nine pounds ninety-nine. With an idempotency key, the gateway recognises the repeat. And it charges only once. The library cannot supply that key. You must.</p>
 <h2>9. Retries Multiply</h2>
-<p>Last, layers. Checkout has a retry, and so does the payments client below it. Three attempts, each making three. One customer and one dead gateway make nine calls. Add a third layer and it is twenty seven. Retry in one layer only, and choose which.</p>
+<p>Last demo: retries in layers. Checkout has a retry. And the payment client underneath it also has one. Checkout makes three attempts. And each of those makes three attempts of its own. So one customer and one dead gateway make nine calls. Add a third layer, and it is twenty-seven. So retry in one layer only, and choose which one.</p>
 <h2>10. The Verdict</h2>
-<p>My verdict, plainly. Retry only temporary failures. Send an idempotency key with every call that changes something. Retry in one layer, not two. And keep the attempts and the waits small.</p>
+<p>So, here is the verdict. Retry only temporary failures. Send an idempotency key with every call that changes something. Retry in one layer, not two. And keep the number of attempts, and the waits, small.</p>
 <h2>11. How To Recognise It</h2>
-<p>How do you recognise this in code you did not write? A retry annotation with a name. Settings under resilience four j retry. And retry exceptions or ignore exceptions lists.</p>
+<p>How can you spot this in code someone else wrote? Look for a retry annotation, with a name. Look for retry settings in the configuration file. And look for lists of which errors to retry, and which to ignore.</p>
 <h2>12. Where You Have Met This</h2>
-<p>You have met this in any Spring service that calls a payment, email or shipping provider over the network.</p>
+<p>Where have you met this before? In any Spring service that calls a payment, email, or shipping provider over the network.</p>
 <h2>13. What Was Used</h2>
-<p>For the record. Spring Boot four point one point one. Resilience four j two point four point zero. No web server, and no web starter.</p>
+<p>For the record, here is what was used. Spring Boot, version four point one point one. Resilience four J, version two point four point zero. There is no web server, and no web starter.</p>
 <h2>14. What Is Real Here</h2>
-<p>The same honest admission as everywhere in this course. Everything is real: the real retry and the real annotation. The waits are one and two milliseconds, and the values shown are the ones Resilience4j chose, not measured.</p>
+<p>A quick, honest note about this demo. Everything is real: the real retry, and the real annotation. The waits are only one and two milliseconds. And the values you heard are the ones Resilience four J chose, not measured times.</p>
 <h2>15. When This Is Too Much</h2>
-<p>So when is it too much? For a failure that will not go away, a retry only delays the error.</p>
+<p>So, when is this too much? For a failure that will not go away, a retry only delays the error.</p>
 <h2>16. Thanks for Watching</h2>
-<p>That&#x27;s Retry with Resilience4j. If you take one sentence away, take this one: Resilience4j gives you the retry as configuration, and safety is still your decision. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, remove the retry from the checkout layer, and rerun act six. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.</p>
+<p>That&#x27;s Retry, with Resilience four J. If you remember one sentence, make it this one. Resilience four J gives you the retry as settings, but deciding whether it is safe is still your job. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Remove the retry from the checkout layer. Then run the last demo again, and count the calls. If you found this useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps the channel grow and bring you more content. Thanks for watching!</p>
 </main>
 <footer>
 Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;

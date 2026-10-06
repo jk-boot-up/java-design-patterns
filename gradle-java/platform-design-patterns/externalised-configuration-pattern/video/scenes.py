@@ -642,10 +642,7 @@ Act 9 - a rollback as fast as the change
             '[[slnc 300]] Run the demo again. [[slnc 300]] Now minus one '
             'is accepted, and delivery is given away, even with checking '
             'switched on. [[slnc 300]] The type was never the protection. '
-            '[[slnc 300]] The range is. [[slnc 500]] If this helped, a '
-            'like really does help other people find it. [[slnc 300]] And '
-            "subscribe, if you'd like the rest of the series. [[slnc "
-            '400]] Thanks for watching.'
+            '[[slnc 300]] The range is. [[slnc 500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

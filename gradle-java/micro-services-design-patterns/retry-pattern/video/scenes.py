@@ -553,10 +553,7 @@ if (existing != null) {
             'run the tests. [[slnc 300]] One test fails, and its name '
             'tells you what you broke. [[slnc 500]] Then ask yourself: in '
             'a code review on a Friday afternoon, would anyone have '
-            'caught it? [[slnc 500]] If this helped, a like really does '
-            'help other people find it. [[slnc 300]] And subscribe, if '
-            "you'd like the rest of the series. [[slnc 400]] Thanks for "
-            'watching.'
+            'caught it? [[slnc 500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

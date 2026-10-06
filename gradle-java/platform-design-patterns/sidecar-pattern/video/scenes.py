@@ -603,10 +603,7 @@ for (int attempt = 1; attempt <= config.maxAttempts(); attempt++) {
             'nothing installed except a Java development kit. [[slnc '
             '500]] Here is one exercise to try. [[slnc 300]] Stop the '
             'proxy beside checkout yourself. [[slnc 300]] And hear every '
-            'one of its calls fail at once. [[slnc 500]] If this helped, '
-            'a like really does help other people find it. [[slnc 300]] '
-            "And subscribe, if you'd like the rest of the series. [[slnc "
-            '400]] Thanks for watching.'
+            'one of its calls fail at once. [[slnc 500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

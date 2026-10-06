@@ -536,10 +536,7 @@ private List<String> recommendationsOrNone(String sku) {
             'and catch in the gateway so it wraps all four calls. [[slnc '
             '300]] Then stop the pricing service, and look at the page. '
             '[[slnc 300]] You will have turned an honest error into a '
-            'page with no price on it. [[slnc 500]] If this helped, a '
-            'like really does help other people find it. [[slnc 300]] And '
-            "subscribe, if you'd like the rest of the series. [[slnc "
-            '400]] Thanks for watching.'
+            'page with no price on it. [[slnc 500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

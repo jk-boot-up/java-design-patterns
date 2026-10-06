@@ -583,10 +583,7 @@ public List<ServiceInstance> instances(String serviceName) {
             'real trap. [[slnc 300]] Releases happen all the time while '
             'you test, but crashes do not. [[slnc 300]] So a registry can '
             'look perfect for months, and fail the first night something '
-            'crashes. [[slnc 500]] If this helped, a like really does '
-            'help other people find it. [[slnc 300]] And subscribe, if '
-            "you'd like the rest of the series. [[slnc 400]] Thanks for "
-            'watching.'
+            'crashes. [[slnc 500]] If you found this useful, a like really helps other people discover it. [[slnc 300]] Kindly subscribe to the channel. [[slnc 300]] It helps the channel grow and bring you more content. [[slnc 400]] Thanks for watching!'
         ),
     ),
 ]

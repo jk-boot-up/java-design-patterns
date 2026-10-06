@@ -102,37 +102,37 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <main>
 <h1>Load Balancing with Spring Cloud LoadBalancer Pattern — Video Narration Script</h1>
 <h2>1. Load Balancing with Spring Cloud LoadBalancer</h2>
-<p>Hello, and welcome. This video explains the Client-Side Load Balancing pattern with Spring Cloud LoadBalancer, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the Client-Side Load Balancing video. That one chose among three copies of the catalogue service on the client side, with four hand-written strategies, and showed that a fair strategy is not always a fast one. This one shows the same idea inside Spring Cloud LoadBalancer. The plain definition, in short: in Spring Cloud LoadBalancer, the caller uses a service name, and a balancer picks one copy of the service for each request. By the end you will see twelve real requests spread by a real balancer, then see fair not being fast, a strategy of your own, a stopped copy, and the trap of real addresses.</p>
+<p>Hello, and welcome. This video explains client-side Load Balancing in Java, using Spring Cloud LoadBalancer. This video is presented by Jayasekhar Konduru. First, a simple definition. When a service runs as several copies, the caller chooses which copy gets each request. With Spring Cloud LoadBalancer, the caller only writes a service name. And a balancer picks one copy of that service, for every request. Think of a supermarket with several tills, and a sign that simply says: pay here. Someone behind the sign sends each shopper to a till. In our online store, the catalogue service runs as three copies. By the end, you will hear twelve real requests spread by a real balancer. Fair turns turn out not to be fast. A rule of our own. A stopped copy. And a trap with real addresses.</p>
 <h2>2. The Partner Project</h2>
-<p>This video assumes the Client-Side Load Balancing video. If you have not seen it, start there. It chooses among three copies of the catalogue service on the client side, with four strategies written by hand, and shows that a fair strategy is not always a fast one. This one uses the same example. It does not teach the pattern again. It shows what Spring Cloud LoadBalancer does with it.</p>
+<p>This video builds on the plain Java Load Balancing video. If you have not seen it, start there. That video chooses among three copies of the catalogue service, with four rules written by hand. And it shows that a fair rule is not always a fast one. This video uses the same example. It does not teach the pattern again. It shows what Spring Cloud LoadBalancer does with it.</p>
 <h2>3. Before The First Line</h2>
-<p>Before the first line of code, what Spring Cloud LoadBalancer is. Spring Cloud LoadBalancer is a client-side balancer for Spring. The caller uses a service name, and the balancer picks a copy for every request. Round robin is the default. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.</p>
+<p>Before any code, what is Spring Cloud LoadBalancer? It is a client-side balancer for Spring. It sits inside the H T T P client that makes web requests. The caller uses a service name. And the balancer picks a copy for every request. By default, it takes turns, which is called round robin. And a promise. Skipping this video loses none of the pattern. The plain Java video teaches all of it.</p>
 <h2>4. Twelve Requests, One Name</h2>
-<p>First, the default. Twelve requests go to the name catalogue. The balancer spreads them four, four and four. The caller wrote only a name, and never saw an address.</p>
+<p>First demo: the default. Twelve requests go to the name catalogue. The balancer spreads them evenly: four, four, and four. The caller only wrote a name. It never saw a single address.</p>
 <h2>5. Fair Is Not Fast</h2>
-<p>Second, fair is not fast. Copy c is on older hardware, six times the cost per request. Round robin gives it a third of the requests. The work comes out four, four and twenty four.</p>
+<p>Second demo: fair is not fast. Copy C is on older hardware. Each request costs it six times as much work. Round robin still gives it a third of the requests. So the work comes out as four, four, and twenty-four. The slowest copy did the most work.</p>
 <h2>6. A Strategy Of Our Own</h2>
-<p>Third, a strategy of our own. It sends each request to the copy with the least work so far. The slow copy gets one request. The work comes out six, five and six. It is registered for one service name only. The name catalogue still uses round robin.</p>
+<p>Third demo: a rule of our own. This rule sends each request to the copy that has done the least work so far. Now the slow copy gets only one request. And the work comes out as six, five, and six. Much more even. This rule is set up for one service name only. Every other name still uses round robin.</p>
 <h2>7. A Copy Goes Down</h2>
-<p>Fourth, a copy goes down. It is still in the list, so a third of the requests are sent to it. Four of twelve fail. The balancer, without health checks, does not know.</p>
+<p>Fourth demo: a copy goes down. Copy B is stopped. But it is still in the list of copies. So a third of the requests are still sent to it. Four of the twelve fail. Without health checks, the balancer does not know the copy is down.</p>
 <h2>8. A Retry Lands Elsewhere</h2>
-<p>Fifth, a retry. Allow each request one more attempt, and all twelve are answered, because the second attempt goes to the next copy. The retry is the caller&#x27;s job. The balancer alone only spreads the failures.</p>
+<p>Fifth demo: a retry. Now each request may try once more if it fails. And all twelve are answered. Because the second attempt goes to the next copy. The retry is the caller&#x27;s job. A balancer on its own only spreads the failures around.</p>
 <h2>9. Only For Names</h2>
-<p>Last, a trap. A balanced client treats every host as a service name. A name with no instances fails. So does a real address, because it is looked up as a name. For a real address, use an ordinary client.</p>
+<p>Last demo: a trap. A balanced client treats every host as a service name. A name with no copies behind it fails. But so does a real web address. Because it is looked up as if it were a service name. So for a real address, use an ordinary client, not a balanced one.</p>
 <h2>10. The Verdict</h2>
-<p>My verdict, plainly. Use the default until work is uneven. Add retries or health checks, because a balancer alone spreads failures. And use service names, never addresses, on a balanced client.</p>
+<p>So, here is the verdict. Use the default rule, until the work is uneven. Add retries, or health checks, because a balancer on its own just spreads failures. And on a balanced client, use service names, never real addresses.</p>
 <h2>11. How To Recognise It</h2>
-<p>How do you recognise this in code you did not write? A load balanced annotation on a client builder. And a URL whose host is a service name, not an address.</p>
+<p>How can you spot this in code someone else wrote? Look for a load balanced annotation on a client builder. And look for a web address whose host is a service name, not a real address.</p>
 <h2>12. Where You Have Met This</h2>
-<p>You have met this in any Spring service that calls another by name.</p>
+<p>Where have you met this before? In any Spring service that calls another service by name.</p>
 <h2>13. What Was Used</h2>
-<p>For the record. Spring Boot four point one point one. Spring Cloud twenty twenty five point one point three. LoadBalancer five point zero point three.</p>
+<p>For the record, here is what was used. Spring Boot, version four point one point one. Spring Cloud, release twenty twenty-five point one point three. And Spring Cloud LoadBalancer, version five point zero point three.</p>
 <h2>14. What Is Real Here</h2>
-<p>The same honest admission as everywhere in this course. Everything is real: real sockets, real HTTP and the real balancer. Work is counted in cost units, never timed.</p>
+<p>A quick, honest note about this demo. Everything is real: real network connections, real web requests, and the real balancer. Work is counted in units of cost, not timed. So every run gives the same result.</p>
 <h2>15. When This Is Too Much</h2>
-<p>So when is it too much? With one copy of a service, there is nothing to balance.</p>
+<p>So, when is this too much? With only one copy of a service, there is nothing to balance.</p>
 <h2>16. Thanks for Watching</h2>
-<p>That&#x27;s Load Balancing with Spring Cloud LoadBalancer. If you take one sentence away, take this one: Spring Cloud LoadBalancer picks per request, and health and speed are still yours to add. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, change the cost of the slow copy to two, and rerun act three. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.</p>
+<p>That&#x27;s Load Balancing, with Spring Cloud LoadBalancer. If you remember one sentence, make it this one. Spring Cloud LoadBalancer picks a copy for every request, but checking health and speed is still your job. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Change the cost of the slow copy from six to two. Then run the third demo again, and see how the work is shared. If you found this useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps the channel grow and bring you more content. Thanks for watching!</p>
 </main>
 <footer>
 Generated from <code>narration.md</code> by <code>docs/make_readme_html.py</code> &mdash;

@@ -54,4 +54,4 @@ A quick, honest note about this demo. Everything here is real. The pool, its err
 
 ## 14. Thanks for Watching
 
-That's the Object Pool, with HikariCP. If you remember one sentence, make it this one. Use a library that has solved the hard parts, and still reset what it cannot see. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Switch on the leak detection setting. And see what it logs. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.
+That's the Object Pool, with HikariCP. If you remember one sentence, make it this one. Use a library that has solved the hard parts, and still reset what it cannot see. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Switch on the leak detection setting. And see what it logs. If you found this useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps the channel grow and bring you more content. Thanks for watching!
