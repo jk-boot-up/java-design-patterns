@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YouTube upload spec</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>YouTube upload spec</h1>
+<p>How a pattern video goes from a project folder to YouTube. Each project&#x27;s <code>docs/youtube.md</code> holds the title, description, chapters, tags and thumbnail; this spec says which files to upload, what to change on the way, and what to check before and after a video goes public. The step-by-step plan and the first video&#x27;s ready-to-paste sheet are in <a href="youtube-upload-plan.html">youtube-upload-plan.md</a>.</p>
+<h2>1. Which files are uploaded</h2>
+<table><thead><tr><th>What</th><th>File</th><th>Notes</th></tr></thead><tbody><tr><td>Video</td><td><code>video/&lt;slug&gt;-pattern-explained-amy-slow.mp4</code> where that file exists (the older projects); otherwise <code>video/&lt;slug&gt;-pattern-explained.mp4</code> (projects built with amy-slow as their only voice)</td><td>1920×1080, H.264, 30 fps, AAC 48 kHz: no re-encode needed. <strong>The <code>.mp4</code> already contains the narration</strong>, so no audio file is uploaded</td></tr><tr><td>Captions (optional, recommended)</td><td>the <code>.srt</code> with the <strong>same name</strong> as the video</td><td>text captions, not audio: they make the video searchable and readable with the sound off</td></tr><tr><td>Thumbnail</td><td>the project&#x27;s own <code>docs/thumbnail.png</code> (all 272 projects have one)</td><td>1280×720; always uploaded, never an auto-picked frame; <code>video/poster.png</code> is the title card, not the thumbnail</td></tr></tbody></table>
+<p>The <code>.m4a</code> beside each video is an audio-only copy for listening offline; it is never part of an upload. Every video is narrated in the amy-slow voice (Piper <code>en_US-amy-medium</code>, speed 0.8); the older Kokoro builds have been deleted. Videos, audio and captions are never committed to git; they are uploaded from the local build only.</p>
+<h2>2. Rules for the uploaded text</h2>
+<ul><li><strong>No <code>http://</code> or <code>https://</code> in the description.</strong> Every scheme prefix is removed, so the repository link reads as a bare address: <code>github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/...</code>. YouTube refused descriptions carrying URLs on this channel. The Markdown files may keep full links for readers on GitHub; the stripping happens on the text sent to YouTube.</li><li><strong>No <code>&lt;</code> or <code>&gt;</code> characters</strong> in the title or description: YouTube rejects them.</li><li><strong>The first sentence is the name and the plain definition</strong> (&quot;X pattern in Java: …&quot;), as <code>docs/youtube.md</code> already has it.</li><li><strong>Chapters must match the uploaded video.</strong> They are timed from the uploaded video&#x27;s own <code>.srt</code>. Some older <code>docs/youtube.md</code> files still carry chapters and a runtime from the deleted Kokoro build; until those are regenerated, recompute the chapters from the amy-slow <code>.srt</code> at upload time. The first chapter is <code>00:00</code>, and there are at least three, or YouTube shows no chapters.</li><li>Title at most 100 characters (aim for 60, which survives search results); description at most 5,000 characters; tags at most 500 characters in total.</li></ul>
+<h2>3. Upload settings</h2>
+<table><thead><tr><th>Setting</th><th>Value</th></tr></thead><tbody><tr><td>Visibility</td><td><strong>Public</strong>, with <strong>Set as instant Premiere</strong> ticked, saved once the checks in section 5 that can be done before saving have passed. Premiere can only be chosen before saving, never afterwards</td></tr><tr><td>Audience</td><td><strong>No, it&#x27;s not made for kids</strong></td></tr><tr><td>Paid promotion (Show more)</td><td><strong>No, my video doesn&#x27;t include paid promotion</strong></td></tr><tr><td>Altered or synthetic content (Show more)</td><td><strong>No</strong>: the voice is synthetic text-to-speech but imitates no real person, and the video is slides, not realistic footage, so YouTube&#x27;s disclosure does not apply</td></tr><tr><td>Category</td><td><strong>Science &amp; Technology</strong></td></tr><tr><td>Video language</td><td>English, set <strong>before</strong> adding subtitles, or the subtitle option may not appear</td></tr><tr><td>Subtitles</td><td>Video elements → Add subtitles → Upload file → With timing → the matching <code>.srt</code></td></tr><tr><td>Thumbnail</td><td>Details → Thumbnail → Upload file → the project&#x27;s <code>docs/thumbnail.png</code> (needs a verified channel)</td></tr><tr><td>Playlist</td><td>the playlist for the project&#x27;s category (section 3a: plain or with Frameworks), in learning order</td></tr><tr><td>End screen and cards</td><td>End screen to whichever video is already published; a card to the playlist. Never announce &quot;next pattern&quot;</td></tr></tbody></table>
+<h2>3a. Two playlists per category: plain and framework</h2>
+<p>Each video goes into the playlist for its project&#x27;s category folder under <code>gradle-java/</code>. Two playlists already exist on the channel; the others are created, with the names below, when the first video of that category is uploaded. Plain-Java and framework videos are never mixed: each playlist is the name below plus &quot; - Without Frameworks&quot; for plain-Java videos or &quot; - With Frameworks&quot; for framework versions (a slug that extends a plain one, for example <code>circuit-breaker-with-resilience4j-pattern</code>), e.g. <em>Micro Services Design Patterns - With Frameworks</em>. Playlists are Public.</p>
+<table><thead><tr><th>Category folder</th><th>Playlist</th><th>Status</th></tr></thead><tbody><tr><td><code>micro-services-design-patterns</code></td><td>Micro Services Design Patterns</td><td>exists</td></tr><tr><td><code>behavioural</code></td><td>Behavioral Design Patterns in Java</td><td>exists</td></tr><tr><td><code>architectural-design-patterns</code></td><td>Architectural Design Patterns in Java</td><td>create on first upload</td></tr><tr><td><code>concurrency-design-patterns</code></td><td>Concurrency Design Patterns in Java</td><td>create on first upload</td></tr><tr><td><code>creational</code></td><td>Creational Design Patterns in Java</td><td>create on first upload</td></tr><tr><td><code>domain-driven-design-patterns</code></td><td>Domain-Driven Design Patterns in Java</td><td>create on first upload</td></tr><tr><td><code>enterprise-design-patterns</code></td><td>Enterprise Design Patterns in Java</td><td>create on first upload</td></tr><tr><td><code>foundational-design-patterns</code></td><td>Foundational Design Patterns in Java</td><td>create on first upload</td></tr><tr><td><code>functional-design-patterns</code></td><td>Functional Design Patterns in Java</td><td>create on first upload</td></tr><tr><td><code>messaging-integration-patterns</code></td><td>Messaging and Integration Patterns in Java</td><td>create on first upload</td></tr><tr><td><code>platform-design-patterns</code></td><td>Platform Design Patterns in Java</td><td>create on first upload</td></tr><tr><td><code>security-design-patterns</code></td><td>Security Design Patterns in Java</td><td>create on first upload</td></tr><tr><td><code>structural</code></td><td>Structural Design Patterns in Java</td><td>create on first upload</td></tr><tr><td><code>testing-design-patterns</code></td><td>Testing Design Patterns in Java</td><td>create on first upload</td></tr></tbody></table>
+<h2>4. Ways to upload</h2>
+<ol><li><strong>The scripted uploader, <code>tools/ytupload/ytupload.sh</code></strong> (the method in use). It drives YouTube Studio in a dedicated Chrome window (<code>ytupload.sh chrome</code>) that the channel owner signed in to by hand; it never types a password. It is run only when the channel owner asks for uploads.</li><li><code>sheet &lt;project&gt;</code> prints what would be uploaded;</li><li><code>upload &lt;project&gt;</code> attaches the <code>.mp4</code>, fills every field of section 3, and stops on the Visibility page; <code>resume &lt;project&gt;</code> continues a draft after a failed step without attaching the video again;</li><li><code>publish</code> chooses Public, ticks instant Premiere, saves, prints the link and closes the &quot;Video published&quot; dialog;</li><li><code>sync</code> reads the channel&#x27;s video list and records every link it can match to a project;</li><li><code>batch &lt;category-or-project&gt;...</code> uploads and publishes many projects in turn (section 8);</li><li><code>no-paid-promotion &lt;video-id&gt;</code> fixes that answer on a video already published.</li><li><strong>YouTube Studio by hand</strong>, from the upload sheet (section 6), with the same settings.</li><li><strong>YouTube Data API script</strong> is not used: videos uploaded through an API project that has not passed Google&#x27;s audit stay locked private, and these videos are published as Public.</li></ol>
+<h2>5. Checks</h2>
+<p>Videos are saved as <strong>Public</strong> directly, so the checks are split around the save.</p>
+<p>Before saving:</p>
+<ul class="task"><li>The description has no <code>http://</code>, <code>https://</code>, <code>&lt;</code> or <code>&gt;</code>.</li><li>Chapters come from the <code>.srt</code> of the uploaded file, start at <code>00:00</code>, and the last chapter starts before the video&#x27;s end.</li><li>The thumbnail is the project&#x27;s <code>docs/thumbnail.png</code>, not an auto-picked frame.</li><li>Audience is &quot;No, it&#x27;s not made for kids&quot;, paid promotion is &quot;No&quot;, and altered content (AI use) is &quot;No&quot;.</li><li>The captions are attached, if used.</li></ul>
+<p>After saving:</p>
+<ul class="task"><li>Captions show at the right moments at three points in the video (start, middle, end).</li><li>1080p processing has finished before the link is shared: code slides are unreadable at 360p.</li><li>Watch the first and last minute: audio clean, credit line present, no &quot;next pattern&quot; teaser.</li><li>If anything is wrong, fix it in Studio; switch to Private only if the fix needs a new upload.</li></ul>
+<h2>6. The upload sheet</h2>
+<p>Before each upload, a sheet is prepared from <code>docs/youtube.md</code>: the title, the description with schemes removed and chapters timed for the uploaded file, the tags, and the file paths above. This is mechanical and can be scripted from <code>gradle-java/docs/make_youtube_docs.py</code> (its <code>chapters()</code> reads the <code>.srt</code>; pointing it at the amy-slow <code>.srt</code> gives amy-slow chapters, and the cue count of the scenes must equal the <code>.srt</code>&#x27;s cue count).</p>
+<h2>7. Worked example: Circuit Breaker (amy-slow)</h2>
+<p>Project: <code>gradle-java/micro-services-design-patterns/circuit-breaker-pattern</code></p>
+<ul><li><strong>Video:</strong> <code>video/circuit-breaker-pattern-explained-amy-slow.mp4</code> (18:45, 1920×1080, H.264, AAC 48 kHz)</li><li><strong>Captions (optional):</strong> <code>video/circuit-breaker-pattern-explained-amy-slow.srt</code> (205 cues, matching the 205 narration cues)</li><li><strong>Not uploaded:</strong> <code>video/circuit-breaker-pattern-explained-amy-slow.m4a</code>; the <code>.mp4</code> already carries the audio</li><li><strong>Thumbnail:</strong> <code>docs/thumbnail.png</code></li><li><strong>Title:</strong> <code>Circuit Breaker in Java - When a Service Stops</code></li><li><strong>Tags:</strong> as in <code>docs/youtube.md</code></li></ul>
+<p><strong>Description changes</strong> from <code>docs/youtube.md</code>:</p>
+<ul><li>The repository line becomes <code>github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/micro-services-design-patterns/circuit-breaker-pattern</code>.</li><li>The chapters are replaced by the amy-slow timings (the ones currently in <code>docs/youtube.md</code>, and its 14:25 runtime, are left over from the deleted Kokoro build):</li></ul>
+<pre><code>00:00 Introduction
+01:24 The Scenario
+02:28 The Obvious Answer — Just Try Again
+03:18 Act One — Retry, Applied To An Outage
+04:10 Three Costs — And The Third Closes The Shop
+05:22 The Fuse Box
+06:20 One Word That Reads Backwards
+07:18 The Whole Decision, In One Method
+08:30 Act Two — Six Pages, With A Breaker
+09:54 The Pieces, And What Each One Decides
+11:20 Act Three — It Lets Itself Back In
+12:34 Now The Half That Gets Left Out
+13:38 Act Four — Checkout, Where There Is No Fallback
+14:48 Act Five — The Fallback That Lies
+16:10 What It Costs, And When Not To
+17:19 Thanks for Watching</code></pre>
+<p>Everything else in the description is used as written.</p>
+<h2>8. Uploading every project (batch rules)</h2>
+<ul><li><strong>Order:</strong> <code>micro-services-design-patterns</code> first, then the other categories under <code>gradle-java/</code> one at a time, projects in alphabetical order within a category.</li><li><strong>Never twice:</strong> before a batch, <code>sync</code> records every video already on the channel. A project whose title (from its <code>docs/youtube.md</code>) is already on the channel, or which already has a link in the registry, is skipped.</li><li><strong>One video at a time:</strong> the page is never left while a file is still uploading, because leaving the page cancels the upload. The script waits for the upload to finish before publishing.</li><li><strong>Thumbnail failure is not fatal:</strong> if attaching <code>docs/thumbnail.png</code> fails, the video is published without it and the miss is logged, so the thumbnail can be added by hand later. Every other setting must succeed, or that project is left as a draft, logged, and the batch moves on.</li><li><strong>A failure never causes a duplicate:</strong> a project that fails after its file was attached is recorded in the registry as a draft (with its video ID and the failed step), so no later batch uploads it again. Drafts are finished with <code>resume &lt;project&gt;</code> then <code>publish</code>.</li><li><strong>Daily limit:</strong> YouTube caps uploads per day. When Studio reports the limit, the batch waits (6 hours at a time) and carries on by itself; already-uploaded projects are skipped.</li><li><strong>Unattended, and cheap to follow:</strong> the batch runs in the background across all categories. Progress is written, not watched: <code>~/.ytupload-chrome/status.txt</code> holds a one-line summary (uploaded, failed, to go, last project), and <code>~/.ytupload-chrome/batch.log</code> one line per project (its link, or the step that failed). They are read only occasionally, never polled.</li><li><strong>The registry:</strong> every link is recorded in <code>gradle-java/docs/youtube-links.json</code> (project path, title, category, video ID, date). It is the single source for:</li><li><code>gradle-java/docs/youtube-links.md</code> and its themed <code>.html</code> twin, the tracking document listing every pattern with its YouTube link, by category; and</li><li>the <strong>YouTube</strong> link beside each project in the repository&#x27;s <code>index.md</code> / <code>index.html</code> (generated by <code>gradle-java/docs/make_index.py</code>). Both are regenerated after each batch.</li></ul>
+</main>
+<footer>
+Generated from <code>youtube-upload-spec.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

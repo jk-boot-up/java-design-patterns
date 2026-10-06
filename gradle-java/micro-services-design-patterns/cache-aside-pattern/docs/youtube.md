@@ -7,7 +7,7 @@ Chapter timings are generated from the video's `.srt`. Re-run `python3 docs/make
 ## Title
 
 ```
-Cache-Aside
+Cache-Aside Design Pattern in Java - Explained
 ```
 
 11 characters — under the 60 YouTube shows before truncating in search results.

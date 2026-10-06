@@ -7,7 +7,7 @@ Chapter timings are generated from the video's `.srt`. Re-run `python3 docs/make
 ## Title
 
 ```
-Cache-Aside with Redis
+Cache-Aside Design Pattern with Redis in Java - Explained
 ```
 
 22 characters — under the 60 YouTube shows before truncating in search results.

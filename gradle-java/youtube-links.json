@@ -1,0 +1,1329 @@
+{
+ "concurrency-design-patterns/active-object-pattern": {
+  "title": "Active Object in Java - A Call That Returns Before It's Done",
+  "id": "gHL0P-owsqQ",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "concurrency-design-patterns/active-object-with-spring-pattern": {
+  "title": "Active Object with Spring - One Thread, One Mailbox",
+  "id": "IeAL4ixw0nU",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "concurrency-design-patterns/actor-pattern": {
+  "title": "Actor",
+  "id": "LQV1B2FBdN4",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "concurrency-design-patterns/balking-pattern": {
+  "title": "Balking",
+  "id": "HbSb8MlJuVU",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "concurrency-design-patterns/compare-and-swap-pattern": {
+  "title": "Lock-Free Compare-and-Swap",
+  "id": "wiDxgasEV00",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "concurrency-design-patterns/copy-on-write-pattern": {
+  "title": "Copy-on-Write",
+  "id": "e7VNpuKJuFA",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "concurrency-design-patterns/double-checked-locking-pattern": {
+  "title": "Double-Checked Locking",
+  "id": "TwA9cM9BN0A",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "concurrency-design-patterns/fork-join-pattern": {
+  "title": "Fork-Join",
+  "id": "2jJA6ApFim0",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "concurrency-design-patterns/future-promise-pattern": {
+  "title": "Future and Promise in Java - The Answer You Don't Have Yet",
+  "id": "rFfKAIpB1sM",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "concurrency-design-patterns/future-promise-with-spring-pattern": {
+  "title": "Future and Promise with Spring - What @Async Loses",
+  "id": "-sooxWJcapQ",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "concurrency-design-patterns/guarded-suspension-pattern": {
+  "title": "Guarded Suspension",
+  "id": "Prct-5PRK4c",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "concurrency-design-patterns/half-sync-half-async-pattern": {
+  "title": "Half-Sync/Half-Async",
+  "id": "W3-eNnzBcbA",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "concurrency-design-patterns/leader-followers-pattern": {
+  "title": "Leader/Followers",
+  "id": "XAZSKIyZqxk",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "concurrency-design-patterns/monitor-object-pattern": {
+  "title": "Monitor Object in Java - The Object That Guards Itself",
+  "id": "8S-t7xgjbZY",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "concurrency-design-patterns/proactor-pattern": {
+  "title": "Proactor",
+  "id": "IEXwnxLYN8g",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "concurrency-design-patterns/producer-consumer-pattern": {
+  "title": "Producer-Consumer in Java - The Bounded Queue",
+  "id": "1VWv-FBM4bk",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "concurrency-design-patterns/reactor-pattern": {
+  "title": "Reactor",
+  "id": "hFKTQM0yKaA",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "concurrency-design-patterns/reactor-with-netty-pattern": {
+  "title": "Reactor Pattern with Netty",
+  "id": "AHNHzcEBVas",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "concurrency-design-patterns/read-write-lock-pattern": {
+  "title": "Read-Write Lock in Java - A Thousand Readers, One Writer",
+  "id": "0bcxJUA2Sj8",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "concurrency-design-patterns/scheduler-pattern": {
+  "title": "Scheduler",
+  "id": "8kBnVhn1FGQ",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "concurrency-design-patterns/thread-local-storage-pattern": {
+  "title": "Thread-Local Storage",
+  "id": "pYuA0V3TWEo",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "concurrency-design-patterns/thread-pool-pattern": {
+  "title": "Thread Pool in Java - A Thread Per Order, Until It Isn't",
+  "id": "IP0aZFq-cVU",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "concurrency-design-patterns/thread-pool-with-spring-pattern": {
+  "title": "Thread Pool with Spring - The Executor Behind @Async",
+  "id": "_9FdvWxsIkw",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "concurrency-design-patterns/two-phase-termination-pattern": {
+  "title": "Two-Phase Termination",
+  "id": "wkjymehnvXw",
+  "visibility": "Public",
+  "category": "concurrency-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "creational/abstract-factory-pattern": {
+  "title": "Abstract Factory in Java - A Regional Checkout",
+  "id": "uF3fWMUe3ss",
+  "visibility": "Public",
+  "category": "creational",
+  "recorded": "2026-10-04"
+ },
+ "creational/builder-pattern": {
+  "title": "Builder Pattern in Java - Building a Purchase Order",
+  "id": "a9xAWjFLU60",
+  "visibility": "Public",
+  "category": "creational",
+  "recorded": "2026-10-04"
+ },
+ "creational/factory-method-pattern": {
+  "title": "Factory Method Pattern in Java - Delivery Tiers",
+  "id": "tfHOGFSmoxY",
+  "visibility": "Public",
+  "category": "creational",
+  "recorded": "2026-10-04"
+ },
+ "creational/prototype-pattern": {
+  "title": "Prototype Pattern in Java - Cloning Product Listings",
+  "id": "yBBnz0pcsP4",
+  "visibility": "Public",
+  "category": "creational",
+  "recorded": "2026-10-04"
+ },
+ "creational/prototype-with-spring-pattern": {
+  "title": "Prototype with Spring - The Prototype That Is Not New",
+  "id": "GHWLQnlXgg0",
+  "visibility": "Public",
+  "category": "creational",
+  "recorded": "2026-10-04"
+ },
+ "creational/simple-factory-pattern": {
+  "title": "Simple Factory Pattern in Java - Payment Methods",
+  "id": "ETSc6tsv8iw",
+  "visibility": "Public",
+  "category": "creational",
+  "recorded": "2026-10-04"
+ },
+ "creational/singleton-pattern": {
+  "title": "Singleton Pattern in Java - Order Number Sequencer",
+  "id": "kqChaycOeHs",
+  "visibility": "Public",
+  "category": "creational",
+  "recorded": "2026-10-04"
+ },
+ "creational/singleton-with-spring-pattern": {
+  "title": "Singleton with Spring - One Per Container, Not Per JVM",
+  "id": "6XMbYsdETDs",
+  "visibility": "Public",
+  "category": "creational",
+  "recorded": "2026-10-04"
+ },
+ "creational/static-factory-pattern": {
+  "title": "Static Factory Methods in Java - Named Constructors",
+  "id": "Q6o-Ab5mlJU",
+  "visibility": "Public",
+  "category": "creational",
+  "recorded": "2026-10-04"
+ },
+ "domain-driven-design-patterns/aggregate-pattern": {
+  "title": "Aggregate",
+  "id": "WBKUTi0Rb1A",
+  "visibility": "Public",
+  "category": "domain-driven-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "domain-driven-design-patterns/anti-corruption-layer-pattern": {
+  "title": "Anti-Corruption Layer",
+  "id": "zLtlwGIpL1o",
+  "visibility": "Public",
+  "category": "domain-driven-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "domain-driven-design-patterns/bounded-context-pattern": {
+  "title": "Bounded Context",
+  "id": "yw7bHA2Ru50",
+  "visibility": "Public",
+  "category": "domain-driven-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "domain-driven-design-patterns/context-map-pattern": {
+  "title": "Context Map and Shared Kernel",
+  "id": "m8tXdn4oOPQ",
+  "visibility": "Public",
+  "category": "domain-driven-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "domain-driven-design-patterns/domain-event-pattern": {
+  "title": "Domain Event",
+  "id": "7SEIrvvRR20",
+  "visibility": "Public",
+  "category": "domain-driven-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "domain-driven-design-patterns/domain-service-pattern": {
+  "title": "Domain Service",
+  "id": "Z3Iez9Chp2U",
+  "visibility": "Public",
+  "category": "domain-driven-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "domain-driven-design-patterns/entity-pattern": {
+  "title": "Entity",
+  "id": "qImCqEp4g9I",
+  "visibility": "Public",
+  "category": "domain-driven-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "domain-driven-design-patterns/specification-pattern": {
+  "title": "Specification",
+  "id": "hsFxPI0xmok",
+  "visibility": "Public",
+  "category": "domain-driven-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "domain-driven-design-patterns/value-object-pattern": {
+  "title": "Value Object",
+  "id": "xzMd_2UOywE",
+  "visibility": "Public",
+  "category": "domain-driven-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "enterprise-design-patterns/active-record-pattern": {
+  "title": "Active Record",
+  "id": "1v6I4g6baGY",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "enterprise-design-patterns/data-mapper-pattern": {
+  "title": "Data Mapper in Java - The Object That Is Not A Row",
+  "id": "OR8Km-cg_LM",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "enterprise-design-patterns/dto-pattern": {
+  "title": "DTO in Java - The Object That Crosses The Boundary",
+  "id": "h9I_xLkCpnw",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-04"
+ },
+ "enterprise-design-patterns/front-controller-pattern": {
+  "title": "Front Controller",
+  "id": "pSZW_oVa3QI",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/gateway-pattern": {
+  "title": "Gateway",
+  "id": "jg3aCM4F8zc",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/identity-map-pattern": {
+  "title": "Identity Map in Java - One Row, One Object",
+  "id": "I4MJOuh1cfI",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/identity-map-with-jpa-pattern": {
+  "title": "Identity Map with JPA - Why == Is True",
+  "id": "sV3smmqd3LA",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/lazy-load-pattern": {
+  "title": "Lazy Load in Java - One Order, Twenty-One Queries",
+  "id": "jaTQSUtISBg",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/lazy-load-with-hibernate-pattern": {
+  "title": "LazyInitializationException Explained in Hibernate",
+  "id": "4M5t6busJMQ",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/money-pattern": {
+  "title": "Money",
+  "id": "XQ2zpWNjZWw",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/optimistic-offline-lock-pattern": {
+  "title": "Optimistic Offline Lock",
+  "id": "S7kOKh46J5w",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/page-controller-pattern": {
+  "title": "Page Controller",
+  "id": "LuX-blgExyI",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/page-controller-with-spring-mvc-pattern": {
+  "title": "Page Controller with Spring MVC",
+  "id": "a6MJVXKl1rE",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/pessimistic-offline-lock-pattern": {
+  "title": "Pessimistic Offline Lock",
+  "id": "fOv97bxxwts",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/plugin-pattern": {
+  "title": "Plugin",
+  "id": "_0yyG-xFtjk",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/query-object-pattern": {
+  "title": "Query Object",
+  "id": "DCkX72h1tO4",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/remote-facade-pattern": {
+  "title": "Remote Facade",
+  "id": "iiiRkbUDVSg",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/remote-facade-with-spring-mvc-pattern": {
+  "title": "Remote Facade with Spring MVC",
+  "id": "WEGtw92uNlI",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/repository-pattern": {
+  "title": "Repository in Java - Query The Collection, Not The Table",
+  "id": "_rFd6v5pZJw",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/repository-with-spring-data-pattern": {
+  "title": "Spring Data Repository - An Interface With No Implementation",
+  "id": "2HbJC8ec3-I",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/service-layer-pattern": {
+  "title": "Service Layer in Java - Where Does Placing An Order Live?",
+  "id": "ZIYWDmSDimU",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/service-stub-pattern": {
+  "title": "Service Stub",
+  "id": "2lrBHrBOQUA",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/single-table-inheritance-pattern": {
+  "title": "Single Table Inheritance",
+  "id": "ciCDV8ltBV8",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/single-table-inheritance-with-jpa-pattern": {
+  "title": "Single Table Inheritance with JPA and Hibernate",
+  "id": "MSRvlih58Rs",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/special-case-pattern": {
+  "title": "Special Case",
+  "id": "cJ7uMyXfcTU",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/table-data-gateway-pattern": {
+  "title": "Table Data Gateway",
+  "id": "_7vu1uWhUVk",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/table-data-gateway-with-jdbc-template-pattern": {
+  "title": "Table Data Gateway with Spring JdbcTemplate",
+  "id": "2Bi9h846r3w",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/transaction-script-pattern": {
+  "title": "Transaction Script",
+  "id": "uD-kRawCSMo",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/unit-of-work-pattern": {
+  "title": "Unit of Work in Java - All Of The Order Or None",
+  "id": "u9peNZDkorQ",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "enterprise-design-patterns/unit-of-work-with-spring-pattern": {
+  "title": "Unit of Work with Spring - The Flush You Did Not Write",
+  "id": "Ov6Ceru3HSM",
+  "visibility": "Public",
+  "category": "enterprise-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/callback-pattern": {
+  "title": "Callback",
+  "id": "V0HKjZmPVFw",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/delegation-pattern": {
+  "title": "Delegation",
+  "id": "pIpjTLWJgsc",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/dependency-injection-pattern": {
+  "title": "Dependency Injection in Java - Without Spring, First",
+  "id": "MtT060iUnAA",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/dependency-injection-with-spring-pattern": {
+  "title": "Dependency Injection with Spring - Recognise The Wiring",
+  "id": "NdjPRjMEU8I",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/execute-around-pattern": {
+  "title": "Execute Around",
+  "id": "VwQVcWUU2RY",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/extension-object-pattern": {
+  "title": "Extension Object",
+  "id": "WUSqjf5tF5Q",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/fluent-interface-pattern": {
+  "title": "Fluent Interface",
+  "id": "ahU3wwCrgrU",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/immutable-object-pattern": {
+  "title": "Immutable Object",
+  "id": "YX7nhgRLPvk",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/marker-interface-pattern": {
+  "title": "Marker Interface",
+  "id": "ecSadW5IOvA",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/memoization-pattern": {
+  "title": "Memoization",
+  "id": "YhB6MCzGZWI",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/multiton-pattern": {
+  "title": "Multiton",
+  "id": "kHVK2aroZ5s",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/object-pool-pattern": {
+  "title": "Object Pool in Java - When Pooling Makes It Slower",
+  "id": "JbgiqDdavw8",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/object-pool-with-hikaricp-pattern": {
+  "title": "Object Pool with HikariCP - The Mature Answer",
+  "id": "SSz-a2hyNCo",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/private-class-data-pattern": {
+  "title": "Private Class Data",
+  "id": "-jMOxQXaxZU",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/registry-pattern": {
+  "title": "Registry in Java - A Global Variable With Better Manners",
+  "id": "_fKOWjlf_4c",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/registry-with-spring-pattern": {
+  "title": "Spring's Registry - The Context And Its Shared State",
+  "id": "IX1C9ckoru8",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/role-object-pattern": {
+  "title": "Role Object",
+  "id": "Fs3dszCgpGE",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/service-locator-pattern": {
+  "title": "Service Locator in Java - Why It Is Called An Anti-Pattern",
+  "id": "YzvNUyZS4Zc",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/service-locator-with-consul-pattern": {
+  "title": "Service Locator with Consul - Real Service Discovery",
+  "id": "8xxNaxjVrDY",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "foundational-design-patterns/type-object-pattern": {
+  "title": "Type Object",
+  "id": "dszAVrC3NvM",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "functional-design-patterns/currying-pattern": {
+  "title": "Currying and Partial Application",
+  "id": "08pE2Pb9sTw",
+  "visibility": "Public",
+  "category": "functional-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "functional-design-patterns/higher-order-functions-pattern": {
+  "title": "Higher-Order Functions",
+  "id": "syVrmCNuNg0",
+  "visibility": "Public",
+  "category": "functional-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "functional-design-patterns/lenses-pattern": {
+  "title": "Lenses for Immutable Updates",
+  "id": "fEZIh9W--t8",
+  "visibility": "Public",
+  "category": "functional-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "functional-design-patterns/railway-oriented-pattern": {
+  "title": "Railway-Oriented Programming",
+  "id": "fUsPW9M0gak",
+  "visibility": "Public",
+  "category": "functional-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "functional-design-patterns/railway-oriented-with-vavr-pattern": {
+  "title": "Railway-Oriented Programming with Vavr",
+  "id": "x_8jqKWHIjc",
+  "visibility": "Public",
+  "category": "functional-design-patterns",
+  "recorded": "2026-10-05"
+ },
+ "messaging-integration-patterns/content-based-router-pattern": {
+  "title": "Content-Based Router",
+  "id": "SHB7zHP6X7I",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-05"
+ },
+ "messaging-integration-patterns/content-based-router-with-camel-pattern": {
+  "title": "Content-Based Router with Camel",
+  "id": "8PBEH3MAL8M",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-05"
+ },
+ "messaging-integration-patterns/content-enricher-pattern": {
+  "title": "Content Enricher",
+  "id": "2gk0FzITWrE",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/dead-letter-channel-pattern": {
+  "title": "Dead Letter Channel",
+  "id": "6ObujeclTw4",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/dead-letter-channel-with-rabbitmq-pattern": {
+  "title": "Dead Letter Channel with RabbitMQ",
+  "id": "2hJuZtjTsVk",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/event-bus-pattern": {
+  "title": "Event Bus",
+  "id": "s42MlFnH5gI",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/event-bus-with-nats-pattern": {
+  "title": "Event Bus with NATS",
+  "id": "VJ17ijACdj8",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/guaranteed-delivery-pattern": {
+  "title": "Guaranteed Delivery",
+  "id": "jJGaHKhT2QE",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/guaranteed-delivery-with-rabbitmq-pattern": {
+  "title": "Guaranteed Delivery with RabbitMQ",
+  "id": "jwwpR3sAq08",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/message-channel-pattern": {
+  "title": "Message Channel",
+  "id": "ik-KnOGRpWk",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/message-channel-with-rabbitmq-pattern": {
+  "title": "Message Channel with RabbitMQ",
+  "id": "1INLoM2xmZ4",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/message-filter-pattern": {
+  "title": "Message Filter",
+  "id": "9v7x9sfoNeQ",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/message-filter-with-camel-pattern": {
+  "title": "Message Filter with Apache Camel",
+  "id": "OWSe94kcVUg",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/message-translator-pattern": {
+  "title": "Message Translator and Normalizer",
+  "id": "P97pBmeQZbY",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/message-translator-with-camel-pattern": {
+  "title": "Message Translator with Apache Camel",
+  "id": "hWTB9dC9ocM",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/polling-consumer-pattern": {
+  "title": "Polling Consumer",
+  "id": "eqV2hiXWvos",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/polling-consumer-with-rabbitmq-pattern": {
+  "title": "Polling Consumer with RabbitMQ",
+  "id": "TPfb18LxIes",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/process-manager-pattern": {
+  "title": "Process Manager",
+  "id": "Gj5gN5Wh6qk",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/process-manager-with-camel-pattern": {
+  "title": "Process Manager with Apache Camel (Saga)",
+  "id": "f5RgxuSHUdM",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/recipient-list-pattern": {
+  "title": "Recipient List",
+  "id": "xYnnX8-SI_Q",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/recipient-list-with-camel-pattern": {
+  "title": "Recipient List with Apache Camel",
+  "id": "9UfmpqTsH68",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/request-reply-pattern": {
+  "title": "Request-Reply with Correlation Identifier",
+  "id": "3DfzqRJ5ZpU",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/request-reply-with-rabbitmq-pattern": {
+  "title": "Request-Reply with RabbitMQ",
+  "id": "015vJSzBUk4",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/resequencer-pattern": {
+  "title": "Resequencer",
+  "id": "zD_jVCDniVE",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/resequencer-with-camel-pattern": {
+  "title": "Resequencer with Apache Camel",
+  "id": "0V-vogo8Xi0",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/routing-slip-pattern": {
+  "title": "Routing Slip",
+  "id": "XTh6ZZ9Gn4E",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/routing-slip-with-camel-pattern": {
+  "title": "Routing Slip with Apache Camel",
+  "id": "Eu69HeGUpYc",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/splitter-aggregator-pattern": {
+  "title": "Splitter and Aggregator",
+  "id": "fyKmQfWzjsU",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/wire-tap-pattern": {
+  "title": "Wire Tap",
+  "id": "1zUF0Q0nCXY",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "messaging-integration-patterns/wire-tap-with-camel-pattern": {
+  "title": "Wire Tap with Apache Camel",
+  "id": "wl70HT1-Hxc",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/api-composition-pattern": {
+  "title": "API Composition Design Pattern in Java - Explained - The Order Details Page",
+  "id": "0gkjgdW2RHE",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/api-gateway-pattern": {
+  "title": "API Gateway Design Pattern in Java - Explained - One Front Door for the Store",
+  "id": "5Fn-TWKOqZw",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/api-gateway-with-spring-cloud-gateway-pattern": {
+  "title": "API Gateway Design Pattern in Java with Spring Cloud Gateway - Explained - Real Routes",
+  "id": "hsLvTiwRTa8",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/async-request-reply-pattern": {
+  "title": "Asynchronous Request-Reply Design Pattern in Java - Explained",
+  "id": "XK4xVInJ6CE",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/backpressure-pattern": {
+  "title": "Backpressure Design Pattern in Java - Explained",
+  "id": "oqg4C5HEU_0",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/backpressure-with-reactor-pattern": {
+  "title": "Backpressure with Project Reactor Design Pattern in Java - Explained",
+  "id": "_aTqu5e_6oE",
+  "visibility": "Draft",
+  "tries": 1,
+  "category": "micro-services-design-patterns",
+  "problem": "step 'edit draft' failed (Locator.click: Timeout 30000ms exceeded.).",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/bulkhead-pattern": {
+  "title": "Bulkhead Design Pattern in Java - Explained - Isolating a Slow Job",
+  "id": "uPHFAhaz9g0",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/bulkhead-with-resilience4j-pattern": {
+  "title": "Bulkhead with Resilience4j Design Pattern in Java - Explained - Two Kinds Of Wall",
+  "id": "4XgGzSCXu_s",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/cache-aside-pattern": {
+  "title": "Cache-Aside Design Pattern in Java - Explained",
+  "id": "0-rBHQk9fpk",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/cache-aside-with-redis-pattern": {
+  "title": "Cache-Aside Design Pattern with Redis in Java - Explained",
+  "id": "XPow2ejEqHI",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/circuit-breaker-pattern": {
+  "title": "Circuit Breaker in Java - When a Service Stops",
+  "id": "3Oh-hlErR3o",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/circuit-breaker-with-resilience4j-pattern": {
+  "title": "Circuit Breaker with Resilience4j - Real Defaults",
+  "id": "kqIGonNo89U",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/claim-check-pattern": {
+  "title": "Claim Check",
+  "id": "9JgFg_BNnQo",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/claim-check-with-s3-pattern": {
+  "title": "Claim Check with S3",
+  "id": "zgomnj83v3o",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/competing-consumers-pattern": {
+  "title": "Competing Consumers",
+  "id": "ktbYmei6abI",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/competing-consumers-with-rabbitmq-pattern": {
+  "title": "Competing Consumers with RabbitMQ",
+  "id": "oePVOlHhyAY",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/cqrs-pattern": {
+  "title": "CQRS in Java - Order History Without the Joins",
+  "id": "TAAty-jAuIk",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/database-per-service-pattern": {
+  "title": "Database per Service in Java - Losing the Join",
+  "id": "JFP_AZzwrp0",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/database-per-service-with-containers-pattern": {
+  "title": "Database per Service with Containers",
+  "id": "jNe6I0vSqK4",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-06",
+  "problem": "no thumbnail (YouTube's daily custom-thumbnail limit)",
+  "thumbnail": false
+ },
+ "platform-design-patterns/backends-for-frontends-pattern": {
+  "title": "Backends for Frontends in Java - One Shape Won't Fit",
+  "id": "A-qwbfYwaKs",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/blue-green-and-canary-pattern": {
+  "title": "Blue-Green and Canary",
+  "id": "IP2Squj-Was",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/blue-green-and-canary-with-kubernetes-pattern": {
+  "title": "Blue-Green and Canary with Kubernetes",
+  "id": "f0AlmIhZ8Es",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/consumer-driven-contract-pattern": {
+  "title": "Consumer-Driven Contract",
+  "id": "S0HdoogQxUQ",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/consumer-driven-contract-with-pact-pattern": {
+  "title": "Consumer-Driven Contract with Pact",
+  "id": "Fkeg7P49CFw",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/distributed-tracing-pattern": {
+  "title": "Distributed Tracing in Java - Which Service Is Slow?",
+  "id": "yM-ZDNMH8XM",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/distributed-tracing-with-jaeger-pattern": {
+  "title": "Distributed Tracing with Jaeger - One Trace, Two Services",
+  "id": "G_y5BgOGIl4",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/event-sourcing-pattern": {
+  "title": "Event Sourcing in Java - Why Is This Balance 140?",
+  "id": "9OwJq13Wv5U",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/event-sourcing-with-eventstoredb-pattern": {
+  "title": "Event Sourcing with EventStoreDB - Real Revisions",
+  "id": "l0lzH3_VGNs",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/externalised-configuration-pattern": {
+  "title": "Externalised Configuration in Java - No Deploy Needed",
+  "id": "dSqLJpObU1A",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/externalised-configuration-with-spring-cloud-config-pattern": {
+  "title": "Externalised Configuration with Spring Cloud Config",
+  "id": "sOicE0g3M2s",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/feature-toggle-pattern": {
+  "title": "Feature Toggle",
+  "id": "YZ9_FQ9u-4Q",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/feature-toggle-with-flagd-pattern": {
+  "title": "Feature Toggle with flagd",
+  "id": "2X4OndzzE-w",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/service-mesh-pattern": {
+  "title": "Service Mesh",
+  "id": "PPOXKC1Ns_c",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/service-mesh-with-envoy-pattern": {
+  "title": "Service Mesh with Envoy",
+  "id": "Hn9QOVDc5u0",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/sidecar-java-proxy-pattern": {
+  "title": "Sidecar in Java - Swapping the Proxy, Not the Service",
+  "id": "vTJdFpnIOgQ",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/sidecar-on-kubernetes-pattern": {
+  "title": "Sidecar on Kubernetes - Two Containers, One Pod",
+  "id": "nfOJSFXvhUY",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/sidecar-pattern": {
+  "title": "Sidecar Pattern in Java - Retry Code Moves Out",
+  "id": "RRi3AGt8iVc",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/strangler-fig-pattern": {
+  "title": "Strangler Fig in Java - Replacing Legacy Safely",
+  "id": "biOeEKfjwlY",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "platform-design-patterns/strangler-fig-with-nginx-pattern": {
+  "title": "Strangler Fig with NGINX - One Route at a Time",
+  "id": "1lr-FhzmmtY",
+  "visibility": "Public",
+  "category": "platform-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "security-design-patterns/authorization-policy-pattern": {
+  "title": "Authorization Policy (RBAC and ABAC)",
+  "id": "-nxF0Jm5ttw",
+  "visibility": "Public",
+  "category": "security-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "security-design-patterns/authorization-policy-with-spring-security-pattern": {
+  "title": "Authorization Policy with Spring Security",
+  "id": "b9v62UBH6bA",
+  "visibility": "Public",
+  "category": "security-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "security-design-patterns/input-validation-pattern": {
+  "title": "Input Validation",
+  "id": "X3uyAn2ybxg",
+  "visibility": "Public",
+  "category": "security-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "security-design-patterns/secrets-manager-pattern": {
+  "title": "Secrets Manager",
+  "id": "UGpEh6zBgbo",
+  "visibility": "Public",
+  "category": "security-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "security-design-patterns/secrets-manager-with-openbao-pattern": {
+  "title": "Secrets Manager with OpenBao (open-source Vault)",
+  "id": "3fMUmhzX6tY",
+  "visibility": "Public",
+  "category": "security-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "security-design-patterns/secure-gateway-pattern": {
+  "title": "Secure Gateway (Gatekeeper)",
+  "id": "x-uy19asUGg",
+  "visibility": "Public",
+  "category": "security-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "security-design-patterns/secure-gateway-with-nginx-pattern": {
+  "title": "Secure Gateway (Gatekeeper) with NGINX",
+  "id": "_XxkoRSDWaY",
+  "visibility": "Public",
+  "category": "security-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "security-design-patterns/token-authentication-pattern": {
+  "title": "Token Authentication (JWT)",
+  "id": "tt7K9iuTa5U",
+  "visibility": "Public",
+  "category": "security-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "security-design-patterns/token-authentication-with-spring-security-pattern": {
+  "title": "Token Authentication (JWT) with Spring Security",
+  "id": "xkYN3Ip--hM",
+  "visibility": "Public",
+  "category": "security-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "structural/adapter-pattern": {
+  "title": "Adapter Pattern in Java - Wrapping a Shipping SDK",
+  "id": "T7AGhoGgcNQ",
+  "visibility": "Public",
+  "category": "structural",
+  "recorded": "2026-10-06"
+ },
+ "structural/bridge-pattern": {
+  "title": "Bridge Pattern in Java - Notifications and Channels",
+  "id": "bFIpsG80dew",
+  "visibility": "Public",
+  "category": "structural",
+  "recorded": "2026-10-06"
+ },
+ "structural/composite-pattern": {
+  "title": "Composite Pattern in Java - Nested Category Trees",
+  "id": "wZPFeNR0xEQ",
+  "visibility": "Public",
+  "category": "structural",
+  "recorded": "2026-10-06"
+ },
+ "structural/decorator-pattern": {
+  "title": "Decorator Pattern in Java - Gift Wrap and Insurance",
+  "id": "CE4SH-dLVrM",
+  "visibility": "Public",
+  "category": "structural",
+  "recorded": "2026-10-06"
+ },
+ "structural/facade-pattern": {
+  "title": "Facade Pattern in Java - One Call to Place an Order",
+  "id": "O3GlrZtSn4s",
+  "visibility": "Public",
+  "category": "structural",
+  "recorded": "2026-10-06"
+ },
+ "structural/flyweight-pattern": {
+  "title": "Flyweight Pattern in Java - Sharing Badge Styles",
+  "id": "1FwZ_aOdI-M",
+  "visibility": "Public",
+  "category": "structural",
+  "recorded": "2026-10-06"
+ },
+ "structural/proxy-pattern": {
+  "title": "Proxy Pattern in Java - Lazy and Guarded Images",
+  "id": "KWGTrP0St30",
+  "visibility": "Public",
+  "category": "structural",
+  "recorded": "2026-10-06"
+ },
+ "structural/proxy-with-spring-pattern": {
+  "title": "Proxy with Spring - The Call That Skips The Proxy",
+  "id": "8Brw4uRaP2M",
+  "visibility": "Public",
+  "category": "structural",
+  "recorded": "2026-10-06"
+ },
+ "testing-design-patterns/contract-stub-pattern": {
+  "title": "Contract Stub",
+  "id": "NewhCGEdlHo",
+  "visibility": "Public",
+  "category": "testing-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "testing-design-patterns/contract-stub-with-wiremock-pattern": {
+  "title": "Contract Stub with WireMock",
+  "id": "1lUspOe-et4",
+  "visibility": "Public",
+  "category": "testing-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "testing-design-patterns/object-mother-pattern": {
+  "title": "Object Mother and Test Data Builder",
+  "id": "DwEsY3uDyRc",
+  "visibility": "Public",
+  "category": "testing-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "testing-design-patterns/page-object-pattern": {
+  "title": "Page Object",
+  "id": "jfIkKqrAANE",
+  "visibility": "Public",
+  "category": "testing-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "testing-design-patterns/page-object-with-selenium-pattern": {
+  "title": "Page Object with Selenium WebDriver",
+  "id": "rJIBqBaQEoU",
+  "visibility": "Public",
+  "category": "testing-design-patterns",
+  "recorded": "2026-10-06"
+ },
+ "testing-design-patterns/test-double-pattern": {
+  "title": "Test Double (Dummy, Stub, Spy, Mock, Fake)",
+  "id": "-f0Lib-2pp4",
+  "visibility": "Public",
+  "category": "testing-design-patterns",
+  "recorded": "2026-10-06"
+ }
+}
