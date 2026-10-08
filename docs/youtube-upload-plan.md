@@ -120,7 +120,17 @@ document generated from it show which projects are uploaded and which are still 
 files still carry the deleted Kokoro videos' chapter times, but the uploader recomputes the
 chapters from the amy-slow `.srt` at upload time, so uploads are not affected.
 
-## Resuming (state saved 6 October 2026, 09:30)
+## Resuming (state saved 8 October 2026)
+
+**Stopped on 8 October 2026 at the channel owner's request; resume only when asked.** Nothing is running. At 06:00 on 8 October the registry held 264 of 272 projects (260 Public with thumbnails, 4 drafts), and the stream was uploading the last `behavioural` videos (State onwards). It exited later that morning; check `~/.ytupload-chrome/status.txt` and the tail of `batch.log` first, to see whether it ran out of videos or stopped at YouTube's thumbnail limit.
+
+- **Stop rule (owner, 7 October):** when YouTube refuses a custom thumbnail, the stream stops for the day and is **not** restarted automatically. `stream.py` exits at the limit.
+- **Still to do, approved in principle by the owner on 8 October but not started.** Confirm with the owner again before running these, because two are permanent deletions:
+  - `micro-services-design-patterns/backpressure-with-reactor-pattern` (draft `_aTqu5e_6oE`) and `micro-services-design-patterns/valet-key-pattern` (draft `oJ53K32YMnQ`): "edit draft" timed out. Reset `tries` to 0 in the registry and run `ytupload.sh batch <project>`; it finishes and publishes the draft.
+  - `micro-services-design-patterns/write-through-cache-pattern` (draft `OKS3IEmu8j8`) and `architectural-design-patterns/clean-architecture-with-spring-pattern` (draft `duhFGVtHaEU`): YouTube reported "upload failed", so the file is broken. Delete the draft forever in Studio, remove its registry entry, then upload fresh.
+  - `micro-services-design-patterns/retry-pattern`: "attach video" timed out twice and no draft exists; it uploads on the next stream run.
+  - A helper for looking at or deleting drafts was drafted in the session scratchpad (not in the repository). If it is needed again, rewrite it on top of `ytupload.attach()`.
+- **Not committed yet:** the playlist scroll fix in `ytupload.py`, the stop rule in `stream.py`, the registry, the regenerated indexes and these notes.
 
 **Where it stands:** all 272 videos have been rebuilt with the new outro ("If you found this
 useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps
@@ -134,8 +144,8 @@ from the rebuilt files. Each category has two playlists, "... - Without Framewor
 `tools/ytupload/verify.py` passes it. The checks: amy-slow voice, fresh build, new outro in the
 captions *and* heard in the audio by speech-to-text, 1920x1080 H.264 with AAC audio, loudness
 -16 LUFS, true peak at most -0.5 dB, length matching the captions, a 1280x720 thumbnail and valid
-YouTube fields. When YouTube refuses a custom thumbnail the stream uploads nothing more and retries
-every 2 hours (the limit cleared around midnight IST), first re-trying the refused thumbnail.
+YouTube fields. When YouTube refuses a custom thumbnail the stream stops for the day; on the next
+run (only when the channel owner asks) it first re-tries the refused thumbnail.
 
 **To check:** `~/.ytupload-chrome/status.txt` (one line), `~/.ytupload-chrome/batch.log` (one line per
 video), `~/.ytupload-chrome/stream/stream.log`, and the registry `gradle-java/youtube-links.json`.

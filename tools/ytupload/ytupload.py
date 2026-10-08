@@ -198,6 +198,7 @@ def playlist_state(page, name):
             && e.getBoundingClientRect().width > 0
             && e.closest('li, label') !== null && e.closest('[contenteditable]') === null);
         if (!el) return null;
+        el.scrollIntoView({block: 'center'});        // the list outgrows the dialog
         let p = el, box = null;
         for (let i = 0; i < 8 && p && !box; i++, p = p.parentElement) {
             const all = p.querySelectorAll('[aria-checked]');

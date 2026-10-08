@@ -1,4 +1,300 @@
 {
+ "architectural-design-patterns/broker-pattern": {
+  "title": "Broker",
+  "id": "9GiacbeMT_Q",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/cell-based-pattern": {
+  "title": "Cell-Based Architecture",
+  "id": "I393FTWPqlU",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/clean-architecture-pattern": {
+  "title": "Clean Architecture in Java - Which Way Does It Point?",
+  "id": "gW5DJsJv0ZI",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/clean-architecture-with-spring-pattern": {
+  "title": "Clean Architecture with Spring - Who Wires the Graph?",
+  "id": "duhFGVtHaEU",
+  "visibility": "Draft",
+  "tries": 2,
+  "category": "architectural-design-patterns",
+  "problem": "step 'wait for upload' failed (YouTube reports the upload failed).",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/event-driven-architecture-pattern": {
+  "title": "Event-Driven Architecture",
+  "id": "JIWyG8upCTI",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/event-driven-architecture-with-kafka-pattern": {
+  "title": "Event-Driven Architecture with Kafka",
+  "id": "CBgYBuigp9s",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/hexagonal-architecture-pattern": {
+  "title": "Hexagonal Architecture in Java - Ports and Adapters",
+  "id": "eXOvd4r3OVA",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/hexagonal-architecture-with-spring-boot-pattern": {
+  "title": "Hexagonal Architecture with Spring Boot",
+  "id": "bP148qHW31k",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/layered-architecture-pattern": {
+  "title": "Layered Architecture in Java - The One Call That Ruins It",
+  "id": "GRDuRNK-TkA",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/layered-architecture-with-spring-boot-pattern": {
+  "title": "Layered Architecture with Spring Boot - Layers That Hold",
+  "id": "8ULewFCK_Uk",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/micro-frontends-pattern": {
+  "title": "Micro-Frontends",
+  "id": "_s1WPfSHrSc",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/microkernel-pattern": {
+  "title": "Microkernel",
+  "id": "SX37L_k3qGY",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/modular-monolith-pattern": {
+  "title": "Modular Monolith",
+  "id": "vy25tbPoItI",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/mvc-pattern": {
+  "title": "MVC in Java - The View That Knew Too Much",
+  "id": "xfNTBx8GSJY",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/mvc-with-spring-mvc-pattern": {
+  "title": "MVC with Spring MVC - What The Framework Adds",
+  "id": "XMEJFD8A3ZM",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/mvp-and-mvvm-pattern": {
+  "title": "MVP and MVVM",
+  "id": "cAscVTFF3fU",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/onion-architecture-pattern": {
+  "title": "Onion Architecture",
+  "id": "AQwCILK6gSs",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/pipe-and-filter-architecture-pattern": {
+  "title": "Pipe-and-Filter Architecture",
+  "id": "3lslyjEisYA",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/serverless-pattern": {
+  "title": "Serverless Functions",
+  "id": "TlK3J-JCPaI",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/serverless-with-localstack-pattern": {
+  "title": "Serverless with LocalStack",
+  "id": "L0FqfDA9C_E",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/space-based-pattern": {
+  "title": "Space-Based Architecture",
+  "id": "ZLzBwtH2UVU",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "architectural-design-patterns/space-based-with-hazelcast-pattern": {
+  "title": "Space-Based Architecture with Hazelcast",
+  "id": "TrpI_NPMTT0",
+  "visibility": "Public",
+  "category": "architectural-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "behavioural/acyclic-visitor-pattern": {
+  "title": "Acyclic Visitor",
+  "id": "9GLJ4l_PGts",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-07"
+ },
+ "behavioural/blackboard-pattern": {
+  "title": "Blackboard",
+  "id": "jJAPG4OKq0U",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-07"
+ },
+ "behavioural/chain-of-responsibility-pattern": {
+  "title": "Chain of Responsibility in Java - Checkout Screening",
+  "id": "YriRtGwpui0",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-07"
+ },
+ "behavioural/chain-of-responsibility-with-spring-pattern": {
+  "title": "Chain of Responsibility with Spring - Filters In Order",
+  "id": "uzpUdsnHuVc",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-07"
+ },
+ "behavioural/command-pattern": {
+  "title": "Command Pattern in Java - Undoable Cart Edits",
+  "id": "4c1hTAIBvrM",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-08"
+ },
+ "behavioural/interpreter-pattern": {
+  "title": "Interpreter Pattern in Java - Promotion Rules",
+  "id": "YCHiPMHFE_Y",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-08"
+ },
+ "behavioural/interpreter-with-spel-pattern": {
+  "title": "Interpreter with SpEL - Expressions You Did Not Write",
+  "id": "9OVJDBbbuk4",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-08"
+ },
+ "behavioural/iterator-pattern": {
+  "title": "Iterator Pattern in Java - Paging the Catalog",
+  "id": "u9oBfpdUi6g",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-08"
+ },
+ "behavioural/mediator-pattern": {
+  "title": "Mediator Pattern in Java - The Checkout Page",
+  "id": "dmY0czvUvAM",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-08"
+ },
+ "behavioural/memento-pattern": {
+  "title": "Memento Pattern in Java - Restoring a Saved Cart",
+  "id": "OzVd4gJHUqc",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-08"
+ },
+ "behavioural/observer-pattern": {
+  "title": "Observer Pattern in Java - Order Status Events",
+  "id": "8dylu1vWgTI",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-08"
+ },
+ "behavioural/observer-with-spring-pattern": {
+  "title": "Observer with Spring - Events, And Who Runs Them",
+  "id": "WGJSFbKIzzQ",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-08"
+ },
+ "behavioural/servant-pattern": {
+  "title": "Servant",
+  "id": "2Qbpyk5ejEM",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-08"
+ },
+ "behavioural/state-pattern": {
+  "title": "State Pattern in Java - The Order Lifecycle",
+  "id": "c_aT3Jsa8gU",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-08"
+ },
+ "behavioural/strategy-pattern": {
+  "title": "Strategy Pattern in Java - Shipping Rules",
+  "id": "FsdNIg0kkwk",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-08"
+ },
+ "behavioural/strategy-with-spring-pattern": {
+  "title": "Strategy with Spring - Let The Container Hold Them",
+  "id": "H2IcFh7-Mw0",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-08"
+ },
+ "behavioural/table-driven-state-machine-pattern": {
+  "title": "Table-Driven State Machine",
+  "id": "YieiDYGd8SM",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-08"
+ },
+ "behavioural/template-method-pattern": {
+  "title": "Template Method Pattern in Java - Fulfilment Steps",
+  "id": "1PjEMl72elo",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-08"
+ },
+ "behavioural/template-method-with-spring-pattern": {
+  "title": "Template Method with Spring - Inside JdbcTemplate",
+  "id": "XGsG2gc20xw",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-08"
+ },
+ "behavioural/visitor-pattern": {
+  "title": "Visitor Pattern in Java - Catalog Reports",
+  "id": "G455P3iIYO4",
+  "visibility": "Public",
+  "category": "behavioural",
+  "recorded": "2026-10-08"
+ },
  "concurrency-design-patterns/active-object-pattern": {
   "title": "Active Object in Java - A Call That Returns Before It's Done",
   "id": "gHL0P-owsqQ",
@@ -580,6 +876,13 @@
   "category": "foundational-design-patterns",
   "recorded": "2026-10-05"
  },
+ "foundational-design-patterns/null-object-pattern": {
+  "title": "Null Object in Java - The Discount That Is Not There",
+  "id": "dlQL1izSUdQ",
+  "visibility": "Public",
+  "category": "foundational-design-patterns",
+  "recorded": "2026-10-07"
+ },
  "foundational-design-patterns/object-pool-pattern": {
   "title": "Object Pool in Java - When Pooling Makes It Slower",
   "id": "JbgiqDdavw8",
@@ -874,6 +1177,13 @@
   "category": "messaging-integration-patterns",
   "recorded": "2026-10-06"
  },
+ "messaging-integration-patterns/splitter-aggregator-with-camel-pattern": {
+  "title": "Splitter and Aggregator with Camel",
+  "id": "47Y6uwVZqmA",
+  "visibility": "Public",
+  "category": "messaging-integration-patterns",
+  "recorded": "2026-10-07"
+ },
  "messaging-integration-patterns/wire-tap-pattern": {
   "title": "Wire Tap",
   "id": "1zUF0Q0nCXY",
@@ -927,10 +1237,10 @@
   "title": "Backpressure with Project Reactor Design Pattern in Java - Explained",
   "id": "_aTqu5e_6oE",
   "visibility": "Draft",
-  "tries": 1,
+  "tries": 2,
   "category": "micro-services-design-patterns",
   "problem": "step 'edit draft' failed (Locator.click: Timeout 30000ms exceeded.).",
-  "recorded": "2026-10-06"
+  "recorded": "2026-10-07"
  },
  "micro-services-design-patterns/bulkhead-pattern": {
   "title": "Bulkhead Design Pattern in Java - Explained - Isolating a Slow Job",
@@ -1021,9 +1331,277 @@
   "id": "jNe6I0vSqK4",
   "visibility": "Public",
   "category": "micro-services-design-patterns",
-  "recorded": "2026-10-06",
-  "problem": "no thumbnail (YouTube's daily custom-thumbnail limit)",
-  "thumbnail": false
+  "recorded": "2026-10-06"
+ },
+ "micro-services-design-patterns/event-carried-state-transfer-pattern": {
+  "title": "Event-Carried State Transfer",
+  "id": "HyLDYyzl5e0",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/event-carried-state-transfer-with-kafka-pattern": {
+  "title": "Event-Carried State Transfer with Kafka",
+  "id": "ZuwKrLdVzMY",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/gateway-offloading-pattern": {
+  "title": "Gateway Offloading",
+  "id": "zD8XR1uEUHY",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/gateway-offloading-with-spring-cloud-gateway-pattern": {
+  "title": "Gateway Offloading with Spring Cloud Gateway",
+  "id": "NKeUpnHoEFc",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/health-endpoint-monitoring-pattern": {
+  "title": "Health Endpoint Monitoring",
+  "id": "swyLBuvUdJI",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/hedged-requests-pattern": {
+  "title": "Hedged Requests",
+  "id": "mAvgYQoxRL8",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/hedged-requests-with-grpc-pattern": {
+  "title": "Hedged Requests with gRPC",
+  "id": "lXUm-6FEY6w",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/idempotent-consumer-pattern": {
+  "title": "Idempotent Consumer in Java - The Duplicate Message",
+  "id": "ZRIy9exJ8Gk",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/idempotent-consumer-with-kafka-pattern": {
+  "title": "Idempotent Consumer with Kafka",
+  "id": "cnmZ2v8fxiM",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/leader-election-pattern": {
+  "title": "Leader Election",
+  "id": "I5-KTd8Pp7k",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/leader-election-with-kubernetes-pattern": {
+  "title": "Leader Election with Kubernetes",
+  "id": "J92q1NMjiPo",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/load-balancing-pattern": {
+  "title": "Client-Side Load Balancing in Java - Catalog Reads",
+  "id": "fJyhoDqeVIs",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/load-balancing-with-spring-cloud-loadbalancer-pattern": {
+  "title": "Load Balancing with Spring Cloud LoadBalancer",
+  "id": "KJRj8Tkwt-w",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/materialized-view-pattern": {
+  "title": "Materialized View",
+  "id": "KgI1fzPej6g",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/pipes-and-filters-pattern": {
+  "title": "Pipes and Filters",
+  "id": "-pML_lKzDvA",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/priority-queue-pattern": {
+  "title": "Priority Queue",
+  "id": "wSEzjj5s19U",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/priority-queue-with-rabbitmq-pattern": {
+  "title": "Priority Queue with RabbitMQ",
+  "id": "SyqHRHRuAs4",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/publisher-subscriber-pattern": {
+  "title": "Publisher-Subscriber",
+  "id": "CivPkPm6DfI",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/publisher-subscriber-with-redis-pattern": {
+  "title": "Publisher-Subscriber with Redis",
+  "id": "zEwmHA0_BsE",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/queue-based-load-leveling-pattern": {
+  "title": "Queue-Based Load Leveling",
+  "id": "3a4dsdPy_aY",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/queue-based-load-leveling-with-sqs-pattern": {
+  "title": "Queue-Based Load Leveling with SQS",
+  "id": "Qf0QYu81ShU",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/rate-limiter-pattern": {
+  "title": "Rate Limiter",
+  "id": "TcT13v6pCKI",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/rate-limiter-with-redis-pattern": {
+  "title": "Rate Limiter with Redis",
+  "id": "pkAk8p_2FMA",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/retry-with-resilience4j-pattern": {
+  "title": "Retry with Resilience4j - Backoff, Jitter And Order",
+  "id": "e1U3-_TSzmo",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/saga-pattern": {
+  "title": "Saga Pattern in Java - Placing an Order, Safely",
+  "id": "V0yzsB2kEOc",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/scatter-gather-pattern": {
+  "title": "Scatter-Gather",
+  "id": "96Q6Dn5pz9s",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/service-discovery-pattern": {
+  "title": "Service Discovery in Java - Finding a Live Instance",
+  "id": "sSDNy3hGWSs",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/service-discovery-with-spring-cloud-consul-pattern": {
+  "title": "Service Discovery with Spring Cloud Consul",
+  "id": "ARI34w99nrc",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/sharding-pattern": {
+  "title": "Sharding",
+  "id": "ieki7m_XEHo",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/sharding-with-postgresql-pattern": {
+  "title": "Sharding with PostgreSQL",
+  "id": "vJ56XgTlW68",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/timeout-pattern": {
+  "title": "Timeout",
+  "id": "1rbD5VvLBXo",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/transactional-outbox-pattern": {
+  "title": "Transactional Outbox in Java - Never Lose an Event",
+  "id": "WhvNi71W4TU",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/transactional-outbox-with-debezium-pattern": {
+  "title": "Transactional Outbox with Debezium",
+  "id": "LaMiSMh28I8",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/valet-key-pattern": {
+  "title": "Valet Key",
+  "id": "oJ53K32YMnQ",
+  "visibility": "Draft",
+  "tries": 2,
+  "category": "micro-services-design-patterns",
+  "problem": "step 'edit draft' failed (Locator.click: Timeout 30000ms exceeded.).",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/valet-key-with-s3-pattern": {
+  "title": "Valet Key with Amazon S3 Presigned URLs",
+  "id": "tyeccY30Qig",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/write-behind-cache-pattern": {
+  "title": "Write-Behind Cache",
+  "id": "3SYbgcIc1a8",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/write-through-cache-pattern": {
+  "title": "Write-Through Cache",
+  "id": "OKS3IEmu8j8",
+  "visibility": "Draft",
+  "tries": 2,
+  "category": "micro-services-design-patterns",
+  "problem": "step 'wait for upload' failed (YouTube reports the upload failed).",
+  "recorded": "2026-10-07"
+ },
+ "micro-services-design-patterns/write-through-cache-with-redis-pattern": {
+  "title": "Write-Through Cache with Redis and PostgreSQL",
+  "id": "zw6zge2ROlM",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-07"
  },
  "platform-design-patterns/backends-for-frontends-pattern": {
   "title": "Backends for Frontends in Java - One Shape Won't Fit",

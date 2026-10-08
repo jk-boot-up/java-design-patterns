@@ -4,9 +4,9 @@
 
 State lives in ~/.ytupload-chrome/stream/ by default: done.txt (one "ok <project>"
 line per rebuilt video), verified.txt (PASS/FAIL per video) and logs/ (each
-video's rebuild log, which verify.py reads). Stops uploading while YouTube
-refuses custom thumbnails and carries on once it accepts them again; retries
-after Studio timeouts. See docs/youtube-upload-plan.md, "Resuming".
+video's rebuild log, which verify.py reads). Exits for the day as soon as
+YouTube refuses a custom thumbnail; start it again the next day, when the
+channel owner asks. Retries after Studio timeouts. See docs/youtube-upload-plan.md, "Resuming".
 """
 import os, sys, time
 S = sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser("~/.ytupload-chrome/stream")
@@ -36,11 +36,10 @@ def verdict(rel):
 
 
 while True:
-    if Y.thumbnail_limited():                   # no thumbnail, no upload: wait for the next day
-        print("thumbnail limit reached; uploads paused until YouTube accepts thumbnails", flush=True)
-        while Y.thumbnail_limited():
-            time.sleep(600)
-        print("thumbnail limit cleared; resuming", flush=True)
+    if Y.thumbnail_limited():                   # no thumbnail, no upload: stop for the day
+        Y.status("STOPPED: YouTube's daily custom-thumbnail limit; resume tomorrow when asked")
+        print("thumbnail limit reached; stopped for today", flush=True)
+        break
     lines = open(S + "/done.txt").read().split("\n")
     built = [l.split()[1].split("gradle-java/")[1] for l in lines if l.startswith("ok ")]
     reg = Y.load_registry()
@@ -61,7 +60,7 @@ while True:
                 print("stopped after 5 crashes in a row"); break
             time.sleep(120)
             continue
-        if Y.thumbnail_limited():               # stopped for the day: the loop waits, then resumes
+        if Y.thumbnail_limited():               # stopped for the day: the loop top exits
             tries[rel] -= 1
             continue
         if "STOPPED" in open(Y.STATUS).read():
