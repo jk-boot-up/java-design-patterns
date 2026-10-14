@@ -1,0 +1,138 @@
+{
+ "architectural-design-patterns": {
+  "framework": {
+   "id": "PLI20ycy7pYcY",
+   "title": "Architectural Design Patterns in Java - With Frameworks"
+  },
+  "plain": {
+   "id": "PLH1w2XiFsvKY",
+   "title": "Architectural Design Patterns in Java - Without Frameworks"
+  }
+ },
+ "behavioural": {
+  "framework": {
+   "id": "PLZJM8raxpcQM",
+   "title": "Behavioral Design Patterns in Java - With Frameworks"
+  },
+  "plain": {
+   "id": "PLWzz3z37ZUqQ",
+   "title": "Behavioral Design Patterns in Java - Without Frameworks"
+  }
+ },
+ "concurrency-design-patterns": {
+  "framework": {
+   "id": "PLVSe1wpVmbQU",
+   "title": "Concurrency Design Patterns in Java - With Frameworks"
+  },
+  "plain": {
+   "id": "PLcj7LDVgAuaI",
+   "title": "Concurrency Design Patterns in Java - Without Frameworks"
+  }
+ },
+ "creational": {
+  "framework": {
+   "id": "PLYohmS2ljQbQ",
+   "title": "Creational Design Patterns in Java - With Frameworks"
+  },
+  "plain": {
+   "id": "PLQK701FWIquI",
+   "title": "Creational Design Patterns in Java - Without Frameworks"
+  }
+ },
+ "domain-driven-design-patterns": {
+  "plain": {
+   "id": "PLN3NFOYp5XW0",
+   "title": "Domain-Driven Design Patterns in Java - Without Frameworks"
+  }
+ },
+ "enterprise-design-patterns": {
+  "framework": {
+   "id": "PLDmltzmKJqzE",
+   "title": "Enterprise Design Patterns in Java - With Frameworks"
+  },
+  "plain": {
+   "id": "PLCB1XMP_xrA0",
+   "title": "Enterprise Design Patterns in Java - Without Frameworks"
+  }
+ },
+ "foundational-design-patterns": {
+  "framework": {
+   "id": "PLf6Dx3r4nm7I",
+   "title": "Foundational Design Patterns in Java - With Frameworks"
+  },
+  "plain": {
+   "id": "PLH01Ggq8cAh8",
+   "title": "Foundational Design Patterns in Java - Without Frameworks"
+  }
+ },
+ "functional-design-patterns": {
+  "framework": {
+   "id": "PLe_V2C9vFm1M",
+   "title": "Functional Design Patterns in Java - With Frameworks"
+  },
+  "plain": {
+   "id": "PLSHwqI54qjVI",
+   "title": "Functional Design Patterns in Java - Without Frameworks"
+  }
+ },
+ "messaging-integration-patterns": {
+  "framework": {
+   "id": "PLaqkwsq44nPo",
+   "title": "Messaging and Integration Patterns in Java - With Frameworks"
+  },
+  "plain": {
+   "id": "PLMOQWRic0glE",
+   "title": "Messaging and Integration Patterns in Java - Without Frameworks"
+  }
+ },
+ "micro-services-design-patterns": {
+  "framework": {
+   "id": "PLW6mZAhVCNIM",
+   "title": "Micro Services Design Patterns - With Frameworks"
+  },
+  "plain": {
+   "id": "PLY9a1nAna2yk",
+   "title": "Micro Services Design Patterns - Without Frameworks"
+  }
+ },
+ "platform-design-patterns": {
+  "framework": {
+   "id": "PLXZKp4OP-oGc",
+   "title": "Platform Design Patterns in Java - With Frameworks"
+  },
+  "plain": {
+   "id": "PLZ3F4--HCxYA",
+   "title": "Platform Design Patterns in Java - Without Frameworks"
+  }
+ },
+ "security-design-patterns": {
+  "framework": {
+   "id": "PLOya1MmOJ6yo",
+   "title": "Security Design Patterns in Java - With Frameworks"
+  },
+  "plain": {
+   "id": "PLJpNFWC-kC00",
+   "title": "Security Design Patterns in Java - Without Frameworks"
+  }
+ },
+ "structural": {
+  "framework": {
+   "id": "PLeHZ-BFhpe9s",
+   "title": "Structural Design Patterns in Java - With Frameworks"
+  },
+  "plain": {
+   "id": "PLSdKkhlA42gs",
+   "title": "Structural Design Patterns in Java - Without Frameworks"
+  }
+ },
+ "testing-design-patterns": {
+  "framework": {
+   "id": "PLRzYC4qxBmaE",
+   "title": "Testing Design Patterns in Java - With Frameworks"
+  },
+  "plain": {
+   "id": "PLHUuEeAfXX2g",
+   "title": "Testing Design Patterns in Java - Without Frameworks"
+  }
+ }
+}
