@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spec — Ten New Pattern Projects and a Root Index</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Spec — Ten New Pattern Projects and a Root Index</h1>
+<h2>1. Goal</h2>
+<p>Add ten new teaching projects to <code>gradle-java/</code>, one at a time, each of the same quality as the existing ones, and add a generated index at the repository root that lists and links every project. Most of the work is generated from one content file per project, so the effort (and the tokens) go into the teaching content, not into boilerplate.</p>
+<h2>2. The ten projects, in build order</h2>
+<table><thead><tr><th>#</th><th>Pattern</th><th>Category (directory)</th><th>The online-store scenario</th></tr></thead><tbody><tr><td>1</td><td>Money</td><td><code>enterprise-design-patterns</code></td><td>Prices as doubles lose pennies; a <code>Money</code> type with currency and exact arithmetic, rounding, allocation of a discount across lines</td></tr><tr><td>2</td><td>Test Double</td><td><code>testing-design-patterns</code> (new)</td><td>Testing checkout without charging a card: dummy, stub, spy, mock and fake payment gateways, and what each can prove</td></tr><tr><td>3</td><td>Content Enricher</td><td><code>messaging-integration-patterns</code></td><td>An order event with only a customer id is enriched with name, address and loyalty tier before the warehouse sees it</td></tr><tr><td>4</td><td>Materialized View</td><td><code>micro-services-design-patterns</code></td><td>&quot;Best sellers this week&quot; computed on every page view vs. a view kept up to date from order events</td></tr><tr><td>5</td><td>Asynchronous Request–Reply</td><td><code>micro-services-design-patterns</code></td><td>A large sales export: 202 Accepted, a status URL to poll, and the result when ready</td></tr><tr><td>6</td><td>Health Endpoint Monitoring</td><td><code>micro-services-design-patterns</code></td><td>Liveness vs. readiness for the checkout service; a load balancer that stops sending traffic to an instance that is alive but not ready</td></tr><tr><td>7</td><td>Write-Behind Cache</td><td><code>micro-services-design-patterns</code></td><td>Stock updates written to the cache now and to the database in batches; the speed, and the writes lost in a crash</td></tr><tr><td>8</td><td>Immutable Object</td><td><code>foundational-design-patterns</code></td><td>A price list shared by many threads; a mutable one corrupted mid-read vs. an immutable one replaced whole</td></tr><tr><td>9</td><td>Table-Driven State Machine</td><td><code>behavioural</code></td><td>Order status transitions (placed, paid, shipped, delivered, cancelled, refunded) as a table instead of scattered ifs</td></tr><tr><td>10</td><td>Modular Monolith</td><td><code>architectural-design-patterns</code></td><td>One deployable shop split into modules (catalog, orders, payments) with enforced boundaries, before any microservice</td></tr></tbody></table>
+<p>Each is a <strong>plain-Java</strong> project (Java 21, Gradle wrapper, JUnit 5, no framework, runs offline). A framework or real-infrastructure sibling may come later as a separate <code>-with-&lt;tool&gt;</code> project; it is out of scope here.</p>
+<h2>3. What every project must contain</h2>
+<p>The same deliverables as the existing projects:</p>
+<ul><li><strong>Code:</strong> <code>src/main/java/com/jk/explore/&lt;package&gt;/</code>: the naive version, the pattern, and a <code>&lt;Name&gt;Demo</code> main class that runs the story in numbered acts and prints exact, repeatable numbers. <strong>Tests:</strong> JUnit 5, asserting every number the demo prints, plus the pattern&#x27;s key property. No <code>Thread.sleep</code>, no wall clock; timing is simulated, so every run is identical.</li><li><strong><code>README.md</code>:</strong> what it is, the analogy, the scenario, how to run and test, technologies and versions, the diagrams embedded, the costs, when it is too much, where you have met it. Plus a generated <code>README.html</code> with inlined styles and linked (not embedded) images.</li><li><strong><code>docs/</code>:</strong> <code>problem-statement.md</code>, <code>prerequisites.md</code>, <code>session.md</code> (a one-hour session guide with exercises), <code>&lt;name&gt;-explained.md</code>, <code>architecture-diagram.md</code>, <code>class-diagram.md</code>, <code>data-flow-diagram.md</code>, <code>sequence-diagram.md</code>, <code>uml-diagram.md</code>, <code>spec.md</code> + <code>spec.html</code>, <code>youtube.md</code>, <code>thumbnail.png</code>, <code>animation.html</code>.</li><li><strong>Diagrams:</strong> PNG files in <code>docs/images/</code>, drawn by a script from a small description. <strong>No Mermaid</strong> anywhere.</li><li><strong>Video:</strong> <code>video/scenes.py</code> (about 14 scenes), narrated with the approved voice, <strong>Piper Amy at 0.8 speed with longer pauses</strong> (the <code>amy-slow</code> settings), as the project&#x27;s main voice. Produces <code>-explained.mp4</code>, <code>.m4a</code>, <code>.srt</code> and <code>poster.png</code>. Rendered media is not committed.</li><li><strong>Animation:</strong> <code>docs/animation.html</code>, one step per act, with the Narration on/off switch and per-step Play/Pause, clips in <code>docs/audio/</code>.</li></ul>
+<h2>4. Teaching quality (non-negotiable)</h2>
+<ul><li><strong>Written for beginners.</strong> Plain words, short sentences, one idea at a time; every term is explained the first time it is used.</li><li><strong>Works with the eyes closed.</strong> Narration never says &quot;as you can see&quot;; it names the actors, says what each does, and describes the flow in order.</li><li><strong>Opening order</strong>, exactly as in the approved api-composition video: what the video is, &quot;This video is presented by Jayasekhar Konduru&quot;, &quot;First, a simple definition&quot; of the pattern in plain words, an everyday analogy (from whichever domain makes it clearest for a beginner), then the domain the code uses, introduced and explained before any detail, then what the viewer will see by the end.</li><li><strong>The online store is the default domain</strong> for the code. Where it fits a pattern poorly, use whichever domain makes the pattern easiest to learn, and say why in the README. Analogies may come from anywhere.</li><li><strong>Honest:</strong> each project shows the naive version working first, then where it hurts, the pattern, and then the pattern&#x27;s own costs and when not to use it.</li><li><strong>Closing:</strong> one-sentence summary, the repository, one exercise, like and subscribe. Never announce the next pattern.</li><li><strong>Pronunciation:</strong> handled by videokit (API spelled A, P, I; the name spoken as &quot;Jaya Shaykar&quot;).</li></ul>
+<h2>5. The root index</h2>
+<p><code>index.md</code> and <code>index.html</code> at the repository root, <strong>generated</strong> by a script that scans <code>gradle-java/*/*-pattern/</code>, never edited by hand:</p>
+<ul><li>grouped by category, in the course order, with a count per category;</li><li>for each project: its title, a one-line summary, and links to its README, README.html, animation and spec; framework versions listed under their plain-Java project;</li><li><code>index.html</code> is self-contained (inline styles, no external links other than the project links) and works when opened from disk.</li></ul>
+<p>Re-running the script after adding a project keeps the index current.</p>
+<h2>6. Automation (to keep effort and tokens low)</h2>
+<p>One content file per project, <strong><code>pattern.toml</code></strong>, holds everything that is not Java code: metadata, README and docs prose, diagram descriptions, animation steps and video scenes. A new tool, <strong><code>tools/patternkit</code></strong>, turns it into:</p>
+<table><thead><tr><th>From <code>pattern.toml</code></th><th>Generated</th></tr></thead><tbody><tr><td><code>[project]</code></td><td>Gradle files and wrapper, package layout, videokit settings, registrations in the shared docs generators (spec, YouTube doc, thumbnail)</td></tr><tr><td><code>[readme]</code>, <code>[docs.*]</code></td><td><code>README.md</code>, <code>docs/*.md</code></td></tr><tr><td><code>[[diagram]]</code></td><td><code>docs/images/*.png</code> and the diagram <code>.md</code> files</td></tr><tr><td><code>[[step]]</code></td><td><code>docs/animation.html</code> (then voiced by videokit)</td></tr><tr><td><code>[[scene]]</code></td><td><code>video/scenes.py</code> (then built by videokit)</td></tr></tbody></table>
+<p>Then the existing generators produce <code>spec.*</code>, <code>youtube.md</code>, <code>thumbnail.png</code> and <code>README.html</code>, and videokit produces the video, audio and animation clips. A single command builds a whole project: <code>tools/patternkit/patternkit.sh build &lt;slug&gt;</code>.</p>
+<h2>7. Acceptance for each project</h2>
+<ol><li><code>./gradlew test</code> passes, and <code>./gradlew run</code> prints the acts.</li><li>Every file in section 3 exists; the HTML pages inline their styles and link their images (no base64 <code>data:</code> images); no Mermaid.</li><li>The video and animation are rendered in the approved voice with no errors.</li><li>The project appears in <code>index.md</code> and <code>index.html</code> and in its category README.</li><li>Nothing rendered (mp4, m4a, srt, wav, audio clips, build folders) is committed.</li></ol>
+</main>
+<footer>
+Generated from <code>new-patterns-spec.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

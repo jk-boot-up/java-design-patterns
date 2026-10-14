@@ -120,17 +120,14 @@ document generated from it show which projects are uploaded and which are still 
 files still carry the deleted Kokoro videos' chapter times, but the uploader recomputes the
 chapters from the amy-slow `.srt` at upload time, so uploads are not affected.
 
-## Resuming (state saved 8 October 2026)
+## Resuming (state saved 14 October 2026)
 
-**Stopped on 8 October 2026 at the channel owner's request; resume only when asked.** Nothing is running. At 06:00 on 8 October the registry held 264 of 272 projects (260 Public with thumbnails, 4 drafts), and the stream was uploading the last `behavioural` videos (State onwards). It exited later that morning; check `~/.ytupload-chrome/status.txt` and the tail of `batch.log` first, to see whether it ran out of videos or stopped at YouTube's thumbnail limit.
+**Resumed and finished on 14 October 2026; nothing is running.** All 272 projects are Public with custom thumbnails, and the registry matches the channel one for one. Before the next run, check `~/.ytupload-chrome/status.txt` and the tail of `batch.log`.
 
 - **Stop rule (owner, 7 October):** when YouTube refuses a custom thumbnail, the stream stops for the day and is **not** restarted automatically. `stream.py` exits at the limit.
-- **Still to do, approved in principle by the owner on 8 October but not started.** Confirm with the owner again before running these, because two are permanent deletions:
-  - `micro-services-design-patterns/backpressure-with-reactor-pattern` (draft `_aTqu5e_6oE`) and `micro-services-design-patterns/valet-key-pattern` (draft `oJ53K32YMnQ`): "edit draft" timed out. Reset `tries` to 0 in the registry and run `ytupload.sh batch <project>`; it finishes and publishes the draft.
-  - `micro-services-design-patterns/write-through-cache-pattern` (draft `OKS3IEmu8j8`) and `architectural-design-patterns/clean-architecture-with-spring-pattern` (draft `duhFGVtHaEU`): YouTube reported "upload failed", so the file is broken. Delete the draft forever in Studio, remove its registry entry, then upload fresh.
-  - `micro-services-design-patterns/retry-pattern`: "attach video" timed out twice and no draft exists; it uploads on the next stream run.
-  - A helper for looking at or deleting drafts was drafted in the session scratchpad (not in the repository). If it is needed again, rewrite it on top of `ytupload.attach()`.
-- **Not committed yet:** the playlist scroll fix in `ytupload.py`, the stop rule in `stream.py`, the registry, the regenerated indexes and these notes.
+- **14 October:** `retry-pattern` was uploaded. `backpressure-with-reactor-pattern` (`_aTqu5e_6oE`) and `valet-key-pattern` (`oJ53K32YMnQ`) turned out to be Public already (premiered 6 and 7 October, thumbnails in place); only the registry still called them drafts, so it was corrected. `ytupload.finish_draft()` and `resume()` now find a draft with `draft_row()`: Studio's Filter box first asks for a property (Title), and a row has to match the title whole, because "Valet Key" is also the start of "Valet Key with Amazon S3 Presigned URLs".
+- **14 October, with the owner's go-ahead:** the broken drafts of `write-through-cache-pattern` and `clean-architecture-with-spring-pattern` were deleted forever and both were uploaded fresh (`v4DNzP75bss`, `8wgBTD3dx_c`).
+- **Stray drafts:** Studio's Channel content also lists 9 old drafts without a playable video, left by failed attempts (titles such as "retry pattern explained amy slow"); every one duplicates a Public video. The owner asked on 14 October to delete them, but Claude Code's permission check blocked the scripted deletion, so they are still there: delete them by hand in Studio (row Options, Delete forever), or allow the deletion and ask again. `ytupload.channel_videos()` can stop early because it reads the next page before it loads; wait for the first row to change after clicking Next when counting.
 
 **Where it stands:** all 272 videos have been rebuilt with the new outro ("If you found this
 useful, a like really helps other people discover it. Kindly subscribe to the channel. It helps

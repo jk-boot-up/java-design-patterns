@@ -22,12 +22,10 @@
  },
  "architectural-design-patterns/clean-architecture-with-spring-pattern": {
   "title": "Clean Architecture with Spring - Who Wires the Graph?",
-  "id": "duhFGVtHaEU",
-  "visibility": "Draft",
-  "tries": 2,
+  "id": "8wgBTD3dx_c",
+  "visibility": "Public",
   "category": "architectural-design-patterns",
-  "problem": "step 'wait for upload' failed (YouTube reports the upload failed).",
-  "recorded": "2026-10-07"
+  "recorded": "2026-10-14"
  },
  "architectural-design-patterns/event-driven-architecture-pattern": {
   "title": "Event-Driven Architecture",
@@ -1236,11 +1234,9 @@
  "micro-services-design-patterns/backpressure-with-reactor-pattern": {
   "title": "Backpressure with Project Reactor Design Pattern in Java - Explained",
   "id": "_aTqu5e_6oE",
-  "visibility": "Draft",
-  "tries": 2,
+  "visibility": "Public",
   "category": "micro-services-design-patterns",
-  "problem": "step 'edit draft' failed (Locator.click: Timeout 30000ms exceeded.).",
-  "recorded": "2026-10-07"
+  "recorded": "2026-10-14"
  },
  "micro-services-design-patterns/bulkhead-pattern": {
   "title": "Bulkhead Design Pattern in Java - Explained - Isolating a Slow Job",
@@ -1494,6 +1490,13 @@
   "category": "micro-services-design-patterns",
   "recorded": "2026-10-07"
  },
+ "micro-services-design-patterns/retry-pattern": {
+  "title": "Retry with Backoff in Java - A Flaky Payment Gateway",
+  "id": "7LJRHek_4BQ",
+  "visibility": "Public",
+  "category": "micro-services-design-patterns",
+  "recorded": "2026-10-14"
+ },
  "micro-services-design-patterns/retry-with-resilience4j-pattern": {
   "title": "Retry with Resilience4j - Backoff, Jitter And Order",
   "id": "e1U3-_TSzmo",
@@ -1567,11 +1570,9 @@
  "micro-services-design-patterns/valet-key-pattern": {
   "title": "Valet Key",
   "id": "oJ53K32YMnQ",
-  "visibility": "Draft",
-  "tries": 2,
+  "visibility": "Public",
   "category": "micro-services-design-patterns",
-  "problem": "step 'edit draft' failed (Locator.click: Timeout 30000ms exceeded.).",
-  "recorded": "2026-10-07"
+  "recorded": "2026-10-14"
  },
  "micro-services-design-patterns/valet-key-with-s3-pattern": {
   "title": "Valet Key with Amazon S3 Presigned URLs",
@@ -1589,12 +1590,10 @@
  },
  "micro-services-design-patterns/write-through-cache-pattern": {
   "title": "Write-Through Cache",
-  "id": "OKS3IEmu8j8",
-  "visibility": "Draft",
-  "tries": 2,
+  "id": "v4DNzP75bss",
+  "visibility": "Public",
   "category": "micro-services-design-patterns",
-  "problem": "step 'wait for upload' failed (YouTube reports the upload failed).",
-  "recorded": "2026-10-07"
+  "recorded": "2026-10-14"
  },
  "micro-services-design-patterns/write-through-cache-with-redis-pattern": {
   "title": "Write-Through Cache with Redis and PostgreSQL",

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan — Ten New Pattern Projects and a Root Index</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Plan — Ten New Pattern Projects and a Root Index</h1>
+<p>Spec: <a href="new-patterns-spec.html"><code>new-patterns-spec.md</code></a>. Work is done one project at a time. Progress is tracked in the checklist below and updated as each step finishes.</p>
+<h2>Phase 0 — Tooling (once, before the first project)</h2>
+<ol><li><strong><code>tools/patternkit/</code></strong>: a small Python tool, run through the videokit venv.</li><li><code>scaffold &lt;category&gt; &lt;slug&gt;</code>: creates the project directory, Gradle build and wrapper (copied from an existing project), package folders, <code>video/videokit.toml</code> with the <code>amy-slow</code> voice, and a starter <code>pattern.toml</code>.</li><li><code>docs &lt;slug&gt;</code>: writes <code>README.md</code> and every <code>docs/*.md</code> from <code>pattern.toml</code>.</li><li><code>diagrams &lt;slug&gt;</code>: draws the PNG diagrams from <code>[[diagram]]</code> entries (flow, class and sequence shapes; dark theme matching the slides).</li><li><code>animation &lt;slug&gt;</code>: writes <code>docs/animation.html</code> from <code>[[step]]</code> entries, in the same style as the existing pages.</li><li><code>scenes &lt;slug&gt;</code>: writes <code>video/scenes.py</code> from <code>[[scene]]</code> entries.</li><li><code>build &lt;slug&gt;</code>: all of the above, then <code>./gradlew test</code>, the shared docs generators, <code>videokit all</code> and <code>videokit animation</code>, and the index.</li><li><strong>Registration without hand-editing:</strong> the shared generators (<code>make_specs.py</code>, <code>make_youtube_docs.py</code>, <code>make_thumbnails.py</code>) also read <code>pattern.toml</code>, so a new project needs no edits to their tables.</li><li><strong><code>gradle-java/docs/make_index.py</code></strong>: writes the root <code>index.md</code> and <code>index.html</code> by scanning the projects.</li><li>Try the whole chain on project 1 before building the others.</li></ol>
+<h2>Phase 1 — The ten projects, one at a time</h2>
+<p>For each project, in order:</p>
+<ol><li><code>scaffold</code>.</li><li>Write the Java code: the naive version, the pattern and the demo, in 4–6 acts with exact numbers. Write the tests.</li><li><code>./gradlew test run</code>, and fix until green and the output reads well.</li><li>Write <code>pattern.toml</code>: the prose, diagrams, animation steps and scenes, using the numbers the demo actually printed.</li><li><code>build</code>. Check the generated README, one diagram and the animation page.</li><li>Render the video and animation clips in the background; move on to the next project while they render.</li><li>Tick the checklist.</li></ol>
+<h2>Phase 2 — Finish</h2>
+<ol><li>Regenerate <code>index.md</code> / <code>index.html</code> and the category READMEs.</li><li>Confirm every acceptance point in the spec for all ten.</li><li>Commit and push the source only when the author asks.</li></ol>
+<h2>Checklist</h2>
+<table><thead><tr><th>#</th><th>Project</th><th>Code + tests</th><th>Docs</th><th>Diagrams</th><th>Animation</th><th>Video</th><th>Index</th></tr></thead><tbody><tr><td>0</td><td>Tooling + index</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>1</td><td>Money</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>2</td><td>Test Double</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>3</td><td>Content Enricher</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>4</td><td>Materialized View</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>5</td><td>Asynchronous Request–Reply</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>6</td><td>Health Endpoint Monitoring</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>7</td><td>Write-Behind Cache</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>8</td><td>Immutable Object</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>9</td><td>Table-Driven State Machine</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>10</td><td>Modular Monolith</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr></tbody></table>
+<h2>Risks and how they are handled</h2>
+<ul><li><strong>Generated prose reading as filler.</strong> The tool only lays text out; every sentence is written for the project in <code>pattern.toml</code>, from the real demo output.</li><li><strong>Diagram layout.</strong> Positions are given in the description, not computed, so every diagram is predictable. A diagram that looks cramped is fixed in its description, not by hand-editing the PNG.</li><li><strong>Render time.</strong> Videos render in the background while the next project is written.</li><li><strong>A new category</strong> (<code>testing-design-patterns</code>) needs a category README; the index script picks up any category automatically.</li></ul>
+<h2>Phase 2: the rest of the catalogue, one by one</h2>
+<p>&lt;!-- phase2:start --&gt;</p>
+<p>Updated automatically by <code>patternkit.sh build</code> (and <code>patternkit.sh plan</code>).</p>
+<p><strong>60 of 60 done.</strong></p>
+<table><thead><tr><th>#</th><th>Pattern</th><th>Category</th><th>Status</th></tr></thead><tbody><tr><td>1</td><td>Blackboard</td><td>behavioural</td><td>✅ done</td></tr><tr><td>2</td><td>Servant</td><td>behavioural</td><td>✅ done</td></tr><tr><td>3</td><td>Acyclic Visitor</td><td>behavioural</td><td>✅ done</td></tr><tr><td>4</td><td>Extension Object</td><td>foundational-design-patterns</td><td>✅ done</td></tr><tr><td>5</td><td>Role Object</td><td>foundational-design-patterns</td><td>✅ done</td></tr><tr><td>6</td><td>Private Class Data</td><td>foundational-design-patterns</td><td>✅ done</td></tr><tr><td>7</td><td>Marker Interface</td><td>foundational-design-patterns</td><td>✅ done</td></tr><tr><td>8</td><td>Memoization</td><td>foundational-design-patterns</td><td>✅ done</td></tr><tr><td>9</td><td>Special Case</td><td>enterprise-design-patterns</td><td>✅ done</td></tr><tr><td>10</td><td>Plugin</td><td>enterprise-design-patterns</td><td>✅ done</td></tr><tr><td>11</td><td>Service Stub</td><td>enterprise-design-patterns</td><td>✅ done</td></tr><tr><td>12</td><td>Query Object</td><td>enterprise-design-patterns</td><td>✅ done</td></tr><tr><td>13</td><td>Table Data Gateway</td><td>enterprise-design-patterns</td><td>✅ done</td></tr><tr><td>14</td><td>Single Table Inheritance</td><td>enterprise-design-patterns</td><td>✅ done</td></tr><tr><td>15</td><td>Page Controller</td><td>enterprise-design-patterns</td><td>✅ done</td></tr><tr><td>16</td><td>Remote Facade</td><td>enterprise-design-patterns</td><td>✅ done</td></tr><tr><td>17</td><td>Entity</td><td>domain-driven-design-patterns</td><td>✅ done</td></tr><tr><td>18</td><td>Domain Service</td><td>domain-driven-design-patterns</td><td>✅ done</td></tr><tr><td>19</td><td>Context Map and Shared Kernel</td><td>domain-driven-design-patterns</td><td>✅ done</td></tr><tr><td>20</td><td>Reactor</td><td>concurrency-design-patterns</td><td>✅ done</td></tr><tr><td>21</td><td>Proactor</td><td>concurrency-design-patterns</td><td>✅ done</td></tr><tr><td>22</td><td>Half-Sync/Half-Async</td><td>concurrency-design-patterns</td><td>✅ done</td></tr><tr><td>23</td><td>Leader/Followers</td><td>concurrency-design-patterns</td><td>✅ done</td></tr><tr><td>24</td><td>Copy-on-Write</td><td>concurrency-design-patterns</td><td>✅ done</td></tr><tr><td>25</td><td>Lock-Free Compare-and-Swap</td><td>concurrency-design-patterns</td><td>✅ done</td></tr><tr><td>26</td><td>Scheduler</td><td>concurrency-design-patterns</td><td>✅ done</td></tr><tr><td>27</td><td>Micro-Frontends</td><td>architectural-design-patterns</td><td>✅ done</td></tr><tr><td>28</td><td>Broker</td><td>architectural-design-patterns</td><td>✅ done</td></tr><tr><td>29</td><td>Space-Based Architecture</td><td>architectural-design-patterns</td><td>✅ done</td></tr><tr><td>30</td><td>Cell-Based Architecture</td><td>architectural-design-patterns</td><td>✅ done</td></tr><tr><td>31</td><td>Message Translator / Normalizer</td><td>messaging-integration-patterns</td><td>✅ done</td></tr><tr><td>32</td><td>Message Filter</td><td>messaging-integration-patterns</td><td>✅ done</td></tr><tr><td>33</td><td>Recipient List</td><td>messaging-integration-patterns</td><td>✅ done</td></tr><tr><td>34</td><td>Wire Tap</td><td>messaging-integration-patterns</td><td>✅ done</td></tr><tr><td>35</td><td>Resequencer</td><td>messaging-integration-patterns</td><td>✅ done</td></tr><tr><td>36</td><td>Request-Reply with Correlation Identifier</td><td>messaging-integration-patterns</td><td>✅ done</td></tr><tr><td>37</td><td>Process Manager</td><td>messaging-integration-patterns</td><td>✅ done</td></tr><tr><td>38</td><td>Routing Slip</td><td>messaging-integration-patterns</td><td>✅ done</td></tr><tr><td>39</td><td>Polling Consumer</td><td>messaging-integration-patterns</td><td>✅ done</td></tr><tr><td>40</td><td>Guaranteed Delivery</td><td>messaging-integration-patterns</td><td>✅ done</td></tr><tr><td>41</td><td>Write-Through Cache</td><td>micro-services-design-patterns</td><td>✅ done</td></tr><tr><td>42</td><td>Sharding</td><td>micro-services-design-patterns</td><td>✅ done</td></tr><tr><td>43</td><td>Valet Key</td><td>micro-services-design-patterns</td><td>✅ done</td></tr><tr><td>44</td><td>Priority Queue</td><td>micro-services-design-patterns</td><td>✅ done</td></tr><tr><td>45</td><td>Backpressure</td><td>micro-services-design-patterns</td><td>✅ done</td></tr><tr><td>46</td><td>Hedged Requests</td><td>micro-services-design-patterns</td><td>✅ done</td></tr><tr><td>47</td><td>Gateway Offloading</td><td>micro-services-design-patterns</td><td>✅ done</td></tr><tr><td>48</td><td>Event-Carried State Transfer</td><td>micro-services-design-patterns</td><td>✅ done</td></tr><tr><td>49</td><td>Object Mother / Test Data Builder</td><td>testing-design-patterns</td><td>✅ done</td></tr><tr><td>50</td><td>Page Object</td><td>testing-design-patterns</td><td>✅ done</td></tr><tr><td>51</td><td>Contract Stub</td><td>testing-design-patterns</td><td>✅ done</td></tr><tr><td>52</td><td>Authorization Policy (RBAC / ABAC)</td><td>security-design-patterns</td><td>✅ done</td></tr><tr><td>53</td><td>Token-Based Authentication (JWT)</td><td>security-design-patterns</td><td>✅ done</td></tr><tr><td>54</td><td>Secure Gateway</td><td>security-design-patterns</td><td>✅ done</td></tr><tr><td>55</td><td>Secrets Manager</td><td>security-design-patterns</td><td>✅ done</td></tr><tr><td>56</td><td>Input Validation Pipeline</td><td>security-design-patterns</td><td>✅ done</td></tr><tr><td>57</td><td>Railway-Oriented Programming (Optional / Either)</td><td>functional-design-patterns</td><td>✅ done</td></tr><tr><td>58</td><td>Higher-Order Functions</td><td>functional-design-patterns</td><td>✅ done</td></tr><tr><td>59</td><td>Currying</td><td>functional-design-patterns</td><td>✅ done</td></tr><tr><td>60</td><td>Lenses for Immutable Updates</td><td>functional-design-patterns</td><td>✅ done</td></tr></tbody></table>
+<p>&lt;!-- phase2:end --&gt;</p>
+<h2>Phase 3: framework and real-infrastructure versions, one by one</h2>
+<p>Each is a new project beside its plain-Java twin; the twin is never edited or removed.</p>
+<p>&lt;!-- phase3:start --&gt;</p>
+<p>Updated automatically by <code>patternkit.sh build</code> (and <code>patternkit.sh plan</code>).</p>
+<p><strong>31 of 31 done.</strong></p>
+<table><thead><tr><th>#</th><th>New project</th><th>Plain-Java twin (unchanged)</th><th>Framework or infrastructure</th><th>Status</th></tr></thead><tbody><tr><td>1</td><td>message-translator-with-camel</td><td>message-translator</td><td>Apache Camel</td><td>✅ done</td></tr><tr><td>2</td><td>message-filter-with-camel</td><td>message-filter</td><td>Apache Camel</td><td>✅ done</td></tr><tr><td>3</td><td>recipient-list-with-camel</td><td>recipient-list</td><td>Apache Camel</td><td>✅ done</td></tr><tr><td>4</td><td>wire-tap-with-camel</td><td>wire-tap</td><td>Apache Camel</td><td>✅ done</td></tr><tr><td>5</td><td>resequencer-with-camel</td><td>resequencer</td><td>Apache Camel</td><td>✅ done</td></tr><tr><td>6</td><td>routing-slip-with-camel</td><td>routing-slip</td><td>Apache Camel</td><td>✅ done</td></tr><tr><td>7</td><td>process-manager-with-camel</td><td>process-manager</td><td>Apache Camel</td><td>✅ done</td></tr><tr><td>8</td><td>guaranteed-delivery-with-rabbitmq</td><td>guaranteed-delivery</td><td>RabbitMQ</td><td>✅ done</td></tr><tr><td>9</td><td>request-reply-with-rabbitmq</td><td>request-reply</td><td>RabbitMQ</td><td>✅ done</td></tr><tr><td>10</td><td>polling-consumer-with-rabbitmq</td><td>polling-consumer</td><td>RabbitMQ</td><td>✅ done</td></tr><tr><td>11</td><td>priority-queue-with-rabbitmq</td><td>priority-queue</td><td>RabbitMQ</td><td>✅ done</td></tr><tr><td>12</td><td>event-carried-state-transfer-with-kafka</td><td>event-carried-state-transfer</td><td>Apache Kafka</td><td>✅ done</td></tr><tr><td>13</td><td>write-through-cache-with-redis</td><td>write-through-cache</td><td>Redis</td><td>✅ done</td></tr><tr><td>14</td><td>space-based-with-hazelcast</td><td>space-based</td><td>Hazelcast</td><td>✅ done</td></tr><tr><td>15</td><td>sharding-with-postgresql</td><td>sharding</td><td>PostgreSQL</td><td>✅ done</td></tr><tr><td>16</td><td>backpressure-with-reactor</td><td>backpressure</td><td>Project Reactor</td><td>✅ done</td></tr><tr><td>17</td><td>reactor-with-netty</td><td>reactor</td><td>Netty</td><td>✅ done</td></tr><tr><td>18</td><td>hedged-requests-with-grpc</td><td>hedged-requests</td><td>gRPC</td><td>✅ done</td></tr><tr><td>19</td><td>valet-key-with-s3</td><td>valet-key</td><td>Amazon S3 (LocalStack)</td><td>✅ done</td></tr><tr><td>20</td><td>secrets-manager-with-openbao</td><td>secrets-manager</td><td>OpenBao (open-source Vault)</td><td>✅ done</td></tr><tr><td>21</td><td>token-authentication-with-spring-security</td><td>token-authentication</td><td>Spring Security</td><td>✅ done</td></tr><tr><td>22</td><td>authorization-policy-with-spring-security</td><td>authorization-policy</td><td>Spring Security</td><td>✅ done</td></tr><tr><td>23</td><td>gateway-offloading-with-spring-cloud-gateway</td><td>gateway-offloading</td><td>Spring Cloud Gateway</td><td>✅ done</td></tr><tr><td>24</td><td>secure-gateway-with-nginx</td><td>secure-gateway</td><td>NGINX</td><td>✅ done</td></tr><tr><td>25</td><td>contract-stub-with-wiremock</td><td>contract-stub</td><td>WireMock (the stubs Spring Cloud Contract generates)</td><td>✅ done</td></tr><tr><td>26</td><td>page-object-with-selenium</td><td>page-object</td><td>Selenium WebDriver</td><td>✅ done</td></tr><tr><td>27</td><td>single-table-inheritance-with-jpa</td><td>single-table-inheritance</td><td>JPA (Hibernate)</td><td>✅ done</td></tr><tr><td>28</td><td>table-data-gateway-with-jdbc-template</td><td>table-data-gateway</td><td>Spring JdbcTemplate</td><td>✅ done</td></tr><tr><td>29</td><td>page-controller-with-spring-mvc</td><td>page-controller</td><td>Spring MVC</td><td>✅ done</td></tr><tr><td>30</td><td>remote-facade-with-spring-mvc</td><td>remote-facade</td><td>Spring MVC</td><td>✅ done</td></tr><tr><td>31</td><td>railway-oriented-with-vavr</td><td>railway-oriented</td><td>Vavr</td><td>✅ done</td></tr></tbody></table>
+<p>&lt;!-- phase3:end --&gt;</p>
+</main>
+<footer>
+Generated from <code>new-patterns-plan.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

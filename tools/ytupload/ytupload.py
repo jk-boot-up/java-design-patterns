@@ -445,8 +445,7 @@ def resume(project):
         step(page, "wait for upload", lambda: wait_uploaded(page))
     if True:
         # Reopen the draft from Channel content with its Edit draft button.
-        page.goto("https://studio.youtube.com/channel/%s/videos/upload" % CHANNEL)
-        row = page.locator("ytcp-video-row").filter(has_text=s["title"]).first
+        row = draft_row(page, s["title"])
         step(page, "find draft", lambda: row.wait_for(timeout=30000))
         step(page, "edit draft", lambda: row.get_by_role(
             "button", name=re.compile("Edit draft", re.I)).first.click())
@@ -824,19 +823,32 @@ def add_thumbnails(page=None):
     return added
 
 
-def finish_draft(page, rel):
-    """Reopen a recorded draft from Channel content, fill and publish it."""
-    s = sheet(os.path.join(GRADLE, rel))
+def draft_row(page, title):
+    """The Channel content row of the draft with exactly this title. A title can
+    be the start of another one (Valet Key, Valet Key with Amazon S3 ...), so the
+    row must match it whole and still have its Edit draft button."""
     page.goto("https://studio.youtube.com/channel/%s/videos/upload" % CHANNEL)
-    row = page.locator("ytcp-video-row").filter(has_text=s["title"]).first
+    row = (page.locator("ytcp-video-row")
+           .filter(has=page.locator("#video-title", has_text=re.compile(
+               "^\\s*%s\\s*$" % re.escape(title))))
+           .filter(has=page.get_by_role("button", name=re.compile("Edit draft", re.I)))
+           .first)
     try:
         row.wait_for(timeout=15000)
     except Exception:                                # not on the first page: filter by title
-        box = page.locator("input[placeholder='Filter']").first
-        box.click()
-        box.fill(s["title"])
-        page.keyboard.press("Enter")
-        time.sleep(3)
+        page.locator("input[placeholder='Filter']").first.click()
+        page.locator("tp-yt-paper-item, [role=option], [role=menuitem]").filter(
+            has_text=re.compile("^\\s*Title\\s*$")).first.click()
+        dialog = page.locator("tp-yt-paper-dialog:visible").last
+        dialog.locator("input").first.fill(title)
+        dialog.get_by_role("button", name="Apply").click()
+    return row
+
+
+def finish_draft(page, rel):
+    """Reopen a recorded draft from Channel content, fill and publish it."""
+    s = sheet(os.path.join(GRADLE, rel))
+    row = draft_row(page, s["title"])
     step(page, "find draft", lambda: row.wait_for(timeout=30000))
     step(page, "edit draft", lambda: row.get_by_role(
         "button", name=re.compile("Edit draft", re.I)).first.click())
