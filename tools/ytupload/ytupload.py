@@ -670,7 +670,14 @@ def channel_videos(page):
         if new == 0 or nxt.count() == 0 or nxt.get_attribute("aria-disabled") == "true" \
                 or nxt.get_attribute("disabled") is not None:
             return rows
+        first = next((h for _, h, _ in batch if h), "")
         nxt.click()
+        for _ in range(60):                          # wait for the next page to replace this one
+            time.sleep(0.5)
+            now = page.evaluate("() => { const r = document.querySelector('ytcp-video-row a[href*=\"/video/\"]');"
+                                " return r ? r.getAttribute('href') : ''; }")
+            if now and now != first:
+                break
 
 
 def video_exists(vid):
