@@ -94,3 +94,7 @@ tools/videokit/rollout-state.lock
 # Rollout progress reports: regenerated locally by tools/videokit, not committed.
 /ROLLOUT-REPORT.md
 /ROLLOUT-REPORT-*.md
+
+# Local session logs (stay on this machine)
+/gradle-java/docs/session-*.md
+/gradle-java/docs/session-*.html
