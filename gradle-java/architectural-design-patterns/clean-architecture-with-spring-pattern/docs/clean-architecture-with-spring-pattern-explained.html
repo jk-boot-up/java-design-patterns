@@ -102,8 +102,8 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <main>
 <h1>Clean Architecture with Spring, Explained</h1>
 <h2>What this project is, in one sentence</h2>
-<p><a href="../clean-architecture-pattern"><code>clean-architecture-pattern</code></a>&#x27;s identical object graph — same entities, same use cases, same adapters, copied unchanged — assembled by a Spring <code>ApplicationContext</code> instead of by a <code>main()</code> method, so the one contrast this project owns can be shown directly: <strong>hand-wiring fails at compile time; container wiring fails at startup.</strong></p>
-<p>This document does not re-teach Clean Architecture. See <a href="../clean-architecture-pattern/docs/clean-architecture-pattern-explained.md"><code>../clean-architecture-pattern/docs/clean-architecture-pattern-explained.md</code></a> for the pattern itself.</p>
+<p><a href="../../clean-architecture-pattern"><code>clean-architecture-pattern</code></a>&#x27;s identical object graph — same entities, same use cases, same adapters, copied unchanged — assembled by a Spring <code>ApplicationContext</code> instead of by a <code>main()</code> method, so the one contrast this project owns can be shown directly: <strong>hand-wiring fails at compile time; container wiring fails at startup.</strong></p>
+<p>This document does not re-teach Clean Architecture. See <a href="../../clean-architecture-pattern/docs/clean-architecture-pattern-explained.html"><code>../clean-architecture-pattern/docs/clean-architecture-pattern-explained.md</code></a> for the pattern itself.</p>
 <h2>Recognition: <code>@Bean</code> is those twenty lines</h2>
 <p>Read <code>AppConfig</code> next to <code>clean-architecture-pattern</code>&#x27;s <code>PlaceAnOrderDemo.shop()</code> method:</p>
 <pre><code>// clean-architecture-pattern — by hand
@@ -129,7 +129,7 @@ expected at least 1 bean which qualifies as autowire candidate.</code></pre>
 <p><code>WiringContrastTest</code> proves both halves: the real configuration builds a working <code>PlaceOrderInputBoundary</code>, and the broken one throws that exact exception, naming the missing type.</p>
 <p><strong>That is the whole cost of the convenience, honestly priced.</strong> The container will happily accept a graph with a hole in it, and tell you only once it tries to use the hole.</p>
 <h2>What this project does not do</h2>
-<p>It does not re-teach Clean Architecture — every entity, use case and adapter here is <code>clean-architecture-pattern</code>&#x27;s file, unchanged, and its own explained document is the authority on all of them. It does not teach dependency injection from first principles either; that is <a href="../../foundational-design-patterns">Dependency Injection</a>, a different project. This one owns exactly one question — what changes when a container does the assembling — and stops once it has answered it.</p>
+<p>It does not re-teach Clean Architecture — every entity, use case and adapter here is <code>clean-architecture-pattern</code>&#x27;s file, unchanged, and its own explained document is the authority on all of them. It does not teach dependency injection from first principles either; that is <a href="../../../foundational-design-patterns">Dependency Injection</a>, a different project. This one owns exactly one question — what changes when a container does the assembling — and stops once it has answered it.</p>
 <h2>When this is worth the extra dependency</h2>
 <p>Worth it the moment a real application has enough objects that hand-wiring them all in one method stops being readable — which, in practice, is most real applications past a handful of classes. Not worth it for learning the architecture itself: that lesson is complete, and arguably clearer, with no framework in the way at all — which is exactly why <code>clean-architecture-pattern</code> is a separate project rather than a single scene inside this one.</p>
 </main>

@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Strategy](../strategy-pattern), which priced the same delivery under four interchangeable rules, chose one by configuration name, and refused an unknown name. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Strategy](../../strategy-pattern), which priced the same delivery under four interchangeable rules, chose one by configuration name, and refused an unknown name. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

@@ -6,7 +6,7 @@ In a Spring Boot application, the layers are controllers, services and repositor
 
 ## What is new here
 
-The pattern is [Layered Architecture](../layered-architecture-pattern). This page is only what Spring Boot adds.
+The pattern is [Layered Architecture](../../layered-architecture-pattern). This page is only what Spring Boot adds.
 
 ### Four Layers, One Real Request
 

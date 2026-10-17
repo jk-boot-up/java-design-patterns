@@ -6,7 +6,7 @@ In Spring, the strategies are beans of one interface, and the container collects
 
 ## What is new here
 
-The pattern is [Strategy](../strategy-pattern). This page is only what Spring Boot adds.
+The pattern is [Strategy](../../strategy-pattern). This page is only what Spring Boot adds.
 
 ### Spring Finds The Strategies
 

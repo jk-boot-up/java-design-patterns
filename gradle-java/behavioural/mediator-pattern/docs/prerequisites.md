@@ -37,7 +37,7 @@ the way there.
 - Any GUI toolkit. There is no window; the "widgets" are plain objects with
   values, and the demo prints to the console.
 - Threads or concurrency.
-- Any other design pattern, though [Observer](../observer-pattern) makes a
+- Any other design pattern, though [Observer](../../observer-pattern) makes a
   useful contrast if you have already met it.
 - Any web or HTTP experience.
 

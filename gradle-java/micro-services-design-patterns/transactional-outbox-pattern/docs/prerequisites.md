@@ -20,13 +20,13 @@ written a database save followed by a call to something else.
 
 ### Helpful, but explained as we go
 
-- **Saga** ([`../saga-pattern`](../saga-pattern)) — why services announce things to each
+- **Saga** ([`../saga-pattern`](../../saga-pattern)) — why services announce things to each
   other at all, and what happens when one of those announcements goes missing.
 - **Database per Service**
-  ([`../database-per-service-pattern`](../database-per-service-pattern)) — why the message
+  ([`../database-per-service-pattern`](../../database-per-service-pattern)) — why the message
   and the data are in the same database and the receiver's data is not.
 - **Idempotent Consumer**
-  ([`../idempotent-consumer-pattern`](../idempotent-consumer-pattern)) — the duplicate this
+  ([`../idempotent-consumer-pattern`](../../idempotent-consumer-pattern)) — the duplicate this
   pattern creates is fixed there, and nowhere else.
 
 ### Explicitly NOT required

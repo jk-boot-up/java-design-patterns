@@ -9,7 +9,7 @@ Keep a few expensive objects, lend them out, and take them back.
 The connection is expensive to create, and the expense is **outside the JVM**: a
 network handshake. Pooling it saves eighty per cent of the time in act two. The
 same is true of threads and native handles. A connection pool is this pattern,
-and so is a [thread pool](../../concurrency-design-patterns/thread-pool-pattern),
+and so is a [thread pool](../../../concurrency-design-patterns/thread-pool-pattern),
 the pattern's other unambiguously correct use.
 
 ## The bill

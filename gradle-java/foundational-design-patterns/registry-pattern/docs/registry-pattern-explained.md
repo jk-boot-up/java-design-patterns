@@ -58,8 +58,8 @@ tests need to replace.
 
 ## The progression
 
-Registry put things in a known place. [Service Locator](../service-locator-pattern)
-makes a middleman that can find them. [Dependency Injection](../dependency-injection-pattern)
+Registry put things in a known place. [Service Locator](../../service-locator-pattern)
+makes a middleman that can find them. [Dependency Injection](../../dependency-injection-pattern)
 stops the class asking at all.
 
 ## How to recognise this in code you did not write

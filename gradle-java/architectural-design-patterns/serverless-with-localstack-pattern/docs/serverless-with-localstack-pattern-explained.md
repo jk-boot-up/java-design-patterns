@@ -6,7 +6,7 @@ With Lambda, a function is uploaded once, and the platform starts a container fo
 
 ## What is new here
 
-The pattern is [Serverless](../serverless-pattern). This page is only what LocalStack and AWS Lambda adds.
+The pattern is [Serverless](../../serverless-pattern). This page is only what LocalStack and AWS Lambda adds.
 
 ### A Machine That Is Always On
 

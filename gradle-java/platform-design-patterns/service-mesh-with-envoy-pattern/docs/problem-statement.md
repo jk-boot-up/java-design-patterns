@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Service Mesh](../service-mesh-pattern), which showed three services with three retry behaviours, one mesh policy giving them all the same, a policy changed in one place, an unknown caller turned away, and counts kept by the proxies. Nothing here is lost by skipping Envoy, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Service Mesh](../../service-mesh-pattern), which showed three services with three retry behaviours, one mesh policy giving them all the same, a policy changed in one place, an unknown caller turned away, and counts kept by the proxies. Nothing here is lost by skipping Envoy, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

@@ -6,7 +6,7 @@
 
 ## What is new here
 
-The pattern is [Future/Promise](../future-promise-pattern). This page is only what Spring Boot adds.
+The pattern is [Future/Promise](../../future-promise-pattern). This page is only what Spring Boot adds.
 
 ### The Pool Decides
 

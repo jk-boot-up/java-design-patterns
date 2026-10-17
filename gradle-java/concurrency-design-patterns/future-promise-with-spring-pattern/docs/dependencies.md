@@ -2,7 +2,7 @@
 
 This project uses Spring Boot, which the hand-built projects do not. This page says what it is, why it is here, and what it costs. It comes before the first line of framework code on purpose.
 
-**Skipping this project loses none of the pattern.** [Future/Promise](../future-promise-pattern) teaches all of it with plain Java.
+**Skipping this project loses none of the pattern.** [Future/Promise](../../future-promise-pattern) teaches all of it with plain Java.
 
 ## What Spring Boot is
 

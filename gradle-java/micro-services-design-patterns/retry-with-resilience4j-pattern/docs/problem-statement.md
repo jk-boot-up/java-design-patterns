@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Retry with Backoff](../retry-pattern), which retried a flaky payment gateway with a growing wait between attempts, and showed why a retry is safe only when the failure is temporary and the operation cannot happen twice. Nothing here is lost by skipping Resilience4j, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Retry with Backoff](../../retry-pattern), which retried a flaky payment gateway with a growing wait between attempts, and showed why a retry is safe only when the failure is temporary and the operation cannot happen twice. Nothing here is lost by skipping Resilience4j, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

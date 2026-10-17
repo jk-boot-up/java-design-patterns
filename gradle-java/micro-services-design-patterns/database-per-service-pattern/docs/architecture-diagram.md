@@ -49,15 +49,15 @@ picture prevents `Catalog` deleting `SKU-KETTLE` while `ord-101` still names it.
 
 There is no read model. When assembling a page from two services stops being enough —
 because the page needs filtering, sorting or paging across both — the answer is a
-queryable copy, and that is [CQRS](../cqrs-pattern).
+queryable copy, and that is [CQRS](../../cqrs-pattern).
 
 There is no distributed transaction, because there is no such thing worth having here. The
 transaction that used to span both tables is replaced by a sequence of local ones with
-compensations, which is [Saga](../saga-pattern).
+compensations, which is [Saga](../../saga-pattern).
 
 And there is no messaging. The right-hand picture shows a synchronous call because it is
 the simplest thing that demonstrates the refusal. The two projects that close this category
-— [Transactional Outbox](../transactional-outbox-pattern) and
-[Idempotent Consumer](../idempotent-consumer-pattern) — exist because the rules the foreign
+— [Transactional Outbox](../../transactional-outbox-pattern) and
+[Idempotent Consumer](../../idempotent-consumer-pattern) — exist because the rules the foreign
 key used to enforce now live in code, in tests, and in agreements between teams, which is
 to say in hope.

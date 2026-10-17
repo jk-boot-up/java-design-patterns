@@ -125,7 +125,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h2>The verdict</h2>
 <p>Prefer the alternative. For business logic, do not ask; be given. Keep a locator for plug-in systems, and for the composition root of a small application.</p>
 <h2>The moment it hands over</h2>
-<p>The whole difficulty is the word <em>ask</em>. The class asks, so nobody outside it knows what it needs. <a href="../dependency-injection-pattern">Dependency Injection</a> removes the asking.</p>
+<p>The whole difficulty is the word <em>ask</em>. The class asks, so nobody outside it knows what it needs. <a href="../../dependency-injection-pattern">Dependency Injection</a> removes the asking.</p>
 <h2>How to recognise this in code you did not write</h2>
 <ul><li><code>find</code>, <code>lookup</code>, <code>getBean</code> or <code>resolve</code> called from inside business classes.</li><li><code>ServiceLoader.load(...)</code>, <code>InitialContext.lookup(...)</code> (JNDI).</li><li><code>applicationContext.getBean(X.class)</code> inside a class that is itself a bean.</li><li>A class with a no-argument constructor that plainly needs several collaborators.</li></ul>
 <h2>Where you have already met this</h2>

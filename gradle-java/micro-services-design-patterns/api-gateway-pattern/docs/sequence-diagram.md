@@ -34,7 +34,7 @@ again. In the no-gateway version this is four separate checks, each on the far s
 Recommendations — 10ms each, one after another. Firing them together would take the
 internal part from 40ms to 10ms, which is a 12% saving on a 240ms page and a permanent
 increase in how hard the code is to read. This project leaves them sequential on purpose;
-[API Composition](../api-composition-pattern) is where fanning out is the subject.
+[API Composition](../../api-composition-pattern) is where fanning out is the subject.
 
 **Recommendations is last.** Nothing in the code requires that, and the page would be
 identical if it were first. It is last because it is the one that is allowed to fail, and

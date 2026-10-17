@@ -113,7 +113,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <p><strong><code>SimulatedClock</code> has two arrows into it.</strong> Both the registry and the network calls read the same clock, which is what lets a test advance time by hand and assert on the exact boundary millisecond of a lease. That is not scenery: it is why the expiry rule is pinned rather than approximately believed.</p>
 <h2>What it deliberately leaves out</h2>
 <p>The registry is one box. A real one is a cluster with consensus, and it can be partitioned away from the instances it is tracking — so that healthy machines vanish from the list while remaining perfectly able to serve. There is no such partition here, and this diagram would be a different shape if there were.</p>
-<p>The caller picks the first address that answers, and this picture shows nothing about <em>which</em> it should prefer. Three live instances and no opinion about choosing between them is precisely where <a href="../load-balancing-pattern">Load Balancing</a> starts.</p>
+<p>The caller picks the first address that answers, and this picture shows nothing about <em>which</em> it should prefer. Three live instances and no opinion about choosing between them is precisely where <a href="../../load-balancing-pattern">Load Balancing</a> starts.</p>
 <p>There is also no health check. The registry here believes an instance is alive because it heard from it recently, which is a weaker claim than &quot;I asked it and it said yes&quot;. Real registries do both, and both are wrong in the same direction — a few seconds late.</p>
 </main>
 <footer>

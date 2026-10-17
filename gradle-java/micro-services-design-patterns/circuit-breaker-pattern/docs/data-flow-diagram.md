@@ -27,7 +27,7 @@ six pages go out.
 
 **One success wipes the count.** The rule is *three consecutive* failures, and the reset
 box is there because it changes what the pattern means. A service that answers three times
-and fails once is not down; it is having a bad moment, and [Retry](../retry-pattern)
+and fails once is not down; it is having a bad moment, and [Retry](../../retry-pattern)
 already handles that. Without the reset a breaker would trip on ordinary noise.
 
 **One failed probe is enough to re-open.** The half-open path does not need to reach the

@@ -131,7 +131,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
   the caller was given one address, nginx&#x27;s, and asked nothing. 4 of 4 requests succeeded.
   gateway-2 is stopped. 4 of 4 more requests still succeed: all 4 were served by gateway-3, because nginx retried the next instance.
   the class never knew, because it never looked anything up.</code></pre>
-<p>This is <a href="../dependency-injection-pattern">Dependency Injection</a>&#x27;s idea at the level of a network address: the class is given, and does not ask. Kubernetes DNS, a service mesh and a load balancer are the same move.</p>
+<p>This is <a href="../../dependency-injection-pattern">Dependency Injection</a>&#x27;s idea at the level of a network address: the class is given, and does not ask. Kubernetes DNS, a service mesh and a load balancer are the same move.</p>
 <h2>The verdict</h2>
 <p>Service discovery is the strongest case for a locator, because where instances are is a run-time fact. Even so, prefer to be given an address by the platform, a proxy or DNS, than to have every class ask.</p>
 <h2>How to recognise this in code you did not write</h2>

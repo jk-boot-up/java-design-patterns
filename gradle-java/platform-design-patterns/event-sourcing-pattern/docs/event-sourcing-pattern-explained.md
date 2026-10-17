@@ -391,5 +391,5 @@ erasing a mistake is that a ledger you can erase is not evidence of anything.
 - [`class-diagram.md`](class-diagram.md) — the types, and the class with no balance field
 - [`uml-diagram.md`](uml-diagram.md) — the fold, the as-of query and the repair, as sequences
 - [`animation.html`](animation.html) — the log filling up and the fold running, in a browser
-- [CQRS](../../micro-services-design-patterns/cqrs-pattern) — the pattern this one is constantly confused with
-- [Memento](../../behavioural/memento-pattern) — the other pattern about keeping the past, one object rather than one log
+- [CQRS](../../../micro-services-design-patterns/cqrs-pattern) — the pattern this one is constantly confused with
+- [Memento](../../../behavioural/memento-pattern) — the other pattern about keeping the past, one object rather than one log

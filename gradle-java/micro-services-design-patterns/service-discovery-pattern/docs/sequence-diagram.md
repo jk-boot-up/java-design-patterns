@@ -22,7 +22,7 @@ number out loud because the instinct is to fear a much larger one.
 entry added five. That is the measured penalty for the registry being wrong, and the
 reason it is small is that a dead process refuses a connection quickly — it does not sit
 there thinking about it. A machine that is *slow* rather than dead is a different and much
-worse problem, and it is the subject of [Circuit Breaker](../circuit-breaker-pattern).
+worse problem, and it is the subject of [Circuit Breaker](../../circuit-breaker-pattern).
 
 **The registry is never told about the failure.** Look for an arrow from the client back
 to the registry after the stale read; there isn't one. The client could report it, and

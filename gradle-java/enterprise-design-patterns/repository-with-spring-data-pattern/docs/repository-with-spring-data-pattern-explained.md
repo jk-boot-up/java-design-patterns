@@ -7,7 +7,7 @@ implementation generated.
 
 ## What is new here
 
-The pattern is [Repository](../repository-pattern). This page is what Spring Data
+The pattern is [Repository](../../repository-pattern). This page is what Spring Data
 adds.
 
 **No implementation.** `CustomerRepository extends JpaRepository<Customer, Integer>`

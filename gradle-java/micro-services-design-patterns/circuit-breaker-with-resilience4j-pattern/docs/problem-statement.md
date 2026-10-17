@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Circuit Breaker](../circuit-breaker-pattern), which built a breaker with three states by hand, so a product page stopped waiting three seconds on a recommendations service that had gone quiet. Nothing here is lost by skipping Resilience4j, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Circuit Breaker](../../circuit-breaker-pattern), which built a breaker with three states by hand, so a product page stopped waiting three seconds on a recommendations service that had gone quiet. Nothing here is lost by skipping Resilience4j, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

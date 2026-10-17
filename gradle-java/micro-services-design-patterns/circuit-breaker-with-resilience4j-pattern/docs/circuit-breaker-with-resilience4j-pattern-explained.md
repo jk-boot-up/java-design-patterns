@@ -6,7 +6,7 @@ In Resilience4j, a circuit breaker is an annotation on a method, and its thresho
 
 ## What is new here
 
-The pattern is [Circuit Breaker](../circuit-breaker-pattern). This page is only what Resilience4j adds.
+The pattern is [Circuit Breaker](../../circuit-breaker-pattern). This page is only what Resilience4j adds.
 
 ### Healthy
 

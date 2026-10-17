@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Template Method](../template-method-pattern), which fixed the order of an order's fulfilment steps in one final method, and let three routes fill in the holes. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Template Method](../../template-method-pattern), which fixed the order of an order's fulfilment steps in one final method, and let three routes fill in the holes. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

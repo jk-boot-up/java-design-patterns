@@ -217,13 +217,13 @@ which is exactly where it stops being possible to hold the wiring in your head.
 
 Mediator and Observer are often confused because both remove direct
 references. The distinction is direction and knowledge: an
-[Observer](../observer-pattern) publisher deliberately knows *nothing* about
+[Observer](../../observer-pattern) publisher deliberately knows *nothing* about
 its subscribers, whereas a mediator knows all its colleagues on purpose —
 that knowledge is what lets it enforce rules that span several of them. A
 publisher could not disable a button because a drop-down was cleared; a
 mediator can, and that is the job.
 
-A [Facade](../../structural/facade-pattern) also sits in front of several
+A [Facade](../../../structural/facade-pattern) also sits in front of several
 objects, but it faces outwards: it exists to simplify life for a *caller*
 outside the subsystem. A mediator faces inwards, and its colleagues are the
 ones it serves.
@@ -254,6 +254,6 @@ holds all of them.
 - [`problem-statement.md`](problem-statement.md) — the problem in full
 - [`class-diagram.md`](class-diagram.md) — static structure
 - [`uml-diagram.md`](uml-diagram.md) — the call sequence for one click
-- [Observer](../observer-pattern) — the pattern this is most often confused with
-- [Facade](../../structural/facade-pattern) — the other "one object in front of
+- [Observer](../../observer-pattern) — the pattern this is most often confused with
+- [Facade](../../../structural/facade-pattern) — the other "one object in front of
   many", facing the other way

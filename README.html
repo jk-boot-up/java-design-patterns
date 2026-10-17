@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>java-design-patterns</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>java-design-patterns</h1>
+<p>Learning material on design patterns in Java — the Gang of Four patterns, and then the enterprise, domain-driven, concurrency, architectural, messaging, microservices, platform, testing, security and functional patterns that go beyond them, each with a plain-Java version and, where it helps, a framework version. The substance of this repository is <a href="gradle-java"><code>gradle-java/</code></a> — a worked course.</p>
+<h2>Start here</h2>
+<p><strong><a href="gradle-java/README.html"><code>gradle-java/README.md</code></a></strong> is the front door. The patterns are grouped in fourteen categories, and every category has its own README with the order to read it in. <a href="gradle-java/index.html"><code>gradle-java/index.md</code></a> lists every project, and <a href="youtube-index.html"><code>youtube-index.md</code></a> links every video:</p>
+<table><thead><tr><th>Category</th><th>Projects</th><th>Covers</th></tr></thead><tbody><tr><td><a href="gradle-java/creational">Creational</a></td><td>9</td><td>Simple Factory → Singleton, and the framework versions</td></tr><tr><td><a href="gradle-java/structural">Structural</a></td><td>8</td><td>Adapter → Proxy</td></tr><tr><td><a href="gradle-java/behavioural">Behavioural</a></td><td>20</td><td>Strategy → Interpreter, plus Blackboard, Servant and more</td></tr><tr><td><a href="gradle-java/foundational-design-patterns">Foundational</a></td><td>21</td><td>Null Object → Memoization, with Spring and HikariCP versions</td></tr><tr><td><a href="gradle-java/enterprise-design-patterns">Enterprise</a></td><td>30</td><td>Data Mapper, Unit of Work, Gateway, the offline locks and more</td></tr><tr><td><a href="gradle-java/domain-driven-design-patterns">Domain-driven design</a></td><td>9</td><td>Value Object → Context Map</td></tr><tr><td><a href="gradle-java/concurrency-design-patterns">Concurrency</a></td><td>24</td><td>Producer–Consumer → Scheduler</td></tr><tr><td><a href="gradle-java/architectural-design-patterns">Architectural</a></td><td>22</td><td>Layered → Cell-Based, with Spring Boot versions</td></tr><tr><td><a href="gradle-java/messaging-integration-patterns">Messaging and integration</a></td><td>31</td><td>Message Channel → Guaranteed Delivery, with RabbitMQ, Camel and NATS versions</td></tr><tr><td><a href="gradle-java/micro-services-design-patterns">Microservices</a></td><td>58</td><td>API Gateway → Hedged Requests, with Spring Cloud, Resilience4j and real-infrastructure versions</td></tr><tr><td><a href="gradle-java/platform-design-patterns">Platform</a></td><td>20</td><td>Externalised Configuration → Consumer-Driven Contract</td></tr><tr><td><a href="gradle-java/testing-design-patterns">Testing</a></td><td>6</td><td>Test Double → Contract Stub</td></tr><tr><td><a href="gradle-java/security-design-patterns">Security</a></td><td>9</td><td>Authorization Policy → Input Validation Pipeline</td></tr><tr><td><a href="gradle-java/functional-design-patterns">Functional</a></td><td>5</td><td>Railway-Oriented Programming → Lenses</td></tr></tbody></table>
+<p>That is 272 projects. Each has runnable code with deterministic tests, a README with diagrams, an animation, a session plan and a narrated video pipeline, and each is taught through an online store unless the pattern is clearer in another setting. Every project ends with a bill: what the pattern costs.</p>
+<p>Every pattern is taught through the same worked domain — an online store — so a learner moving from one project to the next carries the setting with them and only has to absorb the new structure. Each project is self-contained: Gradle Java 21 with its own wrapper, JUnit 5 tests, a naive alternative that shows what the pattern is worth, seven written documents, class and sequence diagrams, a stepped animation in the browser, and a narrated teaching video.</p>
+<pre><code>cd gradle-java/creational/simple-factory-pattern
+./gradlew test
+./gradlew run</code></pre>
+<p>No global install is needed. Each project ships its own Gradle wrapper; a JDK 21 on the <code>PATH</code> is the only prerequisite, and every project&#x27;s <code>docs/prerequisites.md</code> says how to get one.</p>
+<h2>Repository layout</h2>
+<pre><code>gradle-java/                 the course — 14 categories, 272 projects
+  docs/                      the repository-wide specs and the shared
+                             generators for specs, thumbnails, indexes and
+                             YouTube documents
+  &lt;category&gt;/&lt;slug&gt;-pattern  one self-contained Gradle project per pattern
+tools/                       patternkit (scaffolds and builds a project),
+                             videokit (audio and video), ytupload (YouTube)
+docs/                        the pattern catalogue and the upload plans
+index*.md, youtube-index.md  every project and every video, generated</code></pre>
+<h2>What is not in git</h2>
+<p>The narrated videos and their narration audio are build output, not sources. Each project&#x27;s <code>.mp4</code>, <code>.m4a</code>, <code>.srt</code> and <code>poster.png</code>, the per-step animation audio under <code>docs/audio/</code>, and all Gradle build directories are ignored — they are regenerated from committed scripts and would otherwise push the working tree past a gigabyte. What <em>is</em> committed is everything needed to rebuild them: <code>video/scenes.py</code> (slides and narration together), <code>make_slides.py</code>, <code>build_video.sh</code>, <code>docs/make_animation_audio.sh</code>, and the diagrams under <code>docs/images/</code>.</p>
+<p>Videos and audio are built by the shared library in <code>tools/videokit</code>, with the <code>amy-slow</code> Piper voice and <code>ffmpeg</code>; every project&#x27;s <code>video/videokit.toml</code> says what it needs. The rules are in <a href="AUDIO-VIDEO-SPEC.html"><code>AUDIO-VIDEO-SPEC.md</code></a>.</p>
+<h2>Standards</h2>
+<p>Two documents define what &quot;finished&quot; means for a project, and both are worth reading before adding one:</p>
+<ul><li><a href="gradle-java/docs/video-and-publishing-spec.html"><code>gradle-java/docs/video-and-publishing-spec.md</code></a> — the repository-wide standard every project inherits: the required file set, the slide and narration rules, the audio pipeline and its self-checks, and the publishing conventions.</li><li>Each project&#x27;s own <code>docs/spec.md</code>, generated by <a href="gradle-java/docs/make_specs.py"><code>gradle-java/docs/make_specs.py</code></a> from a single source of truth, so the test counts, runtimes and loudness figures quoted in it are measured rather than remembered.</li></ul>
+<p>Built by Jayasekhar Konduru.</p>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

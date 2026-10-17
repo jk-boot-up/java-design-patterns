@@ -7,7 +7,7 @@ not at all.
 
 ## What is new here
 
-The pattern is [Unit of Work](../unit-of-work-pattern). This page is what Spring
+The pattern is [Unit of Work](../../unit-of-work-pattern). This page is what Spring
 adds, and where it surprises.
 
 **One annotation replaces the hand-built class.** The persistence context tracks

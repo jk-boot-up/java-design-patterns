@@ -6,7 +6,7 @@ In Spring, the links are beans of one interface, and the container hands you the
 
 ## What is new here
 
-The pattern is [Chain of Responsibility](../chain-of-responsibility-pattern). This page is only what Spring Boot adds.
+The pattern is [Chain of Responsibility](../../chain-of-responsibility-pattern). This page is only what Spring Boot adds.
 
 ### Spring Builds The Chain
 

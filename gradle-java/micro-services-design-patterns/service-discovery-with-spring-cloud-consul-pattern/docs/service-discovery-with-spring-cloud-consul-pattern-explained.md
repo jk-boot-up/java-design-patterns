@@ -6,7 +6,7 @@ With Spring Cloud Consul, a service registers itself at startup, and a client as
 
 ## What is new here
 
-The pattern is [Service Registry and Discovery](../service-discovery-pattern). This page is only what Spring Cloud Consul adds.
+The pattern is [Service Registry and Discovery](../../service-discovery-pattern). This page is only what Spring Cloud Consul adds.
 
 ### Three Copies Announce Themselves
 

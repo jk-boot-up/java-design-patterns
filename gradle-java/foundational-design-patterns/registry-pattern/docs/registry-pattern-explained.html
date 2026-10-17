@@ -128,7 +128,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h2>The verdict</h2>
 <p>Use a registry narrowly: for a very few things that are truly application-wide, set up once at start-up and never changed. Not for collaborators that vary, or that tests need to replace.</p>
 <h2>The progression</h2>
-<p>Registry put things in a known place. <a href="../service-locator-pattern">Service Locator</a> makes a middleman that can find them. <a href="../dependency-injection-pattern">Dependency Injection</a> stops the class asking at all.</p>
+<p>Registry put things in a known place. <a href="../../service-locator-pattern">Service Locator</a> makes a middleman that can find them. <a href="../../dependency-injection-pattern">Dependency Injection</a> stops the class asking at all.</p>
 <h2>How to recognise this in code you did not write</h2>
 <ul><li>A class with static <code>get</code>, <code>lookup</code> or <code>getInstance</code> methods, keyed by type or name.</li><li><code>System.getProperties()</code>, <code>Locale.getDefault()</code>, and static logger factories.</li><li>A <code>Context</code> or <code>Environment</code> object passed everywhere, or reachable statically.</li><li><code>@BeforeEach</code> methods that clear something static, because tests leaked into each other.</li></ul>
 <h2>Where you have already met this</h2>

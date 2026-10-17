@@ -102,7 +102,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <main>
 <h1>Dependencies</h1>
 <p>This project uses three things the hand-built projects do not: Consul, Docker and nginx. This page says what they are, why they are here, and what they cost. It comes before the first line of code on purpose.</p>
-<p><strong>Skipping this project loses none of the pattern.</strong> <a href="../service-locator-pattern">Service Locator</a> teaches all of it with plain Java, including <code>java.util.ServiceLoader</code>, the standard-library form.</p>
+<p><strong>Skipping this project loses none of the pattern.</strong> <a href="../../service-locator-pattern">Service Locator</a> teaches all of it with plain Java, including <code>java.util.ServiceLoader</code>, the standard-library form.</p>
 <h2>What Consul is</h2>
 <p>Consul is a service registry. Services register themselves with a name, an address and a health check, and callers ask for the healthy instances of a name. It is written in Go and ships as one binary. This project runs it in <strong>development mode as a local process</strong>, on ports it chooses at run time, and stops it when the run ends.</p>
 <h2>What Docker and nginx are</h2>

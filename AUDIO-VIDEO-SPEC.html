@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audio and Video Specification</title>
+<style>
+:root, [data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --link-hover: #7dd3fc; --ok: #34d399;
+  --quote: rgba(167, 139, 250, 0.08); --stripe: rgba(30, 41, 59, 0.55);
+}
+[data-theme=dim] {
+  color-scheme: dark;
+  --bg: #1f2430; --panel: #2a3140; --panel-hi: #353d4f; --line: #4b5569;
+  --text: #d8dee9; --muted: #a3acbf; --accent: #b4a4f5; --link: #8cb4ff;
+  --link-hover: #b3ccff; --ok: #6ee7b7;
+  --quote: rgba(180, 164, 245, 0.10); --stripe: rgba(42, 49, 64, 0.60);
+}
+[data-theme=light] {
+  color-scheme: light;
+  --bg: #f8fafc; --panel: #ffffff; --panel-hi: #e2e8f0; --line: #cbd5e1;
+  --text: #0f172a; --muted: #475569; --accent: #6d28d9; --link: #1d4ed8;
+  --link-hover: #1e40af; --ok: #047857;
+  --quote: rgba(109, 40, 217, 0.06); --stripe: rgba(226, 232, 240, 0.55);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: var(--quote);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: var(--stripe); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+.themes { position: fixed; top: 10px; right: 10px; display: flex; gap: 2px; padding: 3px;
+          border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+          font-size: 13px; z-index: 10; }
+.themes button { border: 0; background: none; color: var(--muted); padding: 4px 10px;
+                 border-radius: 999px; cursor: pointer; font: inherit; }
+.themes button[aria-pressed=true] { background: var(--accent); color: var(--bg); }
+@media print { .themes { display: none; } }
+</style>
+<script>(function(){var t=null;try{t=localStorage.getItem("md-theme")}catch(e){}
+if(t!=="light"&&t!=="dim"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}
+document.documentElement.setAttribute("data-theme",t)})();</script>
+</head>
+<body>
+<div class="themes" role="group" aria-label="Theme">
+<button type="button" data-t="light">Light</button><button type="button" data-t="dim">Dim</button><button type="button" data-t="dark">Dark</button>
+</div>
+<script>(function(){var bs=document.querySelectorAll(".themes button");
+function show(t){document.documentElement.setAttribute("data-theme",t);
+bs.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")})}
+show(document.documentElement.getAttribute("data-theme"));
+bs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.t);
+try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
+<main>
+<h1>Audio and Video Specification</h1>
+<p>This spec applies to <strong>every project</strong> in this repository: the teaching videos, their audio-only editions, and the narration of the interactive animations. Progress in bringing every project into line is generated by <code>tools/videokit/videokit.sh rollout</code> into <code>ROLLOUT-REPORT*.md</code>, which are build output and not committed.</p>
+<h2>1. One shared pipeline</h2>
+<ul><li>All audio and video are generated by the shared library <a href="tools/videokit/README.html"><code>tools/videokit</code></a>. Projects do not carry their own copy of the pipeline.</li><li>A project&#x27;s <code>video/</code> folder keeps only its content:</li><li><code>scenes.py</code>: the narration script and the slide settings;</li><li><code>videokit.toml</code>: the voice;</li><li><code>make_slides.py</code>: only if it draws custom diagram slides;</li><li><code>make_subtitles.py</code>: only for its caption splitter.</li><li><code>build_video.sh</code> is a one-line call into the library.</li><li>One command rebuilds everything: <code>tools/videokit/videokit.sh all &lt;project&gt;</code>.</li></ul>
+<h2>2. The voice</h2>
+<p><strong>New projects use the amy-slow voice</strong>, and only that voice:</p>
+<table><thead><tr><th>Setting</th><th>Value</th></tr></thead><tbody><tr><td>Engine</td><td>Piper (open source, MIT)</td></tr><tr><td>Voice</td><td><code>en_US-amy-medium</code>, US English, female</td></tr><tr><td>Speed</td><td>0.8 (slower than normal, for beginners listening without a screen)</td></tr><tr><td>Pauses</td><td><code>sentence_gap = 0.7</code>, <code>pause_scale = 1.5</code></td></tr><tr><td>Loudness</td><td>−16 LUFS integrated, peaks limited to −1.5 dBFS</td></tr></tbody></table>
+<p>It goes in the project&#x27;s <code>video/videokit.toml</code>, which <code>tools/patternkit</code> writes when it scaffolds a project, so a new project needs no separate <code>amy-slow</code> version.</p>
+<p><strong>The original projects keep their first voice</strong> and carry amy-slow as a second version beside it (<code>video/videokit-amy-slow.toml</code>, outputs with an <code>-amy-slow</code> suffix). That first voice was:</p>
+<table><thead><tr><th>Setting</th><th>Value</th></tr></thead><tbody><tr><td>Engine</td><td>Kokoro v1.0 (open source, Apache 2.0)</td></tr><tr><td>Voice</td><td><code>af_bella</code>, US English, female</td></tr><tr><td>Speed</td><td>0.9 (a little slower than normal, for teaching)</td></tr><tr><td>Pauses</td><td>about 0.45 s after each sentence; <code>[[slnc N]]</code> in the script for longer ones</td></tr><tr><td>Loudness</td><td>−16 LUFS integrated, peaks limited to −1.5 dBFS</td></tr></tbody></table>
+<p>This is &quot;sample 03&quot; from the voice auditions kept in <code>gradle-java/micro-services-design-patterns/api-gateway-with-spring-cloud-gateway-pattern/video/voice-samples/</code>.</p>
+<h2>3. Wording rules</h2>
+<ol><li><strong>The credit is always third person.</strong> The narrating voice is female and the author is male. So no audio ever says &quot;I am Jayasekhar Konduru&quot;, and the voice never speaks as him. The credit line is: <em>&quot;This video is presented by Jayasekhar Konduru.&quot;</em></li><li><strong>Avoid first person generally.</strong> Write &quot;the verdict&quot;, not &quot;my verdict&quot;, and &quot;the advice here is&quot;, not &quot;I recommend&quot;.</li><li><strong>ID means identifier.</strong> &quot;ID&quot;, &quot;id&quot; and names like <code>orderId</code> are spoken &quot;I D&quot;. videokit does this at speech time, so captions keep the written form.</li><li><strong>Numbers and symbols are spoken as words</strong>, the way a person would say them aloud:</li><li>status codes: &quot;four hundred and one&quot;, &quot;five oh three&quot;;</li><li>paths: &quot;slash api, slash pricing&quot;;</li><li>versions: &quot;four point one&quot;.</li></ol>
+<h2>4. Written for listening</h2>
+<p>The audience must be able to follow with <strong>no screen at all</strong>.</p>
+<ul><li>Never point at the picture. No &quot;as you can see&quot;, &quot;here&quot;, or &quot;this box&quot;.</li><li>Name the actors. Say what each one does, and describe the flow in order.</li><li>Use short sentences, one idea at a time, and plain words. The audience is beginners.</li><li>Explain like a teacher, not a reader:</li><li>open a topic with a question or an everyday analogy (any domain may be used for analogies);</li><li>then give the worked example in the online-store domain;</li><li>pause after each key point.</li><li><strong>Opening order:</strong></li><li>What the video is: &quot;This video explains the X pattern, in Java.&quot;</li><li>The credit: &quot;This video is presented by Jayasekhar Konduru.&quot;</li><li>A plain, general definition.</li><li>The same idea taught in the online store.</li><li><strong>Closing:</strong> restate the lesson in one sentence, point to the repository, invite a like and a subscribe, and say thanks. Never name the next pattern.</li></ul>
+<h2>5. Animations and HTML</h2>
+<ul><li><strong>Every animation speaks in the amy-slow voice only</strong>, spoken from the animation&#x27;s own step text. <code>videokit.sh animation &lt;project&gt;</code> renders the clips (git-ignored, cached) and injects the player between <code>videokit:narration</code> markers in <code>docs/animation.html</code>. A project whose main voice is amy-slow uses <code>docs/audio/</code>; an original project whose video keeps its first voice has its animation play <code>docs/audio-amy-slow/</code> instead.</li><li>The same injection adds the shared <strong>UX layer</strong> (<code>tools/videokit/videokit/web/ux.js</code>), so every animation behaves alike:</li><li>a <strong>Light / Dim / Dark</strong> theme switch, remembered per viewer (it starts from the system&#x27;s light or dark setting). The page&#x27;s own colours are rewritten as <code>--vk-*</code> variables when it is injected, and each theme remaps that palette;</li><li>a clickable <strong>timeline</strong> of the steps, a <strong>Back</strong> button and a progress bar;</li><li><strong>Predict first</strong>: before each step the learner is shown what comes next and asked to guess what will happen, then reveals it;</li><li><strong>keyboard</strong> control: arrows, Space, 1–9, R, N and P;</li><li>a short glow on whatever just changed, console lines that slide in, and an <strong>All steps</strong> list for revisiting any step;</li><li>no sideways scrolling at phone width, and no motion when the viewer asks for less.</li><li>Every animation has a <strong>Narration on/off</strong> toggle (remembered per browser) and a <strong>Play / Pause / Resume step</strong> button for the narration of the step on screen. The page&#x27;s own Step / Play / Reset buttons still drive the steps.</li><li>Narration audio is <strong>never embedded</strong> in the HTML: it sits beside the page in <code>docs/audio/</code>, so the committed pages stay small. Without the clips the page still works, silently.</li><li>Every Markdown file has an HTML twin beside it, with light, dim and dark themes. Styles and scripts are inlined in the page, but <strong>images are linked, never embedded</strong>: an image is an ordinary relative link to the committed PNG or SVG file (for example <code>docs/images/class-diagram.png</code>), never a base64 <code>data:</code> URI. Embedding repeated every diagram in every page that showed it and made one regeneration push over 600 MB.</li><li><strong>Never commit or push</strong> video, audio, build output or any other rendered media; the repository holds source, documentation and the small image files the pages link to. Before a large push, check what is making it large.</li><li>Diagrams are SVG or PNG files in <code>docs/images/</code>. Mermaid is not used; the old Mermaid source blocks are removed by <code>gradle-java/docs/strip_mermaid.py</code>.</li></ul>
+<h2>6. Quality gates</h2>
+<p>A build fails, rather than shipping a bad video, if any of these is wrong:</p>
+<ul><li><strong>Continuous audio:</strong> there is no gap anywhere in the audio timeline.</li><li><strong>Credit line:</strong> the narration contains no &quot;I am Jayasekhar&quot; or &quot;I&#x27;m Jayasekhar&quot;.</li><li><strong>Captions:</strong> they are timed from the recorded start and end of each phrase.</li></ul>
+</main>
+<footer>
+Generated from <code>AUDIO-VIDEO-SPEC.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

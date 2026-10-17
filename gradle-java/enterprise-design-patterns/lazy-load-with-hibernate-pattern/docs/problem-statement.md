@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Lazy Load](../lazy-load-pattern), which builds four lazy
+This project assumes [Lazy Load](../../lazy-load-pattern), which builds four lazy
 variants by hand and shows N+1 and a closed session failing at the point of use.
 Nothing here is lost by skipping the framework, and
 [`dependencies.md`](dependencies.md) says so plainly.

@@ -35,7 +35,7 @@ all in building it without opening the basket up.
 - Serialization, `Serializable`, JSON, or any storage library. Snapshots here
   are ordinary objects held in memory.
 - Threads or concurrency.
-- Any other design pattern, though [Command](../command-pattern) makes a
+- Any other design pattern, though [Command](../../command-pattern) makes a
   useful contrast if you have already met it.
 - Any database or transaction experience.
 

@@ -58,5 +58,5 @@ are good days. That is precisely the problem.
 
 The one thing that makes the duplicate fixable is on the last line of the demo: the message
 id was the same both times. A receiver that writes down the ids it has handled can discard
-the second copy — [Idempotent Consumer](../idempotent-consumer-pattern), which is what makes
+the second copy — [Idempotent Consumer](../../idempotent-consumer-pattern), which is what makes
 this pattern liveable.

@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Future/Promise](../future-promise-pattern), which built the Future and Promise handoff by hand, and showed three costs: an exception surfaces later with a stack trace that omits the caller, a bare `get()` is a hang, and cancellation is a request a task can ignore. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Future/Promise](../../future-promise-pattern), which built the Future and Promise handoff by hand, and showed three costs: an exception surfaces later with a stack trace that omits the caller, a bare `get()` is a hang, and cancellation is a request a task can ignore. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

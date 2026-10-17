@@ -6,7 +6,7 @@ In Spring Cloud Gateway, a gateway is a routing table of paths and services, wit
 
 ## What is new here
 
-The pattern is [API Gateway](../api-gateway-pattern). This page is only what Spring Cloud Gateway adds.
+The pattern is [API Gateway](../../api-gateway-pattern). This page is only what Spring Cloud Gateway adds.
 
 ### One Address, Four Services
 

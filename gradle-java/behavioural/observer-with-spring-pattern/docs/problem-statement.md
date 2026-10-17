@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Observer](../observer-pattern), which let an order announce every status change to inventory, email, analytics and the warehouse feed, without knowing any of them, and reported a failing listener by name. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Observer](../../observer-pattern), which let an order announce every status change to inventory, email, analytics and the warehouse feed, without knowing any of them, and reported a failing listener by name. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

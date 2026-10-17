@@ -6,7 +6,7 @@ With Pact, a consumer's test writes a pact file, and the provider's build replay
 
 ## What is new here
 
-The pattern is [Consumer-Driven Contract](../consumer-driven-contract-pattern). This page is only what Pact adds.
+The pattern is [Consumer-Driven Contract](../../consumer-driven-contract-pattern). This page is only what Pact adds.
 
 ### Nobody Told The Consumer
 

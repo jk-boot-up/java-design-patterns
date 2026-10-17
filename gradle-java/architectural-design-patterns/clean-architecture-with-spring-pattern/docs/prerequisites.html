@@ -103,7 +103,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h1>Prerequisites</h1>
 <h2>Knowledge Prerequisites</h2>
 <h3>Required</h3>
-<ul><li><strong><a href="../clean-architecture-pattern"><code>../clean-architecture-pattern</code></a> — built and watched first, always.</strong> This project is only legible to someone who has already seen the hand-wiring; it names §66 in its own first paragraph for exactly that reason.</li><li><strong>Java basics</strong>, plus enough familiarity with annotations to read <code>@Configuration</code> and <code>@Bean</code> without being alarmed by them.</li></ul>
+<ul><li><strong><a href="../../clean-architecture-pattern"><code>../clean-architecture-pattern</code></a> — built and watched first, always.</strong> This project is only legible to someone who has already seen the hand-wiring; it names §66 in its own first paragraph for exactly that reason.</li><li><strong>Java basics</strong>, plus enough familiarity with annotations to read <code>@Configuration</code> and <code>@Bean</code> without being alarmed by them.</li></ul>
 <h3>Helpful, but explained as we go</h3>
 <ul><li><strong>Spring Boot</strong>, in any capacity. If you have never used it, <a href="dependencies.html"><code>dependencies.md</code></a> explains what it is before the first annotation appears.</li></ul>
 <h3>Explicitly NOT required</h3>
@@ -116,7 +116,7 @@ cd architectural-design-patterns/clean-architecture-with-spring-pattern
 ./gradlew test         # expect BUILD SUCCESSFUL, 11 tests
 ./gradlew run          # expect five acts, a startup failure, then ACCEPTANCE</code></pre>
 <h2>Recommended Reading Order</h2>
-<ol><li><a href="../clean-architecture-pattern"><code>../clean-architecture-pattern</code></a>, completely, first</li><li><a href="dependencies.html"><code>dependencies.md</code></a> — what Spring is, and what it costs</li><li>Run <code>./gradlew run</code> and read all five acts, especially act five</li><li><a href="clean-architecture-with-spring-pattern-explained.html"><code>clean-architecture-with-spring-pattern-explained.md</code></a></li><li>The source: <code>config/AppConfig.java</code> next to §66&#x27;s <code>PlaceAnOrderDemo.shop()</code></li><li><code>WiringContrastTest</code></li></ol>
+<ol><li><a href="../../clean-architecture-pattern"><code>../clean-architecture-pattern</code></a>, completely, first</li><li><a href="dependencies.html"><code>dependencies.md</code></a> — what Spring is, and what it costs</li><li>Run <code>./gradlew run</code> and read all five acts, especially act five</li><li><a href="clean-architecture-with-spring-pattern-explained.html"><code>clean-architecture-with-spring-pattern-explained.md</code></a></li><li>The source: <code>config/AppConfig.java</code> next to §66&#x27;s <code>PlaceAnOrderDemo.shop()</code></li><li><code>WiringContrastTest</code></li></ol>
 </main>
 <footer>
 Generated from <code>prerequisites.md</code> by <code>docs/make_readme_html.py</code> &mdash;

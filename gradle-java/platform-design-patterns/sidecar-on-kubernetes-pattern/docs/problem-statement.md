@@ -2,12 +2,12 @@
 
 ## Read the first project first
 
-This builds on [`sidecar-pattern`](../sidecar-pattern), which explains what a sidecar is, why the retry
+This builds on [`sidecar-pattern`](../../sidecar-pattern), which explains what a sidecar is, why the retry
 code left the service, and what a second process costs. Nothing here re-teaches it. It takes the same
 two containers, the checkout service and the proxy beside it, and asks one question: what changes when
 Kubernetes runs them?
 
-Nothing is lost by skipping Kubernetes. [`docs/dependencies.md`](docs/dependencies.md) says what it is,
+Nothing is lost by skipping Kubernetes. [`docs/dependencies.md`](dependencies.md) says what it is,
 what it costs, and how to skip it.
 
 ## The scenario

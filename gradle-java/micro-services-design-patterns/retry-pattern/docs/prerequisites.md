@@ -20,7 +20,7 @@ what you explicitly do not need to know. The short version: if you can read a
 
 ### Helpful, but explained as we go
 
-- **The Load Balancing pattern** ([`../load-balancing-pattern`](../load-balancing-pattern)).
+- **The Load Balancing pattern** ([`../load-balancing-pattern`](../../load-balancing-pattern)).
   Retry is what you do when the instance you chose does not answer, so the two
   combine naturally — the obvious retry is a retry against a *different* instance.
   You can do this project first without difficulty.

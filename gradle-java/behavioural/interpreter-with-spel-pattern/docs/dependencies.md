@@ -2,7 +2,7 @@
 
 This project uses Spring Expression Language, which the hand-built projects do not. This page says what it is, why it is here, and what it costs. It comes before the first line of framework code on purpose.
 
-**Skipping this project loses none of the pattern.** [Interpreter](../interpreter-pattern) teaches all of it with plain Java.
+**Skipping this project loses none of the pattern.** [Interpreter](../../interpreter-pattern) teaches all of it with plain Java.
 
 ## What Spring Expression Language is
 

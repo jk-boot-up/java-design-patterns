@@ -1,15 +1,17 @@
 # Design Patterns in Java — A Worked Course
 
-Design patterns in Java — the twenty-five object-oriented ones first, then
-twelve microservices patterns, then eight platform patterns, then six
-concurrency patterns, then five architectural patterns — each a
-self-contained Gradle Java 21 project with runnable code, JUnit 5 tests,
+Design patterns in Java — 272 projects in 14 categories: the Gang of Four
+patterns first, then the enterprise, domain-driven, concurrency, architectural,
+messaging, microservices, platform, testing, security and functional patterns —
+each a self-contained Gradle Java 21 project with runnable code, JUnit 5 tests,
 written notes, diagrams, an animated walkthrough, and a narrated video.
 
-The first four categories — creational, structural, behavioural and
-microservices — are complete, and so is architectural, the fifth. Platform
-and concurrency are the two categories still being built; see their
-sections below.
+**Every project, by category:** [index](index.md) (generated, always complete).
+The sections below are the hand-written reading order for the first seven
+categories: creational, structural, behavioural, microservices, platform,
+concurrency and architectural. For foundational, enterprise, domain-driven
+design, messaging, testing, security and functional, use the index and each
+category's own README.
 
 **Every pattern is taught through the same worked domain: an online store.**
 Not a photo gallery, not shapes on a canvas — checkout, catalog, orders,
@@ -271,7 +273,8 @@ Java 21 and no third-party runtime dependencies. JUnit 5 for tests only.
 | Document | Covers |
 | --- | --- |
 | [`docs/video-and-publishing-spec.md`](docs/video-and-publishing-spec.md) | The domain rule, narration, audio and video pipeline, poster and thumbnail, publishing |
-| [`docs/implementation-plan.md`](docs/implementation-plan.md) | How the first fourteen were brought up to that standard |
+| [`docs/implementation-plan.md`](docs/implementation-plan.md) | How the first projects were brought up to that standard |
+| [`../docs/design-patterns-catalog.md`](../docs/design-patterns-catalog.md) | Every pattern covered, by category |
 | [`behavioural/docs/spec.md`](behavioural/docs/spec.md) | The behavioural category's scenarios and extra conformance items |
 | [`micro-services-design-patterns/docs/spec.md`](micro-services-design-patterns/docs/spec.md) | The microservices category's scenarios, its one-JVM rule and its extra conformance items |
 | [`platform-design-patterns/docs/implementation-plan.md`](platform-design-patterns/docs/implementation-plan.md) | The platform category's eight projects, its two-tier rule, and the infrastructure each one is allowed to use |

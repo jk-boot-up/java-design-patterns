@@ -6,7 +6,7 @@
 
 - **Java basics** — interfaces, packages.
 - **Records** — Java 16's `record`.
-- **[`../hexagonal-architecture-pattern`](../hexagonal-architecture-pattern)** —
+- **[`../hexagonal-architecture-pattern`](../../hexagonal-architecture-pattern)** —
   strongly recommended first. This project generalises exactly its
   inversion, and the explained document assumes you already know what a
   port is and who is allowed to name whom.
@@ -14,7 +14,7 @@
 ### Explicitly NOT required
 
 - **No dependency injection framework.** Wiring is done by hand, in
-  `main()`, on purpose — see [`clean-architecture-with-spring-pattern`](../clean-architecture-with-spring-pattern)
+  `main()`, on purpose — see [`clean-architecture-with-spring-pattern`](../../clean-architecture-with-spring-pattern)
   for the same graph assembled by a container.
 - **No real HTTP, no real file system.** Every adapter in this project is
   in-memory.

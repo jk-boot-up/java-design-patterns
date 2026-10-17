@@ -52,13 +52,13 @@ pattern, and it is only good advice when there is something *true* to fall back 
 ## What it deliberately leaves out
 
 There is no bulkhead. This picture attacks the problem by refusing to call the broken
-thing; the next pattern along, [Bulkhead](../bulkhead-pattern), attacks it from the other
+thing; the next pattern along, [Bulkhead](../../bulkhead-pattern), attacks it from the other
 end by making sure the threads waiting on Recommendations were never the threads checkout
 needed. Both are usually present in a real system.
 
 There is no retry inside the breaker either, though that is the usual production
 arrangement: a dropped connection deserves a second attempt, a service that has failed its
-last twenty calls does not. [Retry](../retry-pattern) is the previous project, and the two
+last twenty calls does not. [Retry](../../retry-pattern) is the previous project, and the two
 compose rather than compete.
 
 And the thresholds are drawn as if they were obvious. They are not. Too sensitive and the

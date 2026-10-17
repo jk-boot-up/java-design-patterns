@@ -42,7 +42,7 @@ THREE. Restarts, however, are per container.
 ```
 
 What is shared is the Pod: scheduling, eviction and deletion, not process death. While the proxy is down the
-service's calls fail, exactly as in [`sidecar-pattern`](../sidecar-pattern)'s "kill the proxy" act, and then
+service's calls fail, exactly as in [`sidecar-pattern`](../../sidecar-pattern)'s "kill the proxy" act, and then
 they recover without anyone touching the service.
 
 **4. Injection.** The sidecar arrives beside a service whose own manifest does not mention it.

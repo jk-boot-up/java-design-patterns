@@ -59,6 +59,6 @@ The state of the run is in memory. Kill the process between "take payment" and "
 order" and the list of successful steps goes with it, leaving a charge nobody will ever
 compensate. In a real shop the list is a row written after every step, so the run can be
 resumed by whoever restarts. Compensations also need to be safe to attempt twice, which is
-[Idempotent Consumer](../idempotent-consumer-pattern) at the end of this category, and the
+[Idempotent Consumer](../../idempotent-consumer-pattern) at the end of this category, and the
 step-plus-event needs to commit together, which is
-[Transactional Outbox](../transactional-outbox-pattern).
+[Transactional Outbox](../../transactional-outbox-pattern).

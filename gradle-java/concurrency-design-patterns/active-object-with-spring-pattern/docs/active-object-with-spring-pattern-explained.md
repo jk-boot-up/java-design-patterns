@@ -6,7 +6,7 @@ An `@Async` bean on a one-thread executor is an active object: calls become mess
 
 ## What is new here
 
-The pattern is [Active Object](../active-object-pattern). This page is only what Spring Boot adds.
+The pattern is [Active Object](../../active-object-pattern). This page is only what Spring Boot adds.
 
 ### No Lock At All
 

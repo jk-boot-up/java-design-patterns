@@ -1,10 +1,10 @@
 # Dependencies
 
-Tier 1 needs only a JDK. **Tier 2**, in [`real/`](real/), uses Kubernetes, the heaviest dependency in this
+Tier 1 needs only a JDK. **Tier 2**, in [`real/`](../real/), uses Kubernetes, the heaviest dependency in this
 course, so this page explains it before anything uses it.
 
-**Skipping this project loses none of the pattern.** [`sidecar-pattern`](../sidecar-pattern) teaches Sidecar
-completely, and [`sidecar-java-proxy-pattern`](../sidecar-java-proxy-pattern) shows the proxy swap.
+**Skipping this project loses none of the pattern.** [`sidecar-pattern`](../../sidecar-pattern) teaches Sidecar
+completely, and [`sidecar-java-proxy-pattern`](../../sidecar-java-proxy-pattern) shows the proxy swap.
 
 ## 1. What Kubernetes is
 
@@ -41,5 +41,5 @@ bill, and is removed with one command. The node image `kind` pulls is about a gi
 
 ## 5. How to skip it
 
-Do not run Tier 2. Read [`real/README.md`](real/README.md) for the transcript, which is real output. Tier 1 and
+Do not run Tier 2. Read [`real/README.md`](../real/README.md) for the transcript, which is real output. Tier 1 and
 its tests need no cluster and no Docker, and nothing in the default `./gradlew test` touches one.

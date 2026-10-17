@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [API Gateway](../api-gateway-pattern), which put one gateway in front of catalogue, pricing, inventory and recommendations, so the mobile app made one call to one address and lost nothing when a feature service went down. Nothing here is lost by skipping Spring Cloud Gateway, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [API Gateway](../../api-gateway-pattern), which put one gateway in front of catalogue, pricing, inventory and recommendations, so the mobile app made one call to one address and lost nothing when a feature service went down. Nothing here is lost by skipping Spring Cloud Gateway, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

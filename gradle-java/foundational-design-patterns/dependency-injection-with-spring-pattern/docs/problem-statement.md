@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Dependency Injection](../dependency-injection-pattern), which builds the
+This project assumes [Dependency Injection](../../dependency-injection-pattern), which builds the
 wiring by hand and a container from scratch. Nothing here is lost by skipping Spring, and
 [`dependencies.md`](dependencies.md) says so plainly.
 

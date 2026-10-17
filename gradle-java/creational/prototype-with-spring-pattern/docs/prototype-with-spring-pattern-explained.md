@@ -6,7 +6,7 @@ In Spring, a prototype is a scope: every request builds a new bean from its defi
 
 ## What is new here
 
-The pattern is [Prototype](../prototype-pattern). This page is only what Spring Boot adds.
+The pattern is [Prototype](../../prototype-pattern). This page is only what Spring Boot adds.
 
 ### A New One Each Time
 

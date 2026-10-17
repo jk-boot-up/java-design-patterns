@@ -71,7 +71,7 @@ of what it has handled, so a duplicate becomes two identical emails. Two emails 
 embarrassing; had the subscriber been Payments it would have been two charges. The one thing
 that makes it fixable is in the demo's last line — **the message id was the same both
 times** — and a receiver that writes down the ids it has seen can throw the second copy
-away. That is [Idempotent Consumer](../idempotent-consumer-pattern), the next and last
+away. That is [Idempotent Consumer](../../idempotent-consumer-pattern), the next and last
 project in this category, and it is what makes at-least-once delivery liveable.
 
 **And the shape of the bug is older than microservices.** Two steps that must both happen,

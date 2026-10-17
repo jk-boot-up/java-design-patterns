@@ -58,4 +58,4 @@ protect.
 
 - Kafka topics carrying full records, often compacted to the latest per key.
 - Change data capture, such as Debezium, publishing row changes.
-- Read models in [CQRS](../cqrs-pattern), built from events.
+- Read models in [CQRS](../../cqrs-pattern), built from events.

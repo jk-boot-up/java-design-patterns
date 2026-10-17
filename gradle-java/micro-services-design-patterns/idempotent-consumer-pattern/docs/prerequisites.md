@@ -20,12 +20,12 @@ written a method that handles a message.
 ### Helpful, but explained as we go
 
 - **Transactional Outbox**
-  ([`../transactional-outbox-pattern`](../transactional-outbox-pattern)) — where the
+  ([`../transactional-outbox-pattern`](../../transactional-outbox-pattern)) — where the
   duplicate comes from, and why the sending side cannot remove it.
-- **Saga** ([`../saga-pattern`](../saga-pattern)) — why services send each other messages at
+- **Saga** ([`../saga-pattern`](../../saga-pattern)) — why services send each other messages at
   all.
 - **Database per Service**
-  ([`../database-per-service-pattern`](../database-per-service-pattern)) — why the dedupe
+  ([`../database-per-service-pattern`](../../database-per-service-pattern)) — why the dedupe
   store belongs to the consumer and nobody else reads it.
 
 ### Explicitly NOT required

@@ -66,5 +66,5 @@ has to operate, back up and migrate.
 There is also a constraint hiding in the transaction: the effect is a row, which is the only
 reason it can share a commit with the id. If the effect were the actual email, it could not,
 and you would be back to two systems with a gap between them — which is exactly what
-[Transactional Outbox](../transactional-outbox-pattern) is for. One pattern creates the
+[Transactional Outbox](../../transactional-outbox-pattern) is for. One pattern creates the
 duplicate; the other absorbs it.

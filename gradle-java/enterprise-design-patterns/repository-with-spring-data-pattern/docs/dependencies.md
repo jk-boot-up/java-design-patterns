@@ -4,7 +4,7 @@ This project uses three things the hand-built projects do not: Spring Boot,
 Spring Data JPA, and Hibernate with H2. This page says what they are, why they are
 here, and what they cost. It comes before the first annotation on purpose.
 
-**Skipping this project loses none of the pattern.** [Repository](../repository-pattern)
+**Skipping this project loses none of the pattern.** [Repository](../../repository-pattern)
 teaches all of it with plain Java.
 
 ## What Spring Data JPA is

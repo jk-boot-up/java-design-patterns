@@ -20,7 +20,7 @@ in a class marked `@Configuration`, you have already met it.
 
 ## Why does this project use it?
 
-Because it is the whole subject. [`clean-architecture-pattern`](../clean-architecture-pattern)
+Because it is the whole subject. [`clean-architecture-pattern`](../../clean-architecture-pattern)
 already built and taught the architecture, wiring its object graph by hand,
 in one method, so that reaching into the outermost circle for a concrete
 class and handing it to an interactor that only knows an interface could be
@@ -66,7 +66,7 @@ that otherwise looked completely normal.
 
 ## Does skipping this project lose anything?
 
-**No.** [`clean-architecture-pattern`](../clean-architecture-pattern)
+**No.** [`clean-architecture-pattern`](../../clean-architecture-pattern)
 teaches Clean Architecture completely on its own — every entity, every use
 case, every adapter, the dependency-inversion moment, the forced change,
 the bill, all of it. This project's entire job is one comparison: the same

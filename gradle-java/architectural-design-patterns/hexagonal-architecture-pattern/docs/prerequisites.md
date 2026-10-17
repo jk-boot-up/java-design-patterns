@@ -7,7 +7,7 @@
 - **Java basics** — interfaces, packages, and what it means for one class to
   import another.
 - **Records** — Java 16's `record`.
-- **[`../layered-architecture-pattern`](../layered-architecture-pattern)** —
+- **[`../layered-architecture-pattern`](../../layered-architecture-pattern)** —
   strongly recommended first. This project's naive version is that
   project's application layer, honestly reproduced, and the explained
   document assumes you already know why an application layer naming its

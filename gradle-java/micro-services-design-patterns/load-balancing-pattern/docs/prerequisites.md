@@ -17,12 +17,12 @@ interface and a `for` loop, you are ready.
 
 ### Helpful, but explained as we go
 
-- **The Strategy pattern** ([`../../behavioural/strategy-pattern`](../../behavioural/strategy-pattern)).
+- **The Strategy pattern** ([`../../behavioural/strategy-pattern`](../../../behavioural/strategy-pattern)).
   This project *is* Strategy, applied to machines instead of business rules. If you
   have done that session, the shape of `LoadBalancer` will look familiar
   immediately. If you have not, you will learn it here, and the earlier project
   will then feel like revision.
-- **The Service Discovery pattern** ([`../service-discovery-pattern`](../service-discovery-pattern)).
+- **The Service Discovery pattern** ([`../service-discovery-pattern`](../../service-discovery-pattern)).
   That project answers "what instances exist?" This one answers "which of them do I
   ask?" — so it picks up exactly where the other one puts you down. You can still do
   this one first; the list of three instances is simply handed to you here.

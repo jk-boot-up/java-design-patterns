@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Bulkhead](../bulkhead-pattern), which gave the nightly supplier feed and checkout their own pools of workers, so a slow partner API could fill the feed's pool without stopping the shop selling. Nothing here is lost by skipping Resilience4j, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Bulkhead](../../bulkhead-pattern), which gave the nightly supplier feed and checkout their own pools of workers, so a slow partner API could fill the feed's pool without stopping the shop selling. Nothing here is lost by skipping Resilience4j, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

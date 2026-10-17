@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Identity Map](../identity-map-pattern), which builds an
+This project assumes [Identity Map](../../identity-map-pattern), which builds an
 identity map by hand and shows why one row should be one object. If you have
 not seen that, start there. Nothing here is lost by skipping the framework, and
 [`dependencies.md`](dependencies.md) says so plainly.

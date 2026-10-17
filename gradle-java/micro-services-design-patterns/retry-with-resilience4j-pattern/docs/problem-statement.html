@@ -102,7 +102,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <main>
 <h1>Problem Statement</h1>
 <h2>Read the partner first</h2>
-<p>This project assumes <a href="../retry-pattern">Retry with Backoff</a>, which retried a flaky payment gateway with a growing wait between attempts, and showed why a retry is safe only when the failure is temporary and the operation cannot happen twice. Nothing here is lost by skipping Resilience4j, and <a href="dependencies.html"><code>dependencies.md</code></a> says so plainly.</p>
+<p>This project assumes <a href="../../retry-pattern">Retry with Backoff</a>, which retried a flaky payment gateway with a growing wait between attempts, and showed why a retry is safe only when the failure is temporary and the operation cannot happen twice. Nothing here is lost by skipping Resilience4j, and <a href="dependencies.html"><code>dependencies.md</code></a> says so plainly.</p>
 <h2>The scenario</h2>
 <p>The partner&#x27;s: a payment gateway that fails one call in five, and a checkout that must not lose a sale or charge twice.</p>
 <h2>What is new</h2>

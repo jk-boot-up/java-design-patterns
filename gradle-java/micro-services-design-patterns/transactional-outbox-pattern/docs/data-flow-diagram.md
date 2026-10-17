@@ -70,5 +70,5 @@ would have been two charges.
 
 The fix is in the diagram already, in the last note: **the message id is the same both
 times**. A receiver that writes down the ids it has handled can throw the second copy away,
-which is [Idempotent Consumer](../idempotent-consumer-pattern) — the next project, and the
+which is [Idempotent Consumer](../../idempotent-consumer-pattern) — the next project, and the
 thing that makes at-least-once delivery liveable rather than merely honest.

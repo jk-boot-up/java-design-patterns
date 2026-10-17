@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Thread Pool](../thread-pool-pattern), which built a bounded thread pool by hand around a `ThreadPoolExecutor`, and showed its costs: an unbounded queue is a trap, a rejected task needs a decision, and a pool can starve itself. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Thread Pool](../../thread-pool-pattern), which built a bounded thread pool by hand around a `ThreadPoolExecutor`, and showed its costs: an unbounded queue is a trap, a rejected task needs a decision, and a pool can starve itself. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

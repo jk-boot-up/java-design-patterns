@@ -6,7 +6,7 @@ In Resilience4j, a retry is an annotation on a method, and the attempts and wait
 
 ## What is new here
 
-The pattern is [Retry with Backoff](../retry-pattern). This page is only what Resilience4j adds.
+The pattern is [Retry with Backoff](../../retry-pattern). This page is only what Resilience4j adds.
 
 ### A Flaky Call, Retried
 

@@ -6,7 +6,7 @@ In Spring, a template owns the fixed steps of a task, and you hand it a lambda f
 
 ## What is new here
 
-The pattern is [Template Method](../template-method-pattern). This page is only what Spring Boot adds.
+The pattern is [Template Method](../../template-method-pattern). This page is only what Spring Boot adds.
 
 ### Plain JDBC Leaks
 

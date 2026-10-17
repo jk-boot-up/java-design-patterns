@@ -6,7 +6,7 @@ With Kafka, the log is a topic on a broker, and each service reads it as a consu
 
 ## What is new here
 
-The pattern is [Event-Driven Architecture](../event-driven-architecture-pattern). This page is only what Apache Kafka adds.
+The pattern is [Event-Driven Architecture](../../event-driven-architecture-pattern). This page is only what Apache Kafka adds.
 
 ### Calling And Waiting
 

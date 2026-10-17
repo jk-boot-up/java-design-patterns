@@ -133,5 +133,5 @@ better than one facade.
 
 This project is in [enterprise-design-patterns](..). It is the network-sized
 cousin of the [Facade](../../structural/facade-pattern) pattern, and pairs
-with [Data Transfer Object](../data-transfer-object-pattern), if present, for
+with [Data Transfer Object](../dto-pattern), if present, for
 the shape of the reply.

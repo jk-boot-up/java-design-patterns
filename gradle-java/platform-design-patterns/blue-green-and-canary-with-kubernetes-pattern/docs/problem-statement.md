@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Blue-Green and Canary](../blue-green-and-canary-pattern), which ran two releases of the checkout behind a router that was a rule on the request number, and showed an in-place upgrade failing requests, a switch and a switch back, a canary, and a gate that halts a bad release. Nothing here is lost by skipping Kubernetes, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Blue-Green and Canary](../../blue-green-and-canary-pattern), which ran two releases of the checkout behind a router that was a rule on the request number, and showed an in-place upgrade failing requests, a switch and a switch back, a canary, and a gate that halts a bad release. Nothing here is lost by skipping Kubernetes, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

@@ -27,7 +27,7 @@ of what a `SELECT` with a join does.
   enough.
 - **The idea of a bounded context** — that a "product" means something slightly
   different to the catalog team than to the orders team. Useful, not required.
-- **API Composition** ([`../api-composition-pattern`](../api-composition-pattern)),
+- **API Composition** ([`../api-composition-pattern`](../../api-composition-pattern)),
   which is about doing this project's assembly step properly. Read this one first;
   that one answers the question this one raises.
 

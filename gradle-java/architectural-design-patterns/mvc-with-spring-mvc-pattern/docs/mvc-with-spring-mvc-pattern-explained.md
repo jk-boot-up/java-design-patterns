@@ -6,7 +6,7 @@ In Spring MVC, a controller method returns a view name and a model, and the fram
 
 ## What is new here
 
-The pattern is [MVC](../mvc-pattern). This page is only what Spring MVC adds.
+The pattern is [MVC](../../mvc-pattern). This page is only what Spring MVC adds.
 
 ### The Controller Names A View
 

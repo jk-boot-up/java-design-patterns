@@ -2,7 +2,7 @@
 
 ## Required
 
-- [Content-Based Router](../content-based-router-pattern), the hand-built version this project pairs with.
+- [Content-Based Router](../../content-based-router-pattern), the hand-built version this project pairs with.
 - **A container runtime, running.** This demo starts a real RabbitMQ broker in a container. Without a runtime the demo says so in two plain sentences and stops, and the broker tests are skipped rather than failed.
 
 ## Explicitly not required

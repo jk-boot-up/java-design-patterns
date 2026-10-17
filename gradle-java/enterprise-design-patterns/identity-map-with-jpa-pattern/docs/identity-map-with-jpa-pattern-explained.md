@@ -7,7 +7,7 @@ The persistence context is an identity map, scoped to an `EntityManager`.
 ## What is new here
 
 Everything about why one row should be one object is in
-[Identity Map](../identity-map-pattern). This page is only what JPA adds.
+[Identity Map](../../identity-map-pattern). This page is only what JPA adds.
 
 **The map is built in.** `em.find(Customer.class, 7)` twice gives the same
 object and one SQL statement. The order's customer and customer 7 by id are the

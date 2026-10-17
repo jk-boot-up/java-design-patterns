@@ -6,7 +6,7 @@ Spring reads each constructor and builds the graph, so you write the constructor
 
 ## What is new here
 
-The pattern is [Dependency Injection](../dependency-injection-pattern). This page is what Spring adds.
+The pattern is [Dependency Injection](../../dependency-injection-pattern). This page is what Spring adds.
 
 **One annotation replaces one `new`.** `@Component` on a class says Spring should build it. Its
 single constructor needs no `@Autowired`: Spring reads the parameter types.

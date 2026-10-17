@@ -2,7 +2,7 @@
 
 This project uses Apache Camel and a real RabbitMQ broker, which the hand-built projects do not. This page says what they are, why they are here, and what they cost. It comes before the first line of framework code on purpose.
 
-**Skipping this project loses none of the pattern.** [Content-Based Router](../content-based-router-pattern) teaches all of it with plain Java and nothing installed.
+**Skipping this project loses none of the pattern.** [Content-Based Router](../../content-based-router-pattern) teaches all of it with plain Java and nothing installed.
 
 ## What Apache Camel is
 

@@ -58,13 +58,13 @@ rather than merely convenient.
 
 **There are no timeouts on the branches**, and a real fan-out needs them. Here a service
 either answers or fails immediately; in production the interesting case is the one that
-does neither, and that is where [Circuit Breaker](../circuit-breaker-pattern) and
-[Bulkhead](../bulkhead-pattern) rejoin the story.
+does neither, and that is where [Circuit Breaker](../../circuit-breaker-pattern) and
+[Bulkhead](../../bulkhead-pattern) rejoin the story.
 
 There is no cache and no read model. When "as slow as the slowest dependency" and "as
 available as the product of the required ones" are both unacceptable, the answer is to stop
 assembling on demand and keep a copy that is already assembled. That is
-[CQRS](../cqrs-pattern), the next project.
+[CQRS](../../cqrs-pattern), the next project.
 
 And the parallelism is modelled rather than real. `Fanout` runs its branches in a loop,
 winding the clock back to the moment of departure before each and forward to the slowest

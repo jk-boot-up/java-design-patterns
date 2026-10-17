@@ -52,4 +52,4 @@ three services at 99.9% make a page that needs all three available 99.7% of the 
 two hours a month against each service's forty-three minutes, because the outages mostly do
 not overlap. The way out is not better services, it is needing fewer of them, which is what
 the optional labels buy. When that lever runs out, the answer is to stop assembling on
-demand and keep a copy that is already assembled: [CQRS](../cqrs-pattern).
+demand and keep a copy that is already assembled: [CQRS](../../cqrs-pattern).

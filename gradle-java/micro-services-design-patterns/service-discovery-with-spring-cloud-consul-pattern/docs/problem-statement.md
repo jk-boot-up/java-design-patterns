@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Service Registry and Discovery](../service-discovery-pattern), which let three copies of the Pricing service announce themselves to a shared registry, so a caller asked for an address each time instead of holding one, and showed that a registry is only as good as its last update. Nothing here is lost by skipping Spring Cloud Consul, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Service Registry and Discovery](../../service-discovery-pattern), which let three copies of the Pricing service announce themselves to a shared registry, so a caller asked for an address each time instead of holding one, and showed that a registry is only as good as its last update. Nothing here is lost by skipping Spring Cloud Consul, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

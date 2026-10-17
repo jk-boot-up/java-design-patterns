@@ -104,7 +104,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h2>The pattern in one sentence</h2>
 <p>An <code>@Async</code> bean on a one-thread executor is an active object: calls become messages, and one thread owns the state.</p>
 <h2>What is new here</h2>
-<p>The pattern is <a href="../active-object-pattern">Active Object</a>. This page is only what Spring Boot adds.</p>
+<p>The pattern is <a href="../../active-object-pattern">Active Object</a>. This page is only what Spring Boot adds.</p>
 <h3>No Lock At All</h3>
 <p>Four callers restock a plain <code>int</code> twenty thousand times in all, and the total is exact. There is no lock: every change ran on the one <code>inventory-</code> thread.</p>
 <pre><code>  4 callers x 5000 restocks: stock 20000

@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Serverless](../serverless-pattern), which counted a platform's instances on a clock: a server paid for while idle, a function per event, scale out and back to zero, a cold start, lost memory, and the price when busy. Nothing here is lost by skipping LocalStack and AWS Lambda, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Serverless](../../serverless-pattern), which counted a platform's instances on a clock: a server paid for while idle, a function per event, scale out and back to zero, a cold start, lost memory, and the price when busy. Nothing here is lost by skipping LocalStack and AWS Lambda, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

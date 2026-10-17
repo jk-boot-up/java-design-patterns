@@ -103,9 +103,9 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h1>Prerequisites</h1>
 <h2>Knowledge Prerequisites</h2>
 <h3>Required</h3>
-<ul><li><strong>Java basics</strong> — interfaces, packages.</li><li><strong>Records</strong> — Java 16&#x27;s <code>record</code>.</li><li><strong><a href="../hexagonal-architecture-pattern"><code>../hexagonal-architecture-pattern</code></a></strong> — strongly recommended first. This project generalises exactly its inversion, and the explained document assumes you already know what a port is and who is allowed to name whom.</li></ul>
+<ul><li><strong>Java basics</strong> — interfaces, packages.</li><li><strong>Records</strong> — Java 16&#x27;s <code>record</code>.</li><li><strong><a href="../../hexagonal-architecture-pattern"><code>../hexagonal-architecture-pattern</code></a></strong> — strongly recommended first. This project generalises exactly its inversion, and the explained document assumes you already know what a port is and who is allowed to name whom.</li></ul>
 <h3>Explicitly NOT required</h3>
-<ul><li><strong>No dependency injection framework.</strong> Wiring is done by hand, in <code>main()</code>, on purpose — see <a href="../clean-architecture-with-spring-pattern"><code>clean-architecture-with-spring-pattern</code></a> for the same graph assembled by a container.</li><li><strong>No real HTTP, no real file system.</strong> Every adapter in this project is in-memory.</li></ul>
+<ul><li><strong>No dependency injection framework.</strong> Wiring is done by hand, in <code>main()</code>, on purpose — see <a href="../../clean-architecture-with-spring-pattern"><code>clean-architecture-with-spring-pattern</code></a> for the same graph assembled by a container.</li><li><strong>No real HTTP, no real file system.</strong> Every adapter in this project is in-memory.</li></ul>
 <h2>A 60-Second &quot;Dependency Inversion&quot; Primer</h2>
 <p>Ordinarily, if class A calls a method on class B, A depends on B — A needs B to exist, typed, on its classpath, to compile.</p>
 <p><strong>Dependency inversion</strong> breaks that: A calls a method on an <em>interface</em> that A itself declares, and B, elsewhere, implements that interface. A still depends on something — but on an interface it owns, not on B. B now depends on A&#x27;s interface, to implement it.</p>

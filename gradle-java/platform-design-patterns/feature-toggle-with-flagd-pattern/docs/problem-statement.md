@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Feature Toggle](../feature-toggle-pattern), which put gift wrap behind a table of switches read at run time, and showed it deployed dark, switched on for some customers, turned off by a kill switch, and safe when the table cannot be read. Nothing here is lost by skipping flagd and OpenFeature, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Feature Toggle](../../feature-toggle-pattern), which put gift wrap behind a table of switches read at run time, and showed it deployed dark, switched on for some customers, turned off by a kill switch, and safe when the table cannot be read. Nothing here is lost by skipping flagd and OpenFeature, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

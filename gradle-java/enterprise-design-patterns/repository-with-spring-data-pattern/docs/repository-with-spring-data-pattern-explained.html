@@ -104,7 +104,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h2>The pattern in one sentence</h2>
 <p>An interface that looks like a collection of domain objects, with the implementation generated.</p>
 <h2>What is new here</h2>
-<p>The pattern is <a href="../repository-pattern">Repository</a>. This page is what Spring Data adds.</p>
+<p>The pattern is <a href="../../repository-pattern">Repository</a>. This page is what Spring Data adds.</p>
 <p><strong>No implementation.</strong> <code>CustomerRepository extends JpaRepository&lt;Customer, Integer&gt;</code> and nothing else. <code>save</code>, <code>findById</code>, <code>findAll</code> and <code>delete</code> all work. Spring injects a generated proxy.</p>
 <p><strong>A query from a name.</strong> <code>findDistinctByCityAndOrdersDayGreaterThan</code> is parsed by Spring Data, which builds the query. One statement, and the partner&#x27;s <code>MarketingService</code> gives the same answer with its body unchanged.</p>
 <h2>The costs, as in the partner</h2>

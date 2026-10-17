@@ -52,7 +52,7 @@ threads sit doing nothing while two feed batches wait for a thread. A single sha
 four would have run all four batches at once and finished the import sooner — and a test
 asserts precisely that. Bulkheads buy isolation and pay for it in throughput.
 
-There is no circuit breaker here. [Circuit Breaker](../circuit-breaker-pattern) attacks the
+There is no circuit breaker here. [Circuit Breaker](../../circuit-breaker-pattern) attacks the
 same problem from the other end by refusing to call the broken thing at all; this one makes
 sure the calls still in flight cannot drown anything that matters. Production usually wants
 both.

@@ -57,7 +57,7 @@ FIVE. The alternative: do not ask. be given.
   the class never knew, because it never looked anything up.
 ```
 
-This is [Dependency Injection](../dependency-injection-pattern)'s idea at the level of a network address: the class
+This is [Dependency Injection](../../dependency-injection-pattern)'s idea at the level of a network address: the class
 is given, and does not ask. Kubernetes DNS, a service mesh and a load balancer are the same move.
 
 ## The verdict

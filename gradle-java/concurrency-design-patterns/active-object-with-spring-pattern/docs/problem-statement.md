@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Active Object](../active-object-pattern), which built an object with its own thread and mailbox by hand, so calls became messages that return a future at once, with no lock, and showed its costs: a mailbox that backs up, errors that arrive later with the worker's stack, and a throughput ceiling. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Active Object](../../active-object-pattern), which built an object with its own thread and mailbox by hand, so calls became messages that return a future at once, with no lock, and showed its costs: a mailbox that backs up, errors that arrive later with the worker's stack, and a throughput ceiling. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

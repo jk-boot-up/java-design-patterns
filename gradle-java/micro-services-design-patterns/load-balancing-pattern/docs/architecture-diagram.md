@@ -39,7 +39,7 @@ sits in and what path its packets take. Act three shows the client learning `cat
 **`LoadBalancer` is one box with four boxes under it.** This is Strategy, not something
 like it. One method, four interchangeable implementations, and `CatalogClient` holds one
 without ever asking which it holds. If you have done
-[Strategy](../../behavioural/strategy-pattern) you have written this interface before under
+[Strategy](../../../behavioural/strategy-pattern) you have written this interface before under
 another name; what is new here is that the decision is about machines and is remade on
 every request.
 
@@ -56,7 +56,7 @@ exists to make that case honestly rather than to sell against it.
 
 There is also no health checking and no failure. Every instance here answers; it is just
 that one answers slowly. What to do when the chosen instance does not answer at all is the
-next pattern along, [Retry](../retry-pattern) — and the natural retry is a retry against a
+next pattern along, [Retry](../../retry-pattern) — and the natural retry is a retry against a
 *different* instance, which is why these two combine so readily.
 
 And there is no tie-break. Act three's client found a favourite among two equally fast

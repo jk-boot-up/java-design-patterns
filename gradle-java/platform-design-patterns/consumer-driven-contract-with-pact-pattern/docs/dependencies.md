@@ -2,7 +2,7 @@
 
 This project uses Pact, which the hand-built projects do not. This page says what it is, why it is here, and what it costs. It comes before the first line of framework code on purpose.
 
-**Skipping this project loses none of the pattern.** [Consumer-Driven Contract](../consumer-driven-contract-pattern) teaches all of it with plain Java.
+**Skipping this project loses none of the pattern.** [Consumer-Driven Contract](../../consumer-driven-contract-pattern) teaches all of it with plain Java.
 
 ## What Pact is
 

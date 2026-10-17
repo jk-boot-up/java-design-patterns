@@ -54,7 +54,7 @@ sequence exactly.
 **There is no circuit breaker here**, and a retry loop without one has a failure mode of
 its own: when a service is properly down, every caller politely retrying turns a slow
 system into a dead one. That is the next pattern along,
-[Circuit Breaker](../circuit-breaker-pattern), and it exists largely because of this one.
+[Circuit Breaker](../../circuit-breaker-pattern), and it exists largely because of this one.
 
 There is no budget or deadline either. Three attempts with backoff is up to 700
 milliseconds of shopper patience, and a real checkout usually has an overall time limit
@@ -63,6 +63,6 @@ numbers in the policy box.
 
 And there is no second instance. The most natural retry in a real system is a retry against
 a *different* machine — which is why this pattern sits directly after
-[Load Balancing](../load-balancing-pattern). Here the gateway is a single box, so the retry
+[Load Balancing](../../load-balancing-pattern). Here the gateway is a single box, so the retry
 goes back to the same place, which keeps the diagram about waiting and idempotency rather
 than about choosing.

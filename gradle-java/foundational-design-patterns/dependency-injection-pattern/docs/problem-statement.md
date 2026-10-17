@@ -7,8 +7,8 @@ gateway and a notifier), one more time.
 
 ## The three earlier answers
 
-[Registry](../registry-pattern) passed nothing and looked everything up in a global.
-[Service Locator](../service-locator-pattern) asked a middleman. Both left the same
+[Registry](../../registry-pattern) passed nothing and looked everything up in a global.
+[Service Locator](../../service-locator-pattern) asked a middleman. Both left the same
 problem: a class that asks hides what it needs from everyone outside it.
 
 ## The pattern

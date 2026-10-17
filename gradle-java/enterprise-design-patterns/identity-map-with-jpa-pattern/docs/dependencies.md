@@ -4,7 +4,7 @@ This project uses two things the hand-built projects do not: Hibernate and H2.
 This page says what they are, why they are here, and what they cost. It comes
 before the first annotation on purpose.
 
-**Skipping this project loses none of the pattern.** [Identity Map](../identity-map-pattern)
+**Skipping this project loses none of the pattern.** [Identity Map](../../identity-map-pattern)
 teaches all of it with plain Java. This project only shows you where you have
 already met it.
 

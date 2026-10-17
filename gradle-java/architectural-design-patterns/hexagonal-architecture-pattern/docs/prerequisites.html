@@ -103,7 +103,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h1>Prerequisites</h1>
 <h2>Knowledge Prerequisites</h2>
 <h3>Required</h3>
-<ul><li><strong>Java basics</strong> — interfaces, packages, and what it means for one class to import another.</li><li><strong>Records</strong> — Java 16&#x27;s <code>record</code>.</li><li><strong><a href="../layered-architecture-pattern"><code>../layered-architecture-pattern</code></a></strong> — strongly recommended first. This project&#x27;s naive version is that project&#x27;s application layer, honestly reproduced, and the explained document assumes you already know why an application layer naming its storage interface is the normal, allowed shape of layering.</li></ul>
+<ul><li><strong>Java basics</strong> — interfaces, packages, and what it means for one class to import another.</li><li><strong>Records</strong> — Java 16&#x27;s <code>record</code>.</li><li><strong><a href="../../layered-architecture-pattern"><code>../layered-architecture-pattern</code></a></strong> — strongly recommended first. This project&#x27;s naive version is that project&#x27;s application layer, honestly reproduced, and the explained document assumes you already know why an application layer naming its storage interface is the normal, allowed shape of layering.</li></ul>
 <h3>Explicitly NOT required</h3>
 <ul><li><strong>No real HTTP, no real database.</strong> <code>HttpCheckoutAdapter</code> simulates a JSON request as a <code>Map</code>; there is no socket, no server, no client anywhere in this project.</li><li><strong>No dependency injection framework.</strong> Wiring is six lines in the composition root, by hand.</li></ul>
 <h2>A 60-Second &quot;Ports And Adapters&quot; Primer</h2>

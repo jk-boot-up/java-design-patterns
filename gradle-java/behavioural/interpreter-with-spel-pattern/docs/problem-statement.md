@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Interpreter](../interpreter-pattern), which turned promotion rules written as text into a tree of small rule objects, and applied them to orders, with a parser written by hand. Nothing here is lost by skipping Spring Expression Language, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Interpreter](../../interpreter-pattern), which turned promotion rules written as text into a tree of small rule objects, and applied them to orders, with a parser written by hand. Nothing here is lost by skipping Spring Expression Language, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

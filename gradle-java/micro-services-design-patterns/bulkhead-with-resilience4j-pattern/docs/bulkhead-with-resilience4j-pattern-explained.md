@@ -6,7 +6,7 @@ In Resilience4j, a bulkhead is an annotation that limits how many calls to one t
 
 ## What is new here
 
-The pattern is [Bulkhead](../bulkhead-pattern). This page is only what Resilience4j adds.
+The pattern is [Bulkhead](../../bulkhead-pattern). This page is only what Resilience4j adds.
 
 ### One Compartment For Everything
 

@@ -6,7 +6,7 @@ With flagd, a flag is an entry in a file that a daemon watches, and the applicat
 
 ## What is new here
 
-The pattern is [Feature Toggle](../feature-toggle-pattern). This page is only what flagd and OpenFeature adds.
+The pattern is [Feature Toggle](../../feature-toggle-pattern). This page is only what flagd and OpenFeature adds.
 
 ### Deploying Is Releasing
 

@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Unit of Work](../unit-of-work-pattern), which builds the
+This project assumes [Unit of Work](../../unit-of-work-pattern), which builds the
 mechanism by hand. Nothing here is lost by skipping the framework, and
 [`dependencies.md`](dependencies.md) says so plainly.
 

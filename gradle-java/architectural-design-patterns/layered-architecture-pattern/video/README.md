@@ -43,7 +43,7 @@ The pipeline, the audio chain and the reasons behind both — no denoiser, two-p
 loudness, lossless per-scene WAV joined to a single AAC encode, `+faststart` and
 a dropped edit list — are identical across every project in this repository and
 documented at length in the platform category's
-[`externalised-configuration-pattern/video/README.md`](../../platform-design-patterns/externalised-configuration-pattern/video/README.md).
+[`externalised-configuration-pattern/video/README.md`](../../../platform-design-patterns/externalised-configuration-pattern/video/README.md).
 Nothing about this project changes that pipeline; only the scenes and the slide
 renderer differ.
 

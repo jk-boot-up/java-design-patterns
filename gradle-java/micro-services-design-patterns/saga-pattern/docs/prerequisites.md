@@ -21,11 +21,11 @@ The bar is Java, and having once written four service calls in a row inside a `t
 ### Helpful, but explained as we go
 
 - **The Command pattern**
-  ([`../../behavioural/command-pattern`](../../behavioural/command-pattern)) — `SagaStep`
+  ([`../../behavioural/command-pattern`](../../../behavioural/command-pattern)) — `SagaStep`
   is `execute` and `undo` with different names, and reading Command first makes the shape
   of the interface obvious.
 - **Database per Service**
-  ([`../database-per-service-pattern`](../database-per-service-pattern)) — why there is no
+  ([`../database-per-service-pattern`](../../database-per-service-pattern)) — why there is no
   single database to put a transaction on in the first place.
 - **Idempotency.** Retrying a compensation matters in real systems; the project after this
   one covers it properly.

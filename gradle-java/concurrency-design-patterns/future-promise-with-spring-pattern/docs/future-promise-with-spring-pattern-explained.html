@@ -104,7 +104,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h2>The pattern in one sentence</h2>
 <p><code>@Async</code> returns a <code>CompletableFuture</code> that the container completes, so independent work can run at once, on a pool you must choose.</p>
 <h2>What is new here</h2>
-<p>The pattern is <a href="../future-promise-pattern">Future/Promise</a>. This page is only what Spring Boot adds.</p>
+<p>The pattern is <a href="../../future-promise-pattern">Future/Promise</a>. This page is only what Spring Boot adds.</p>
 <h3>The Pool Decides</h3>
 <p><code>@Async</code> asks for concurrency and the pool decides whether to give it: three lookups overlap on the default pool, and on a pool of one thread they run one at a time.</p>
 <pre><code>  on the default pool, lookups in flight at the same moment: 3

@@ -6,7 +6,7 @@ In Spring Boot, the adapters are beans chosen by configuration, and the core sta
 
 ## What is new here
 
-The pattern is [Hexagonal Architecture](../hexagonal-architecture-pattern). This page is only what Spring Boot adds.
+The pattern is [Hexagonal Architecture](../../hexagonal-architecture-pattern). This page is only what Spring Boot adds.
 
 ### The Core Is Plain Java
 

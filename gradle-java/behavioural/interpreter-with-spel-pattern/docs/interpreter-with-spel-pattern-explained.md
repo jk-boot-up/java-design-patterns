@@ -6,7 +6,7 @@ SpEL is a ready-made interpreter: a text rule becomes a tree, and the tree is ev
 
 ## What is new here
 
-The pattern is [Interpreter](../interpreter-pattern). This page is only what Spring Expression Language adds.
+The pattern is [Interpreter](../../interpreter-pattern). This page is only what Spring Expression Language adds.
 
 ### The Rules Are Text
 

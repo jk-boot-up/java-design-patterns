@@ -3,7 +3,7 @@
 This project uses three things the hand-built projects do not: Consul, Docker and nginx. This page says what
 they are, why they are here, and what they cost. It comes before the first line of code on purpose.
 
-**Skipping this project loses none of the pattern.** [Service Locator](../service-locator-pattern) teaches all
+**Skipping this project loses none of the pattern.** [Service Locator](../../service-locator-pattern) teaches all
 of it with plain Java, including `java.util.ServiceLoader`, the standard-library form.
 
 ## What Consul is

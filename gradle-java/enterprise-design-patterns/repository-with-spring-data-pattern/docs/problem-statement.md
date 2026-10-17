@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Repository](../repository-pattern), which hides the
+This project assumes [Repository](../../repository-pattern), which hides the
 database behind an interface that looks like a collection of customers, with two
 implementations you wrote. Nothing here is lost by skipping the framework, and
 [`dependencies.md`](dependencies.md) says so plainly.

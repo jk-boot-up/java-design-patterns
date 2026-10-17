@@ -1,34 +1,37 @@
 # java-design-patterns
 
-Learning material on design patterns in Java — the Gang of Four patterns, then
-the microservices patterns that pick up where they stop, then the platform
-patterns that deal with what a running system stores and how it is configured,
-traced and replaced, and then the architectural patterns that fix which layer
-of a codebase is allowed to depend on which. The substance of this repository
-is [`gradle-java/`](gradle-java) — a worked course. Everything else is earlier
-scratch work, kept for reference.
+Learning material on design patterns in Java — the Gang of Four patterns, and
+then the enterprise, domain-driven, concurrency, architectural, messaging,
+microservices, platform, testing, security and functional patterns that go
+beyond them, each with a plain-Java version and, where it helps, a framework
+version. The substance of this repository
+is [`gradle-java/`](gradle-java) — a worked course.
 
 ## Start here
 
 **[`gradle-java/README.md`](gradle-java/README.md)** is the front door. The
-patterns are grouped in eleven categories, and every category has its own
-README with the order to read it in:
+patterns are grouped in fourteen categories, and every category has its own
+README with the order to read it in. [`gradle-java/index.md`](gradle-java/index.md)
+lists every project, and [`youtube-index.md`](youtube-index.md) links every video:
 
 | Category | Projects | Covers |
-| --- | --- | --- |
+| --- | ---: | --- |
 | [Creational](gradle-java/creational) | 9 | Simple Factory → Singleton, and the framework versions |
 | [Structural](gradle-java/structural) | 8 | Adapter → Proxy |
-| [Behavioural](gradle-java/behavioural) | 16 | Strategy → Interpreter |
-| [Microservices](gradle-java/micro-services-design-patterns) | 38 | API Gateway → Scatter-Gather, with Spring Cloud, Resilience4j and real-infrastructure versions |
-| [Platform](gradle-java/platform-design-patterns) | 16 | Externalised Configuration → Consumer-Driven Contract |
-| [Architectural](gradle-java/architectural-design-patterns) | 16 | Layered → Serverless, with Spring Boot versions |
-| [Concurrency](gradle-java/concurrency-design-patterns) | 16 | Producer–Consumer → Two-Phase Termination |
-| [Enterprise](gradle-java/enterprise-design-patterns) | 17 | Data Mapper, Unit of Work, Gateway and the offline locks |
-| [Foundational](gradle-java/foundational-design-patterns) | 15 | Null Object → Delegation, with Spring and HikariCP versions |
-| [Messaging and integration](gradle-java/messaging-integration-patterns) | 10 | Message Channel → Event Bus, with RabbitMQ, Camel and NATS versions |
-| [Domain-driven design](gradle-java/domain-driven-design-patterns) | 6 | Value Object → Bounded Context |
+| [Behavioural](gradle-java/behavioural) | 20 | Strategy → Interpreter, plus Blackboard, Servant and more |
+| [Foundational](gradle-java/foundational-design-patterns) | 21 | Null Object → Memoization, with Spring and HikariCP versions |
+| [Enterprise](gradle-java/enterprise-design-patterns) | 30 | Data Mapper, Unit of Work, Gateway, the offline locks and more |
+| [Domain-driven design](gradle-java/domain-driven-design-patterns) | 9 | Value Object → Context Map |
+| [Concurrency](gradle-java/concurrency-design-patterns) | 24 | Producer–Consumer → Scheduler |
+| [Architectural](gradle-java/architectural-design-patterns) | 22 | Layered → Cell-Based, with Spring Boot versions |
+| [Messaging and integration](gradle-java/messaging-integration-patterns) | 31 | Message Channel → Guaranteed Delivery, with RabbitMQ, Camel and NATS versions |
+| [Microservices](gradle-java/micro-services-design-patterns) | 58 | API Gateway → Hedged Requests, with Spring Cloud, Resilience4j and real-infrastructure versions |
+| [Platform](gradle-java/platform-design-patterns) | 20 | Externalised Configuration → Consumer-Driven Contract |
+| [Testing](gradle-java/testing-design-patterns) | 6 | Test Double → Contract Stub |
+| [Security](gradle-java/security-design-patterns) | 9 | Authorization Policy → Input Validation Pipeline |
+| [Functional](gradle-java/functional-design-patterns) | 5 | Railway-Oriented Programming → Lenses |
 
-That is 167 projects. Each has runnable code with deterministic tests, a README
+That is 272 projects. Each has runnable code with deterministic tests, a README
 with diagrams, an animation, a session plan and a narrated video pipeline, and
 each is taught through an online store unless the pattern is clearer in another
 setting. Every project ends with a bill: what the pattern costs.
@@ -53,37 +56,16 @@ on the `PATH` is the only prerequisite, and every project's
 ## Repository layout
 
 ```
-gradle-java/                 the course — 11 categories, 167 projects
+gradle-java/                 the course — 14 categories, 272 projects
   docs/                      the repository-wide specs and the shared
-                             generators for specs, thumbnails and
+                             generators for specs, thumbnails, indexes and
                              YouTube documents
-  creational/                9 projects
-  structural/                8 projects
-  behavioural/               16 projects
-  micro-services-design-patterns/
-                             38 projects
-  platform-design-patterns/  16 projects
-  architectural-design-patterns/
-                             16 projects
-  concurrency-design-patterns/
-                             16 projects
-  enterprise-design-patterns/
-                             17 projects
-  foundational-design-patterns/
-                             15 projects
-  messaging-integration-patterns/
-                             10 projects
-  domain-driven-design-patterns/
-                             6 projects
-
-chain-of-reponsibility-example/    earlier Maven + Spring Boot sketches,
-factory-pattern-example/           predating the course and superseded by
-spring-boot-milestone-3-0-example/ it. Left in place, not maintained.
+  <category>/<slug>-pattern  one self-contained Gradle project per pattern
+tools/                       patternkit (scaffolds and builds a project),
+                             videokit (audio and video), ytupload (YouTube)
+docs/                        the pattern catalogue and the upload plans
+index*.md, youtube-index.md  every project and every video, generated
 ```
-
-The three Maven directories are historical. They are not part of the course, are
-not covered by its standards, and the patterns they sketch are taught properly
-under `gradle-java/`. Prefer the course; treat those as archive.
 
 ## What is not in git
 
@@ -96,13 +78,9 @@ past a gigabyte. What *is* committed is everything needed to rebuild them:
 `build_video.sh`, `docs/make_animation_audio.sh`, and the diagrams under
 `docs/images/`.
 
-Rebuilding a project's video takes roughly ten minutes and needs macOS, for the
-built-in `say` command, plus `ffmpeg`:
-
-```bash
-cd gradle-java/behavioural/strategy-pattern/video
-./build_video.sh
-```
+Videos and audio are built by the shared library in `tools/videokit`, with the
+`amy-slow` Piper voice and `ffmpeg`; every project's `video/videokit.toml` says
+what it needs. The rules are in [`AUDIO-VIDEO-SPEC.md`](AUDIO-VIDEO-SPEC.md).
 
 ## Standards
 

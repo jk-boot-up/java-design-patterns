@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Registry](../registry-pattern), which builds a static registry and
+This project assumes [Registry](../../registry-pattern), which builds a static registry and
 shows its costs. Nothing here is lost by skipping Spring, and [`dependencies.md`](dependencies.md)
 says so plainly.
 

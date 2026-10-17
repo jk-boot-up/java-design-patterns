@@ -35,7 +35,7 @@ method in it, you can write an interpreter.
   grammar here is five phrases long and is printed in full in the explainer.
 - Any expression-evaluation library, scripting engine or rules engine.
 - Threads, reflection, or serialization.
-- Any other design pattern — though [Composite](../../structural/composite-pattern)
+- Any other design pattern — though [Composite](../../../structural/composite-pattern)
   is the same shape with a different purpose, and worth comparing afterwards if
   you have met it.
 

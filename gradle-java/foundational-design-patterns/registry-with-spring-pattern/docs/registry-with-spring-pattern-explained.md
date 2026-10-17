@@ -18,7 +18,7 @@ TWO. Used well, nobody calls it. Used badly, it is the hand-built registry again
   new LocatorStyleCheckout() compiled, and threw NullPointerException: it needs Spring to hand it the context.
 ```
 
-A `getBean` inside a business class is a [Service Locator](../service-locator-pattern) with all its
+A `getBean` inside a business class is a [Service Locator](../../service-locator-pattern) with all its
 costs: a constructor that takes nothing, and dependencies invisible again.
 
 ## The failure of its own: shared state through the context cache

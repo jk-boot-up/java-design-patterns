@@ -102,8 +102,8 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <main>
 <h1>Problem Statement</h1>
 <h2>Read the first project first</h2>
-<p>This builds on <a href="../sidecar-pattern"><code>sidecar-pattern</code></a>, which explains what a sidecar is, why the retry code left the service, and what a second process costs. Nothing here re-teaches it. It takes the same two containers, the checkout service and the proxy beside it, and asks one question: what changes when Kubernetes runs them?</p>
-<p>Nothing is lost by skipping Kubernetes. <a href="docs/dependencies.md"><code>docs/dependencies.md</code></a> says what it is, what it costs, and how to skip it.</p>
+<p>This builds on <a href="../../sidecar-pattern"><code>sidecar-pattern</code></a>, which explains what a sidecar is, why the retry code left the service, and what a second process costs. Nothing here re-teaches it. It takes the same two containers, the checkout service and the proxy beside it, and asks one question: what changes when Kubernetes runs them?</p>
+<p>Nothing is lost by skipping Kubernetes. <a href="dependencies.html"><code>docs/dependencies.md</code></a> says what it is, what it costs, and how to skip it.</p>
 <h2>The scenario</h2>
 <p>The shop&#x27;s checkout service makes one payment call, to <code>localhost:8081</code>. Something else must be listening there, and it must be running beside checkout, on the same network, for as long as checkout is.</p>
 <h2>What Docker Compose gave you, and what it did not</h2>

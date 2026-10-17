@@ -6,7 +6,7 @@ On Kubernetes, blue-green is a change of a Service's selector between two Deploy
 
 ## What is new here
 
-The pattern is [Blue-Green and Canary](../blue-green-and-canary-pattern). This page is only what Kubernetes adds.
+The pattern is [Blue-Green and Canary](../../blue-green-and-canary-pattern). This page is only what Kubernetes adds.
 
 ### Replace It Where It Stands
 

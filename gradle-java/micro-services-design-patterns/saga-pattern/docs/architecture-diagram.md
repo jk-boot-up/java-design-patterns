@@ -69,8 +69,8 @@ usually worth more than the looser coupling.
 
 **There is no retry and no idempotency.** A compensation that is attempted twice would
 refund twice here. Both of those are the last two projects in this category:
-[Transactional Outbox](../transactional-outbox-pattern) and
-[Idempotent Consumer](../idempotent-consumer-pattern).
+[Transactional Outbox](../../transactional-outbox-pattern) and
+[Idempotent Consumer](../../idempotent-consumer-pattern).
 
 **And there is no `@Transactional` that would help.** Putting one on
 `NaiveCheckoutService` — where the comment sits in the source — is the most dangerous thing

@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Prototype](../prototype-pattern), which copied a fully assembled product listing into variants, deciding field by field what a copy means, and kept a registry of templates. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Prototype](../../prototype-pattern), which copied a fully assembled product listing into variants, deciding field by field what a copy means, and kept a registry of templates. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

@@ -20,12 +20,12 @@ what it means to cache something.
 
 ### Helpful, but explained as we go
 
-- **API Composition** ([`../api-composition-pattern`](../api-composition-pattern)) —
+- **API Composition** ([`../api-composition-pattern`](../../api-composition-pattern)) —
   this project opens with exactly that pattern, done correctly, and then argues that
   doing it on every single view is the problem. Reading it first makes act one land
   harder.
 - **Database per Service**
-  ([`../database-per-service-pattern`](../database-per-service-pattern)) — why the page
+  ([`../database-per-service-pattern`](../../database-per-service-pattern)) — why the page
   needs composing at all.
 - **Eventual consistency.** The primer below is enough, and act three shows it rather
   than defining it.

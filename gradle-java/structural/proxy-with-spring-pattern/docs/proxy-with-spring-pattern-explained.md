@@ -6,7 +6,7 @@ In Spring, a proxy is generated at runtime around a bean, and an aspect says wha
 
 ## What is new here
 
-The pattern is [Proxy](../proxy-pattern). This page is only what Spring Boot adds.
+The pattern is [Proxy](../../proxy-pattern). This page is only what Spring Boot adds.
 
 ### The Bean Is Not Your Class
 

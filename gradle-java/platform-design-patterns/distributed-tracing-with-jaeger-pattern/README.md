@@ -147,7 +147,6 @@ Nothing is held back: every version is the newest generally available release. T
 | [`docs/prerequisites.md`](docs/prerequisites.md) | What you need installed, and what you need to know |
 | [`docs/session.md`](docs/session.md) | A one-hour taught session |
 | [`docs/dependencies.md`](docs/dependencies.md) | What OpenTelemetry, Jaeger and Testcontainers are, what they cost, and that skipping this project loses none of the pattern |
-| [`docs/spec.md`](docs/spec.md) | The generated specification |
 | [`docs/youtube.md`](docs/youtube.md) | Title, description and chapters |
 
 ### The pattern in one picture

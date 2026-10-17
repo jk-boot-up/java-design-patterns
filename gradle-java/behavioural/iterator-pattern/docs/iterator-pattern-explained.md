@@ -266,7 +266,7 @@ network behind them.
 - [`problem-statement.md`](problem-statement.md) — the problem in full
 - [`class-diagram.md`](class-diagram.md) — static structure
 - [`uml-diagram.md`](uml-diagram.md) — the call sequence
-- [Composite](../../structural/composite-pattern) — iterators over trees are
+- [Composite](../../../structural/composite-pattern) — iterators over trees are
   where this pattern stops being obvious
-- [Strategy](../strategy-pattern) — the other pattern that is mostly "one
+- [Strategy](../../strategy-pattern) — the other pattern that is mostly "one
   small interface, held by something bigger"

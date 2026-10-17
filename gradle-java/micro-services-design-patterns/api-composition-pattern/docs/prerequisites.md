@@ -21,7 +21,7 @@ a lambda, you are ready.
 
 ### Helpful, but explained as we go
 
-- **Database per Service** ([`../database-per-service-pattern`](../database-per-service-pattern)).
+- **Database per Service** ([`../database-per-service-pattern`](../../database-per-service-pattern)).
   That project is the reason this one exists: it takes the join away. You can do this
   project first without difficulty, but the previous one explains *why* nobody can
   just write a `SELECT` across three tables any more.

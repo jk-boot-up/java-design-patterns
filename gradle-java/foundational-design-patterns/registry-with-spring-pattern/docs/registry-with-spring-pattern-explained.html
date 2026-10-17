@@ -109,7 +109,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
   InjectedCheckout is given its collaborators: receipt-1
   LocatorStyleCheckout calls context.getBean three times: receipt-2
   new LocatorStyleCheckout() compiled, and threw NullPointerException: it needs Spring to hand it the context.</code></pre>
-<p>A <code>getBean</code> inside a business class is a <a href="../service-locator-pattern">Service Locator</a> with all its costs: a constructor that takes nothing, and dependencies invisible again.</p>
+<p>A <code>getBean</code> inside a business class is a <a href="../../service-locator-pattern">Service Locator</a> with all its costs: a constructor that takes nothing, and dependencies invisible again.</p>
 <h2>The failure of its own: shared state through the context cache</h2>
 <p>Spring&#x27;s test support caches a context and reuses it across tests with the same configuration. The gateway is a singleton, so it remembers.</p>
 <pre><code>THREE. The failure of its own: shared state, through the context cache.

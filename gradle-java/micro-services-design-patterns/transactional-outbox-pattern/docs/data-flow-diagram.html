@@ -118,7 +118,7 @@ broker.publish(event);</code></pre>
 <p>Swapping the lines does not help — publish first, crash before the save, and Notifications emails a customer about an order the Orders service has never heard of. The problem is not the order of the two operations. It is that there are two of them.</p>
 <h2>Where the remaining duplicate goes</h2>
 <p><code>NotificationService</code> keeps no record of what it has handled, so the second delivery becomes a second identical email. Two emails is embarrassing; had the subscriber been Payments it would have been two charges.</p>
-<p>The fix is in the diagram already, in the last note: <strong>the message id is the same both times</strong>. A receiver that writes down the ids it has handled can throw the second copy away, which is <a href="../idempotent-consumer-pattern">Idempotent Consumer</a> — the next project, and the thing that makes at-least-once delivery liveable rather than merely honest.</p>
+<p>The fix is in the diagram already, in the last note: <strong>the message id is the same both times</strong>. A receiver that writes down the ids it has handled can throw the second copy away, which is <a href="../../idempotent-consumer-pattern">Idempotent Consumer</a> — the next project, and the thing that makes at-least-once delivery liveable rather than merely honest.</p>
 </main>
 <footer>
 Generated from <code>data-flow-diagram.md</code> by <code>docs/make_readme_html.py</code> &mdash;

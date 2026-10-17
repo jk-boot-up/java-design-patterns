@@ -3,7 +3,7 @@
 This project uses two things the hand-built projects do not: HikariCP and H2. This page says what they are,
 why they are here, and what they cost. It comes before the first line of pool code on purpose.
 
-**Skipping this project loses none of the pattern.** [Object Pool](../object-pool-pattern) teaches all of it with
+**Skipping this project loses none of the pattern.** [Object Pool](../../object-pool-pattern) teaches all of it with
 plain Java.
 
 ## What HikariCP is

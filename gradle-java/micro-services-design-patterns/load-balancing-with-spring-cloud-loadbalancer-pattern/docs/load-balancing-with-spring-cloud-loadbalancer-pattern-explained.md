@@ -6,7 +6,7 @@ In Spring Cloud LoadBalancer, the caller uses a service name, and a balancer pic
 
 ## What is new here
 
-The pattern is [Client-Side Load Balancing](../load-balancing-pattern). This page is only what Spring Cloud LoadBalancer adds.
+The pattern is [Client-Side Load Balancing](../../load-balancing-pattern). This page is only what Spring Cloud LoadBalancer adds.
 
 ### Twelve Requests, One Name
 

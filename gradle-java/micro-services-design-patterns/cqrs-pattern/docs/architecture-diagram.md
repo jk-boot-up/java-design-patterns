@@ -56,8 +56,8 @@ now there are two truths and no way to tell which is wrong.
 
 **There is no broker.** `EventBus` delivers in-process, in order, exactly once, and
 never fails. A real broker does none of those things for free, which is why
-[Transactional Outbox](../transactional-outbox-pattern) and
-[Idempotent Consumer](../idempotent-consumer-pattern) are separate projects at the end of
+[Transactional Outbox](../../transactional-outbox-pattern) and
+[Idempotent Consumer](../../idempotent-consumer-pattern) are separate projects at the end of
 this category. Swapping in Kafka would change none of the reasoning here, and all of the
 plumbing.
 

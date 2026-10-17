@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [MVC](../mvc-pattern), which split an order summary into a model that works out the total, views that only show it, and a controller that connects them, and showed a second view added without touching the model. Nothing here is lost by skipping Spring MVC, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [MVC](../../mvc-pattern), which split an order summary into a model that works out the total, views that only show it, and a controller that connects them, and showed a second view added without touching the model. Nothing here is lost by skipping Spring MVC, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

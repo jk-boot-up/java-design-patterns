@@ -6,7 +6,7 @@ With Envoy, the proxy in front of a service applies the retry, identity and coun
 
 ## What is new here
 
-The pattern is [Service Mesh](../service-mesh-pattern). This page is only what Envoy adds.
+The pattern is [Service Mesh](../../service-mesh-pattern). This page is only what Envoy adds.
 
 ### Each Service Carries Its Own
 

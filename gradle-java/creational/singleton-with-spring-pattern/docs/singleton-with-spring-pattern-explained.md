@@ -6,7 +6,7 @@ In Spring, a singleton is a scope: one instance per container, which the contain
 
 ## What is new here
 
-The pattern is [Singleton](../singleton-pattern). This page is only what Spring Boot adds.
+The pattern is [Singleton](../../singleton-pattern). This page is only what Spring Boot adds.
 
 ### One Bean, Shared
 

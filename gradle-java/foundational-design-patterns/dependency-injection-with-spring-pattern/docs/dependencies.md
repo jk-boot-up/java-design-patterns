@@ -3,7 +3,7 @@
 This project uses Spring Boot, which the hand-built projects do not. This page says what it is,
 why it is here, and what it costs. It comes before the first annotation on purpose.
 
-**Skipping this project loses none of the pattern.** [Dependency Injection](../dependency-injection-pattern)
+**Skipping this project loses none of the pattern.** [Dependency Injection](../../dependency-injection-pattern)
 teaches all of it, and writes a container.
 
 ## What Spring Boot is

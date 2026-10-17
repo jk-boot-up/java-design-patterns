@@ -104,7 +104,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h2>The pattern in one sentence</h2>
 <p>With Envoy, the proxy in front of a service applies the retry, identity and counting policy from its configuration, and the service has none of that code.</p>
 <h2>What is new here</h2>
-<p>The pattern is <a href="../service-mesh-pattern">Service Mesh</a>. This page is only what Envoy adds.</p>
+<p>The pattern is <a href="../../service-mesh-pattern">Service Mesh</a>. This page is only what Envoy adds.</p>
 <h3>Each Service Carries Its Own</h3>
 <p>The payment service refuses its first two calls, for each caller in turn. With retry code of three, none, and one tries: checkout worked, refunds failed, reports failed. Three services, three copies of the retry code, three different behaviours.</p>
 <pre><code>  the payment service refuses its first 2 calls, for each caller in turn. with retry code of 3, 0 and 1 tries: checkout worked, refunds failed, reports failed.

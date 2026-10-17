@@ -6,7 +6,7 @@ Spring's `@Async` runs a method on a pool of threads the container owns, so the 
 
 ## What is new here
 
-The pattern is [Thread Pool](../thread-pool-pattern). This page is only what Spring Boot adds.
+The pattern is [Thread Pool](../../thread-pool-pattern). This page is only what Spring Boot adds.
 
 ### What You Get By Default
 

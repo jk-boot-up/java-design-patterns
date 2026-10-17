@@ -6,7 +6,7 @@ In Spring, an observer is a method marked as an event listener. The publisher on
 
 ## What is new here
 
-The pattern is [Observer](../observer-pattern). This page is only what Spring Boot adds.
+The pattern is [Observer](../../observer-pattern). This page is only what Spring Boot adds.
 
 ### The Subject Knows Nobody
 

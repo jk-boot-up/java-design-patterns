@@ -13,7 +13,7 @@
 ### Helpful, but explained as we go
 
 - **JUnit 5** — `@Test`, `@DisplayName`, `assertThrows`.
-- **[`../layered-architecture-pattern`](../layered-architecture-pattern)** —
+- **[`../layered-architecture-pattern`](../../layered-architecture-pattern)** —
   not required, but this project assumes the four-layer vocabulary
   (presentation, application, domain, infrastructure) from the category's
   first project and reuses most of its application and infrastructure code

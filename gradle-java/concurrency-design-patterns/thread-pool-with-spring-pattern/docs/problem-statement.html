@@ -102,7 +102,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <main>
 <h1>Problem Statement</h1>
 <h2>Read the partner first</h2>
-<p>This project assumes <a href="../thread-pool-pattern">Thread Pool</a>, which built a bounded thread pool by hand around a <code>ThreadPoolExecutor</code>, and showed its costs: an unbounded queue is a trap, a rejected task needs a decision, and a pool can starve itself. Nothing here is lost by skipping Spring Boot, and <a href="dependencies.html"><code>dependencies.md</code></a> says so plainly.</p>
+<p>This project assumes <a href="../../thread-pool-pattern">Thread Pool</a>, which built a bounded thread pool by hand around a <code>ThreadPoolExecutor</code>, and showed its costs: an unbounded queue is a trap, a rejected task needs a decision, and a pool can starve itself. Nothing here is lost by skipping Spring Boot, and <a href="dependencies.html"><code>dependencies.md</code></a> says so plainly.</p>
 <h2>The scenario</h2>
 <p>The partner&#x27;s: orders arrive to be packed, and packing is slow. Something must decide how many orders are packed at once, and what happens to the rest.</p>
 <h2>What is new</h2>

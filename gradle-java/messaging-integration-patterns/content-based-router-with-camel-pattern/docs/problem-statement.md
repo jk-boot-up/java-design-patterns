@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Content-Based Router](../content-based-router-pattern), which built a router by hand: a list of rules in order, a fallback for anything no rule covered, and a count of what it dropped. Nothing about the idea is lost by skipping Apache Camel, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Content-Based Router](../../content-based-router-pattern), which built a router by hand: a list of rules in order, a fallback for anything no rule covered, and a count of what it dropped. Nothing about the idea is lost by skipping Apache Camel, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

@@ -102,7 +102,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <main>
 <h1>Problem Statement</h1>
 <h2>Read the partner first</h2>
-<p>This project assumes <a href="../event-driven-architecture-pattern">Event-Driven Architecture</a>, which showed services that write facts to an append-only log and read it at their own pace, with a service that is down catching up, a new reader replaying history, briefly wrong stock, and a duplicate delivery absorbed by a check. Nothing here is lost by skipping Apache Kafka, and <a href="dependencies.html"><code>dependencies.md</code></a> says so plainly.</p>
+<p>This project assumes <a href="../../event-driven-architecture-pattern">Event-Driven Architecture</a>, which showed services that write facts to an append-only log and read it at their own pace, with a service that is down catching up, a new reader replaying history, briefly wrong stock, and a duplicate delivery absorbed by a check. Nothing here is lost by skipping Apache Kafka, and <a href="dependencies.html"><code>dependencies.md</code></a> says so plainly.</p>
 <h2>The scenario</h2>
 <p>The partner&#x27;s: an order service, and inventory, shipping and analytics reading its events.</p>
 <h2>What is new</h2>

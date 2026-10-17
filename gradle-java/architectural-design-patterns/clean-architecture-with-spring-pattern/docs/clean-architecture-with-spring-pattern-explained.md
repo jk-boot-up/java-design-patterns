@@ -2,7 +2,7 @@
 
 ## What this project is, in one sentence
 
-[`clean-architecture-pattern`](../clean-architecture-pattern)'s identical
+[`clean-architecture-pattern`](../../clean-architecture-pattern)'s identical
 object graph — same entities, same use cases, same adapters, copied
 unchanged — assembled by a Spring `ApplicationContext` instead of by a
 `main()` method, so the one contrast this project owns can be shown
@@ -10,7 +10,7 @@ directly: **hand-wiring fails at compile time; container wiring fails at
 startup.**
 
 This document does not re-teach Clean Architecture. See
-[`../clean-architecture-pattern/docs/clean-architecture-pattern-explained.md`](../clean-architecture-pattern/docs/clean-architecture-pattern-explained.md)
+[`../clean-architecture-pattern/docs/clean-architecture-pattern-explained.md`](../../clean-architecture-pattern/docs/clean-architecture-pattern-explained.md)
 for the pattern itself.
 
 ## Recognition: `@Bean` is those twenty lines
@@ -80,7 +80,7 @@ It does not re-teach Clean Architecture — every entity, use case and
 adapter here is `clean-architecture-pattern`'s file, unchanged, and its own
 explained document is the authority on all of them. It does not teach
 dependency injection from first principles either; that is
-[Dependency Injection](../../foundational-design-patterns), a different
+[Dependency Injection](../../../foundational-design-patterns), a different
 project. This one owns exactly one question — what changes when a
 container does the assembling — and stops once it has answered it.
 

@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Proxy](../proxy-pattern), which stood a lazy proxy and a protection proxy in front of a product image, each written by hand, and composed the two. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Proxy](../../proxy-pattern), which stood a lazy proxy and a protection proxy in front of a product image, each written by hand, and composed the two. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

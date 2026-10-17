@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Consumer-Driven Contract](../consumer-driven-contract-pattern), which let each consumer write its contract as data, and let the provider check its real answer against every contract, naming the consumer and the field, and showed that a contract cannot see a change of meaning. Nothing here is lost by skipping Pact, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Consumer-Driven Contract](../../consumer-driven-contract-pattern), which let each consumer write its contract as data, and let the provider check its real answer against every contract, naming the consumer and the field, and showed that a contract cannot see a change of meaning. Nothing here is lost by skipping Pact, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

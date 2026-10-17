@@ -60,7 +60,7 @@ rate is high.
 effect can share a transaction with the id. If the effect were the actual email — a call to
 an outside provider — it could not, and you would be back to two systems with a gap between
 them. The honest answer is the previous pattern's: write a row, and let an outbox relay do
-the sending. That is why [Transactional Outbox](../transactional-outbox-pattern) and this
+the sending. That is why [Transactional Outbox](../../transactional-outbox-pattern) and this
 project are taught together and usually deployed together — one creates the duplicate, the
 other absorbs it, and each needs the other to be worth having.
 

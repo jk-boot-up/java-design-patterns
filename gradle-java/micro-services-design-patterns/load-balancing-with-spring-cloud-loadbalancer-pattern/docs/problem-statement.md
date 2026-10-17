@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Client-Side Load Balancing](../load-balancing-pattern), which chose among three copies of the catalogue service on the client side, with four hand-written strategies, and showed that a fair strategy is not always a fast one. Nothing here is lost by skipping Spring Cloud LoadBalancer, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Client-Side Load Balancing](../../load-balancing-pattern), which chose among three copies of the catalogue service on the client side, with four hand-written strategies, and showed that a fair strategy is not always a fast one. Nothing here is lost by skipping Spring Cloud LoadBalancer, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

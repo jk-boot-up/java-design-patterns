@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Service Locator](../service-locator-pattern), which shows the advances of a locator over a
+This project assumes [Service Locator](../../service-locator-pattern), which shows the advances of a locator over a
 registry and the failures that made it an anti-pattern. Nothing here is lost by skipping Consul, and
 [`dependencies.md`](dependencies.md) says so plainly.
 

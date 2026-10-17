@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Object Pool](../object-pool-pattern), which builds a pool by hand and finds four
+This project assumes [Object Pool](../../object-pool-pattern), which builds a pool by hand and finds four
 costs: a small object pooled is slower than allocating it, a returned object carries its old state, a
 leaked object is never returned, and sizing is a guess. Nothing here is lost by skipping the library, and
 [`dependencies.md`](dependencies.md) says so plainly.

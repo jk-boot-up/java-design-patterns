@@ -56,7 +56,7 @@ this diagram would be a different shape if there were.
 
 The caller picks the first address that answers, and this picture shows nothing about
 *which* it should prefer. Three live instances and no opinion about choosing between them
-is precisely where [Load Balancing](../load-balancing-pattern) starts.
+is precisely where [Load Balancing](../../load-balancing-pattern) starts.
 
 There is also no health check. The registry here believes an instance is alive because it
 heard from it recently, which is a weaker claim than "I asked it and it said yes". Real

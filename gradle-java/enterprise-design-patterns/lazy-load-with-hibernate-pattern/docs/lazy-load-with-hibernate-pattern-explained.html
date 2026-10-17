@@ -104,7 +104,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h2>The pattern in one sentence</h2>
 <p>A lazy field holds a proxy that loads on first use, and the proxy needs its session to do it.</p>
 <h2>What is new here</h2>
-<p>The pattern is <a href="../lazy-load-pattern">Lazy Load</a>. This page is only what Hibernate adds.</p>
+<p>The pattern is <a href="../../lazy-load-pattern">Lazy Load</a>. This page is only what Hibernate adds.</p>
 <p><strong>A lazy field is a generated proxy.</strong> <code>order.customer()</code> is not a <code>Customer</code>. It is a subclass Hibernate generated, holding the customer&#x27;s id and a reference to the session. It has not loaded anything.</p>
 <pre><code>TWO. What is actually in the field.
   order.customer() is a generated subclass of Customer, initialised: false
@@ -122,7 +122,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
   join fetch of the customer: 20 orders, 1 statement.
   join fetch of the lines:    20 orders, 1 statement.
   the cost: that one statement makes the database send 80 rows for 20 orders,</code></pre>
-<p><strong>Fix three: ask for exactly what the page needs.</strong> A projection: one statement, no entity, no proxy, nothing lazy to fail. The cost is a class for every query, and a row is not an object with behaviour. That is the <a href="../dto-pattern">DTO</a> idea.</p>
+<p><strong>Fix three: ask for exactly what the page needs.</strong> A projection: one statement, no entity, no proxy, nothing lazy to fail. The cost is a class for every query, and a row is not an object with behaviour. That is the <a href="../../dto-pattern">DTO</a> idea.</p>
 <pre><code>FIVE. Fix three: ask for exactly what the page needs.
   projection: 20 rows, 1 statement, first row OrderRow[orderId=1, customerName=Customer 1]</code></pre>
 <h2>The fix not on the list</h2>

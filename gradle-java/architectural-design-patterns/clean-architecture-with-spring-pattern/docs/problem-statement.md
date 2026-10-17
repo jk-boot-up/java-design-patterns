@@ -8,10 +8,10 @@ confirmation is sent. Ada Okafor, `cust-8801`, buys one espresso machine,
 one grinder and two bags of beans — **£382.50**.
 
 This project does not re-teach that feature, or the architecture it is
-built with. [`clean-architecture-pattern`](../clean-architecture-pattern)
+built with. [`clean-architecture-pattern`](../../clean-architecture-pattern)
 already did both, completely, and this project's `entities`, `usecases` and
 `adapters` packages are that project's files, copied unchanged. See
-[`../clean-architecture-pattern/docs/problem-statement.md`](../clean-architecture-pattern/docs/problem-statement.md)
+[`../clean-architecture-pattern/docs/problem-statement.md`](../../clean-architecture-pattern/docs/problem-statement.md)
 for the architecture's own problem statement.
 
 ## What this project is actually about

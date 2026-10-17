@@ -4,7 +4,7 @@
 
 ### Required
 
-- **[`../clean-architecture-pattern`](../clean-architecture-pattern) —
+- **[`../clean-architecture-pattern`](../../clean-architecture-pattern) —
   built and watched first, always.** This project is only legible to
   someone who has already seen the hand-wiring; it names §66 in its own
   first paragraph for exactly that reason.
@@ -43,7 +43,7 @@ cd architectural-design-patterns/clean-architecture-with-spring-pattern
 
 ## Recommended Reading Order
 
-1. [`../clean-architecture-pattern`](../clean-architecture-pattern), completely, first
+1. [`../clean-architecture-pattern`](../../clean-architecture-pattern), completely, first
 2. [`dependencies.md`](dependencies.md) — what Spring is, and what it costs
 3. Run `./gradlew run` and read all five acts, especially act five
 4. [`clean-architecture-with-spring-pattern-explained.md`](clean-architecture-with-spring-pattern-explained.md)

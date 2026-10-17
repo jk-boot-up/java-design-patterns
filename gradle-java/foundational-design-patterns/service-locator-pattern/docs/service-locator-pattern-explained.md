@@ -53,7 +53,7 @@ plug-in systems, and for the composition root of a small application.
 ## The moment it hands over
 
 The whole difficulty is the word *ask*. The class asks, so nobody outside it knows
-what it needs. [Dependency Injection](../dependency-injection-pattern) removes the asking.
+what it needs. [Dependency Injection](../../dependency-injection-pattern) removes the asking.
 
 ## How to recognise this in code you did not write
 

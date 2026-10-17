@@ -102,7 +102,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <main>
 <h1>Problem Statement</h1>
 <h2>Read the partner first</h2>
-<p>This project assumes <a href="../active-object-pattern">Active Object</a>, which built an object with its own thread and mailbox by hand, so calls became messages that return a future at once, with no lock, and showed its costs: a mailbox that backs up, errors that arrive later with the worker&#x27;s stack, and a throughput ceiling. Nothing here is lost by skipping Spring Boot, and <a href="dependencies.html"><code>dependencies.md</code></a> says so plainly.</p>
+<p>This project assumes <a href="../../active-object-pattern">Active Object</a>, which built an object with its own thread and mailbox by hand, so calls became messages that return a future at once, with no lock, and showed its costs: a mailbox that backs up, errors that arrive later with the worker&#x27;s stack, and a throughput ceiling. Nothing here is lost by skipping Spring Boot, and <a href="dependencies.html"><code>dependencies.md</code></a> says so plainly.</p>
 <h2>The scenario</h2>
 <p>The partner&#x27;s: inventory updates arrive from checkout, returns and a slow import, and a monitor made checkout wait behind the import.</p>
 <h2>What is new</h2>

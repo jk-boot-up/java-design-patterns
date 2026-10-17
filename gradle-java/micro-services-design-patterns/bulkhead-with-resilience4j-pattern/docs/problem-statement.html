@@ -102,7 +102,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <main>
 <h1>Problem Statement</h1>
 <h2>Read the partner first</h2>
-<p>This project assumes <a href="../bulkhead-pattern">Bulkhead</a>, which gave the nightly supplier feed and checkout their own pools of workers, so a slow partner API could fill the feed&#x27;s pool without stopping the shop selling. Nothing here is lost by skipping Resilience4j, and <a href="dependencies.html"><code>dependencies.md</code></a> says so plainly.</p>
+<p>This project assumes <a href="../../bulkhead-pattern">Bulkhead</a>, which gave the nightly supplier feed and checkout their own pools of workers, so a slow partner API could fill the feed&#x27;s pool without stopping the shop selling. Nothing here is lost by skipping Resilience4j, and <a href="dependencies.html"><code>dependencies.md</code></a> says so plainly.</p>
 <h2>The scenario</h2>
 <p>The partner&#x27;s: a slow supplier feed and a fast checkout, and whether one can starve the other.</p>
 <h2>What is new</h2>

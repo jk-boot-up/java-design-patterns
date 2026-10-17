@@ -2,7 +2,7 @@
 
 ## Read the partner first
 
-This project assumes [Layered Architecture](../layered-architecture-pattern), which arranged placing an order into presentation, application, domain and infrastructure layers, with one rule about who may depend on whom, and counted the bill for a forced change. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
+This project assumes [Layered Architecture](../../layered-architecture-pattern), which arranged placing an order into presentation, application, domain and infrastructure layers, with one rule about who may depend on whom, and counted the bill for a forced change. Nothing here is lost by skipping Spring Boot, and [`dependencies.md`](dependencies.md) says so plainly.
 
 ## The scenario
 

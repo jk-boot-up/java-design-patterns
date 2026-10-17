@@ -20,7 +20,7 @@ and an `enum`, you are ready.
 
 ### Helpful, but explained as we go
 
-- **The Retry pattern** ([`../retry-pattern`](../retry-pattern)). This project is
+- **The Retry pattern** ([`../retry-pattern`](../../retry-pattern)). This project is
   partly an argument about when retrying is the *wrong* tool, and act one is retry
   applied to an outage. You can do this project first without difficulty — the
   comparison is spelled out in full — but doing retry first makes act one land harder.

@@ -27,7 +27,7 @@ higher than elsewhere — but only slightly, and the list below says exactly whe
   worker. The explained document quotes the line and walks it.
 - **`CountDownLatch`.** One integer and two methods. `Gate` is a latch with friendlier
   names, and the primer below covers it.
-- **Circuit Breaker** ([`../circuit-breaker-pattern`](../circuit-breaker-pattern)).
+- **Circuit Breaker** ([`../circuit-breaker-pattern`](../../circuit-breaker-pattern)).
   The two patterns solve the same outage from opposite ends and are usually deployed
   together. Either order works; neither depends on the other.
 

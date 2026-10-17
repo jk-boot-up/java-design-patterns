@@ -4,7 +4,7 @@ This project uses three things the hand-built projects do not: Spring Boot,
 Hibernate and H2. This page says what they are, why they are here, and what they
 cost. It comes before the first annotation on purpose.
 
-**Skipping this project loses none of the pattern.** [Unit of Work](../unit-of-work-pattern)
+**Skipping this project loses none of the pattern.** [Unit of Work](../../unit-of-work-pattern)
 teaches all of it with plain Java.
 
 ## What Spring Boot is

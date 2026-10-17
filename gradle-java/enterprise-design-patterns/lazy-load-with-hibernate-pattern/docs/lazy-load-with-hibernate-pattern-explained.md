@@ -7,7 +7,7 @@ session to do it.
 
 ## What is new here
 
-The pattern is [Lazy Load](../lazy-load-pattern). This page is only what
+The pattern is [Lazy Load](../../lazy-load-pattern). This page is only what
 Hibernate adds.
 
 **A lazy field is a generated proxy.** `order.customer()` is not a `Customer`. It
@@ -53,7 +53,7 @@ FOUR. Fix two: fetch it in the same query.
 
 **Fix three: ask for exactly what the page needs.** A projection: one statement,
 no entity, no proxy, nothing lazy to fail. The cost is a class for every query,
-and a row is not an object with behaviour. That is the [DTO](../dto-pattern) idea.
+and a row is not an object with behaviour. That is the [DTO](../../dto-pattern) idea.
 
 ```
 FIVE. Fix three: ask for exactly what the page needs.

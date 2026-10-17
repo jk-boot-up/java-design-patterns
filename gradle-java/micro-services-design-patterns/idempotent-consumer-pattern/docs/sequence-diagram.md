@@ -59,5 +59,5 @@ The effect here is a row in a table, which is the only reason it can share a tra
 the id. If the effect were the actual email — a call to an outside provider — it could not,
 and you would be back to two systems with a gap between them. The answer is to write a row
 and let a relay do the sending, which is
-[Transactional Outbox](../transactional-outbox-pattern): one pattern creates the duplicate,
+[Transactional Outbox](../../transactional-outbox-pattern): one pattern creates the duplicate,
 the other absorbs it, and each needs the other to be worth having.
